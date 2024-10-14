@@ -1,0 +1,13 @@
+//
+//  Production.xcconfig
+//  Fearless2
+//
+//  Created by Yue Deng-Wu on 10/2/24.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+OPENAI_PARTIAL_KEY = v2|795bbcd3|zGOGFK96S9g3NaFd
+OPENAI_ASSISTANT_ID_ENTRY = asst_N6CUeA9LYuHJGUiemc69BbdW
+OPENAI_ASSISTANT_ID_TOPIC = asst_dFTWEkbXOxvXpdLLZNJkVgK9

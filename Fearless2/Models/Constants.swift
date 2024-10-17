@@ -51,5 +51,18 @@ enum Constants {
        
         return openAIId
     }()
+    
+    static let openAIAssistantIdContext: String = {
+
+        guard let infoDict = infoDictionary,
+              let openAIId = infoDict["OPENAI_ASSISTANT_ID_CONTEXT"] as? String else {
+            logger.error("OpenAI decision context builder assistant ID not available, using placeholder")
+            return ""
+        }
+       
+        logger.info("Retrieved OpenAI decision context builder assistant ID: \(openAIId)")
+       
+        return openAIId
+    }()
 }
 

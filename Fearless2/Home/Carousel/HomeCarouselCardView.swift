@@ -53,10 +53,10 @@ struct HomeCarouselCardHeader: View {
             
             Spacer()
             
-            if let category = CategoryItem.fromShortName(topic.topicCategory) {
+            if let category = TopicCategoryItem.fromShortName(topic.topicCategory) {
                 BubblesCategory(selectedCategory: category, useFullName: false)
             } else {
-                BubblesCategory(selectedCategory: .decision, useFullName: false)
+                BubblesCategory(selectedCategory: TopicCategoryItem.decision, useFullName: false)
             }
             
             Spacer()

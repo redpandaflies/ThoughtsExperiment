@@ -22,6 +22,9 @@ struct AppColors {
     static let event = Color(#colorLiteral(red: 0.318, green: 0.31, blue: 0.757, alpha: 1)) // #514fc1
     static let emotions = Color(#colorLiteral(red: 0.757, green: 0.251, blue: 0.251, alpha: 1)) // #c14040
     
+    //sections
+    static let sectionPillBackground = Color(#colorLiteral(red: 0.871, green: 0.863, blue: 0.831, alpha: 1)) // #dedcd4
+    
     //questions
     static let pillStrokeColor = Color(#colorLiteral(red: 0.902, green: 0.902, blue: 0.902, alpha: 1)) // #e6e6e6
     

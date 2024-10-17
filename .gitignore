@@ -1,0 +1,5 @@
+.DS_Store
+bfg-*.jar
+.git.bfg-report/
+*.xcodeproj/project.xcworkspace/xcuserdata/*.xuserdatad/UserInterfaceState.xcuserstate
+*.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved

@@ -16,7 +16,7 @@ struct CreateNewTopicView: View {
     
     @Binding var showCreateNewTopicView: Bool
     
-    let selectedCategory: CategoryItem
+    let selectedCategory: TopicCategoryItem
 
     let screenWidth = UIScreen.current.bounds.width
     

@@ -1,5 +1,5 @@
 //
-//  CategoryView.swift
+//  TopicCategoryView.swift
 //  Fearless2
 //
 //  Created by Yue Deng-Wu on 10/1/24.
@@ -7,13 +7,13 @@
 
 import SwiftUI
 
-struct CategoryView: View {
+struct TopicCategoryView: View {
     
     @Binding var showCreateNewTopicView: Bool
-    @Binding var selectedCategory: CategoryItem
+    @Binding var selectedCategory: TopicCategoryItem
     
     
-    private let boxArray: [CategoryItem] = Array(CategoryItem.allCases)
+    private let boxArray: [TopicCategoryItem] = Array(TopicCategoryItem.allCases)
     
     
     var body: some View {
@@ -26,7 +26,7 @@ struct CategoryView: View {
             
             
             ForEach(boxArray, id: \.self) { item in
-                CategoryBox(category: item)
+                TopicCategoryBox(category: item)
                     .onTapGesture {
                         selectedCategory = item
                         withAnimation(.snappy(duration: 0.2)) {
@@ -40,5 +40,5 @@ struct CategoryView: View {
 }
 
 #Preview {
-    CategoryView(showCreateNewTopicView: .constant(false), selectedCategory: .constant(.decision))
+    TopicCategoryView(showCreateNewTopicView: .constant(false), selectedCategory: .constant(.decision))
 }

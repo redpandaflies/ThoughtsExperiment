@@ -15,15 +15,19 @@ struct HomeView: View {
     @State private var showSummarySheet: Bool = false
     @Binding var showCreateNewTopicView: Bool
     @Binding var showUpdateTopicView: Bool
-    @Binding var selectedCategory: CategoryItem
+    @Binding var selectedCategory: TopicCategoryItem
     @Binding var topicId: UUID?
     @Binding var selectedQuestion: String
+    @Binding var selectedSection: Section?
     
     @FetchRequest(
         sortDescriptors: [
             NSSortDescriptor(key: "createdAt", ascending: true)
         ]
     ) var topics: FetchedResults<Topic>
+    
+    let screenWidth: CGFloat = UIScreen.current.bounds.width
+    let screenHeight: CGFloat = UIScreen.current.bounds.height
     
     var body: some View {
         ZStack {
@@ -32,19 +36,21 @@ struct HomeView: View {
                     
                     if scrollPosition == topics.count {
                         
-                        CategoryView(showCreateNewTopicView: $showCreateNewTopicView, selectedCategory: $selectedCategory)
+                        TopicCategoryView(showCreateNewTopicView: $showCreateNewTopicView, selectedCategory: $selectedCategory)
                         
                     } else if let index = scrollPosition, topics.count > 0 {
                         let topic = topics[index]
-                        
                         //Top view
                         HomeTopView(topicFeedback: topic.topicFeedback)
                             .onTapGesture {
                                 showSummarySheet = true
                             }
+
+                        //gather context questions
+                        SectionListView(showUpdateTopicView: $showUpdateTopicView, selectedSection: $selectedSection, sections: topic.topicSections)
                         
-                        //Questions
-                        HomeQuestionsView(showUpdateTopicView: $showUpdateTopicView, topicId: $topicId, selectedQuestion: $selectedQuestion, questions: topic.topicQuestions)
+//                        //Questions
+//                        HomeQuestionsView(showUpdateTopicView: $showUpdateTopicView, topicId: $topicId, selectedQuestion: $selectedQuestion, questions: topic.topicQuestions)
                     }
                     
                     Spacer()
@@ -53,7 +59,28 @@ struct HomeView: View {
                 }//VStack
                 .padding(.horizontal)
             }
-            .scrollDisabled(true)
+            .scrollIndicators(.hidden)
+            .safeAreaInset(edge: .bottom, content: {
+                    Color.clear
+                        .frame(height: screenHeight * 0.4)
+            })
+          
+            VStack {
+                Spacer()
+                
+                LinearGradient(
+                    gradient: Gradient(colors: [AppColors.homeBackground, Color.clear]),
+                    startPoint: UnitPoint(x: 0.5, y: 0.2),
+                    endPoint: UnitPoint(x: 0.5, y: 0)
+                )
+                    .frame(width: screenWidth, height: screenHeight * 0.4)
+                    .mask(
+                    Rectangle()
+                    .frame(width: screenWidth, height: screenHeight * 0.4)
+                      .blur(radius: 10)
+                    )
+                
+            }
             
             VStack {
                 Spacer()
@@ -73,6 +100,7 @@ struct HomeView: View {
                 Color.clear
                     .frame(height: 10)
         })
+      
         .toolbar {
             
             ToolbarItem(placement: .topBarLeading) {
@@ -100,7 +128,6 @@ struct HomeView: View {
         .onChange(of: showCreateNewTopicView) {
             if !showCreateNewTopicView && topics.count > 0 && topicViewModel.topicUpdated {
                 scrollPosition = topics.count - 1
-                topicViewModel.topicUpdated = false
             }
         }
         .sheet(isPresented: $showSummarySheet, onDismiss: {

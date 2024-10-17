@@ -196,75 +196,68 @@ extension OpenAISwiftService {
     
     //save new entry to CoreData
     @MainActor
-    func processTopic(category: String, topicId: UUID? = nil) async {
+    func processTopic(category: String, topicId: UUID) async {
         let arguments = self.functionContent
         let context = self.dataController.container.viewContext
 
         await context.perform {
             // Decode the arguments to get the new topic data
-            guard let newTopic = self.decodeArguments(arguments: arguments, as: NewTopic.self) else {
+            guard let newTopic = self.decodeArguments(arguments: arguments, as: UpdatedTopic.self) else {
                 self.loggerOpenAI.error("Couldn't decode arguments for topic.")
                 return
             }
 
             let topic: Topic
 
-            if let topicId = topicId {
-                // `topicId` is provided, attempt to fetch existing Topic
-                let request = NSFetchRequest<Topic>(entityName: "Topic")
-                request.predicate = NSPredicate(format: "id == %@", topicId as CVarArg)
+            let request = NSFetchRequest<Topic>(entityName: "Topic")
+            request.predicate = NSPredicate(format: "id == %@", topicId as CVarArg)
 
-                do {
-                    let fetchedTopics = try context.fetch(request)
-                    if let savedTopic = fetchedTopics.first {
-                        // Existing Topic found, use it
-                        topic = savedTopic
-                        
-                    } else {
-                        // No existing Topic found, create a new one
-                        topic = Topic(context: context)
-                        topic.topicId = UUID()
-                        topic.topicCreatedAt = getCurrentTimeString()
-                    }
-                } catch {
-                    self.loggerCoreData.error("Error fetching topic: \(error.localizedDescription)")
-                    return
+            do {
+                let fetchedTopics = try context.fetch(request)
+                if let savedTopic = fetchedTopics.first {
+                    // Existing Topic found, use it
+                    topic = savedTopic
+                    
+                } else {
+                    // No existing Topic found, create a new one
+                    topic = Topic(context: context)
+                    topic.topicId = UUID()
+                    topic.topicCreatedAt = getCurrentTimeString()
                 }
-            } else {
-                // `topicId` is nil, create a new Topic
-                topic = Topic(context: context)
-                topic.topicId = UUID()
-                topic.topicCreatedAt = getCurrentTimeString()
-                topic.topicCategory = category
-                topic.topicTitle = newTopic.title
+            } catch {
+                self.loggerCoreData.error("Error fetching topic: \(error.localizedDescription)")
+                return
             }
-
+            
             // Update topic properties with data from `newTopic`
             topic.topicSummary = newTopic.summary
             topic.topicFeedback = newTopic.feedback
-
-            // Remove existing questions if updating an existing Topic
-            if let existingQuestions = topic.questions as? Set<Question>, !existingQuestions.isEmpty {
-                for question in existingQuestions {
-                    context.delete(question)
-                }
-                // Save the context after deleting existing questions
-                do {
-                    try context.save()
-                } catch {
-                    self.loggerCoreData.error("Error saving after deleting questions: \(error.localizedDescription)")
-                    return
-                }
-            }
-
-            // Add new questions from `newTopic`
-            for newQuestion in newTopic.questions {
-                let question = Question(context: context)
-                question.questionId = UUID()
-                question.questionContent = newQuestion.content
-                question.questionEmoji = newQuestion.emoji
-                topic.addToQuestions(question)
-            }
+            topic.topicOptions = newTopic.options
+            topic.topicCriteria = newTopic.criteria
+            topic.topicPeople = newTopic.people
+            topic.topicEmotions = newTopic.emotions
+//            // Remove existing questions if updating an existing Topic
+//            if let existingQuestions = topic.questions as? Set<Question>, !existingQuestions.isEmpty {
+//                for question in existingQuestions {
+//                    context.delete(question)
+//                }
+//                // Save the context after deleting existing questions
+//                do {
+//                    try context.save()
+//                } catch {
+//                    self.loggerCoreData.error("Error saving after deleting questions: \(error.localizedDescription)")
+//                    return
+//                }
+//            }
+//
+//            // Add new questions from `newTopic`
+//            for newQuestion in newTopic.questions {
+//                let question = Question(context: context)
+//                question.questionId = UUID()
+//                question.questionContent = newQuestion.content
+//                question.questionEmoji = newQuestion.emoji
+//                topic.addToQuestions(question)
+//            }
 
             // Save the context
             do {
@@ -275,6 +268,78 @@ extension OpenAISwiftService {
         }
     }
     
+    @MainActor
+    func processSections(category: String, topicId: UUID) async {
+        let arguments = self.functionContent
+        let context = self.dataController.container.viewContext
+
+        await context.perform {
+            // Fetch the topic with the provided topicId
+            let request = NSFetchRequest<Topic>(entityName: "Topic")
+            request.predicate = NSPredicate(format: "id == %@", topicId as CVarArg)
+
+            do {
+                guard let topic = try context.fetch(request).first else {
+                    self.loggerCoreData.error("No topic found with topicId: \(topicId)")
+                    return
+                }
+
+                // Decode the arguments to get the new section data
+                guard let newContextQuestions = self.decodeArguments(arguments: arguments, as: QuestionsContext.self) else {
+                    self.loggerOpenAI.error("Couldn't decode arguments for sections.")
+                    return
+                }
+                
+                topic.topicTitle = newContextQuestions.title
+                topic.topicSummary = newContextQuestions.summary
+                topic.topicFeedback = newContextQuestions.feedback
+
+                // Loop through the new sections and save them to CoreData, attaching them to the topic
+                for newSection in newContextQuestions.sections {
+                    // Create a new section
+                    let section = Section(context: context)
+                    section.sectionId = UUID()
+                    section.sectionTitle = newSection.title
+                    section.sectionCategory = category
+                    section.sectionNumber = Int16(newSection.sectionNumber)
+
+                    // Add new questions to the section
+                    for newQuestion in newSection.questions {
+                        let question = Question(context: context)
+                        question.questionId = UUID()
+                        question.questionContent = newQuestion.content
+                        question.questionType = newQuestion.questionType.rawValue
+                        
+                        if newQuestion.questionType == .scale {
+                            question.questionMinLabel = newQuestion.minLabel
+                            question.questionMaxLabel = newQuestion.maxLabel
+                        } else if newQuestion.questionType == .multiSelect {
+                            question.questionMultiSelectOptions = newQuestion.options.map {$0.text}.joined(separator: ",")
+                            
+                        }
+
+                        // Add the question to the section
+                        section.addToQuestions(question)
+                        topic.addToQuestions(question)
+                    }
+
+                    // Add the section to the topic
+                    topic.addToSections(section)
+                }
+
+              
+            } catch {
+                self.loggerCoreData.error("Error fetching topic: \(error.localizedDescription)")
+            }
+            
+            // Save the context after processing each section and its questions
+            do {
+                try context.save()
+            } catch {
+                self.loggerCoreData.error("Error saving section: \(error.localizedDescription)")
+            }
+        }
+    }
     
 }
 
@@ -296,14 +361,64 @@ enum SenderRole: String, Codable {
     case assistant
 }
 
-struct NewTopic: Codable, Hashable {
+struct UpdatedTopic: Codable, Hashable {
     let title: String
     let summary: String
     let feedback: String
-    let questions: [NewQuestion]
+    let options: String
+    let criteria: String
+    let people: String
+    let emotions: String
 }
 
-struct NewQuestion: Codable, Hashable {
+////stand alone question, doesn't belong to a section
+//struct NewQuestion: Codable, Hashable {
+//    let content: String
+//    let emoji: String
+//}
+
+struct QuestionsContext: Codable, Hashable {
+    let title: String
+    let summary: String
+    let feedback: String
+    let sections: [SectionOfQuestions]
+}
+
+struct SectionOfQuestions: Codable, Hashable {
+    let title: String
+    let sectionNumber: Int
+    let questions: [SectionQuestion]
+    
+    enum CodingKeys: String, CodingKey {
+        case title
+        case sectionNumber = "section_number"
+        case questions
+    }
+}
+
+//question belongs to a section
+struct SectionQuestion: Codable, Hashable {
     let content: String
-    let emoji: String
+    let questionType: QuestionType
+    let options: [Option]
+    let minLabel: String
+    let maxLabel: String
+    
+    enum CodingKeys: String, CodingKey {
+        case content
+        case questionType = "question_type"
+        case options
+        case minLabel
+        case maxLabel
+    }
+}
+
+enum QuestionType: String, Codable {
+    case open
+    case multiSelect
+    case scale
+}
+
+struct Option: Codable, Hashable {
+    let text: String
 }

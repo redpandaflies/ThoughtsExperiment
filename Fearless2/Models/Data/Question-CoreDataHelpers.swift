@@ -29,6 +29,21 @@ extension Question {
         set { type = newValue }
     }
     
+    var questionMinLabel: String {
+        get { minLabel ?? "" }
+        set { minLabel = newValue }
+    }
+    
+    var questionMaxLabel: String {
+        get { maxLabel ?? "" }
+        set { maxLabel = newValue }
+    }
+    
+    var questionMultiSelectOptions: String {
+        get { multiSelectOptions ?? "" }
+        set { multiSelectOptions = newValue }
+    }
+    
     var questionAnswerOpen: String {
         get { answerOpen ?? "" }
         set { answerOpen = newValue }
@@ -41,6 +56,10 @@ extension Question {
     
     var questionTopic: Topic? {
         topic
+    }
+    
+    var questionSection: Section? {
+        section
     }
     
 }

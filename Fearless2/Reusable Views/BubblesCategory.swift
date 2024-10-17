@@ -9,16 +9,17 @@ import SwiftUI
 
 struct BubblesCategory: View {
     
-    let selectedCategory: CategoryItem
+    let selectedCategory: CategoryItemProtocol
     let useFullName: Bool
     
     var body: some View {
         Text(useFullName ? selectedCategory.getFullName() : selectedCategory.getShortName())
             .font(.system(size: 10))
             .fontWeight(.regular)
-            .foregroundStyle(selectedCategory == .decision ? AppColors.blackDefault : Color.white)
+            .foregroundStyle(selectedCategory.getBubbleTextColor())
             .textCase(.uppercase)
-            .padding(.horizontal, 9)
+            .fixedSize(horizontal: true, vertical: true)
+            .padding(.horizontal, 7)
             .padding(.vertical, 4)
             .background {
                 Capsule(style: .circular)
@@ -32,5 +33,5 @@ struct BubblesCategory: View {
 }
 
 #Preview {
-    BubblesCategory(selectedCategory: .decision, useFullName: true)
+    BubblesCategory(selectedCategory: TopicCategoryItem.decision, useFullName: true)
 }

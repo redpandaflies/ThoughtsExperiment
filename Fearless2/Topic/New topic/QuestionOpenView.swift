@@ -13,17 +13,24 @@ struct QuestionOpenView: View {
     @Binding var selectedQuestion: Int
     @FocusState.Binding var isFocused: Bool
     
-    let selectedCategory: CategoryItem
-    let question: String? = nil
+    let selectedCategory: TopicCategoryItem
+    var question: String? = nil
+    var updatingTopic: Bool? = nil
     
     var body: some View {
         VStack (alignment: .leading, spacing: 10) {
             
-            Text((selectedQuestion == 0) ? selectedCategory.getQuestion() : (question ?? ""))
-                .multilineTextAlignment(.leading)
-                .font(.system(size: 19))
-                .fontWeight(.medium)
-                .foregroundStyle(AppColors.blackDefault)
+            Group {
+                if let existingTopic = updatingTopic {
+                    Text(question ?? "")
+                } else {
+                    Text((selectedQuestion == 0) ? selectedCategory.getQuestion() : (question ?? ""))
+                }
+            }
+            .multilineTextAlignment(.leading)
+            .font(.system(size: 19))
+            .fontWeight(.medium)
+            .foregroundStyle(AppColors.blackDefault)
             
             TextField("Enter your answer", text: $topicText, axis: .vertical)
                 .font(.system(size: 16))

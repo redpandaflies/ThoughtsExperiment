@@ -16,9 +16,10 @@ struct UpdateTopicView: View {
     
     @Binding var showUpdateTopicView: Bool
     
-    let selectedCategory: CategoryItem
+    let selectedCategory: TopicCategoryItem
     let topicId: UUID?
     let question: String
+    let section: Section?
     
     var body: some View {
         ZStack {
@@ -36,9 +37,12 @@ struct UpdateTopicView: View {
             switch selectedTab {
             case 0:
                 if showCard {
-                    UpdateTopicBox(topicViewModel: topicViewModel, showCard: $showCard, selectedTab: $selectedTab, selectedCategory: selectedCategory, topicId: topicId, question: question)
-                        .padding(.horizontal)
-                        .transition(.move(edge: .bottom))
+                    
+                    if let sectionQuestions = section?.sectionQuestions {
+                        UpdateTopicBox(topicViewModel: topicViewModel, showCard: $showCard, selectedTab: $selectedTab, selectedCategory: selectedCategory, section: section, questions: sectionQuestions)
+                            .padding(.horizontal)
+                            .transition(.move(edge: .bottom))
+                    }
                 }
                 
             default:
@@ -54,7 +58,7 @@ struct UpdateTopicView: View {
             }
         }
         .onChange(of: topicViewModel.topicUpdated) {
-            if topicViewModel.topicUpdated {
+            if topicViewModel.topicUpdated && showUpdateTopicView {
                 showUpdateTopicView = false
                 
             }

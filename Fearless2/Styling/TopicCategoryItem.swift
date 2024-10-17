@@ -1,5 +1,5 @@
 //
-//  CategoryItem.swift
+//  TopicCategoryItem.swift
 //  Fearless2
 //
 //  Created by Yue Deng-Wu on 10/1/24.
@@ -8,11 +8,12 @@
 import Foundation
 import SwiftUI
 
-enum CategoryItem: Int, CaseIterable {
+enum TopicCategoryItem: Int, CaseIterable, CategoryItemProtocol{
      case decision
      case problem
      case event
      case emotions
+    
     
     func getFullName() -> String {
         switch self {
@@ -40,6 +41,15 @@ enum CategoryItem: Int, CaseIterable {
         }
     }
     
+    func getBubbleTextColor() -> Color {
+        switch self {
+        case .decision:
+            return AppColors.blackDefault
+        default:
+            return Color.white
+        }
+    }
+    
     func getBubbleColor() -> Color {
         switch self {
         case .decision:
@@ -63,6 +73,7 @@ enum CategoryItem: Int, CaseIterable {
             return "Understand and learn from a recent experience"
         case .emotions:
             return "Work through and make sense of your emotions"
+            
         }
     }
     
@@ -81,8 +92,8 @@ enum CategoryItem: Int, CaseIterable {
     
 }
 
-extension CategoryItem {
-    static func fromShortName(_ shortName: String) -> CategoryItem? {
+extension TopicCategoryItem {
+    static func fromShortName(_ shortName: String) -> TopicCategoryItem? {
         return self.allCases.first { $0.getShortName() == shortName }
     }
 }

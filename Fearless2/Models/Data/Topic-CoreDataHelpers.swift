@@ -44,9 +44,34 @@ extension Topic {
         set { summary = newValue }
     }
     
+    var topicOptions: String {
+        get { options ?? "" }
+        set { options = newValue }
+    }
+    
+    var topicCriteria: String {
+        get { criteria ?? "" }
+        set { criteria = newValue }
+    }
+    
+    var topicPeople: String {
+        get { people ?? "" }
+        set { people = newValue }
+    }
+    
+    var topicEmotions: String {
+        get { emotions ?? "" }
+        set { emotions = newValue }
+    }
+    
     var topicQuestions: [Question] {
         let result = questions?.allObjects as? [Question] ?? []
         return result
     }
     
+    
+    var topicSections: [Section] {
+        let result = sections?.allObjects as? [Section] ?? []
+        return result
+    }
 }

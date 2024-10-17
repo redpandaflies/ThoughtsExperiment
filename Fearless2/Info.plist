@@ -8,6 +8,8 @@
 	<string>$(OPENAI_ASSISTANT_ID_TOPIC)</string>
 	<key>OPENAI_PARTIAL_KEY</key>
 	<string>$(OPENAI_PARTIAL_KEY)</string>
+	<key>OPENAI_ASSISTANT_ID_CONTEXT</key>
+	<string>$(OPENAI_ASSISTANT_ID_CONTEXT)</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>

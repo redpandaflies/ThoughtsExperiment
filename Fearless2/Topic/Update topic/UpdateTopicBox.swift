@@ -8,19 +8,23 @@
 import SwiftUI
 
 struct UpdateTopicBox: View {
+    @EnvironmentObject var dataController: DataController
     @ObservedObject var topicViewModel: TopicViewModel
-    
-    @State private var topicText = ""
+    @State private var selectedQuestion: Int = 0
+    @State private var topicText: String = ""//user's definition of the new topic
+    @State private var selectedValue: Double = 5.0 //value user selects on the slider
+    @State private var selectedOptions: [String] = [] //answers user choose for muti-select questions
     @Binding var showCard: Bool
     @Binding var selectedTab: Int
     @FocusState var isFocused: Bool
+
+    let selectedCategory: TopicCategoryItem
+    let section: Section?
+    let questions: [Question]
     
-    let selectedCategory: CategoryItem
-    let topicId: UUID?
-    let question: String
     
     var body: some View {
-        VStack (alignment: .leading, spacing: 12) {
+        VStack (alignment: .leading, spacing: 10) {
             HStack {
                 BubblesCategory(selectedCategory: selectedCategory, useFullName: true)
                 
@@ -32,53 +36,35 @@ struct UpdateTopicBox: View {
                 .font(.system(size: 13))
                 .fontWeight(.regular)
                 .foregroundStyle(AppColors.blackDefault)
-                .padding(.bottom, 10)
+                .padding(.bottom, 5)
             
-            Text(question)
-                .multilineTextAlignment(.leading)
-                .font(.system(size: 19))
-                .fontWeight(.medium)
-                .foregroundStyle(AppColors.blackDefault)
+            Divider()
             
-            
-            ScrollView {
-                HStack (alignment: .top) {
+            if let questionType = QuestionType(rawValue: questions[selectedQuestion].questionType) {
+                let currentQuestion = questions[selectedQuestion]
+                switch questionType {
+                case .open:
+                    QuestionOpenView(topicText: $topicText, selectedQuestion: $selectedQuestion, isFocused: $isFocused, selectedCategory: selectedCategory, question: currentQuestion.questionContent, updatingTopic: true)
+                case .scale:
+                    let minLabel = currentQuestion.questionMinLabel
+                    let maxLabel = currentQuestion.questionMaxLabel
+                    QuestionScaleView(selectedValue: $selectedValue, question: currentQuestion.questionContent, minLabel: minLabel, maxLabel: maxLabel)
                     
-                    Rectangle()
-                        .fill(selectedCategory.getBubbleColor())
-                        .cornerRadius(30)
-                        .frame(width: 3)
+                case .multiSelect:
+                    let optionsString = currentQuestion.questionMultiSelectOptions
+                    let optionsArray = optionsString.components(separatedBy: ",")
+                    QuestionMultiSelectView(selectedOptions: $selectedOptions, question: currentQuestion.questionContent, items: optionsArray)
                     
-                    
-                    Group {
-                        TextField("Enter your answer", text: $topicText, axis: .vertical)
-                            .font(.system(size: 16))
-                            .fontWeight(.light)
-                            .foregroundStyle(AppColors.blackDefault)
-                            .opacity(0.7)
-                            .lineSpacing(3)
-                            .focused($isFocused)
-                            .keyboardType(.alphabet)
-                    }
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        isFocused = true
-                    }
-                    
-                }//HStack
-                .padding(.horizontal, 5)
+                }
             }
-            .scrollIndicators(.hidden)
-            .frame(maxHeight: 130)
-            .padding(.bottom)
             
             HStack {
+                
                 Spacer()
                 
                 Button {
-                    Task {
-                        await submitForm()
-                    }
+                    
+                    saveAnswer()
                     
                 } label: {
                     Image(systemName: "arrow.right.circle.fill")
@@ -94,17 +80,84 @@ struct UpdateTopicBox: View {
                 .shadow(color: .black.opacity(0.07), radius: 3, x: 0, y: 1)
               
         }
+        
     }
     
-    func submitForm() async {
+    private func saveAnswer() {
+        //capture current state
+        guard let currentSection = section else { return }
+        let answeredQuestionIndex = selectedQuestion
+        let answeredQuestion = questions[answeredQuestionIndex]
+        let numberOfQuestions = questions.count
+        
+        var answeredQuestionSelectedValue: Double?
+        var answeredQuestionTopicText: String?
+        var answeredQuestionSelectedOptions: [String]?
+        
+        if let answeredQuestionType =  QuestionType(rawValue: answeredQuestion.questionType){
+            switch answeredQuestionType {
+            case .open:
+                isFocused = false
+                answeredQuestionTopicText = topicText
+            case .scale:
+                answeredQuestionSelectedValue = selectedValue
+            case .multiSelect:
+                answeredQuestionSelectedOptions = selectedOptions
+            }
+        }
+       
+        
+        //move to next question
+        if selectedQuestion + 1 < numberOfQuestions {
+            selectedQuestion += 1
+        } else {
+           submitForm()
+        }
+        
+        selectedValue = 5.0
+        topicText = ""
+        
+        //save answers
+        Task {
+            
+            if let answeredQuestionType =  QuestionType(rawValue: answeredQuestion.questionType){
+                switch answeredQuestionType {
+                case .open:
+                    if let newTopicText = answeredQuestionTopicText {
+                        await dataController.saveAnswer(questionType: .open, questionId: answeredQuestion.questionId, userAnswer: newTopicText)
+                    }
+                case .scale:
+                    if let newSelectedValue = answeredQuestionSelectedValue {
+                        await dataController.saveAnswer(questionType: .scale, questionId: answeredQuestion.questionId, userAnswer: newSelectedValue)
+                    }
+                case .multiSelect:
+                    if let newSelectedOptions = answeredQuestionSelectedOptions {
+                        await dataController.saveAnswer(questionType: .multiSelect, questionId: answeredQuestion.questionId, userAnswer: newSelectedOptions)
+                    }
+                }
+            }
+            
+            print("SelectedQuestion: \(selectedQuestion)")
+            
+            if answeredQuestionIndex + 1 == numberOfQuestions {
+                print("Answered question index is \(answeredQuestionIndex), number of questions is \(numberOfQuestions)")
+                if let topicId = currentSection.sectionTopic?.topicId {
+                    print("Updating topic, sending to context assistant")
+                    await topicViewModel.manageRun(selectedAssistant: .topic, category: selectedCategory, topicId: topicId, sectionId: currentSection.sectionId)
+                }
+            }
+        }
+            
+    }
+    
+    private func submitForm() {
         isFocused = false
         
         withAnimation(.snappy(duration: 0.2)) {
             self.showCard = false
         }
         selectedTab += 1
-        
-        await topicViewModel.manageRun(selectedAssistant: .topic, category: selectedCategory, userInput: topicText, topicId: topicId, question: question)
+
     }
     
 }

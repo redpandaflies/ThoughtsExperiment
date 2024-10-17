@@ -1,5 +1,5 @@
 //
-//  CategoryBox.swift
+//  TopicCategoryBox.swift
 //  Fearless2
 //
 //  Created by Yue Deng-Wu on 10/1/24.
@@ -7,9 +7,9 @@
 
 import SwiftUI
 
-struct CategoryBox: View {
+struct TopicCategoryBox: View {
     
-    let category: CategoryItem
+    let category: TopicCategoryItem
     
     var body: some View {
         VStack (alignment: .leading, spacing: 8){
@@ -37,5 +37,5 @@ struct CategoryBox: View {
 }
 
 #Preview {
-    CategoryBox(category: .emotions)
+    TopicCategoryBox(category: .emotions)
 }

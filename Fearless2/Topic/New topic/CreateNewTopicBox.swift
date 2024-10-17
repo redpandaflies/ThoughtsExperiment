@@ -18,7 +18,7 @@ struct CreateNewTopicBox: View {
     @Binding var selectedTab: Int
     @FocusState var isFocused: Bool
 
-    let selectedCategory: CategoryItem
+    let selectedCategory: TopicCategoryItem
     
     var body: some View {
         VStack (alignment: .leading, spacing: 10) {
@@ -43,11 +43,11 @@ struct CreateNewTopicBox: View {
             case .scale:
                 if let minLabel = QuestionsNewDecision.questions[selectedQuestion].minLabel,
                    let maxLabel = QuestionsNewDecision.questions[selectedQuestion].maxLabel {
-                    QuestionScaleView(selectedValue: $selectedValue, question: QuestionsNewDecision.questions[selectedQuestion].question, minLabel: minLabel, maxLabel: maxLabel)
+                    QuestionScaleView(selectedValue: $selectedValue, question: QuestionsNewDecision.questions[selectedQuestion].content, minLabel: minLabel, maxLabel: maxLabel)
                 }
             case .multiSelect:
                 if let options = QuestionsNewDecision.questions[selectedQuestion].options {
-                    QuestionMultiSelectView(selectedOptions: $selectedOptions, question: QuestionsNewDecision.questions[selectedQuestion].question, items: options)
+                    QuestionMultiSelectView(selectedOptions: $selectedOptions, question: QuestionsNewDecision.questions[selectedQuestion].content, items: options)
                 }
             }
             
@@ -88,11 +88,10 @@ struct CreateNewTopicBox: View {
         switch answeredQuestion.questionType {
         case .open:
             isFocused = false
-            answeredQuestionSelectedValue = selectedValue
-        case .scale:
             answeredQuestionTopicText = topicText
-            
-        default:
+        case .scale:
+            answeredQuestionSelectedValue = selectedValue
+        case .multiSelect:
             answeredQuestionSelectedOptions = selectedOptions
         }
         
@@ -100,9 +99,9 @@ struct CreateNewTopicBox: View {
         if selectedQuestion < 6 {
             selectedQuestion += 1
         } else {
-            // Handle completion if needed
-            
+           submitForm()
         }
+        
         selectedValue = 5.0
         topicText = ""
         
@@ -110,32 +109,40 @@ struct CreateNewTopicBox: View {
         Task {
             switch answeredQuestion.questionType {
             case .open:
-                if let topicText = answeredQuestionTopicText {
-                    await dataController.createTopic(userAnswer: topicText)
+                if let newTopicText = answeredQuestionTopicText {
+                    await dataController.createTopic(userAnswer: newTopicText)
                 }
             case .scale:
-                if let selectedValue = answeredQuestionSelectedValue {
-                    await dataController.saveScaleAnswer(question: answeredQuestion.question, userAnswer: selectedValue)
+                if let newSelectedValue = answeredQuestionSelectedValue {
+                    await dataController.saveAnswer(questionType: .scale, questionContent: answeredQuestion.content, userAnswer: newSelectedValue)
                 }
             case .multiSelect:
-                if let selectedOptions = answeredQuestionSelectedOptions {
-                    await dataController.saveMultiSelectAnswer(question: answeredQuestion.question, userAnswers: selectedOptions)
+                if let newSelectedOptions = answeredQuestionSelectedOptions {
+                    await dataController.saveAnswer(questionType: .multiSelect, questionContent: answeredQuestion.content, userAnswer: newSelectedOptions)
                 }
             }
-        
+            
+            print("SelectedQuestion: \(selectedQuestion)")
+            
+            if answeredQuestionIndex == 6 {
+                print("Answered question index is 6")
+                if let topicId = dataController.newTopic?.topicId {
+                    print("Creating new topic, sending to context assistant")
+                    await topicViewModel.manageRun(selectedAssistant: .context, category: selectedCategory, topicId: topicId)
+                }
+            }
         }
             
     }
     
-    func submitForm() async {
+    private func submitForm() {
         isFocused = false
         
         withAnimation(.snappy(duration: 0.2)) {
             self.showCard = false
         }
         selectedTab += 1
-       
-       await topicViewModel.manageRun(selectedAssistant: .topic, category: selectedCategory, userInput: topicText)
+
     }
 }
 

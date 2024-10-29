@@ -54,12 +54,4 @@ extension Question {
         set { answerMultiSelect = newValue }
     }
     
-    var questionTopic: Topic? {
-        topic
-    }
-    
-    var questionSection: Section? {
-        section
-    }
-    
 }

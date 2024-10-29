@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct SectionListView: View {
-    @Binding var showUpdateTopicView: Bool
+    @Binding var showUpdateTopicView: Bool?
+    @Binding var selectedCategory: TopicCategoryItem
     @Binding var selectedSection: Section?
     let sections: [Section]
     
@@ -20,8 +21,12 @@ struct SectionListView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             ForEach(sortedSections, id: \.sectionId) { section in
-                HomeSectionBox(title: section.sectionTitle)
+                SectionBox(section: section)
                     .onTapGesture {
+                        if let shortName = section.topic?.category {
+                            selectedCategory = TopicCategoryItem.fromShortName(shortName) ?? .personal
+                        }
+                        
                         selectedSection = section
                         showUpdateTopicView = true
                     }

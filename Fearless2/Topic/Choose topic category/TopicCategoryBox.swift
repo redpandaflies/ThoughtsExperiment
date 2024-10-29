@@ -37,5 +37,5 @@ struct TopicCategoryBox: View {
 }
 
 #Preview {
-    TopicCategoryBox(category: .emotions)
+    TopicCategoryBox(category: .personal)
 }

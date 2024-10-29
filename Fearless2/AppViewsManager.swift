@@ -15,8 +15,8 @@ struct AppViewsManager: View {
     @StateObject var topicViewModel: TopicViewModel
     
     @State private var showCreateNewTopicView: Bool = false
-    @State private var showUpdateTopicView: Bool = false
-    @State private var selectedCategory: TopicCategoryItem = .decision
+    @State private var showUpdateTopicView: Bool? = nil
+    @State private var selectedCategory: TopicCategoryItem = .personal
     @State private var topicId: UUID? = nil  //for updating topic
     @State private var selectedQuestion: String = "" //question the user is answering when updating a topic
     @State private var selectedSection: Section? = nil
@@ -37,7 +37,7 @@ struct AppViewsManager: View {
         .overlay  {
             if showCreateNewTopicView {
                 CreateNewTopicView(topicViewModel: topicViewModel, showCreateNewTopicView: $showCreateNewTopicView, selectedCategory: selectedCategory)
-            } else if showUpdateTopicView {
+            } else if let showingUpdateTopicView = showUpdateTopicView, showingUpdateTopicView {
                 UpdateTopicView(topicViewModel: topicViewModel, showUpdateTopicView: $showUpdateTopicView, selectedCategory: selectedCategory, topicId: topicId, question: selectedQuestion, section: selectedSection)
             }
         }

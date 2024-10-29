@@ -17,10 +17,7 @@ struct SummaryView: View {
                    ScrollView {
                        VStack(alignment: .leading, spacing: 10) {
                            
-                           SummarySectionView(title: "Fearless' reaction", content: topic.topicFeedback)
                            SummarySectionView(title: "Summary", content: topic.topicSummary)
-                           SummarySectionView(title: "Options", content: topic.topicOptions)
-                          SummarySectionView(title: "Criteria", content: topic.topicCriteria)
                           SummarySectionView(title: "People", content: topic.topicPeople)
                           SummarySectionView(title: "Emotions", content: topic.topicEmotions)
                         

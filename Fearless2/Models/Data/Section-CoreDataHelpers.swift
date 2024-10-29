@@ -19,18 +19,13 @@ extension Section {
         set { title = newValue }
     }
     
-    var sectionCategory: String {
-        get { category ?? "" }
-        set { category = newValue }
-    }
-    
-    var sectionTopic: Topic? {
-        topic
-    }
-    
     var sectionQuestions: [Question] {
         let result = questions?.allObjects as? [Question] ?? []
         return result
     }
     
+    func assignEntry(_ entry: Entry) {
+        self.entry = entry
+        entry.section = self
+    }
 }

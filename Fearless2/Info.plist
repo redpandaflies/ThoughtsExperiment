@@ -2,14 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>OPENAI_ASSISTANT_ID_ENTRY</key>
-	<string>$(OPENAI_ASSISTANT_ID_ENTRY)</string>
-	<key>OPENAI_ASSISTANT_ID_TOPIC</key>
-	<string>$(OPENAI_ASSISTANT_ID_TOPIC)</string>
 	<key>OPENAI_PARTIAL_KEY</key>
 	<string>$(OPENAI_PARTIAL_KEY)</string>
-	<key>OPENAI_ASSISTANT_ID_CONTEXT</key>
-	<string>$(OPENAI_ASSISTANT_ID_CONTEXT)</string>
+	<key>OPENAI_ASSISTANT_ID_SECTION</key>
+	<string>$(OPENAI_ASSISTANT_ID_SECTION)</string>
+	<key>OPENAI_ASSISTANT_ID_SECTION_SUMMARY</key>
+	<string>$(OPENAI_ASSISTANT_ID_SECTION_SUMMARY)</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>

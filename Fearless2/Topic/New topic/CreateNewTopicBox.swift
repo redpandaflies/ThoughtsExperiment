@@ -37,17 +37,17 @@ struct CreateNewTopicBox: View {
             
             Divider()
             
-            switch QuestionsNewDecision.questions[selectedQuestion].questionType {
+            switch QuestionsNewTopic.questions[selectedQuestion].questionType {
             case .open:
-                QuestionOpenView(topicText: $topicText, selectedQuestion: $selectedQuestion, isFocused: $isFocused, selectedCategory: selectedCategory)
+                QuestionOpenView(topicText: $topicText, selectedQuestion: $selectedQuestion, isFocused: $isFocused, selectedCategory: selectedCategory, question: QuestionsNewTopic.questions[selectedQuestion].content)
             case .scale:
-                if let minLabel = QuestionsNewDecision.questions[selectedQuestion].minLabel,
-                   let maxLabel = QuestionsNewDecision.questions[selectedQuestion].maxLabel {
-                    QuestionScaleView(selectedValue: $selectedValue, question: QuestionsNewDecision.questions[selectedQuestion].content, minLabel: minLabel, maxLabel: maxLabel)
+                if let minLabel = QuestionsNewTopic.questions[selectedQuestion].minLabel,
+                   let maxLabel = QuestionsNewTopic.questions[selectedQuestion].maxLabel {
+                    QuestionScaleView(selectedValue: $selectedValue, question: QuestionsNewTopic.questions[selectedQuestion].content, minLabel: minLabel, maxLabel: maxLabel)
                 }
             case .multiSelect:
-                if let options = QuestionsNewDecision.questions[selectedQuestion].options {
-                    QuestionMultiSelectView(selectedOptions: $selectedOptions, question: QuestionsNewDecision.questions[selectedQuestion].content, items: options)
+                if let options = QuestionsNewTopic.questions[selectedQuestion].options {
+                    QuestionMultiSelectView(selectedOptions: $selectedOptions, question: QuestionsNewTopic.questions[selectedQuestion].content, items: options)
                 }
             }
             
@@ -79,7 +79,8 @@ struct CreateNewTopicBox: View {
     private func saveAnswer() {
         //capture current state
         let answeredQuestionIndex = selectedQuestion
-        let answeredQuestion = QuestionsNewDecision.questions[answeredQuestionIndex]
+        let totalQuestions = QuestionsNewTopic.questions.count
+        let answeredQuestion = QuestionsNewTopic.questions[answeredQuestionIndex]
         
         var answeredQuestionSelectedValue: Double?
         var answeredQuestionTopicText: String?
@@ -96,7 +97,7 @@ struct CreateNewTopicBox: View {
         }
         
         //move to next question
-        if selectedQuestion < 6 {
+        if selectedQuestion + 1 < totalQuestions {
             selectedQuestion += 1
         } else {
            submitForm()
@@ -110,10 +111,13 @@ struct CreateNewTopicBox: View {
             switch answeredQuestion.questionType {
             case .open:
                 if let newTopicText = answeredQuestionTopicText {
-                    await dataController.createTopic(userAnswer: newTopicText)
+                    await dataController.saveAnswer(questionType: .open, questionContent: answeredQuestion.content, userAnswer: newTopicText)
                 }
             case .scale:
                 if let newSelectedValue = answeredQuestionSelectedValue {
+                    if answeredQuestionIndex == 0 {
+                        await dataController.createTopic(category: selectedCategory)
+                    }
                     await dataController.saveAnswer(questionType: .scale, questionContent: answeredQuestion.content, userAnswer: newSelectedValue)
                 }
             case .multiSelect:
@@ -124,11 +128,11 @@ struct CreateNewTopicBox: View {
             
             print("SelectedQuestion: \(selectedQuestion)")
             
-            if answeredQuestionIndex == 6 {
+            if answeredQuestionIndex + 1 == totalQuestions {
                 print("Answered question index is 6")
                 if let topicId = dataController.newTopic?.topicId {
                     print("Creating new topic, sending to context assistant")
-                    await topicViewModel.manageRun(selectedAssistant: .context, category: selectedCategory, topicId: topicId)
+                    await topicViewModel.manageRun(selectedAssistant: .section, category: selectedCategory, topicId: topicId)
                 }
             }
         }

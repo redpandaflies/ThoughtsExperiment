@@ -34,24 +34,9 @@ extension Topic {
         set { userDescription = newValue }  
     }
     
-    var topicFeedback: String {
-        get { feedback ?? "" }
-        set { feedback = newValue }
-    }
-    
     var topicSummary: String {
         get { summary ?? "" }
         set { summary = newValue }
-    }
-    
-    var topicOptions: String {
-        get { options ?? "" }
-        set { options = newValue }
-    }
-    
-    var topicCriteria: String {
-        get { criteria ?? "" }
-        set { criteria = newValue }
     }
     
     var topicPeople: String {

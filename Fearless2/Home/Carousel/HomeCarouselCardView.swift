@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct HomeCarouselCardView: View {
-    let topic: Topic
+    @ObservedObject var topic: Topic
     
     var body: some View {
         ZStack (alignment: .top) {
@@ -56,7 +56,7 @@ struct HomeCarouselCardHeader: View {
             if let category = TopicCategoryItem.fromShortName(topic.topicCategory) {
                 BubblesCategory(selectedCategory: category, useFullName: false)
             } else {
-                BubblesCategory(selectedCategory: TopicCategoryItem.decision, useFullName: false)
+                BubblesCategory(selectedCategory: TopicCategoryItem.personal, useFullName: false)
             }
             
             Spacer()

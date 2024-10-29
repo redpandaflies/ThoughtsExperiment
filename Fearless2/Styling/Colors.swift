@@ -17,13 +17,16 @@ struct AppColors {
     static let homeBackground = Color(#colorLiteral(red: 0.933, green: 0.929, blue: 0.91, alpha: 1)) // #eeede8
     
     //categories
-    static let decision = Color(#colorLiteral(red: 1, green: 0.824, blue: 0.196, alpha: 1)) // #ffd232
-    static let problem = Color(#colorLiteral(red: 0.435, green: 0.635, blue: 0.184, alpha: 1)) // #6fa22f
-    static let event = Color(#colorLiteral(red: 0.318, green: 0.31, blue: 0.757, alpha: 1)) // #514fc1
-    static let emotions = Color(#colorLiteral(red: 0.757, green: 0.251, blue: 0.251, alpha: 1)) // #c14040
+    static let personal = Color(#colorLiteral(red: 1, green: 0.824, blue: 0.196, alpha: 1)) // #ffd232
+    static let work = Color(#colorLiteral(red: 0.318, green: 0.31, blue: 0.757, alpha: 1)) // #514fc1
     
     //sections
     static let sectionPillBackground = Color(#colorLiteral(red: 0.871, green: 0.863, blue: 0.831, alpha: 1)) // #dedcd4
+    
+    //sectionSummary
+    static let sectionSummaryLight = Color(#colorLiteral(red: 0.827, green: 0.851, blue: 0.922, alpha: 1)) // #d3d9eb
+    static let sectionSummaryDark = Color(#colorLiteral(red: 0.227, green: 0.325, blue: 0.682, alpha: 1)) // #3a53ae
+    static let sectionSummaryOffWhite = Color(#colorLiteral(red: 0.976, green: 0.988, blue: 1, alpha: 1)) // #f9fcff
     
     //questions
     static let pillStrokeColor = Color(#colorLiteral(red: 0.902, green: 0.902, blue: 0.902, alpha: 1)) // #e6e6e6

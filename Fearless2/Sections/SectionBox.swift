@@ -7,17 +7,22 @@
 
 import SwiftUI
 
-struct HomeSectionBox: View {
+struct SectionBox: View {
     
-    let title: String
+    let section: Section
     
     var body: some View {
         HStack {
             VStack (alignment: .leading, spacing: 8) {
                 
-                BubblesCategory(selectedCategory: SectionCategoryItem.context, useFullName: true)
+                Text("\(section.sectionNumber)")
+                     .multilineTextAlignment(.leading)
+                     .font(.system(size: 20))
+                     .fontWeight(.regular)
+                     .foregroundStyle(AppColors.blackDefault)
+                     .opacity(0.7)
                 
-                Text(title)
+                Text(section.sectionTitle)
                      .multilineTextAlignment(.leading)
                      .font(.system(size: 15))
                      .fontWeight(.light)
@@ -45,6 +50,6 @@ struct HomeSectionBox: View {
     }
 }
 
-#Preview {
-    HomeSectionBox(title: "Identify all possible options")
-}
+//#Preview {
+//    HomeSectionBox(title: "Identify all possible options")
+//}

@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 
 enum SectionCategoryItem: Int, CaseIterable, CategoryItemProtocol {
+    
     case context
     
     func getFullName() -> String {

@@ -40,5 +40,5 @@ struct TopicCategoryView: View {
 }
 
 #Preview {
-    TopicCategoryView(showCreateNewTopicView: .constant(false), selectedCategory: .constant(.decision))
+    TopicCategoryView(showCreateNewTopicView: .constant(false), selectedCategory: .constant(.personal))
 }

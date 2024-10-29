@@ -54,21 +54,16 @@ final class DataController: ObservableObject {
     }
     
     //create new topic
-    func createTopic(userAnswer: String) async {
+    func createTopic(category: TopicCategoryItem) async {
         await context.perform {
             let topic = Topic(context: self.context)
             topic.topicId = UUID()
             topic.topicCreatedAt = getCurrentTimeString()
-            topic.topicUserDescription = userAnswer
+            topic.topicCategory = category.getFullName()
             self.newTopic = topic
             self.logger.log("Updated newTopic published variable")
-            if let savedTopic = self.newTopic {
-                self.logger.log("Created new topic with ID: \(savedTopic.topicId.uuidString)")
-            }
         }
         await self.save()
-        
-        
     }
     
     //fetch a topic

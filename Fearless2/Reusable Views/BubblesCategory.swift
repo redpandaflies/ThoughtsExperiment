@@ -33,5 +33,5 @@ struct BubblesCategory: View {
 }
 
 #Preview {
-    BubblesCategory(selectedCategory: TopicCategoryItem.decision, useFullName: true)
+    BubblesCategory(selectedCategory: TopicCategoryItem.personal, useFullName: true)
 }

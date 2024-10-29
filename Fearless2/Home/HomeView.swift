@@ -14,7 +14,7 @@ struct HomeView: View {
     @State private var scrollPosition: Int?
     @State private var showSummarySheet: Bool = false
     @Binding var showCreateNewTopicView: Bool
-    @Binding var showUpdateTopicView: Bool
+    @Binding var showUpdateTopicView: Bool?
     @Binding var selectedCategory: TopicCategoryItem
     @Binding var topicId: UUID?
     @Binding var selectedQuestion: String
@@ -40,17 +40,10 @@ struct HomeView: View {
                         
                     } else if let index = scrollPosition, topics.count > 0 {
                         let topic = topics[index]
-                        //Top view
-                        HomeTopView(topicFeedback: topic.topicFeedback)
-                            .onTapGesture {
-                                showSummarySheet = true
-                            }
 
                         //gather context questions
-                        SectionListView(showUpdateTopicView: $showUpdateTopicView, selectedSection: $selectedSection, sections: topic.topicSections)
+                        SectionListView(showUpdateTopicView: $showUpdateTopicView, selectedCategory: $selectedCategory, selectedSection: $selectedSection, sections: topic.topicSections)
                         
-//                        //Questions
-//                        HomeQuestionsView(showUpdateTopicView: $showUpdateTopicView, topicId: $topicId, selectedQuestion: $selectedQuestion, questions: topic.topicQuestions)
                     }
                     
                     Spacer()

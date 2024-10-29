@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct CreateNewTopicView: View {
+    @EnvironmentObject var dataController: DataController
     @ObservedObject var topicViewModel: TopicViewModel
     
     @State private var topicText = ""
@@ -26,10 +27,7 @@ struct CreateNewTopicView: View {
                 .fill(Material.ultraThin)
                 .ignoresSafeArea()
                 .onTapGesture {
-                    withAnimation(.snappy(duration: 0.2)) {
-                        self.showCard = false
-                    }
-                    showCreateNewTopicView = false
+                    cancelEntry()
                 }
             
             switch selectedTab {
@@ -56,6 +54,18 @@ struct CreateNewTopicView: View {
             if topicViewModel.topicUpdated {
                 showCreateNewTopicView = false
                 
+            }
+        }
+    }
+    
+    private func cancelEntry() {
+        withAnimation(.snappy(duration: 0.2)) {
+            self.showCard = false
+        }
+        showCreateNewTopicView = false
+        Task {
+            if let topicId = dataController.newTopic?.topicId {
+                await self.dataController.deleteTopic(id: topicId)
             }
         }
     }

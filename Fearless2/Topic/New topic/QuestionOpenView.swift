@@ -15,18 +15,11 @@ struct QuestionOpenView: View {
     
     let selectedCategory: TopicCategoryItem
     var question: String? = nil
-    var updatingTopic: Bool? = nil
     
     var body: some View {
         VStack (alignment: .leading, spacing: 10) {
             
-            Group {
-                if let existingTopic = updatingTopic {
-                    Text(question ?? "")
-                } else {
-                    Text((selectedQuestion == 0) ? selectedCategory.getQuestion() : (question ?? ""))
-                }
-            }
+            Text(question ?? "")
             .multilineTextAlignment(.leading)
             .font(.system(size: 19))
             .fontWeight(.medium)

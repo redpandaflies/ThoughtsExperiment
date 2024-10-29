@@ -81,7 +81,7 @@ struct QuestionBubble: View {
     
     private func getBackgroundColor() -> Color {
         if selected {
-            return AppColors.decision
+            return AppColors.personal
         } else {
             return Color.white
         }

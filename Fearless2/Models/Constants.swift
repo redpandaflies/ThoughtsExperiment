@@ -26,43 +26,31 @@ enum Constants {
         return openAIPartialKey
     }()
     
-    static let openAIAssistantIdEntry: String = {
+    static let openAIAssistantIdSection: String = {
 
         guard let infoDict = infoDictionary,
-              let openAIId = infoDict["OPENAI_ASSISTANT_ID_ENTRY"] as? String else {
-            logger.error("OpenAI entry assistant ID not available, using placeholder")
+              let openAIId = infoDict["OPENAI_ASSISTANT_ID_SECTION"] as? String else {
+            logger.error("OpenAI section creator assistant ID not available, using placeholder")
             return ""
         }
        
-        logger.info("Retrieved OpenAI entry assistant ID: \(openAIId)")
+        logger.info("Retrieved OpenAI section creator assistant ID: \(openAIId)")
        
         return openAIId
     }()
     
-    static let openAIAssistantIdTopic: String = {
+    static let openAIAssistantIdSectionSummary: String = {
 
         guard let infoDict = infoDictionary,
-              let openAIId = infoDict["OPENAI_ASSISTANT_ID_TOPIC"] as? String else {
-            logger.error("OpenAI topic assistant ID not available, using placeholder")
+              let openAIId = infoDict["OPENAI_ASSISTANT_ID_SECTION_SUMMARY"] as? String else {
+            logger.error("OpenAI section summary assistant ID not available, using placeholder")
             return ""
         }
        
-        logger.info("Retrieved OpenAI topic assistant ID: \(openAIId)")
+        logger.info("Retrieved OpenAI section summary assistant ID: \(openAIId)")
        
         return openAIId
     }()
     
-    static let openAIAssistantIdContext: String = {
-
-        guard let infoDict = infoDictionary,
-              let openAIId = infoDict["OPENAI_ASSISTANT_ID_CONTEXT"] as? String else {
-            logger.error("OpenAI decision context builder assistant ID not available, using placeholder")
-            return ""
-        }
-       
-        logger.info("Retrieved OpenAI decision context builder assistant ID: \(openAIId)")
-       
-        return openAIId
-    }()
 }
 

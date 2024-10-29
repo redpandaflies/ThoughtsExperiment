@@ -10,17 +10,16 @@ import Foundation
 
 enum AssistantItem: Int, CaseIterable {
     
-    case context
-    case topic
+    case section
+    case sectionSummary
     
     func getAssistantId() -> String? {
         switch self {
-        case .context:
-            return Constants.openAIAssistantIdContext
-        case .topic:
-            return Constants.openAIAssistantIdTopic
+        case .section:
+            return Constants.openAIAssistantIdSection
+        case .sectionSummary:
+            return Constants.openAIAssistantIdSectionSummary
         }
-        
     }
     
 }

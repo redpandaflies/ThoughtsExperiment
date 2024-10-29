@@ -31,7 +31,7 @@ struct UpdateTopicBox: View {
                 Spacer()
             }
             
-            Text(selectedCategory.getDescription())
+            Text(section?.sectionTitle ?? "")
                 .multilineTextAlignment(.leading)
                 .font(.system(size: 13))
                 .fontWeight(.regular)
@@ -44,7 +44,7 @@ struct UpdateTopicBox: View {
                 let currentQuestion = questions[selectedQuestion]
                 switch questionType {
                 case .open:
-                    QuestionOpenView(topicText: $topicText, selectedQuestion: $selectedQuestion, isFocused: $isFocused, selectedCategory: selectedCategory, question: currentQuestion.questionContent, updatingTopic: true)
+                    QuestionOpenView(topicText: $topicText, selectedQuestion: $selectedQuestion, isFocused: $isFocused, selectedCategory: selectedCategory, question: currentQuestion.questionContent)
                 case .scale:
                     let minLabel = currentQuestion.questionMinLabel
                     let maxLabel = currentQuestion.questionMaxLabel
@@ -141,10 +141,7 @@ struct UpdateTopicBox: View {
             
             if answeredQuestionIndex + 1 == numberOfQuestions {
                 print("Answered question index is \(answeredQuestionIndex), number of questions is \(numberOfQuestions)")
-                if let topicId = currentSection.sectionTopic?.topicId {
-                    print("Updating topic, sending to context assistant")
-                    await topicViewModel.manageRun(selectedAssistant: .topic, category: selectedCategory, topicId: topicId, sectionId: currentSection.sectionId)
-                }
+                await topicViewModel.manageRun(selectedAssistant: .sectionSummary, category: selectedCategory, section: currentSection)
             }
         }
             

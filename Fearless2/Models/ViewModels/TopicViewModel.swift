@@ -28,7 +28,7 @@ final class TopicViewModel: ObservableObject {
     //MARK: create new topic
     //note: send the full name of category to GPT as context, save the short name to CoreData
     //note: kept the optionals for userInput and question for now, in case we want to add back in the follow-up questions and summary
-    func manageRun(selectedAssistant: AssistantItem, category: TopicCategoryItem, userInput: String? = nil, topicId: UUID? = nil, sectionId: UUID? = nil, question: String? = nil) async {
+    func manageRun(selectedAssistant: AssistantItem, category: TopicCategoryItem, userInput: String? = nil, topicId: UUID? = nil, section: Section? = nil, question: String? = nil) async {
     
         //reset published vars
         await MainActor.run {
@@ -36,36 +36,48 @@ final class TopicViewModel: ObservableObject {
             self.topicUpdated = false
         }
 
-        await manageRunWithStreaming(selectedAssistant: selectedAssistant, category: category, userInput: userInput, topicId: topicId, sectionId: sectionId, question: question, retryCount: 1)
+        await manageRunWithStreaming(selectedAssistant: selectedAssistant, category: category, userInput: userInput, topicId: topicId, section: section, question: question, retryCount: 1)
         
     }
     
-    func manageRunWithStreaming(selectedAssistant: AssistantItem, category: TopicCategoryItem, userInput: String? = nil, topicId: UUID? = nil, sectionId: UUID? = nil, question: String? = nil, retryCount: Int) async {
+    func manageRunWithStreaming(selectedAssistant: AssistantItem, category: TopicCategoryItem, userInput: String? = nil, topicId: UUID? = nil, section: Section? = nil, question: String? = nil, retryCount: Int) async {
         
         guard let threadId = await createThread(selectedAssistant: selectedAssistant) else {
             return
         }
         
-        guard let newTopicId = topicId else {
-            loggerCoreData.error("Failed to get new topic ID")
-            return
-        }
-        
-        await sendFirstMessage(selectedAssistant: selectedAssistant, threadId: threadId, category: category.getFullName(), topicId: newTopicId, sectionId: sectionId)
+        await sendFirstMessage(selectedAssistant: selectedAssistant, threadId: threadId, category: category.getFullName(), topicId: topicId, section: section)
         
         
         do {
             try await openAISwiftService.createRunAndStreamMessage(threadId: threadId, selectedAssistant: selectedAssistant)
                 
-            if !openAISwiftService.functionContent.isEmpty {
+            if !openAISwiftService.messageText.isEmpty {
                 
                 switch selectedAssistant {
-                case .context:
-                    await openAISwiftService.processSections(category: category.getShortName(), topicId: newTopicId)
-                case .topic:
-                    await openAISwiftService.processTopic(category: category.getShortName(), topicId: newTopicId)
+                case .section:
+                    
+                    guard let currentTopicId = topicId else {
+                        loggerCoreData.error("Failed to get new topic ID")
+                        return
+                    }
+                    await openAISwiftService.processSections(category: category.getShortName(), topicId: currentTopicId)
+                    
+                    loggerOpenAI.log("Processed new topic with ID: \(topicId?.uuidString ?? "")")
+                    
+                case .sectionSummary:
+                    guard let currentSection = section else {
+                        loggerCoreData.error("No current section found")
+                        return
+                    }
+                    await openAISwiftService.processSectionSummary(category: category.getShortName(), section: currentSection)
+                    
+                    loggerOpenAI.log("Updated section with ID: \(section?.sectionId.uuidString ?? "")")
+                    
                 }
-                loggerOpenAI.log("Processed new topic with ID: \(topicId?.uuidString ?? "")")
+                
+               
+                
                     
                     
                     await MainActor.run {
@@ -110,31 +122,39 @@ final class TopicViewModel: ObservableObject {
     }
     
     //for creating a set of questions to gather context on a topic
-    private func sendFirstMessage(selectedAssistant: AssistantItem, threadId: String, category: String, topicId: UUID, sectionId: UUID? = nil) async {
+    private func sendFirstMessage(selectedAssistant: AssistantItem, threadId: String, category: String, topicId: UUID? = nil, section: Section? = nil) async {
             
         do {
             var userContext: String = ""
             
             switch selectedAssistant {
-            case .context:
-                guard let gatheredContext = await ContextGatherer.gatherContextNewTopic(dataController: dataController, loggerCoreData: loggerCoreData, topicId: topicId) else {
-                    loggerCoreData.error("Failed to get user context")
+            case .section:
+                guard let currentTopic = topicId else {
+                    loggerCoreData.error("Failed to get new topic ID")
                     return
                 }
                 
+                guard let gatheredContext = await ContextGatherer.gatherContextNewTopic(dataController: dataController, loggerCoreData: loggerCoreData, topicId: currentTopic) else {
+                    loggerCoreData.error("Failed to get user context")
+                    return
+                }
                 userContext += gatheredContext
-                
-            case .topic:
-                guard let gatheredContext = await ContextGatherer.gatherContextUpdateTopic(dataController: dataController, loggerCoreData: loggerCoreData, topicId: topicId, sectionId: sectionId) else {
-                    loggerCoreData.error("Failed to get user context")
+               
+            case .sectionSummary:
+                guard let currentSection = section else {
+                    loggerCoreData.error("No current section found")
                     return
                 }
                 
+                guard let gatheredContext = await ContextGatherer.gatherContextUpdateTopic(dataController: dataController, loggerCoreData: loggerCoreData, section: currentSection) else {
+                    loggerCoreData.error("Failed to get user context")
+                    return
+                }
                 userContext += gatheredContext
             }
             
             
-                
+            
             if let newMessage = try await openAISwiftService.createMessage(threadId: threadId, content: userContext) {
                
                 loggerOpenAI.info("First message sent: \(newMessage.content)")

@@ -62,9 +62,6 @@ struct HomeCarouselView: View {
         }
         .onChange(of: scrollPosition) {
             print("scroll position: \(String(describing: scrollPosition))")
-            if let index = scrollPosition, index < topics.count {
-                print("topic questions: \(String(describing: topics[index].questions?.count))")
-            }
             
         }
     }

@@ -32,39 +32,6 @@ struct QuestionScaleView: View {
 }
 
 
-struct SliderView: View {
-    @Binding var selectedValue: Double
-    
-    let minLabel: String
-    let maxLabel: String
-    
-    var body: some View {
-        VStack {
-            Slider(value: $selectedValue, in: 0...10, step: 1.0)
-                .tint(Color.yellow)
-           
-            HStack {
-                Text(minLabel)
-                    .font(.system(size: 11))
-                    .fontWeight(.light)
-                    .foregroundStyle(AppColors.blackDefault)
-                    .textCase(.uppercase)
-                
-                Spacer()
-                    
-                
-                Text(maxLabel)
-                    .font(.system(size: 11))
-                    .fontWeight(.light)
-                    .foregroundStyle(AppColors.blackDefault)
-                    .textCase(.uppercase)
-            }
-            
-           
-        }
-    }
-}
-
 //#Preview {
 //    QuestionScaleView()
 //}

@@ -43,7 +43,7 @@ struct UpdateTopicView: View {
     var body: some View {
         
         if let currentSection = section, currentSection.completed {
-            if let entry = entries.first {
+            if let entry = currentSection.entry {
                 SectionSummaryView(entry: entry, showUpdateTopicView: $showUpdateTopicView, isFullScreen: true)
             }
         } else {

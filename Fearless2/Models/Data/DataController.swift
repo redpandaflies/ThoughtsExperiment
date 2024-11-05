@@ -141,9 +141,11 @@ final class DataController: ObservableObject {
                 // Create a new question if no `questionId` is provided
                 question = Question(context: self.context)
                 question.questionId = UUID()
+                question.createdAt = getCurrentTimeString()
                 question.questionType = questionType.rawValue
                 if let content = questionContent {
                     question.questionContent = content
+                    question.starterQuestion = true
                 }
                 if let topic = self.newTopic {
                     self.logger.log("Adding new \(questionType.rawValue) question to topic \(topic.topicId.uuidString)")

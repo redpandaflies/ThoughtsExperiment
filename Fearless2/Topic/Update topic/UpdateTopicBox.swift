@@ -22,7 +22,6 @@ struct UpdateTopicBox: View {
     let section: Section?
     let questions: [Question]
     
-    
     var body: some View {
         VStack (alignment: .leading, spacing: 10) {
             HStack {
@@ -43,8 +42,10 @@ struct UpdateTopicBox: View {
             if let questionType = QuestionType(rawValue: questions[selectedQuestion].questionType) {
                 let currentQuestion = questions[selectedQuestion]
                 switch questionType {
+                    
                 case .open:
                     QuestionOpenView(topicText: $topicText, selectedQuestion: $selectedQuestion, isFocused: $isFocused, selectedCategory: selectedCategory, question: currentQuestion.questionContent)
+                    
                 case .scale:
                     let minLabel = currentQuestion.questionMinLabel
                     let maxLabel = currentQuestion.questionMaxLabel

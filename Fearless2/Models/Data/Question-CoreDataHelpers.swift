@@ -14,6 +14,11 @@ extension Question {
         set { id = newValue}
     }
     
+    var questionCreatedAt: String {
+        get { createdAt ?? "" }
+        set { createdAt = newValue }
+    }
+    
     var questionContent: String {
         get { content ?? "" }
         set { content = newValue }

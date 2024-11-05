@@ -31,7 +31,6 @@ extension QuestionsNewTopic {
     
     static var questions: [QuestionsNewTopic] {
         [
-           
             .init(id: 0, content: "How important is this area of your life to you?", questionType: .scale, minLabel: "Not at all", maxLabel: "Extremely"),
             .init(id: 1, content: "How satisfied are you with this are of your life?", questionType: .scale, minLabel: "Not at all", maxLabel: "Extremely"),
             .init(id: 2, content: "What would make you feel better about this area of your life?", questionType: .open),

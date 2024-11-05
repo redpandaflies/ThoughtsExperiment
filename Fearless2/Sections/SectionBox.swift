@@ -9,20 +9,17 @@ import SwiftUI
 
 struct SectionBox: View {
     
-    let section: Section
+    let section: Section?
+    
+    init(section: Section? = nil) {
+        self.section = section
+    }
     
     var body: some View {
         HStack {
             VStack (alignment: .leading, spacing: 8) {
                 
-                Text("\(section.sectionNumber)")
-                     .multilineTextAlignment(.leading)
-                     .font(.system(size: 20))
-                     .fontWeight(.regular)
-                     .foregroundStyle(AppColors.blackDefault)
-                     .opacity(0.7)
-                
-                Text(section.sectionTitle)
+                Text(section?.sectionTitle ?? "Section Recap")
                      .multilineTextAlignment(.leading)
                      .font(.system(size: 15))
                      .fontWeight(.light)

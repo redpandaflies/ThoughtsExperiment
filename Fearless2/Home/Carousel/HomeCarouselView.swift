@@ -10,7 +10,7 @@ import SwiftUI
 struct HomeCarouselView: View {
     
     @Binding var scrollPosition: Int?
-    
+    @Binding var topicId: UUID?
     let pageWidth: CGFloat = 180
     let pageHeight: CGFloat = 200
     var widthDifference: CGFloat {
@@ -24,7 +24,6 @@ struct HomeCarouselView: View {
     var body: some View {
         ScrollView(.horizontal) {
             HStack (alignment: .bottom){
-                
                
                 ForEach(Array(topics.enumerated()), id: \.element.objectID) { index, topic in
                     
@@ -35,6 +34,7 @@ struct HomeCarouselView: View {
                         .animation(.smooth, value: scrollPosition)
                         .onTapGesture {
                             //TBD
+                            
                         }
                 }//ForEach
                
@@ -62,7 +62,10 @@ struct HomeCarouselView: View {
         }
         .onChange(of: scrollPosition) {
             print("scroll position: \(String(describing: scrollPosition))")
-            
+            //set the topicId for use in section recap
+            if let index = scrollPosition, index != topics.count {
+                self.topicId = topics[index].topicId
+            }
         }
     }
 }

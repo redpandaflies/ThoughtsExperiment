@@ -15,6 +15,7 @@ struct HomeView: View {
     @State private var showSummarySheet: Bool = false
     @Binding var showCreateNewTopicView: Bool
     @Binding var showUpdateTopicView: Bool?
+    @Binding var showSectionRecapView: Bool
     @Binding var selectedCategory: TopicCategoryItem
     @Binding var topicId: UUID?
     @Binding var selectedQuestion: String
@@ -41,8 +42,8 @@ struct HomeView: View {
                     } else if let index = scrollPosition, topics.count > 0 {
                         let topic = topics[index]
 
-                        //gather context questions
-                        SectionListView(showUpdateTopicView: $showUpdateTopicView, selectedCategory: $selectedCategory, selectedSection: $selectedSection, sections: topic.topicSections)
+                        FocusAreaView(topicViewModel: topicViewModel, showUpdateTopicView: $showUpdateTopicView, showSectionRecapView: $showSectionRecapView, selectedCategory: $selectedCategory, selectedSection: $selectedSection, topicId: topic.topicId)
+                        
                         
                     }
                     
@@ -78,7 +79,7 @@ struct HomeView: View {
             VStack {
                 Spacer()
                 //Carousel
-                HomeCarouselView(scrollPosition: $scrollPosition, topics: Array(topics))
+                HomeCarouselView(scrollPosition: $scrollPosition, topicId: $topicId, topics: Array(topics))
             }
 
             
@@ -121,6 +122,9 @@ struct HomeView: View {
         .onChange(of: showCreateNewTopicView) {
             if !showCreateNewTopicView && topics.count > 0 && topicViewModel.topicUpdated {
                 scrollPosition = topics.count - 1
+                if let index = scrollPosition, index != topics.count {
+                    self.topicId = topics[index].topicId
+                }
             }
         }
         .sheet(isPresented: $showSummarySheet, onDismiss: {

@@ -132,7 +132,7 @@ struct CreateNewTopicBox: View {
                 print("Answered question index is 6")
                 if let topicId = dataController.newTopic?.topicId {
                     print("Creating new topic, sending to context assistant")
-                    await topicViewModel.manageRun(selectedAssistant: .section, category: selectedCategory, topicId: topicId)
+                    await topicViewModel.manageRun(selectedAssistant: .focusArea, category: selectedCategory, topicId: topicId)
                 }
             }
         }

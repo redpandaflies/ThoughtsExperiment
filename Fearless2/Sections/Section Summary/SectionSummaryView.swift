@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct SectionSummaryView: View {
+    @EnvironmentObject var dataController: DataController
     @ObservedObject var entry: Entry
     @Binding var showCreateNewTopicView: Bool?
     @Binding var showUpdateTopicView: Bool?
@@ -120,18 +121,7 @@ struct SectionSummaryView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
                         
-                        if let showingNewTopicView = showCreateNewTopicView, showingNewTopicView {
-                            withAnimation(.snappy(duration: 0.2)) {
-                                showCreateNewTopicView = false
-                            }
-                        } else {
-                            withAnimation(.snappy(duration: 0.2)) {
-                                showUpdateTopicView = false
-                                if let section = entry.section {
-                                    section.completed = true
-                                }
-                            }
-                        }
+                        
                        
                     }) {
                         Image(systemName: "xmark.circle.fill")
@@ -142,6 +132,24 @@ struct SectionSummaryView: View {
             }
             .navigationBarTitleDisplayMode(.inline)
             .customToolbarAppearance()
+        }
+    }
+    
+    private func closeView() {
+        if let showingNewTopicView = showCreateNewTopicView, showingNewTopicView {
+            withAnimation(.snappy(duration: 0.2)) {
+                showCreateNewTopicView = false
+            }
+        } else {
+            withAnimation(.snappy(duration: 0.2)) {
+                showUpdateTopicView = false
+                if let section = entry.section {
+                    Task {
+                        section.completed = true
+                        await dataController.save()
+                    }
+                }
+            }
         }
     }
 }

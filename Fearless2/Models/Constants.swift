@@ -52,5 +52,31 @@ enum Constants {
         return openAIId
     }()
     
+    static let openAIAssistantIdSectionSuggestions: String = {
+
+        guard let infoDict = infoDictionary,
+              let openAIId = infoDict["OPENAI_ASSISTANT_ID_SECTION_SUGGESTIONS"] as? String else {
+            logger.error("OpenAI section suggestions assistant ID not available, using placeholder")
+            return ""
+        }
+       
+        logger.info("Retrieved OpenAI section suggestions assistant ID: \(openAIId)")
+       
+        return openAIId
+    }()
+    
+    static let openAIAssistantIdFocusArea: String = {
+
+        guard let infoDict = infoDictionary,
+              let openAIId = infoDict["OPENAI_ASSISTANT_ID_FOCUS_AREA"] as? String else {
+            logger.error("OpenAI focus area assistant ID not available, using placeholder")
+            return ""
+        }
+       
+        logger.info("Retrieved OpenAI focus area assistant ID: \(openAIId)")
+       
+        return openAIId
+    }()
+    
 }
 

@@ -8,6 +8,10 @@
 	<string>$(OPENAI_ASSISTANT_ID_SECTION)</string>
 	<key>OPENAI_ASSISTANT_ID_SECTION_SUMMARY</key>
 	<string>$(OPENAI_ASSISTANT_ID_SECTION_SUMMARY)</string>
+	<key>OPENAI_ASSISTANT_ID_SECTION_SUGGESTIONS</key>
+	<string>$(OPENAI_ASSISTANT_ID_SECTION_SUGGESTIONS)</string>
+	<key>OPENAI_ASSISTANT_ID_FOCUS_AREA</key>
+	<string>$(OPENAI_ASSISTANT_ID_FOCUS_AREA)</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>

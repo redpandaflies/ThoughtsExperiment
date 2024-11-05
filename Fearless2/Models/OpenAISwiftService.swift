@@ -195,7 +195,7 @@ extension OpenAISwiftService {
     }
     
     @MainActor
-    func processSections(category: String, topicId: UUID) async {
+    func processNewTopic(category: String, topicId: UUID) async {
         let arguments = self.messageText
         let context = self.dataController.container.viewContext
 
@@ -211,21 +211,37 @@ extension OpenAISwiftService {
                 }
 
                 // Decode the arguments to get the new section data
-                guard let newContextQuestions = self.decodeArguments(arguments: arguments, as: QuestionsContext.self) else {
+                guard let newTopic = self.decodeArguments(arguments: arguments, as: NewTopic.self) else {
                     self.loggerOpenAI.error("Couldn't decode arguments for sections.")
                     return
                 }
                 
-                topic.topicTitle = newContextQuestions.title
-
+                if topic.topicTitle.isEmpty {
+                    topic.topicTitle = newTopic.topicTitle
+                }
+                
+                let focusArea = FocusArea(context: context)
+                focusArea.focusAreaId = UUID()
+                focusArea.createdAt = getCurrentTimeString()
+                focusArea.focusAreaTitle = newTopic.focusArea.title
+                focusArea.focusAreaReasoning = newTopic.focusArea.reasoning
+                topic.addToFocusAreas(focusArea)
+                
                 // Loop through the new sections and save them to CoreData, attaching them to the topic
-                for newSection in newContextQuestions.sections {
+                for newSection in newTopic.sections {
+                    //check if the section number already exists, if not, add the section (AI sometimes hallucinates)
+                    
+                    if topic.topicSections.contains(where: { $0.sectionNumber == newSection.sectionNumber }) {
+                        continue 
+                    }
+                    
                     // Create a new section
                     let section = Section(context: context)
                     section.sectionId = UUID()
                     section.sectionTitle = newSection.title
                     section.sectionNumber = Int16(newSection.sectionNumber)
-
+                   
+                    
                     // Add new questions to the section
                     for newQuestion in newSection.questions {
                         let question = Question(context: context)
@@ -243,11 +259,11 @@ extension OpenAISwiftService {
 
                         // Add the question to the section
                         section.addToQuestions(question)
-                        topic.addToQuestions(question)
                     }
 
-                    // Add the section to the topic
+                    // Add the section to the topic & focus area
                     topic.addToSections(section)
+                    focusArea.addToSections(section)
                 }
 
               
@@ -274,7 +290,7 @@ extension OpenAISwiftService {
         await context.perform {
             // Decode the arguments to get the new topic data
             guard let newSummary = self.decodeArguments(arguments: arguments, as: SectionSummary.self) else {
-                self.loggerOpenAI.error("Couldn't decode arguments for topic.")
+                self.loggerOpenAI.error("Couldn't decode arguments for section summary.")
                 return
             }
             
@@ -304,6 +320,24 @@ extension OpenAISwiftService {
         }
     }
     
+    @MainActor
+    func processSectionSuggestions() async -> [String]? {
+        let arguments = self.messageText
+        
+        guard let newSuggestions = self.decodeArguments(arguments: arguments, as: NewSectionSuggestions.self) else {
+            self.loggerOpenAI.error("Couldn't decode arguments for section suggestions.")
+            return nil
+        }
+        
+        var suggestions: [String] = []
+        
+        for item in newSuggestions.suggestions {
+            suggestions.append(item.content)
+        }
+        
+        return suggestions
+    }
+    
 }
 
 
@@ -324,13 +358,25 @@ enum SenderRole: String, Codable {
     case assistant
 }
 
-//Create new section
-struct QuestionsContext: Codable, Hashable {
-    let title: String
-    let sections: [SectionOfQuestions]
+//Create new focus area
+struct NewTopic: Codable, Hashable {
+    let topicTitle: String
+    let focusArea: NewFocusArea
+    let sections: [NewSection]
+    
+    enum CodingKeys: String, CodingKey {
+        case topicTitle = "topic_title"
+        case focusArea = "focus_area"
+        case sections
+    }
 }
 
-struct SectionOfQuestions: Codable, Hashable {
+struct NewFocusArea: Codable, Hashable {
+    let title: String
+    let reasoning: String
+}
+
+struct NewSection: Codable, Hashable {
     let title: String
     let sectionNumber: Int
     let questions: [SectionQuestion]
@@ -381,3 +427,11 @@ struct NewInsight: Codable, Hashable {
     let content: String
 }
 
+//section suggestions
+struct NewSectionSuggestions: Codable, Hashable {
+    let suggestions: [SectionSuggestion]
+}
+
+struct SectionSuggestion: Codable, Hashable {
+    let content: String
+}

@@ -14,13 +14,12 @@ struct AppViewsManager: View {
     
     @StateObject var topicViewModel: TopicViewModel
     
+    @State private var selectedTab: TabBarItem = .topics
+    @State private var showFocusAreasView: Bool = false
     @State private var showCreateNewTopicView: Bool = false
-    @State private var showUpdateTopicView: Bool? = nil
-    @State private var showSectionRecapView: Bool = false
     @State private var selectedCategory: TopicCategoryItem = .personal
-    @State private var topicId: UUID? = nil  //for updating topic
     @State private var selectedQuestion: String = "" //question the user is answering when updating a topic
-    @State private var selectedSection: Section? = nil
+    @State private var selectedTopic: Topic? = nil
     
     init(dataController: DataController, openAISwiftService: OpenAISwiftService) {
         
@@ -32,16 +31,30 @@ struct AppViewsManager: View {
     
     var body: some View {
         NavigationStack {
-            HomeView(topicViewModel: topicViewModel, showCreateNewTopicView: $showCreateNewTopicView, showUpdateTopicView: $showUpdateTopicView, showSectionRecapView: $showSectionRecapView, selectedCategory: $selectedCategory, topicId: $topicId, selectedQuestion: $selectedQuestion, selectedSection: $selectedSection)
+            ZStack {
+                switch selectedTab {
+                case .topics:
+                    ActiveTopicsView(topicViewModel: topicViewModel, showCreateNewTopicView: $showCreateNewTopicView, selectedTopic: $selectedTopic, showFocusAreasView: $showFocusAreasView)
+                case .lifeChart:
+                    EmptyView()
+                }
+                
+                TabBar(selectedTab: $selectedTab)
+                
+            }
+            .ignoresSafeArea(.all)
+            .ignoresSafeArea(.keyboard)
+            .background {
+                Color.black
+                    .ignoresSafeArea(.all)
+            }
         }
-        .environment(\.colorScheme, .light)
+        .environment(\.colorScheme, .dark)
         .overlay  {
             if showCreateNewTopicView {
                 CreateNewTopicView(topicViewModel: topicViewModel, showCreateNewTopicView: $showCreateNewTopicView, selectedCategory: selectedCategory)
-            } else if let showingUpdateTopicView = showUpdateTopicView, showingUpdateTopicView {
-                UpdateTopicView(topicViewModel: topicViewModel, showUpdateTopicView: $showUpdateTopicView, selectedCategory: selectedCategory, topicId: topicId, question: selectedQuestion, section: selectedSection)
-            } else if showSectionRecapView {
-                SectionRecapView(topicViewModel: topicViewModel, showSectionRecapView: $showSectionRecapView, topicId: $topicId, selectedCategory: selectedCategory)
+            } else if showFocusAreasView {
+                FocusAreasView(topicViewModel: topicViewModel, showFocusAreasView: $showFocusAreasView, selectedCategory: $selectedCategory, topicId: selectedTopic?.topicId)
             }
         }
     }

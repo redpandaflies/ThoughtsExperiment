@@ -7,30 +7,40 @@
 import SwiftUI
 
 struct LoadingAnimation: View {
-    @State private var play = false
-    @State private var animationSpeed: CGFloat = 2.0
     
+    let selectedCategory: TopicCategoryItem
     
     var body: some View {
-        VStack {
-            LottieView(name: "loadingAnimation3", animationSpeed: $animationSpeed, play: $play)
-                .aspectRatio(contentMode: .fit)
+        VStack (alignment: .leading) {
+            Text(selectedCategory.getFullName())
+                .multilineTextAlignment(.leading)
+                .font(.system(size: 11, weight: .regular))
+                .foregroundStyle(selectedCategory.getCategoryColor())
+                .textCase(.uppercase)
+                .padding(.bottom, 5)
+            
+            HStack {
+                Text("Thinking...")
+                    .multilineTextAlignment(.leading)
+                    .font(.system(size: 19))
+                    .foregroundStyle(Color.white)
+                
+                Spacer()
+            }
+            
+            Spacer()
     
         }
-        .frame(height: 120)
-        .ignoresSafeArea(.keyboard)
-        .onAppear {
-            self.play = true
-            UIApplication.shared.isIdleTimerDisabled = true
-            
-        }
-        .onDisappear {
-            self.play = false
-            UIApplication.shared.isIdleTimerDisabled = false
+        .padding()
+        .frame(width: 360, height: 340)
+        .background {
+            RoundedRectangle(cornerRadius: 20)
+                .fill(AppColors.questionBoxBackground)
+                .shadow(color: .black.opacity(0.07), radius: 3, x: 0, y: 1)
         }
     }
 }
 
-#Preview {
-    LoadingAnimation()
-}
+//#Preview {
+//    LoadingAnimation()
+//}

@@ -14,65 +14,54 @@ struct CreateNewTopicBox: View {
     @State private var topicText: String = ""//user's definition of the new topic
     @State private var selectedValue: Double = 5.0 //value user selects on the slider
     @State private var selectedOptions: [String] = [] //answers user choose for muti-select questions
+    @State private var currentQuestionIndex = 0 //for the progress bar
     @Binding var showCard: Bool
     @Binding var selectedTab: Int
     @FocusState var isFocused: Bool
-
+    
     let selectedCategory: TopicCategoryItem
     
     var body: some View {
-        VStack (alignment: .leading, spacing: 10) {
-            HStack {
-                BubblesCategory(selectedCategory: selectedCategory, useFullName: true)
+        
+        VStack {
+            VStack (alignment: .leading, spacing: 5) {
                 
-                Spacer()
-            }
-            
-            Text(selectedCategory.getDescription())
-                .multilineTextAlignment(.leading)
-                .font(.system(size: 13))
-                .fontWeight(.regular)
-                .foregroundStyle(AppColors.blackDefault)
-                .padding(.bottom, 5)
-            
-            Divider()
-            
-            switch QuestionsNewTopic.questions[selectedQuestion].questionType {
-            case .open:
-                QuestionOpenView(topicText: $topicText, selectedQuestion: $selectedQuestion, isFocused: $isFocused, selectedCategory: selectedCategory, question: QuestionsNewTopic.questions[selectedQuestion].content)
-            case .scale:
-                if let minLabel = QuestionsNewTopic.questions[selectedQuestion].minLabel,
-                   let maxLabel = QuestionsNewTopic.questions[selectedQuestion].maxLabel {
-                    QuestionScaleView(selectedValue: $selectedValue, question: QuestionsNewTopic.questions[selectedQuestion].content, minLabel: minLabel, maxLabel: maxLabel)
+                Text(selectedCategory.getFullName())
+                    .multilineTextAlignment(.leading)
+                    .font(.system(size: 11, weight: .regular))
+                    .foregroundStyle(selectedCategory.getCategoryColor())
+                    .textCase(.uppercase)
+                
+                switch QuestionsNewTopic.questions[selectedQuestion].questionType {
+                case .open:
+                    QuestionOpenView(topicText: $topicText, selectedQuestion: $selectedQuestion, isFocused: $isFocused, question: QuestionsNewTopic.questions[selectedQuestion].content)
+                case .scale:
+                    if let minLabel = QuestionsNewTopic.questions[selectedQuestion].minLabel,
+                       let maxLabel = QuestionsNewTopic.questions[selectedQuestion].maxLabel {
+                        QuestionScaleView(selectedValue: $selectedValue, selectedCategory: selectedCategory, question: QuestionsNewTopic.questions[selectedQuestion].content, minLabel: minLabel, maxLabel: maxLabel)
+                    }
+                case .multiSelect:
+                    if let options = QuestionsNewTopic.questions[selectedQuestion].options {
+                        QuestionMultiSelectView(selectedOptions: $selectedOptions, question: QuestionsNewTopic.questions[selectedQuestion].content, items: options)
+                    }
                 }
-            case .multiSelect:
-                if let options = QuestionsNewTopic.questions[selectedQuestion].options {
-                    QuestionMultiSelectView(selectedOptions: $selectedOptions, question: QuestionsNewTopic.questions[selectedQuestion].content, items: options)
-                }
-            }
-            
-            HStack {
                 
                 Spacer()
                 
-                Button {
-                    
-                    saveAnswer()
-                    
-                } label: {
-                    Image(systemName: "arrow.right.circle.fill")
-                        .font(.system(size: 40))
-                        .foregroundStyle(AppColors.blackDefault)
-                }
+            }//VStack
+            .padding()
+            .padding(.top)
+            .frame(height: 340)
+            .background {
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(AppColors.questionBoxBackground)
+                    .shadow(color: .black.opacity(0.07), radius: 3, x: 0, y: 1)
             }
-        }
-        .padding()
-        .background {
-            RoundedRectangle(cornerRadius: 20)
-                .fill(Color.white)
-                .shadow(color: .black.opacity(0.07), radius: 3, x: 0, y: 1)
-              
-        }
+            
+            QuestionsProgressBar(currentQuestionIndex: $currentQuestionIndex, questionCount: QuestionsNewTopic.questions.count, action: { saveAnswer()})
+            
+            
+        }//VStack
         
     }
     
@@ -99,9 +88,11 @@ struct CreateNewTopicBox: View {
         //move to next question
         if selectedQuestion + 1 < totalQuestions {
             selectedQuestion += 1
+            currentQuestionIndex += 1
         } else {
-           submitForm()
+            submitForm()
         }
+        
         
         selectedValue = 5.0
         topicText = ""
@@ -115,13 +106,15 @@ struct CreateNewTopicBox: View {
                 }
             case .scale:
                 if let newSelectedValue = answeredQuestionSelectedValue {
-                    if answeredQuestionIndex == 0 {
-                        await dataController.createTopic(category: selectedCategory)
-                    }
+                    
                     await dataController.saveAnswer(questionType: .scale, questionContent: answeredQuestion.content, userAnswer: newSelectedValue)
                 }
             case .multiSelect:
                 if let newSelectedOptions = answeredQuestionSelectedOptions {
+                    if answeredQuestionIndex == 0 {
+                        await dataController.createTopic(category: selectedCategory)
+                    }
+                    
                     await dataController.saveAnswer(questionType: .multiSelect, questionContent: answeredQuestion.content, userAnswer: newSelectedOptions)
                 }
             }
@@ -129,6 +122,8 @@ struct CreateNewTopicBox: View {
             print("SelectedQuestion: \(selectedQuestion)")
             
             if answeredQuestionIndex + 1 == totalQuestions {
+                await dataController.save()
+                
                 print("Answered question index is 6")
                 if let topicId = dataController.newTopic?.topicId {
                     print("Creating new topic, sending to context assistant")
@@ -136,7 +131,7 @@ struct CreateNewTopicBox: View {
                 }
             }
         }
-            
+        
     }
     
     private func submitForm() {
@@ -146,7 +141,7 @@ struct CreateNewTopicBox: View {
             self.showCard = false
         }
         selectedTab += 1
-
+        
     }
 }
 

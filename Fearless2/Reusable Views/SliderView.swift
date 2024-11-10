@@ -10,19 +10,20 @@ import SwiftUI
 struct SliderView: View {
     @Binding var selectedValue: Double
     
+    let selectedCategory: TopicCategoryItem
     let minLabel: String
     let maxLabel: String
     
     var body: some View {
         VStack {
             Slider(value: $selectedValue, in: 0...10, step: 1.0)
-                .tint(Color.yellow)
+                .tint(selectedCategory.getCategoryColor())
            
             HStack {
                 Text(minLabel)
                     .font(.system(size: 11))
                     .fontWeight(.light)
-                    .foregroundStyle(AppColors.blackDefault)
+                    .foregroundStyle(Color.white)
                     .textCase(.uppercase)
                 
                 Spacer()
@@ -31,7 +32,7 @@ struct SliderView: View {
                 Text(maxLabel)
                     .font(.system(size: 11))
                     .fontWeight(.light)
-                    .foregroundStyle(AppColors.blackDefault)
+                    .foregroundStyle(Color.white)
                     .textCase(.uppercase)
             }
            

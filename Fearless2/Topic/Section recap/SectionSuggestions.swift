@@ -18,13 +18,13 @@ struct SectionSuggestionsView: View {
                 .multilineTextAlignment(.leading)
                 .font(.system(size: 19))
                 .fontWeight(.semibold)
-                .foregroundStyle(AppColors.blackDefault)
+                .foregroundStyle(Color.white)
                 .padding(.vertical, 10)
             
             Text("Select one")
                 .font(.system(size: 11))
                 .fontWeight(.light)
-                .foregroundStyle(AppColors.blackDefault)
+                .foregroundStyle(Color.white)
                 .textCase(.uppercase)
             
           

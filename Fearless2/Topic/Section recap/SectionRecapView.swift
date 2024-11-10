@@ -13,7 +13,7 @@ struct SectionRecapView: View {
     @State private var selectedTab: Int = 0
     @State private var showCard: Bool = false
     @Binding var showSectionRecapView: Bool
-    @Binding var topicId: UUID?
+    let topicId: UUID?
     let selectedCategory: TopicCategoryItem
     
 
@@ -30,27 +30,27 @@ struct SectionRecapView: View {
             switch selectedTab {
             case 0:
                 if showCard {
-                    SectionRecapBox(topicViewModel: topicViewModel, selectedTab: $selectedTab, topicId: $topicId, selectedPage: .reflection, selectedCategory: selectedCategory)
+                    SectionRecapBox(topicViewModel: topicViewModel, selectedTab: $selectedTab, topicId: topicId, selectedPage: .reflection, selectedCategory: selectedCategory)
                         .padding(.horizontal)
                         .transition(.move(edge: .bottom))
                 }
                 
             case 1:
-                LoadingAnimation()
+                LoadingAnimation(selectedCategory: selectedCategory)
             
             case 2:
-                SectionRecapBox(topicViewModel: topicViewModel, selectedTab: $selectedTab, topicId: $topicId, selectedPage: .suggestions, selectedCategory: selectedCategory)
+                SectionRecapBox(topicViewModel: topicViewModel, selectedTab: $selectedTab, topicId: topicId, selectedPage: .suggestions, selectedCategory: selectedCategory)
                     .padding(.horizontal)
                     .transition(.move(edge: .bottom))
              
                 
             default:
-                LoadingAnimation()
+                LoadingAnimation(selectedCategory: selectedCategory)
                 
             }
             
         }//ZStack
-        .environment(\.colorScheme, .light)
+        .environment(\.colorScheme, .dark)
         .onAppear {
             withAnimation(.snappy(duration: 0.2)) {
                 self.showCard = true

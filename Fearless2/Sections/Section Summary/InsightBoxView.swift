@@ -15,32 +15,23 @@ struct InsightBoxView: View {
         HStack (alignment: .top, spacing: 10){
            
             Image(systemName: "plus.circle")
-                .font(.system(size: 20))
+                .font(.system(size: 25))
                 .fontWeight(.light)
-                .foregroundStyle(AppColors.sectionSummaryDark)
+                .foregroundStyle(Color.white)
                 .contentTransition(.symbolEffect(.replace.offUp.byLayer))
                 
             HStack {
                 Text(insight.insightContent)
-                    .font(.subheadline)
-                    .fontWeight(.regular)
-                    .foregroundStyle(AppColors.blackDefault)
+                    .font(.system(size: 15))
+                    .foregroundStyle(Color.white)
                     .fixedSize(horizontal: false, vertical: true)
-                    
                 
                 Spacer()
             }//HStack
            
 
         }//HStack
-        .padding(.vertical)
-        .padding(.horizontal, 10)
         .contentShape(Rectangle())
-        .background {
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .fill(AppColors.sectionSummaryOffWhite)
-                .stroke(Color.white.opacity(0.4), lineWidth: 1)
-        }
     }
 }
 

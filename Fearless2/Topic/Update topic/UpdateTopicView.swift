@@ -18,17 +18,15 @@ struct UpdateTopicView: View {
     
     let selectedCategory: TopicCategoryItem
     let topicId: UUID?
-    let question: String
     let section: Section?
     
     @FetchRequest var entries: FetchedResults<Entry>
     
-    init(topicViewModel: TopicViewModel, showUpdateTopicView: Binding<Bool?> = .constant(nil), selectedCategory: TopicCategoryItem, topicId: UUID?, question: String, section: Section?) {
+    init(topicViewModel: TopicViewModel, showUpdateTopicView: Binding<Bool?> = .constant(nil), selectedCategory: TopicCategoryItem, topicId: UUID?, section: Section?) {
         self.topicViewModel = topicViewModel
         self._showUpdateTopicView = showUpdateTopicView
         self.selectedCategory = selectedCategory
         self.topicId = topicId
-        self.question = question
         self.section = section
         
         let request: NSFetchRequest<Entry> = Entry.fetchRequest()
@@ -42,23 +40,26 @@ struct UpdateTopicView: View {
     
     var body: some View {
         
-        if let currentSection = section, currentSection.completed {
-            if let entry = currentSection.entry {
-                SectionSummaryView(entry: entry, showUpdateTopicView: $showUpdateTopicView, isFullScreen: true)
-            }
-        } else {
+        ZStack {
             
-            ZStack {
-                Rectangle()
-                    .fill(Material.ultraThin)
-                    .ignoresSafeArea()
-                    .onTapGesture {
+            Rectangle()
+                .fill(Material.ultraThin)
+                .ignoresSafeArea()
+                .onTapGesture {
+                    if selectedTab < 1 {
                         withAnimation(.snappy(duration: 0.2)) {
                             self.showCard = false
                         }
                         showUpdateTopicView = false
                     }
-                
+                }
+            
+            if let currentSection = section, currentSection.completed {
+                if let entry = currentSection.entry {
+                    SectionSummaryView(entry: entry, showUpdateTopicView: $showUpdateTopicView, isFullScreen: true, selectedCategory: selectedCategory)
+                        .padding(.horizontal)
+                }
+            } else {
                 
                 switch selectedTab {
                 case 0:
@@ -71,31 +72,33 @@ struct UpdateTopicView: View {
                         }
                     }
                 case 1:
-                    LoadingAnimation()
+                    LoadingAnimation(selectedCategory: selectedCategory)
                     
                 default:
                     if let entry = entries.first {
-                        SectionSummaryView(entry: entry, showUpdateTopicView: $showUpdateTopicView, isFullScreen: true)
+                        SectionSummaryView(entry: entry, showUpdateTopicView: $showUpdateTopicView, isFullScreen: true, selectedCategory: selectedCategory)
+                            .padding(.horizontal)
                     }
                     
+                }//switch
+                
+            }//else
+        }//ZStack
+        .environment(\.colorScheme, .dark)
+        .onAppear {
+            withAnimation(.snappy(duration: 0.2)) {
+                self.showCard = true
+            }
+        }
+        .onChange(of: topicViewModel.topicUpdated) {
+            if topicViewModel.topicUpdated {
+                withAnimation(.snappy(duration: 0.2)) {
+                    selectedTab += 1
                 }
                 
             }
-            .environment(\.colorScheme, .light)
-            .onAppear {
-                withAnimation(.snappy(duration: 0.2)) {
-                    self.showCard = true
-                }
-            }
-            .onChange(of: topicViewModel.topicUpdated) {
-                if topicViewModel.topicUpdated {
-                    withAnimation(.snappy(duration: 0.2)) {
-                        selectedTab += 1
-                    }
-                    
-                }
-            }
-        }//else
+        }
+        
     }
 }
 

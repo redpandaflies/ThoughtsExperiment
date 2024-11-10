@@ -10,12 +10,14 @@ import SwiftUI
 struct SectionReflectionQuestions: View {
     
     let topicId: UUID
+    let selectedCategory: TopicCategoryItem
     
     @FetchRequest var questions: FetchedResults<Question>
    
-    init(topicId: UUID) {
+    init(topicId: UUID, selectedCategory: TopicCategoryItem) {
         
         self.topicId = topicId
+        self.selectedCategory = selectedCategory
         
         let request: NSFetchRequest<Question> = Question.fetchRequest()
         request.sortDescriptors = []
@@ -35,7 +37,7 @@ struct SectionReflectionQuestions: View {
                 .multilineTextAlignment(.leading)
                 .font(.system(size: 19))
                 .fontWeight(.semibold)
-                .foregroundStyle(AppColors.blackDefault)
+                .foregroundStyle(Color.white)
                 .padding(.vertical, 10)
             
             ForEach(questions, id: \.questionId) { question in
@@ -44,14 +46,14 @@ struct SectionReflectionQuestions: View {
                     .multilineTextAlignment(.leading)
                     .font(.subheadline)
                     .fontWeight(.semibold)
-                    .foregroundStyle(AppColors.blackDefault)
+                    .foregroundStyle(Color.white)
                     .padding(.vertical, 10)
                 
                 SliderView(selectedValue:  Binding(
                     get: { question.answerScale },
                     set: { newValue in
                         question.answerScale = newValue
-                    }), minLabel: question.questionMinLabel, maxLabel: question.questionMaxLabel)
+                    }), selectedCategory: selectedCategory, minLabel: question.questionMinLabel, maxLabel: question.questionMaxLabel)
                     .padding(.bottom, 20)
             }
             

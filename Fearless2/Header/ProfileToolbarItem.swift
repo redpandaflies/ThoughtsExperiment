@@ -15,8 +15,8 @@ struct ProfileToolbarItem: View {
             } label: {
                 Image(systemName: "person.crop.circle")
                     .font(.headline)
-                    .fontWeight(.light)
-                    .foregroundStyle(AppColors.blackDefault)
+                    .foregroundStyle(Color.white)
+                    .opacity(0.6)
             }
             
         }

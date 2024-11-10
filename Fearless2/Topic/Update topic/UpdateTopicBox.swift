@@ -14,6 +14,7 @@ struct UpdateTopicBox: View {
     @State private var topicText: String = ""//user's definition of the new topic
     @State private var selectedValue: Double = 5.0 //value user selects on the slider
     @State private var selectedOptions: [String] = [] //answers user choose for muti-select questions
+    @State private var currentQuestionIndex = 0 //for the progress bar
     @Binding var showCard: Bool
     @Binding var selectedTab: Int
     @FocusState var isFocused: Bool
@@ -24,63 +25,51 @@ struct UpdateTopicBox: View {
     
     var body: some View {
         VStack (alignment: .leading, spacing: 10) {
-            HStack {
-                BubblesCategory(selectedCategory: selectedCategory, useFullName: true)
+            
+            VStack (alignment: .leading, spacing: 5) {
+                Text(section?.sectionTitle ?? "")
+                    .multilineTextAlignment(.leading)
+                    .font(.system(size: 11, weight: .regular))
+                    .foregroundStyle(selectedCategory.getCategoryColor())
+                    .textCase(.uppercase)
                 
-                Spacer()
-            }
-            
-            Text(section?.sectionTitle ?? "")
-                .multilineTextAlignment(.leading)
-                .font(.system(size: 13))
-                .fontWeight(.regular)
-                .foregroundStyle(AppColors.blackDefault)
-                .padding(.bottom, 5)
-            
-            Divider()
-            
-            if let questionType = QuestionType(rawValue: questions[selectedQuestion].questionType) {
-                let currentQuestion = questions[selectedQuestion]
-                switch questionType {
-                    
-                case .open:
-                    QuestionOpenView(topicText: $topicText, selectedQuestion: $selectedQuestion, isFocused: $isFocused, selectedCategory: selectedCategory, question: currentQuestion.questionContent)
-                    
-                case .scale:
-                    let minLabel = currentQuestion.questionMinLabel
-                    let maxLabel = currentQuestion.questionMaxLabel
-                    QuestionScaleView(selectedValue: $selectedValue, question: currentQuestion.questionContent, minLabel: minLabel, maxLabel: maxLabel)
-                    
-                case .multiSelect:
-                    let optionsString = currentQuestion.questionMultiSelectOptions
-                    let optionsArray = optionsString.components(separatedBy: ",")
-                    QuestionMultiSelectView(selectedOptions: $selectedOptions, question: currentQuestion.questionContent, items: optionsArray)
-                    
+                
+                if let questionType = QuestionType(rawValue: questions[selectedQuestion].questionType) {
+                    let currentQuestion = questions[selectedQuestion]
+                    switch questionType {
+                        
+                    case .open:
+                        QuestionOpenView(topicText: $topicText, selectedQuestion: $selectedQuestion, isFocused: $isFocused, question: currentQuestion.questionContent)
+                        
+                    case .scale:
+                        let minLabel = currentQuestion.questionMinLabel
+                        let maxLabel = currentQuestion.questionMaxLabel
+                        QuestionScaleView(selectedValue: $selectedValue, selectedCategory: selectedCategory, question: currentQuestion.questionContent, minLabel: minLabel, maxLabel: maxLabel)
+                        
+                    case .multiSelect:
+                        let optionsString = currentQuestion.questionMultiSelectOptions
+                        let optionsArray = optionsString.components(separatedBy: ",")
+                        QuestionMultiSelectView(selectedOptions: $selectedOptions, question: currentQuestion.questionContent, items: optionsArray)
+                        
+                    }
                 }
-            }
-            
-            HStack {
                 
                 Spacer()
                 
-                Button {
-                    
-                    saveAnswer()
-                    
-                } label: {
-                    Image(systemName: "arrow.right.circle.fill")
-                        .font(.system(size: 40))
-                        .foregroundStyle(AppColors.blackDefault)
-                }
+            }//VStack
+            .padding()
+            .padding(.top)
+            .frame(height: 340)
+            .background {
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(AppColors.questionBoxBackground)
+                    .shadow(color: .black.opacity(0.07), radius: 3, x: 0, y: 1)
+                  
             }
+            
+            QuestionsProgressBar(currentQuestionIndex: $currentQuestionIndex, questionCount: questions.count, action: {saveAnswer()})
         }
-        .padding()
-        .background {
-            RoundedRectangle(cornerRadius: 20)
-                .fill(Color.white)
-                .shadow(color: .black.opacity(0.07), radius: 3, x: 0, y: 1)
-              
-        }
+        
         
     }
     
@@ -111,6 +100,7 @@ struct UpdateTopicBox: View {
         //move to next question
         if selectedQuestion + 1 < numberOfQuestions {
             selectedQuestion += 1
+            currentQuestionIndex += 1
         } else {
            submitForm()
         }
@@ -141,6 +131,9 @@ struct UpdateTopicBox: View {
             print("SelectedQuestion: \(selectedQuestion)")
             
             if answeredQuestionIndex + 1 == numberOfQuestions {
+//                currentSection.completed = true
+                await dataController.save()
+                
                 print("Answered question index is \(answeredQuestionIndex), number of questions is \(numberOfQuestions)")
                 await topicViewModel.manageRun(selectedAssistant: .sectionSummary, category: selectedCategory, section: currentSection)
             }

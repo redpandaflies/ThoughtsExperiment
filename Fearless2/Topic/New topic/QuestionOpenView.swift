@@ -13,7 +13,6 @@ struct QuestionOpenView: View {
     @Binding var selectedQuestion: Int
     @FocusState.Binding var isFocused: Bool
     
-    let selectedCategory: TopicCategoryItem
     var question: String? = nil
     
     var body: some View {
@@ -22,14 +21,14 @@ struct QuestionOpenView: View {
             Text(question ?? "")
             .multilineTextAlignment(.leading)
             .font(.system(size: 19))
-            .fontWeight(.medium)
-            .foregroundStyle(AppColors.blackDefault)
+            .foregroundStyle(Color.white)
+            .fixedSize(horizontal: false, vertical: true)
             
             TextField("Enter your answer", text: $topicText, axis: .vertical)
                 .font(.system(size: 16))
                 .fontWeight(.light)
-                .foregroundStyle(AppColors.blackDefault)
-                .opacity(0.7)
+                .foregroundStyle(Color.white)
+                .opacity(0.4)
                 .lineSpacing(3)
                 .lineLimit(7)
                 .focused($isFocused)

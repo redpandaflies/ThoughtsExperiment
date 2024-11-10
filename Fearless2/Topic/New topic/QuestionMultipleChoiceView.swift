@@ -20,13 +20,14 @@ struct QuestionMultiSelectView: View {
                 .multilineTextAlignment(.leading)
                 .font(.system(size: 19))
                 .fontWeight(.semibold)
-                .foregroundStyle(AppColors.blackDefault)
+                .foregroundStyle(Color.white)
+                .fixedSize(horizontal: false, vertical: true)
                 .padding(.vertical, 10)
             
             Text("Choose all that apply")
                 .font(.system(size: 11))
                 .fontWeight(.light)
-                .foregroundStyle(AppColors.blackDefault)
+                .foregroundStyle(Color.white)
                 .textCase(.uppercase)
             
             WrappingHStack(items, id: \.self, alignment: .leading, spacing: .constant(13), lineSpacing: 12) { pill in
@@ -59,31 +60,17 @@ struct QuestionBubble: View {
         HStack (spacing: 5) {
             Text(option)
                 .font(.system(size: 14))
-                .foregroundStyle(AppColors.blackDefault)
+                .foregroundStyle(selected ? Color.black : Color.white)
                 .fontWeight(.light)
+                .textCase(.lowercase)
                 .fixedSize(horizontal: true, vertical: true)
         }
         .padding(.horizontal, 18)
         .frame(height: 33)
         .background {
-            Capsule(style: .circular)
-                .stroke(AppColors.pillStrokeColor, lineWidth: 1)
-                .shadow(color: AppColors.blackDefault.opacity(0.05), radius: 1, x: 0, y: 1)
-                .overlay(
-                    Capsule(style: .circular)
-                        .foregroundStyle (
-                            getBackgroundColor()
-                                .shadow(.inner(color: selected ? AppColors.blackDefault.opacity(0.15) : Color.clear, radius: 2, x: 0, y: 1))
-                        )
-                )
-        }
-    }
-    
-    private func getBackgroundColor() -> Color {
-        if selected {
-            return AppColors.personal
-        } else {
-            return Color.white
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(Color.white, lineWidth: 1)
+                .fill(selected ? Color.white : Color.clear)
         }
     }
 }

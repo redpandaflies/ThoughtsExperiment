@@ -63,7 +63,7 @@ final class DataController: ObservableObject {
             self.newTopic = topic
             self.logger.log("Updated newTopic published variable")
         }
-        await self.save()
+//        await self.save()
     }
     
     //fetch a topic
@@ -176,8 +176,8 @@ final class DataController: ObservableObject {
             }
         }
 
-        // Save the context
-        await self.save()
+//        // Save the context
+//        await self.save()
     }
     
     //delete topic

@@ -1,36 +1,32 @@
 //
-//  SectionBox.swift
+//  SectionRecapPreviewBox.swift
 //  Fearless2
 //
-//  Created by Yue Deng-Wu on 10/14/24.
+//  Created by Yue Deng-Wu on 11/7/24.
 //
 
 import SwiftUI
 
-struct SectionBox: View {
+struct SectionRecapPreviewBox: View {
     
-    @ObservedObject var section: Section
+    let focusAreaCompleted: Bool
     
     var body: some View {
         VStack (alignment: .leading, spacing: 5) {
             
             HStack {
-                Text(section.sectionTitle)
+                Text("Section Recap")
                     .multilineTextAlignment(.leading)
                     .font(.system(size: 17, weight: .regular))
                     .foregroundStyle(Color.white)
                 
                 Spacer()
             }
-            Text("\(section.sectionQuestions.count) prompts")
-                .font(.system(size: 11))
-                .foregroundStyle(Color.white)
-                .opacity(0.6)
-                .textCase(.uppercase)
             
             Spacer()
             
-            if section.completed {
+            
+            if focusAreaCompleted {
                 Image(systemName: "checkmark")
                     .font(.system(size: 20))
                     .foregroundStyle(Color.white)
@@ -40,20 +36,20 @@ struct SectionBox: View {
                     .font(.system(size: 20))
                     .foregroundStyle(Color.white)
             }
-                
+
         }
-        .opacity(section.completed ? 0.6 : 1)
+        .opacity(focusAreaCompleted ? 0.6 : 1)
         .padding()
         .frame(width: 150, height: 180)
         .contentShape(Rectangle())
         .background {
             RoundedRectangle(cornerRadius: 20)
-                .stroke(section.completed ? Color.clear : Color.white, lineWidth: 1)
-                .fill(section.completed ? AppColors.sectionBoxBackground : Color.clear)
+                .stroke(focusAreaCompleted ? Color.clear : Color.white, lineWidth: 1)
+                .fill(focusAreaCompleted ? AppColors.sectionBoxBackground : Color.clear)
         }
     }
 }
 
 //#Preview {
-//    HomeSectionBox(title: "Identify all possible options")
+//    SectionRecapPreviewBox()
 //}

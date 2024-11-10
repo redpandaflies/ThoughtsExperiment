@@ -39,12 +39,12 @@ struct CreateNewTopicView: View {
                 }
                 
             default:
-                LoadingAnimation()
+                LoadingAnimation(selectedCategory: selectedCategory)
                 
             }
             
         }
-        .environment(\.colorScheme, .light)
+        .environment(\.colorScheme, .dark)
         .onAppear {
             withAnimation(.snappy(duration: 0.2)) {
                 self.showCard = true
@@ -63,11 +63,11 @@ struct CreateNewTopicView: View {
             self.showCard = false
         }
         showCreateNewTopicView = false
-        Task {
-            if let topicId = dataController.newTopic?.topicId {
-                await self.dataController.deleteTopic(id: topicId)
-            }
-        }
+//        Task {
+//            if let topicId = dataController.newTopic?.topicId {
+//                await self.dataController.deleteTopic(id: topicId)
+//            }
+//        }
     }
 }
 

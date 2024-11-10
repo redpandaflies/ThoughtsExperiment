@@ -13,6 +13,7 @@ struct SectionListView: View {
     @Binding var selectedCategory: TopicCategoryItem
     @Binding var selectedSection: Section?
     let sections: [Section]
+    let focusAreaCompleted: Bool
     
     // Computed property to sort sections
     var sortedSections: [Section] {
@@ -20,7 +21,7 @@ struct SectionListView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        HStack(spacing: 12) {
             ForEach(sortedSections, id: \.sectionId) { section in
                 SectionBox(section: section)
                     .onTapGesture {
@@ -32,7 +33,7 @@ struct SectionListView: View {
                     }
             }
             
-            SectionBox()
+            SectionRecapPreviewBox(focusAreaCompleted: focusAreaCompleted)
                 .onTapGesture {
                     showSectionRecapView = true
                 }

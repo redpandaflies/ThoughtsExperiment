@@ -17,11 +17,12 @@ struct AppColors {
     static let homeBackground = Color(#colorLiteral(red: 0.933, green: 0.929, blue: 0.91, alpha: 1)) // #eeede8
     
     //categories
-    static let personal = Color(#colorLiteral(red: 1, green: 0.824, blue: 0.196, alpha: 1)) // #ffd232
-    static let work = Color(#colorLiteral(red: 0.318, green: 0.31, blue: 0.757, alpha: 1)) // #514fc1
+    static let categoryYellow = Color(#colorLiteral(red: 1, green: 0.722, blue: 0, alpha: 1)) // #ffb800
+    static let categoryRed = Color(#colorLiteral(red: 1, green: 0.49, blue: 0.376, alpha: 1)) // #ff7d60
     
     //sections
     static let sectionPillBackground = Color(#colorLiteral(red: 0.871, green: 0.863, blue: 0.831, alpha: 1)) // #dedcd4
+    static let sectionBoxBackground = Color(#colorLiteral(red: 0.102, green: 0.102, blue: 0.102, alpha: 1)) // #1a1a1a
     
     //sectionSummary
     static let sectionSummaryLight = Color(#colorLiteral(red: 0.827, green: 0.851, blue: 0.922, alpha: 1)) // #d3d9eb
@@ -30,5 +31,6 @@ struct AppColors {
     
     //questions
     static let pillStrokeColor = Color(#colorLiteral(red: 0.902, green: 0.902, blue: 0.902, alpha: 1)) // #e6e6e6
+    static let questionBoxBackground = Color(#colorLiteral(red: 0.082, green: 0.082, blue: 0.082, alpha: 1)) // #151515
     
 }

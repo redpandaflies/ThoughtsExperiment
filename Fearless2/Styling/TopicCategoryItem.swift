@@ -11,14 +11,32 @@ import SwiftUI
 enum TopicCategoryItem: Int, CaseIterable, CategoryItemProtocol{
     case personal
     case work
+    case relationships
+    case entertainment
+    case hobbies
+    case finances
+    case wellness
+    case spirituality
    
    
    func getFullName() -> String {
        switch self {
        case .personal:
-           return "Personal"
+           return "Personal Growth"
        case .work:
            return "Work"
+       case .relationships:
+           return "Relationships"
+       case .entertainment:
+           return "Entertainment"
+       case .hobbies:
+           return "Hobbies and Interests"
+       case .finances:
+           return "Finances"
+       case .wellness:
+           return "Wellness"
+       case .spirituality:
+           return "Spirituality"
        }
    }
    
@@ -28,6 +46,18 @@ enum TopicCategoryItem: Int, CaseIterable, CategoryItemProtocol{
            return "Personal"
        case .work:
            return "Work"
+       case .relationships:
+           return "Relationships"
+       case .entertainment:
+           return "Entertainment"
+       case .hobbies:
+           return "Hobbies"
+       case .finances:
+           return "Finances"
+       case .wellness:
+           return "Wellness"
+       case .spirituality:
+           return "Spirituality"
        }
    }
    
@@ -42,32 +72,32 @@ enum TopicCategoryItem: Int, CaseIterable, CategoryItemProtocol{
    
    func getBubbleColor() -> Color {
        switch self {
-       case .personal:
-           return AppColors.personal
-       case .work:
-           return AppColors.work
-       }
-   }
-   
-   func getDescription() -> String {
-       switch self {
-       case .personal:
-           return "Family, friends, hobbies, wellness and self-care"
-       case .work:
-           return "Ideas, projects, and challenges at work"
-           
-       }
-   }
-   
-   func getQuestion() -> String {
-       switch self {
-       case .personal:
-           return "What is on your mind?"
-       case .work:
-           return "What is on your mind?"
+       case .work, .finances:
+           return AppColors.categoryYellow
+       default:
+           return AppColors.categoryRed
        }
    }
     
+    func getCategoryColor() -> Color {
+        switch self {
+        case .work, .finances:
+            return AppColors.categoryYellow
+        default:
+            return AppColors.categoryRed
+        }
+    }
+    
+    func getCategoryEmoji() -> String {
+        switch self {
+        case .work:
+            return "desktopcomputer"
+        case .finances:
+            return "creditcard.fill"
+        default:
+            return "heart.fill"
+        }
+    }
 }
 
 extension TopicCategoryItem {

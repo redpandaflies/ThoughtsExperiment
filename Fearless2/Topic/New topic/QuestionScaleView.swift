@@ -9,6 +9,7 @@ import SwiftUI
 
 struct QuestionScaleView: View {
     @Binding var selectedValue: Double
+    let selectedCategory: TopicCategoryItem
     let question: String
     let minLabel: String
     let maxLabel: String
@@ -20,10 +21,11 @@ struct QuestionScaleView: View {
                 .multilineTextAlignment(.leading)
                 .font(.system(size: 19))
                 .fontWeight(.semibold)
-                .foregroundStyle(AppColors.blackDefault)
+                .foregroundStyle(Color.white)
+                .fixedSize(horizontal: false, vertical: true)
                 .padding(.vertical, 10)
             
-            SliderView(selectedValue: $selectedValue, minLabel: minLabel, maxLabel: maxLabel)
+            SliderView(selectedValue: $selectedValue, selectedCategory: selectedCategory, minLabel: minLabel, maxLabel: maxLabel)
                 .padding(.bottom, 30)
             
         }

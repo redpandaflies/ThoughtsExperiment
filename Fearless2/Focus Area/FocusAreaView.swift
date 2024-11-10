@@ -7,23 +7,23 @@
 import CoreData
 import SwiftUI
 
-struct FocusAreaView: View {
+struct FocusAreasView: View {
     @ObservedObject var topicViewModel: TopicViewModel
-    
-    @Binding var showUpdateTopicView: Bool?
-    @Binding var showSectionRecapView: Bool
+   
+    @Binding var showFocusAreasView: Bool
+    @State private var showUpdateTopicView: Bool? = nil
+    @State private var showSectionRecapView: Bool = false
+    @State private var selectedSection: Section? = nil
     @Binding var selectedCategory: TopicCategoryItem
-    @Binding var selectedSection: Section?
+ 
     let topicId: UUID?
     
     @FetchRequest var focusAreas: FetchedResults<FocusArea>
     
-    init(topicViewModel: TopicViewModel, showUpdateTopicView: Binding<Bool?>, showSectionRecapView: Binding<Bool>, selectedCategory: Binding<TopicCategoryItem>, selectedSection: Binding<Section?>, topicId: UUID?) {
+    init(topicViewModel: TopicViewModel, showFocusAreasView: Binding<Bool>, selectedCategory: Binding<TopicCategoryItem>, topicId: UUID?) {
         self.topicViewModel = topicViewModel
-        self._showUpdateTopicView = showUpdateTopicView
-        self._showSectionRecapView = showSectionRecapView
+        self._showFocusAreasView = showFocusAreasView
         self._selectedCategory = selectedCategory
-        self._selectedSection = selectedSection
         self.topicId = topicId
         
         let request: NSFetchRequest<FocusArea> = FocusArea.fetchRequest()
@@ -35,37 +35,60 @@ struct FocusAreaView: View {
     }
     
     var body: some View {
-        
-        ForEach(Array(focusAreas.enumerated()), id: \.element.focusAreaId) { index, area in
-            VStack (alignment: .leading) {
-                Text("\(index + 1)")
-                    .multilineTextAlignment(.leading)
-                    .font(.system(size: 30))
-                    .fontWeight(.regular)
-                    .foregroundStyle(selectedCategory.getBubbleColor())
+       
+            ZStack {
+                ScrollView (showsIndicators: false) {
+                    VStack (alignment: .leading) {
+                        ForEach(Array(focusAreas.enumerated()), id: \.element.focusAreaId) { index, area in
+                            
+                            FocusAreaBox(showUpdateTopicView: $showUpdateTopicView, showSectionRecapView: $showSectionRecapView, selectedCategory: $selectedCategory, selectedSection: $selectedSection, focusArea: area, index: index)
+                                .padding(.bottom, 20)
+                            
+                        }//ForEach
+                    }//VStack
+                }//ScrollView
+                .padding()
+                .scrollClipDisabled(true)
+                .safeAreaInset(edge: .top, content: {
+                    Rectangle()
+                        .foregroundStyle(.clear)
+                        .frame(height: 80)
+                })
+                .safeAreaInset(edge: .bottom, content: {
+                    Rectangle()
+                        .foregroundStyle(.clear)
+                        .frame(height: 40)
+                })
+                
+                VStack {
+                    FocusAreaHeader(showFocusAreasView: $showFocusAreasView, topicId: topicId)
                     
-                Text(area.focusAreaTitle)
-                    .multilineTextAlignment(.leading)
-                    .font(.system(size: 25))
-                    .fontWeight(.regular)
-                    .foregroundStyle(AppColors.blackDefault)
+                    Spacer()
+                }
+                .ignoresSafeArea(.all)
+                
+            }
+            .ignoresSafeArea(.all)
+            .ignoresSafeArea(.keyboard)
+            .background {
+                Color.black
+                  .ignoresSafeArea()
+            }
+            .overlay {
+                if let showingUpdateTopicView = showUpdateTopicView, showingUpdateTopicView {
+                    UpdateTopicView(topicViewModel: topicViewModel, showUpdateTopicView: $showUpdateTopicView, selectedCategory: selectedCategory, topicId: topicId, section: selectedSection)
+                } else if showSectionRecapView {
+                    if let currentTopicId = topicId {
+                        SectionRecapView(topicViewModel: topicViewModel, showSectionRecapView: $showSectionRecapView, topicId: currentTopicId, selectedCategory: selectedCategory)
+                    }
                     
-                
-                Text(area.focusAreaReasoning)
-                    .multilineTextAlignment(.leading)
-                    .font(.system(size: 16))
-                    .fontWeight(.regular)
-                    .foregroundStyle(AppColors.blackDefault)
-                    .opacity(0.7)
-                
-                SectionListView(showUpdateTopicView: $showUpdateTopicView, showSectionRecapView: $showSectionRecapView, selectedCategory: $selectedCategory, selectedSection: $selectedSection, sections: area.focusAreaSections)
-                
-            }//VStack
-        }
-        
+                }
+            }
         
     }
 }
+
+
 
 //#Preview {
 //    FocusAreaView()

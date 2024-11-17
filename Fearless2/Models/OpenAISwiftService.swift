@@ -39,25 +39,46 @@ final class OpenAISwiftService: ObservableObject {
     
     
     //send recording to Whisper for transcript
-    func getTranscript(newEntryId: String, data: Data) async -> Result<String?, Error> {
+    func getTranscript(newEntryId: String, data: Data) async -> String? {
         let fileName = "recording\(newEntryId).m4a"
-        let parameters = AudioTranscriptionParameters(fileName: fileName, file: data, responseFormat: "text")
+        let parameters = AudioTranscriptionParameters(fileName: fileName, file: data)
 
-        return await withCheckedContinuation { continuation in
-            Task {
-                do {
-                    let audioObject = try await service.createTranscription(parameters: parameters)
-                    continuation.resume(returning: .success(audioObject.text))
-                } catch {
-                    loggerOpenAI.error("Failed to receive transcript from OpenAI: \(error.localizedDescription)")
-                    continuation.resume(returning: .failure(error))
+        do {
+            let audioObject = try await service.createTranscription(parameters: parameters)
+            loggerOpenAI.info("Raw response from Whisper: \(String(describing: audioObject))")
+            
+            return audioObject.text
+        } catch {
+            loggerOpenAI.error("Failed to receive transcript from OpenAI: \(error.localizedDescription)")
+            
+            if let apiError = error as? APIError {
+                // Handle specific cases of APIError
+                switch apiError {
+                case .requestFailed(let description):
+                    loggerOpenAI.error("Request failed: \(description)")
+                case .responseUnsuccessful(let description, let statusCode):
+                    loggerOpenAI.error("Response unsuccessful (Status Code \(statusCode)): \(description)")
+                case .invalidData:
+                    loggerOpenAI.error("Invalid data received from OpenAI.")
+                case .jsonDecodingFailure(let description):
+                    loggerOpenAI.error("JSON decoding failure: \(description)")
+                case .dataCouldNotBeReadMissingData(let description):
+                    loggerOpenAI.error("Data missing: \(description)")
+                case .bothDecodingStrategiesFailed:
+                    loggerOpenAI.error("Both decoding strategies failed.")
+                case .timeOutError:
+                    loggerOpenAI.error("Request timed out.")
                 }
+            } else if let decodingError = error as? DecodingError {
+                loggerOpenAI.error("Decoding Error: \(decodingError.localizedDescription)")
+            } else {
+                loggerOpenAI.error("Unexpected Error: \(error.localizedDescription)")
             }
+
+            return nil
         }
     }
-    
-    
-    
+
     func createThread() async throws -> String? {
         
         let parameters = CreateThreadParameters()
@@ -77,7 +98,7 @@ final class OpenAISwiftService: ObservableObject {
     
     // Creates a message in a specific thread
     func createMessage(threadId: String, content: String) async throws -> AIMessage? {
-        let parameters = SwiftOpenAI.MessageParameter(role: .user, content: content)
+        let parameters = SwiftOpenAI.MessageParameter(role: .user, content: .stringContent(content))
         
         do {
             let messageResponse = try await service.createMessage(
@@ -195,7 +216,7 @@ extension OpenAISwiftService {
     }
     
     @MainActor
-    func processNewTopic(category: String, topicId: UUID) async {
+    func processNewTopic(topicId: UUID) async {
         let arguments = self.messageText
         let context = self.dataController.container.viewContext
 
@@ -283,32 +304,32 @@ extension OpenAISwiftService {
     //save new entry to CoreData
     //need entryId, so we know which entry AND topic is being updated
     @MainActor
-    func processSectionSummary(category: String, section: Section) async {
+    func processSectionSummary(section: Section) async {
         let arguments = self.messageText
         let context = self.dataController.container.viewContext
 
         await context.perform {
             // Decode the arguments to get the new topic data
-            guard let newSummary = self.decodeArguments(arguments: arguments, as: SectionSummary.self) else {
+            guard let newSummary = self.decodeArguments(arguments: arguments, as: NewSectionSummary.self) else {
                 self.loggerOpenAI.error("Couldn't decode arguments for section summary.")
                 return
             }
             
             //create entry
-            let entry: Entry
-            entry = Entry(context: context)
-            entry.entryId = UUID()
-            entry.entryCreatedAt = getCurrentTimeString()
-            entry.entrySummary = newSummary.summary
-            entry.entryFeedback = newSummary.feedback
-            section.assignEntry(entry)
+            let summary: SectionSummary
+            summary = SectionSummary(context: context)
+            summary.summaryId = UUID()
+            summary.summaryCreatedAt = getCurrentTimeString()
+            summary.summarySummary = newSummary.summary
+            summary.summaryFeedback = newSummary.feedback
+            section.assignSummary(summary)
             
             //Update entry insights
             for newInsight in newSummary.insights {
                 let insight = Insight(context: context)
                 insight.insightId = UUID()
                 insight.insightContent = newInsight.content
-                entry.addToInsights(insight)
+                summary.addToInsights(insight)
             }
             
             //Save the context
@@ -318,6 +339,64 @@ extension OpenAISwiftService {
                 self.loggerCoreData.error("Error saving topic: \(error.localizedDescription)")
             }
         }
+    }
+    
+    @MainActor
+    func processEntry(entryId: UUID) async -> Entry? {
+        let arguments = self.messageText
+        let context = self.dataController.container.viewContext
+        
+        var currentEntry: Entry? = nil
+        
+        await context.perform {
+            
+            // Fetch the entry with the provided entryId
+            let request = NSFetchRequest<Entry>(entityName: "Entry")
+            request.predicate = NSPredicate(format: "id == %@", entryId as CVarArg)
+            
+            do {
+                guard let entry = try context.fetch(request).first else {
+                    self.loggerCoreData.error("No entry found with entryId: \(entryId)")
+                    return
+                }
+                
+                
+                // Decode the arguments to get the new topic data
+                guard let newEntry = self.decodeArguments(arguments: arguments, as: NewEntry.self) else {
+                    self.loggerOpenAI.error("Couldn't decode arguments for section summary.")
+                    return
+                }
+               
+                //create entry
+                entry.entryTitle = newEntry.title
+                entry.entrySummary = newEntry.summary
+                entry.entryFeedback = newEntry.feedback
+                
+                //Update entry insights
+                for newInsight in newEntry.insights {
+                    let insight = Insight(context: context)
+                    insight.insightId = UUID()
+                    insight.insightContent = newInsight.content
+                    entry.addToInsights(insight)
+                }
+                
+                //set return value
+                currentEntry = entry
+                
+            } catch {
+                self.loggerCoreData.error("Error fetching entry: \(error.localizedDescription)")
+                return
+            }
+            //Save the context
+            do {
+                try context.save()
+            } catch {
+                self.loggerCoreData.error("Error saving new entry: \(error.localizedDescription)")
+                return
+            }
+        }
+        
+        return currentEntry
     }
     
     @MainActor
@@ -416,7 +495,7 @@ struct Option: Codable, Hashable {
 }
 
 //process update to topic
-struct SectionSummary: Codable, Hashable {
+struct NewSectionSummary: Codable, Hashable {
     let summary: String
     let feedback: String
     let insights: [NewInsight]
@@ -434,4 +513,13 @@ struct NewSectionSuggestions: Codable, Hashable {
 
 struct SectionSuggestion: Codable, Hashable {
     let content: String
+}
+
+//entry
+
+struct NewEntry: Codable, Hashable {
+    let title: String
+    let summary: String
+    let feedback: String
+    let insights: [NewInsight]
 }

@@ -24,8 +24,8 @@ extension Section {
         return result
     }
     
-    func assignEntry(_ entry: Entry) {
-        self.entry = entry
-        entry.section = self
+    func assignSummary(_ summary: SectionSummary) {
+        self.summary = summary
+        summary.section = self
     }
 }

@@ -13,6 +13,7 @@ struct AppViewsManager: View {
     @EnvironmentObject var openAISwiftService: OpenAISwiftService
     
     @StateObject var topicViewModel: TopicViewModel
+    @StateObject var transcriptionViewModel: TranscriptionViewModel
     
     @State private var selectedTab: TabBarItem = .topics
     @State private var showFocusAreasView: Bool = false
@@ -22,9 +23,11 @@ struct AppViewsManager: View {
     @State private var selectedTopic: Topic? = nil
     
     init(dataController: DataController, openAISwiftService: OpenAISwiftService) {
+
+        let transcriptionViewModel = TranscriptionViewModel(openAISwiftService: openAISwiftService, dataController: dataController)
+        _transcriptionViewModel = StateObject(wrappedValue: transcriptionViewModel)
         
-        let topicViewModel = TopicViewModel(openAISwiftService: openAISwiftService, dataController: dataController)
-        
+        let topicViewModel = TopicViewModel(openAISwiftService: openAISwiftService, dataController: dataController, transcriptionViewModel: transcriptionViewModel)
         _topicViewModel = StateObject(wrappedValue: topicViewModel)
     }
     
@@ -34,7 +37,7 @@ struct AppViewsManager: View {
             ZStack {
                 switch selectedTab {
                 case .topics:
-                    ActiveTopicsView(topicViewModel: topicViewModel, showCreateNewTopicView: $showCreateNewTopicView, selectedTopic: $selectedTopic, showFocusAreasView: $showFocusAreasView)
+                    ActiveTopicsView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, showCreateNewTopicView: $showCreateNewTopicView, selectedTopic: $selectedTopic, showFocusAreasView: $showFocusAreasView)
                 case .lifeChart:
                     EmptyView()
                 }
@@ -49,6 +52,7 @@ struct AppViewsManager: View {
                     .ignoresSafeArea(.all)
             }
         }
+        .tint(.black)
         .environment(\.colorScheme, .dark)
         .overlay  {
             if showCreateNewTopicView {
@@ -59,6 +63,8 @@ struct AppViewsManager: View {
         }
     }
 }
+
+
 
 //#Preview {
 //    AppViewsManager()

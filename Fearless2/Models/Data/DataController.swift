@@ -54,12 +54,12 @@ final class DataController: ObservableObject {
     }
     
     //create new topic
-    func createTopic(category: TopicCategoryItem) async {
+    func createTopic(category: String) async {
         await context.perform {
             let topic = Topic(context: self.context)
             topic.topicId = UUID()
             topic.topicCreatedAt = getCurrentTimeString()
-            topic.topicCategory = category.getFullName()
+            topic.topicCategory = category
             self.newTopic = topic
             self.logger.log("Updated newTopic published variable")
         }

@@ -75,11 +75,11 @@ struct SectionRecapBox: View {
                 currentQuestionIndex += 1
                 await dataController.save()
                 //API call to AI assistant for suggestions
-                await topicViewModel.manageRun(selectedAssistant: .sectionSuggestions, category: selectedCategory, topicId: topicId)
+                await topicViewModel.manageRun(selectedAssistant: .sectionSuggestions, topicId: topicId)
                 
             case .suggestions:
 
-                await topicViewModel.manageRun(selectedAssistant: .focusArea, category: selectedCategory, userInput: selectedOptions, topicId: topicId)
+                await topicViewModel.manageRun(selectedAssistant: .focusArea, userInput: selectedOptions, topicId: topicId)
                 
             }
         }

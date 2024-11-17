@@ -1,5 +1,5 @@
 //
-//  InsightBoxView.swift
+//  SectionInsightBoxView.swift
 //  Tinyverse
 //
 //  Created by Yue Deng-Wu on 10/23/24.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct InsightBoxView: View {
+struct SectionInsightBoxView: View {
     
     @ObservedObject var insight: Insight
     

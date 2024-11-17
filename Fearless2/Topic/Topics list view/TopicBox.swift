@@ -14,7 +14,7 @@ struct TopicBox: View {
         return topic.topicSections.min { $0.sectionNumber < $1.sectionNumber }
     }
     var topicCategory: TopicCategoryItem {
-        return TopicCategoryItem.fromShortName(topic.topicCategory) ?? .relationships
+        return TopicCategoryItem.fromFullName(topic.topicCategory) ?? .work
     }
     
     var body: some View {
@@ -30,6 +30,7 @@ struct TopicBox: View {
             
             
             Text(topic.topicTitle)
+                .multilineTextAlignment(.leading)
                 .font(.system(size: 19))
                 .foregroundStyle(topicCategory.getCategoryColor())
                 .padding(.top, 1)
@@ -39,6 +40,7 @@ struct TopicBox: View {
             
             
             Text("Next")
+                .multilineTextAlignment(.leading)
                 .font(.system(size: 11, weight: .regular))
                 .foregroundStyle(Color.white)
                 .opacity(0.6)
@@ -46,6 +48,7 @@ struct TopicBox: View {
             
             if let section = nextSection {
                 Text(section.sectionTitle)
+                    .multilineTextAlignment(.leading)
                     .font(.system(size: 11, weight: .regular))
                     .foregroundStyle(Color.white)
                     .opacity(0.9)

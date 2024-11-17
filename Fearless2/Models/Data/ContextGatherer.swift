@@ -12,7 +12,7 @@ import OSLog
 struct ContextGatherer {
     
     //for creating a brand new topic
-    static func gatherContextGeneral(dataController: DataController, loggerCoreData: Logger, topicId: UUID, userInput: [String]? = nil) async -> String? {
+    static func gatherContextGeneral(dataController: DataController, loggerCoreData: Logger, topicId: UUID, transcript: String? = nil, userInput: [String]? = nil) async -> String? {
         
         var context = "Here is what we know so far about the topic: \n"
         
@@ -26,6 +26,7 @@ struct ContextGatherer {
         - topic relates to this part of the user's life: \(topic.topicCategory)\n\n
         """
         
+        //questions users answered when creating topic
         let starterQuestions = topic.topicQuestions.filter { $0.starterQuestion }
         
             
@@ -51,6 +52,10 @@ struct ContextGatherer {
         
         if let focusArea = userInput {
             context += "The user would like three (no more & no less!) new sections around this: \(focusArea)\n"
+        }
+        
+        if let currentTranscript = transcript {
+            context += "This is the transcript for the new entry. Please use this when creating the new entry title, summary, insights, and feedback:\n\(currentTranscript)\n"
         }
         
         //get focus areas
@@ -98,7 +103,28 @@ struct ContextGatherer {
             }
         }
         
+        //get entries
+        let entries = topic.topicEntries
         
+        if !entries.isEmpty {
+
+            for entry in entries {
+                context += """
+                    \n title: \(entry.entryTitle)
+                    summary: \(entry.entrySummary)\n
+                    Here are the entry insights: \n
+                """
+
+                for insight in entry.entryInsights {
+                    context += """
+                        insight: \(insight.insightContent) \n
+                    """
+                }
+                
+                
+            }
+            
+        }
         
         return context
     }

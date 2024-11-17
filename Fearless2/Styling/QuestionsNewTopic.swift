@@ -31,10 +31,9 @@ extension QuestionsNewTopic {
     
     static var questions: [QuestionsNewTopic] {
         [
-            .init(id: 0, content: "Which area of life is on your mind?", questionType: .multiSelect, options: ["relationships", "entertainment", "work", "hobbies and interests", "personal growth", "finances", "wellness", "spirituality"]),
-            .init(id: 1, content: "How important is this area of your life to you?", questionType: .scale, minLabel: "Not at all", maxLabel: "Extremely"),
-            .init(id: 2, content: "How satisfied are you with this are of your life?", questionType: .scale, minLabel: "Not at all", maxLabel: "Extremely"),
-            .init(id: 3, content: "What would make you feel better about this area of your life?", questionType: .open),
+            .init(id: 0, content: "Which area of life is on your mind?", questionType: .multiSelect, options: TopicCategoryItem.allCases.map {$0.getFullName()}),
+            .init(id: 1, content: "What's on your mind", questionType: .open)
         ]
     }
 }
+

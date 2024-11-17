@@ -135,7 +135,7 @@ struct UpdateTopicBox: View {
                 await dataController.save()
                 
                 print("Answered question index is \(answeredQuestionIndex), number of questions is \(numberOfQuestions)")
-                await topicViewModel.manageRun(selectedAssistant: .sectionSummary, category: selectedCategory, section: currentSection)
+                await topicViewModel.manageRun(selectedAssistant: .sectionSummary, section: currentSection)
             }
         }
             

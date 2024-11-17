@@ -14,6 +14,7 @@ enum AssistantItem: Int, CaseIterable {
     case sectionSummary
     case sectionSuggestions
     case focusArea
+    case entry
     
     func getAssistantId() -> String? {
         switch self {
@@ -25,6 +26,8 @@ enum AssistantItem: Int, CaseIterable {
             return Constants.openAIAssistantIdSectionSuggestions
         case .focusArea:
             return Constants.openAIAssistantIdFocusArea
+        case .entry:
+            return Constants.openAIAssistantIdEntry
         }
     }
     

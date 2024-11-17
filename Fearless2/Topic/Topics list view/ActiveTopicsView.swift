@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ActiveTopicsView: View {
     @ObservedObject var topicViewModel: TopicViewModel
+    @ObservedObject var transcriptionViewModel: TranscriptionViewModel
     
     @State private var showUpdateTopicView: Bool? = nil
     @State private var showSectionRecapView: Bool = false
@@ -29,17 +30,17 @@ struct ActiveTopicsView: View {
     ) var topics: FetchedResults<Topic>
     
     var body: some View {
-        ZStack {
-            
+        NavigationStack {
+            ZStack {
+                
                 ScrollView (showsIndicators: false) {
                     LazyVGrid(columns: columns, spacing: 15) {
                         ForEach(topics, id: \.topicId) { topic in
-                            TopicBox(topic: topic)
-                                .onTapGesture {
-                                    selectedCategory = TopicCategoryItem.fromShortName(topic.topicCategory) ?? .personal
-                                    selectedTopic = topic
-                                    showFocusAreasView = true
-                                }
+                            
+                            NavigationLink (destination: TopicDetailView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, topic: topic)) {
+                                TopicBox(topic: topic)
+                            }
+                               
                         }
                     }
                     
@@ -51,32 +52,33 @@ struct ActiveTopicsView: View {
                         .foregroundStyle(.clear)
                         .frame(height: 100)
                 })
-            
-            VStack {
-                Spacer()
                 
-                RectangleButton(buttonName: "New Topic")
-                    .padding()
-                    .onTapGesture {
-                        showCreateNewTopicView = true
-                    }
-                    .sensoryFeedback(.selection, trigger: showCreateNewTopicView) { oldValue, newValue in
-                        return oldValue != newValue && newValue == true
-                    }
+                VStack {
+                    Spacer()
+                    
+                    RectangleButton(buttonName: "New Topic")
+                        .padding()
+                        .onTapGesture {
+                            showCreateNewTopicView = true
+                        }
+                        .sensoryFeedback(.selection, trigger: showCreateNewTopicView) { oldValue, newValue in
+                            return oldValue != newValue && newValue == true
+                        }
+                }
+                .padding(.bottom, 110)
+            }//ZStack
+            .ignoresSafeArea(.keyboard)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    ToolbarTitleItem(title: "Your Topics")
+                }
+                
+                ToolbarItem(placement: .topBarTrailing) {
+                    ProfileToolbarItem()
+                }
             }
-            .padding(.bottom, 110)
-        }//ZStack
-        .ignoresSafeArea(.keyboard)
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                ToolbarTitleItem(title: "Your Topics")
-            }
-            
-            ToolbarItem(placement: .topBarTrailing) {
-                ProfileToolbarItem()
-            }
+            .navigationBarTitleDisplayMode(.inline)
         }
-        .navigationBarTitleDisplayMode(.inline)
         
     }
 }

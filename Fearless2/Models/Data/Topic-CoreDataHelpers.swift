@@ -64,4 +64,9 @@ extension Topic {
         let result = focusAreas?.allObjects as? [FocusArea] ?? []
         return result
     }
+    
+    var topicEntries: [Entry] {
+        let result = entries?.allObjects as? [Entry] ?? []
+        return result
+    }
 }

@@ -1,46 +1,40 @@
 //
-//  Entry-CoreDataHelpers.swift
+//  SectionSummary-CoreDataHelpers.swift
 //  Fearless2
 //
-//  Created by Yue Deng-Wu on 10/28/24.
+//  Created by Yue Deng-Wu on 11/15/24.
 //
 
 import Foundation
 
-extension Entry {
-    var entryId: UUID {
+extension SectionSummary {
+    var summaryId: UUID {
         get { id ?? UUID()}
         set { id = newValue}
     }
     
-    var entryCreatedAt: String {
+    var summaryCreatedAt: String {
         get { createdAt ?? "" }
         set { createdAt = newValue }
     }
     
-    var entryTitle: String {
+    var summaryTitle: String {
         get { title ?? "" }
         set { title = newValue }
     }
     
-    var entryTranscript: String {
-        get { transcript ?? "" }
-        set { transcript = newValue }
-    }
-    
-    var entrySummary: String {
+    var summarySummary: String {
         get { summary ?? "" }
         set { summary = newValue }
     }
     
-    var entryFeedback: String {
+    var summaryFeedback: String {
         get { feedback ?? "" }
         set { feedback = newValue }
     }
     
-    var entryInsights: [Insight] {
+    var summaryInsights: [Insight] {
         let result = insights?.allObjects as? [Insight] ?? []
         return result
     }
-    
 }

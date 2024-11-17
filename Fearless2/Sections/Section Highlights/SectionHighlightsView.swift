@@ -41,7 +41,7 @@ struct SectionSummaryView: View {
                     VStack (alignment: .leading, spacing: 15) {
                         ForEach(entry.entryInsights, id: \.insightId) { insight in
                             
-                            InsightBoxView(insight: insight)
+                            SectionInsightBoxView(insight: insight)
                         }
                     }
                 }//Scrollview

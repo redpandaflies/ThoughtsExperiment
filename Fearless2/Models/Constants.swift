@@ -78,5 +78,18 @@ enum Constants {
         return openAIId
     }()
     
+    static let openAIAssistantIdEntry: String = {
+
+        guard let infoDict = infoDictionary,
+              let openAIId = infoDict["OPENAI_ASSISTANT_ID_ENTRY"] as? String else {
+            logger.error("OpenAI entry assistant ID not available, using placeholder")
+            return ""
+        }
+       
+        logger.info("Retrieved OpenAI entry assistant ID: \(openAIId)")
+       
+        return openAIId
+    }()
+    
 }
 

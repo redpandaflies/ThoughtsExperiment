@@ -88,6 +88,15 @@ enum TopicCategoryItem: Int, CaseIterable, CategoryItemProtocol{
         }
     }
     
+    func getDividerColor() -> Color {
+        switch self {
+        case .work, .finances:
+            return AppColors.categoryDividerYellow
+        default:
+            return AppColors.categoryRed
+        }
+    }
+    
     func getCategoryEmoji() -> String {
         switch self {
         case .work:
@@ -104,4 +113,17 @@ extension TopicCategoryItem {
     static func fromShortName(_ shortName: String) -> TopicCategoryItem? {
         return self.allCases.first { $0.getShortName() == shortName }
     }
+    
+    //converting full name to TopicCategoryItem
+    static let fullNameToCase: [String: TopicCategoryItem] = {
+        var mapping: [String: TopicCategoryItem] = [:]
+        for item in allCases {
+            mapping[item.getFullName()] = item
+        }
+        return mapping
+    }()
+    
+    static func fromFullName(_ fullName: String) -> TopicCategoryItem? {
+            return fullNameToCase[fullName]
+        }
 }

@@ -112,7 +112,9 @@ struct CreateNewTopicBox: View {
             case .multiSelect:
                 if let newSelectedOptions = answeredQuestionSelectedOptions {
                     if answeredQuestionIndex == 0 {
-                        await dataController.createTopic(category: selectedCategory)
+                        if let category = newSelectedOptions.first {
+                            await dataController.createTopic(category: category)
+                        }
                     }
                     
                     await dataController.saveAnswer(questionType: .multiSelect, questionContent: answeredQuestion.content, userAnswer: newSelectedOptions)
@@ -127,7 +129,7 @@ struct CreateNewTopicBox: View {
                 print("Answered question index is 6")
                 if let topicId = dataController.newTopic?.topicId {
                     print("Creating new topic, sending to context assistant")
-                    await topicViewModel.manageRun(selectedAssistant: .focusArea, category: selectedCategory, topicId: topicId)
+                    await topicViewModel.manageRun(selectedAssistant: .focusArea, topicId: topicId)
                 }
             }
         }

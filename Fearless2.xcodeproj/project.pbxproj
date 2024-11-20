@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		8A1DCD272CB1C44D00580DE6 /* QuestionScaleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A1DCD262CB1C44A00580DE6 /* QuestionScaleView.swift */; };
+		8A26DFC82CED43DD002C4F60 /* InsightsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A26DFC72CED43D1002C4F60 /* InsightsListView.swift */; };
+		8A26DFCA2CED4575002C4F60 /* InsightBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A26DFC92CED456A002C4F60 /* InsightBoxView.swift */; };
 		8A6332492CD8257A00EF34FA /* FocusArea-CoreDataHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A6332482CD8257A00EF34FA /* FocusArea-CoreDataHelpers.swift */; };
 		8A63324C2CD8415600EF34FA /* FocusAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A63324B2CD8415600EF34FA /* FocusAreaView.swift */; };
 		8A63324F2CDAB85A00EF34FA /* TabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A63324E2CDAB84000EF34FA /* TabBar.swift */; };
@@ -82,7 +84,7 @@
 		8ACE0DD32CD03A0000718B9E /* Entry-CoreDataHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ACE0DD22CD03A0000718B9E /* Entry-CoreDataHelpers.swift */; };
 		8ACE0DD52CD03A1500718B9E /* Insight-CoreDataHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ACE0DD42CD03A1500718B9E /* Insight-CoreDataHelpers.swift */; };
 		8ACE0DD82CD0C4A700718B9E /* SectionSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ACE0DD72CD0C4A700718B9E /* SectionSummaryView.swift */; };
-		8ACE0DDA2CD0C54800718B9E /* InsightBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ACE0DD92CD0C54800718B9E /* InsightBoxView.swift */; };
+		8ACE0DDA2CD0C54800718B9E /* SectionInsightBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ACE0DD92CD0C54800718B9E /* SectionInsightBoxView.swift */; };
 		8ACE0DDC2CD0C54F00718B9E /* EntryQuestionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ACE0DDB2CD0C54F00718B9E /* EntryQuestionView.swift */; };
 		8ACE0DDE2CD1E1CC00718B9E /* SectionReflectionQuestions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ACE0DDD2CD1E1CC00718B9E /* SectionReflectionQuestions.swift */; };
 		8ACE0DE02CD1E48500718B9E /* SliderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ACE0DDF2CD1E48500718B9E /* SliderView.swift */; };
@@ -93,6 +95,8 @@
 
 /* Begin PBXFileReference section */
 		8A1DCD262CB1C44A00580DE6 /* QuestionScaleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionScaleView.swift; sourceTree = "<group>"; };
+		8A26DFC72CED43D1002C4F60 /* InsightsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsListView.swift; sourceTree = "<group>"; };
+		8A26DFC92CED456A002C4F60 /* InsightBoxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightBoxView.swift; sourceTree = "<group>"; };
 		8A6332482CD8257A00EF34FA /* FocusArea-CoreDataHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FocusArea-CoreDataHelpers.swift"; sourceTree = "<group>"; };
 		8A63324B2CD8415600EF34FA /* FocusAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusAreaView.swift; sourceTree = "<group>"; };
 		8A63324E2CDAB84000EF34FA /* TabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBar.swift; sourceTree = "<group>"; };
@@ -168,7 +172,7 @@
 		8ACE0DD22CD03A0000718B9E /* Entry-CoreDataHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Entry-CoreDataHelpers.swift"; sourceTree = "<group>"; };
 		8ACE0DD42CD03A1500718B9E /* Insight-CoreDataHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Insight-CoreDataHelpers.swift"; sourceTree = "<group>"; };
 		8ACE0DD72CD0C4A700718B9E /* SectionSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionSummaryView.swift; sourceTree = "<group>"; };
-		8ACE0DD92CD0C54800718B9E /* InsightBoxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightBoxView.swift; sourceTree = "<group>"; };
+		8ACE0DD92CD0C54800718B9E /* SectionInsightBoxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionInsightBoxView.swift; sourceTree = "<group>"; };
 		8ACE0DDB2CD0C54F00718B9E /* EntryQuestionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryQuestionView.swift; sourceTree = "<group>"; };
 		8ACE0DDD2CD1E1CC00718B9E /* SectionReflectionQuestions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionReflectionQuestions.swift; sourceTree = "<group>"; };
 		8ACE0DDF2CD1E48500718B9E /* SliderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderView.swift; sourceTree = "<group>"; };
@@ -191,6 +195,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		8A26DFC62CED431F002C4F60 /* Insights */ = {
+			isa = PBXGroup;
+			children = (
+				8A26DFC92CED456A002C4F60 /* InsightBoxView.swift */,
+				8A26DFC72CED43D1002C4F60 /* InsightsListView.swift */,
+			);
+			path = Insights;
+			sourceTree = "<group>";
+		};
 		8A63324A2CD83E6800EF34FA /* Focus Area */ = {
 			isa = PBXGroup;
 			children = (
@@ -299,6 +312,7 @@
 				8A9CC1AD2CAC681C007C2AA9 /* Topic */,
 				8A74F4972CE587FF008A33B0 /* Recording View */,
 				8A74F4A02CE692FE008A33B0 /* Entry */,
+				8A26DFC62CED431F002C4F60 /* Insights */,
 				8A63324A2CD83E6800EF34FA /* Focus Area */,
 				8A9191F82CBDDC3F007E17A0 /* Sections */,
 				8A9CC1DB2CAE80D8007C2AA9 /* Summary */,
@@ -447,7 +461,7 @@
 			isa = PBXGroup;
 			children = (
 				8ACE0DD72CD0C4A700718B9E /* SectionSummaryView.swift */,
-				8ACE0DD92CD0C54800718B9E /* InsightBoxView.swift */,
+				8ACE0DD92CD0C54800718B9E /* SectionInsightBoxView.swift */,
 				8ACE0DDB2CD0C54F00718B9E /* EntryQuestionView.swift */,
 			);
 			path = "Section Highlights";
@@ -547,6 +561,7 @@
 			files = (
 				8A9CC1CE2CAE22C9007C2AA9 /* CurrentTime.swift in Sources */,
 				8A79EAB22CE40A6D000A966B /* TranscriptionViewModel.swift in Sources */,
+				8A26DFC82CED43DD002C4F60 /* InsightsListView.swift in Sources */,
 				8A6332512CDAD1ED00EF34FA /* TabBarItem.swift in Sources */,
 				8A9CC1AC2CAB8E50007C2AA9 /* Shadows.swift in Sources */,
 				8A9CC1C02CAD26F6007C2AA9 /* Question-CoreDataHelpers.swift in Sources */,
@@ -591,6 +606,7 @@
 				8A79EAB02CE3F045000A966B /* AudioRecorder.swift in Sources */,
 				8A9CC1DA2CAE7697007C2AA9 /* LottieView.swift in Sources */,
 				8A74F4A22CE69A42008A33B0 /* EntryDetailView.swift in Sources */,
+				8A26DFCA2CED4575002C4F60 /* InsightBoxView.swift in Sources */,
 				8A9CC18C2CAB5BF7007C2AA9 /* AppViewsManager.swift in Sources */,
 				8A9CC1B62CAC9B88007C2AA9 /* CreateNewTopicView.swift in Sources */,
 				8A9191FC2CBDDC78007E17A0 /* SectionListView.swift in Sources */,
@@ -613,7 +629,7 @@
 				8A9192002CBE36D8007E17A0 /* SectionCategoryItem.swift in Sources */,
 				8A9CC1E12CAF1BC4007C2AA9 /* CreateNewTopicBox.swift in Sources */,
 				8A9CC1A62CAB8342007C2AA9 /* BubblesCategory.swift in Sources */,
-				8ACE0DDA2CD0C54800718B9E /* InsightBoxView.swift in Sources */,
+				8ACE0DDA2CD0C54800718B9E /* SectionInsightBoxView.swift in Sources */,
 				8ACE0DD32CD03A0000718B9E /* Entry-CoreDataHelpers.swift in Sources */,
 				8A1DCD272CB1C44D00580DE6 /* QuestionScaleView.swift in Sources */,
 				8A9CC1E72CAF5477007C2AA9 /* UpdateTopicBox.swift in Sources */,

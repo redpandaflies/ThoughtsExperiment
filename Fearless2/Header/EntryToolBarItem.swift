@@ -9,6 +9,9 @@ import SwiftUI
 
 struct EntryToolBarItem: View {
     @Environment(\.dismiss) var dismiss
+    @EnvironmentObject var dataController: DataController
+    
+    let entryId: UUID
     
     var body: some View {
         HStack (spacing: 5) {
@@ -18,6 +21,10 @@ struct EntryToolBarItem: View {
             Menu {
                 Button (role: .destructive) {
                     //tbd
+                    Task {
+                        await dataController.deleteEntry(id: entryId)
+                    }
+                    dismiss()
                     
                 } label: {
                     

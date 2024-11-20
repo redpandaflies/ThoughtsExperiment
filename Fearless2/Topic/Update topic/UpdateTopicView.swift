@@ -20,7 +20,7 @@ struct UpdateTopicView: View {
     let topicId: UUID?
     let section: Section?
     
-    @FetchRequest var entries: FetchedResults<Entry>
+    @FetchRequest var summaries: FetchedResults<SectionSummary>
     
     init(topicViewModel: TopicViewModel, showUpdateTopicView: Binding<Bool?> = .constant(nil), selectedCategory: TopicCategoryItem, topicId: UUID?, section: Section?) {
         self.topicViewModel = topicViewModel
@@ -29,13 +29,13 @@ struct UpdateTopicView: View {
         self.topicId = topicId
         self.section = section
         
-        let request: NSFetchRequest<Entry> = Entry.fetchRequest()
+        let request: NSFetchRequest<SectionSummary> = SectionSummary.fetchRequest()
         request.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: false)]
         if let entrySection = self.section {
             request.predicate = NSPredicate(format: "section.id == %@", entrySection.sectionId as CVarArg)
         }
         request.fetchLimit = 1
-        self._entries = FetchRequest(fetchRequest: request)
+        self._summaries = FetchRequest(fetchRequest: request)
     }
     
     var body: some View {
@@ -55,8 +55,8 @@ struct UpdateTopicView: View {
                 }
             
             if let currentSection = section, currentSection.completed {
-                if let entry = currentSection.entry {
-                    SectionSummaryView(entry: entry, showUpdateTopicView: $showUpdateTopicView, isFullScreen: true, selectedCategory: selectedCategory)
+                if let summary = currentSection.summary {
+                    SectionSummaryView(summary: summary, showUpdateTopicView: $showUpdateTopicView, isFullScreen: true, selectedCategory: selectedCategory)
                         .padding(.horizontal)
                 }
             } else {
@@ -75,8 +75,8 @@ struct UpdateTopicView: View {
                     LoadingAnimation(selectedCategory: selectedCategory)
                     
                 default:
-                    if let entry = entries.first {
-                        SectionSummaryView(entry: entry, showUpdateTopicView: $showUpdateTopicView, isFullScreen: true, selectedCategory: selectedCategory)
+                    if let summary = summaries.first {
+                        SectionSummaryView(summary: summary, showUpdateTopicView: $showUpdateTopicView, isFullScreen: true, selectedCategory: selectedCategory)
                             .padding(.horizontal)
                     }
                     

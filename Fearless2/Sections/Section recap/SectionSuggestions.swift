@@ -14,14 +14,20 @@ struct SectionSuggestionsView: View {
     var body: some View {
         VStack (alignment: .leading, spacing: 10) {
             
-            Text("What would you like to focus on next?")
-                .multilineTextAlignment(.leading)
-                .font(.system(size: 19))
-                .fontWeight(.semibold)
-                .foregroundStyle(Color.white)
-                .padding(.vertical, 10)
+            HStack {
+                Text("What would you like to focus on next?")
+                    .multilineTextAlignment(.leading)
+                    .font(.system(size: 19))
+                    .fontWeight(.semibold)
+                    .foregroundStyle(Color.white)
+                    .padding(.vertical, 10)
+                
+                Spacer()
+                
+            }
             
             Text("Select one")
+                .multilineTextAlignment(.leading)
                 .font(.system(size: 11))
                 .fontWeight(.light)
                 .foregroundStyle(Color.white)

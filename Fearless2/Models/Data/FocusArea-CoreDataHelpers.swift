@@ -32,9 +32,4 @@ extension FocusArea {
         let result = sections?.allObjects as? [Section] ?? []
         return result
     }
-
-    var focusAreaEntries: [Entry] {
-        let result = entries?.allObjects as? [Entry] ?? []
-        return result
-    }
 }

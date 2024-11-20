@@ -47,14 +47,14 @@ struct SectionReflectionQuestions: View {
                     .font(.subheadline)
                     .fontWeight(.semibold)
                     .foregroundStyle(Color.white)
-                    .padding(.vertical, 10)
+                    
                 
                 SliderView(selectedValue:  Binding(
                     get: { question.answerScale },
                     set: { newValue in
                         question.answerScale = newValue
                     }), selectedCategory: selectedCategory, minLabel: question.questionMinLabel, maxLabel: question.questionMaxLabel)
-                    .padding(.bottom, 20)
+                   
             }
             
             

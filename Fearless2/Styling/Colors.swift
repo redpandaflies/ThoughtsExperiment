@@ -43,7 +43,7 @@ struct AppColors {
     static let footerDivider = Color(#colorLiteral(red: 0.859, green: 0.671, blue: 0.333, alpha: 1)) // #dbab55
 
     //insights
-    static let insightBoxBackground = Color(#colorLiteral(red: 0.878, green: 0.878, blue: 0.878, alpha: 1)) // #e0e0e0
+    static let insightBoxBackground = Color(#colorLiteral(red: 0.608, green: 0.475, blue: 0.235, alpha: 1)) // #9b793c
     static let insightBoxStroke = Color(#colorLiteral(red: 0.608, green: 0.475, blue: 0.235, alpha: 1)) // #9b793c
     
     //entry

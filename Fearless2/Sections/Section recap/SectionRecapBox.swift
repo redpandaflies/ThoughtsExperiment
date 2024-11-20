@@ -45,12 +45,9 @@ struct SectionRecapBox: View {
                     SectionSuggestionsView(selectedOptions: $selectedOptions, items: topicViewModel.sectionSuggestions)
                 }
                 
-                Spacer()
-                
             }//VStack
             .padding()
-            .padding(.top)
-            .frame(height: 340)
+            .padding(.vertical)
             .background {
                 RoundedRectangle(cornerRadius: 20)
                     .fill(AppColors.questionBoxBackground)

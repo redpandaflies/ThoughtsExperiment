@@ -16,7 +16,6 @@ struct AppViewsManager: View {
     @StateObject var transcriptionViewModel: TranscriptionViewModel
     
     @State private var selectedTab: TabBarItem = .topics
-    @State private var showFocusAreasView: Bool = false
     @State private var showCreateNewTopicView: Bool = false
     @State private var selectedCategory: TopicCategoryItem = .personal
     @State private var selectedQuestion: String = "" //question the user is answering when updating a topic
@@ -37,7 +36,7 @@ struct AppViewsManager: View {
             ZStack {
                 switch selectedTab {
                 case .topics:
-                    ActiveTopicsView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, showCreateNewTopicView: $showCreateNewTopicView, selectedTopic: $selectedTopic, showFocusAreasView: $showFocusAreasView)
+                    ActiveTopicsView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, showCreateNewTopicView: $showCreateNewTopicView, selectedTopic: $selectedTopic)
                 case .lifeChart:
                     EmptyView()
                 }
@@ -57,8 +56,6 @@ struct AppViewsManager: View {
         .overlay  {
             if showCreateNewTopicView {
                 CreateNewTopicView(topicViewModel: topicViewModel, showCreateNewTopicView: $showCreateNewTopicView, selectedCategory: selectedCategory)
-            } else if showFocusAreasView {
-                FocusAreasView(topicViewModel: topicViewModel, showFocusAreasView: $showFocusAreasView, selectedCategory: $selectedCategory, topicId: selectedTopic?.topicId)
             }
         }
     }

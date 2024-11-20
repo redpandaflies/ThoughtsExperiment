@@ -18,4 +18,9 @@ extension Insight {
         set { content = newValue }
     }
     
+    var insightCreatedAt: String {
+        get { createdAt ?? "" }
+        set { createdAt = newValue }
+    }
+    
 }

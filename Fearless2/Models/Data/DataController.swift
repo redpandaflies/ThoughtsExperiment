@@ -204,4 +204,27 @@ final class DataController: ObservableObject {
         }
     }
     
+    func deleteEntry(id: UUID) async {
+        
+        let request = NSFetchRequest<Entry>(entityName: "Entry")
+        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        
+        await context.perform {
+            do {
+                let fetchedTopic = try self.context.fetch(request)
+                
+                if let entry = fetchedTopic.first {
+                    self.context.delete(entry)
+                    
+                    Task {
+                        await self.save()
+                    }
+                }
+                    
+            } catch {
+                self.logger.error("Failed to delete entry from Core Data: \(error.localizedDescription)")
+            }
+        }
+    }
+    
 }

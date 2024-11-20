@@ -9,15 +9,15 @@ import SwiftUI
 
 struct SectionSummaryView: View {
     @EnvironmentObject var dataController: DataController
-    @ObservedObject var entry: Entry
+    @ObservedObject var summary: SectionSummary
     @Binding var showCreateNewTopicView: Bool?
     @Binding var showUpdateTopicView: Bool?
     
     let isFullScreen: Bool
     let selectedCategory: TopicCategoryItem
     
-    init(entry: Entry, showCreateNewTopicView: Binding<Bool?> = .constant(nil), showUpdateTopicView: Binding<Bool?> = .constant(nil), isFullScreen: Bool = false, selectedCategory: TopicCategoryItem) {
-        self.entry = entry
+    init(summary: SectionSummary, showCreateNewTopicView: Binding<Bool?> = .constant(nil), showUpdateTopicView: Binding<Bool?> = .constant(nil), isFullScreen: Bool = false, selectedCategory: TopicCategoryItem) {
+        self.summary = summary
         self._showCreateNewTopicView = showCreateNewTopicView
         self._showUpdateTopicView = showUpdateTopicView
         self.isFullScreen = isFullScreen
@@ -30,7 +30,7 @@ struct SectionSummaryView: View {
         VStack {
             VStack (alignment: .leading) {
                 
-                Text(entry.section?.sectionTitle ?? "")
+                Text(summary.section?.sectionTitle ?? "")
                     .multilineTextAlignment(.leading)
                     .font(.system(size: 11, weight: .regular))
                     .foregroundStyle(selectedCategory.getCategoryColor())
@@ -39,7 +39,7 @@ struct SectionSummaryView: View {
                 
                 ScrollView {
                     VStack (alignment: .leading, spacing: 15) {
-                        ForEach(entry.entryInsights, id: \.insightId) { insight in
+                        ForEach(summary.summaryInsights, id: \.insightId) { insight in
                             
                             SectionInsightBoxView(insight: insight)
                         }
@@ -79,7 +79,7 @@ struct SectionSummaryView: View {
     private func closeView() {
         withAnimation(.snappy(duration: 0.2)) {
             showUpdateTopicView = false
-            if let section = entry.section {
+            if let section = summary.section {
                 Task {
                     section.completed = true
                     await dataController.save()

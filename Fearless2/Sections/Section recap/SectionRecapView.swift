@@ -61,7 +61,6 @@ struct SectionRecapView: View {
                 withAnimation(.snappy(duration: 0.2)) {
                     selectedTab += 1
                 }
-                
             } else if topicViewModel.topicUpdated && selectedTab > 2 {
                 showSectionRecapView = false
             }

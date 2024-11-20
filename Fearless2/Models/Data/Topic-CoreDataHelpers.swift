@@ -69,4 +69,9 @@ extension Topic {
         let result = entries?.allObjects as? [Entry] ?? []
         return result
     }
+    
+    var topicInsights: [Insight] {
+        let result = insights?.allObjects as? [Insight] ?? []
+        return result
+    }
 }

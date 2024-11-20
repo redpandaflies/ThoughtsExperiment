@@ -85,6 +85,7 @@ struct TopicDetailViewFooter: View {
                                 await dataController.deleteTopic(id: currentTopicId)
                             }
                         }
+                        dismiss()
                         
                     } label: {
                         

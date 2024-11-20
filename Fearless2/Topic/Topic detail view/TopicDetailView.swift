@@ -13,6 +13,10 @@ struct TopicDetailView: View {
     @State private var selectedTab: TopicPickerItem = .insights
     @State private var showRecordingView: Bool = false
     @State private var selectedEntry: Entry? = nil
+    @State private var showUpdateTopicView: Bool? = nil
+    @State private var showSectionRecapView: Bool = false
+    @State private var selectedSection: Section? = nil
+    
     let topic: Topic
     var topicCategory: TopicCategoryItem {
         return TopicCategoryItem.fromFullName(topic.topicCategory) ?? .work
@@ -26,49 +30,59 @@ struct TopicDetailView: View {
                 
                 ScrollView (showsIndicators: false) {
                     
-                    
                     VStack (spacing: 10){
-                        Image(systemName: topicCategory.getCategoryEmoji())
-                            .font(.system(size: 20))
-                            .foregroundStyle(AppColors.whiteDefault)
-                            .symbolRenderingMode(.monochrome)
                         
-                        
-                        Text(topic.topicTitle)
-                            .font(.system(size: 20))
-                            .foregroundStyle(AppColors.whiteDefault)
-                        
-                        Text("I’m focused on building a product that aligns with my values and creates real, meaningful progress for users.")
-                            .font(.system(size: 14))
-                            .foregroundStyle(AppColors.topicSubtitle)
-                            .opacity(0.6)
-                            .padding(.bottom)
-                        
-                        Divider()
-                            .overlay(topicCategory.getDividerColor())
-                        
-                        TopicPickerView(selectedTab: $selectedTab, selectedCategory: topicCategory)
+                        Group {
+                            Image(systemName: topicCategory.getCategoryEmoji())
+                                .font(.system(size: 20))
+                                .foregroundStyle(AppColors.whiteDefault)
+                                .symbolRenderingMode(.monochrome)
+                            
+                            
+                            Text(topic.topicTitle)
+                                .font(.system(size: 20))
+                                .foregroundStyle(AppColors.whiteDefault)
+                            
+                            Text("I’m focused on building a product that aligns with my values and creates real, meaningful progress for users.")
+                                .font(.system(size: 14))
+                                .foregroundStyle(AppColors.topicSubtitle)
+                                .opacity(0.6)
+                                .padding(.bottom)
+                            
+                            Divider()
+                                .overlay(topicCategory.getDividerColor())
+                            
+                            TopicPickerView(selectedTab: $selectedTab, selectedCategory: topicCategory)
+                        }
+                        .padding(.horizontal)
                         
                         switch selectedTab {
                         case .insights:
-                            EmptyView()
+                            InsightsListView(selectedEntry: $selectedEntry, topicId: topic.topicId)
+                                .padding(.horizontal)
                         case .paths:
-                            EmptyView()
+                            FocusAreasView(topicViewModel: topicViewModel, showUpdateTopicView: $showUpdateTopicView, showSectionRecapView: $showSectionRecapView, selectedSection: $selectedSection, topicId: topic.topicId, selectedCategory: topicCategory)
+                               
                         case .entries:
                             EntriesListView(selectedEntry: $selectedEntry, topicId: topic.topicId)
+                                .padding(.horizontal)
                         }
-                        
-                        
-                        
+
                     }//VStack
                 }
                 .scrollClipDisabled(true)
-                .padding(.horizontal)
-                
+        
                 TopicDetailViewFooter(transcriptionViewModel: transcriptionViewModel, showRecordingView: $showRecordingView, topicId: topic.topicId)
                     .transition(.opacity)
                 
             }//ZStack
+            .overlay {
+                if let showingUpdateTopicView = showUpdateTopicView, showingUpdateTopicView {
+                    UpdateTopicView(topicViewModel: topicViewModel, showUpdateTopicView: $showUpdateTopicView, selectedCategory: topicCategory, topicId: topic.topicId, section: selectedSection)
+                } else if showSectionRecapView {
+                    SectionRecapView(topicViewModel: topicViewModel, showSectionRecapView: $showSectionRecapView, topicId: topic.topicId, selectedCategory: topicCategory)
+                }
+            }
             .sheet(isPresented: $showRecordingView, onDismiss: {
                 showRecordingView = false
             }){

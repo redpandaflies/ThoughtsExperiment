@@ -3,3 +3,4 @@ bfg-*.jar
 .git.bfg-report/
 *.xcodeproj/project.xcworkspace/xcuserdata/*.xuserdatad/UserInterfaceState.xcuserstate
 *.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolvedFearless2.xcodeproj/project.xcworkspace/xcuserdata/yue.xcuserdatad/UserInterfaceState.xcuserstate
+Fearless2.xcodeproj/project.xcworkspace/xcuserdata/*.xcuserstate

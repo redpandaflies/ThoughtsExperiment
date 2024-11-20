@@ -252,8 +252,8 @@ extension OpenAISwiftService {
                 for newSection in newTopic.sections {
                     //check if the section number already exists, if not, add the section (AI sometimes hallucinates)
                     
-                    if topic.topicSections.contains(where: { $0.sectionNumber == newSection.sectionNumber }) {
-                        continue 
+                    if focusArea.focusAreaSections.contains(where: { $0.sectionNumber == newSection.sectionNumber }) {
+                        continue
                     }
                     
                     // Create a new section
@@ -283,7 +283,6 @@ extension OpenAISwiftService {
                     }
 
                     // Add the section to the topic & focus area
-                    topic.addToSections(section)
                     focusArea.addToSections(section)
                 }
 
@@ -376,10 +375,15 @@ extension OpenAISwiftService {
                 for newInsight in newEntry.insights {
                     let insight = Insight(context: context)
                     insight.insightId = UUID()
+                    insight.insightCreatedAt = getCurrentTimeString()
                     insight.insightContent = newInsight.content
                     entry.addToInsights(insight)
+                    if let topic = entry.topic {
+                        topic.addToInsights(insight)
+                    }
                 }
                 
+              
                 //set return value
                 currentEntry = entry
                 

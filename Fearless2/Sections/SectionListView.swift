@@ -10,7 +10,6 @@ import SwiftUI
 struct SectionListView: View {
     @Binding var showUpdateTopicView: Bool?
     @Binding var showSectionRecapView: Bool
-    @Binding var selectedCategory: TopicCategoryItem
     @Binding var selectedSection: Section?
     let sections: [Section]
     let focusAreaCompleted: Bool
@@ -25,9 +24,6 @@ struct SectionListView: View {
             ForEach(sortedSections, id: \.sectionId) { section in
                 SectionBox(section: section)
                     .onTapGesture {
-                        if let shortName = section.topic?.category {
-                            selectedCategory = TopicCategoryItem.fromShortName(shortName) ?? .personal
-                        }
                         selectedSection = section
                         showUpdateTopicView = true
                     }

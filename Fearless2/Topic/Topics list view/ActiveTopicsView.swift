@@ -19,7 +19,7 @@ struct ActiveTopicsView: View {
     
     @Binding var showCreateNewTopicView: Bool
     @Binding var selectedTopic: Topic?
-    @Binding var showFocusAreasView: Bool
+   
     
     let columns = [GridItem(.adaptive(minimum:150), spacing: 15)]
     

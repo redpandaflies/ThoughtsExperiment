@@ -64,6 +64,17 @@ struct EntryDetailView: View {
                     }
                     .padding(.bottom)
                     
+                    //Feedback
+                    entrySubtitle("Quick Thoughts")
+                        .padding(.bottom, 5)
+                    
+                    Text(entry.entryFeedback)
+                        .multilineTextAlignment(.leading)
+                        .font(.system(size: 15))
+                        .foregroundStyle(AppColors.whiteDefault)
+                        .lineSpacing(3)
+                        .padding(.bottom)
+                    
                     //Entry
                     HStack {
                         entrySubtitle("Summary", isSelected: selectedTab == .summary)
@@ -71,7 +82,7 @@ struct EntryDetailView: View {
                                 selectedTab = .summary
                             }
                         
-                        entrySubtitle("/")
+                        entrySubtitle("/", isSelected: false)
                         
                         entrySubtitle("Transcript", isSelected: selectedTab == .transcript)
                             .onTapGesture {
@@ -93,7 +104,7 @@ struct EntryDetailView: View {
             }//ScrollView
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    EntryToolBarItem()
+                    EntryToolBarItem(entryId: entry.entryId)
                 }
             }
             .toolbarBackground(Color.black)
@@ -107,7 +118,7 @@ struct EntryDetailView: View {
                 .font(.system(size: 17))
                 .foregroundStyle(AppColors.entrySubtitle)
                 .textCase(.uppercase)
-                .opacity((isSelected ?? false) ? 1 : 0.5)
+                .opacity((isSelected ?? true) ? 1 : 0.5)
         }
         .contentShape(Rectangle())
     }

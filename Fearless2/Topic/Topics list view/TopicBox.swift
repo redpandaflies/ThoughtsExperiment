@@ -10,9 +10,7 @@ import SwiftUI
 struct TopicBox: View {
 
     @ObservedObject var topic: Topic
-    var nextSection: Section? {
-        return topic.topicSections.min { $0.sectionNumber < $1.sectionNumber }
-    }
+   
     var topicCategory: TopicCategoryItem {
         return TopicCategoryItem.fromFullName(topic.topicCategory) ?? .work
     }
@@ -38,21 +36,6 @@ struct TopicBox: View {
             
             Spacer()
             
-            
-            Text("Next")
-                .multilineTextAlignment(.leading)
-                .font(.system(size: 11, weight: .regular))
-                .foregroundStyle(Color.white)
-                .opacity(0.6)
-                .textCase(.uppercase)
-            
-            if let section = nextSection {
-                Text(section.sectionTitle)
-                    .multilineTextAlignment(.leading)
-                    .font(.system(size: 11, weight: .regular))
-                    .foregroundStyle(Color.white)
-                    .opacity(0.9)
-            }
         }
         .padding()
         .frame(height: 230)
@@ -61,7 +44,7 @@ struct TopicBox: View {
             RoundedRectangle(cornerRadius: 20)
                 .stroke(topicCategory.getCategoryColor(), lineWidth: 1)
         }
-//        .background(Color.black)
+
     }
 }
 

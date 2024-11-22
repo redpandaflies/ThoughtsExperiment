@@ -202,6 +202,59 @@ struct ContextGatherer {
         return result
     }
 
+    //for understand
+    static func gatherContextUnderstand(dataController: DataController, loggerCoreData: Logger, question: String) async -> String? {
+        var context = "The user would like to know this about themselves: \(question)\n Please provide an answer based on the context provided below about the user.\n\n"
+        
+        //get all active topics
+       let topics = await dataController.fetchAllTopics()
+        
+        if !topics.isEmpty {
+            
+            for topic in topics {
+                context += """
+                - topic title: \(topic.title ?? "No title available")\n
+                - topic relates to this part of the user's life: \(topic.topicCategory)\n\n
+                """
+                
+                //all saved insights
+                context += "Here are the user's saved insights for this topic: \n"
+                let topicInsights = topic.topicInsights.filter { $0.markedSaved == true }
+                for insight in topicInsights {
+                    context += "-\(insight.insightContent)"
+                }
+                
+                //all completed section summaries
+                context += "\n\nHere are the summaries and insights from the sections that have been completed. A section is a series of questions the user answers about the topic.\n\n"
+                let sections = topic.topicSections.filter { $0.completed == true }
+                for section in sections {
+                    if let summary = section.summary {
+                        context += """
+                            section title: \(section.sectionTitle)\n
+                            section summary: \(summary.summarySummary)\n
+                        """
+                        context += "here are the section insights: \n"
+                        for insight in summary.summaryInsights {
+                            context += "-\(insight.insightContent)\n"
+                        }
+                    }
+                }
+                
+                //all entry summaries
+                context += "\n\nHere are the summaries every entry related to this topic.\n\n"
+                for entry in topic.topicEntries {
+                    context += """
+                        \(entry.entryTitle)\n
+                        \(entry.entrySummary)\n\n
+                    """
+                }
+            }//topic
+            
+            
+        }
+
+        return context
+    }
     
 }
 

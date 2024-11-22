@@ -30,7 +30,7 @@ struct ActiveTopicsView: View {
     ) var topics: FetchedResults<Topic>
     
     var body: some View {
-        NavigationStack {
+       
             ZStack {
                 
                 ScrollView (showsIndicators: false) {
@@ -40,23 +40,24 @@ struct ActiveTopicsView: View {
                             NavigationLink (destination: TopicDetailView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, topic: topic)) {
                                 TopicBox(topic: topic)
                             }
-                               
+                            
                         }
                     }
                     
                 }
-                .padding()
                 .scrollClipDisabled(true)
+                .padding()
                 .safeAreaInset(edge: .top, content: {
                     Rectangle()
-                        .foregroundStyle(.clear)
-                        .frame(height: 100)
+                        .fill(Color.clear)
+                        .frame(height: 20)
                 })
+                
                 
                 VStack {
                     Spacer()
                     
-                    RectangleButton(buttonName: "New Topic")
+                    RectangleButton(buttonName: "New Topic", buttonColor: Color.white.opacity(0.6))
                         .padding()
                         .onTapGesture {
                             showCreateNewTopicView = true
@@ -65,21 +66,9 @@ struct ActiveTopicsView: View {
                             return oldValue != newValue && newValue == true
                         }
                 }
-                .padding(.bottom, 110)
+                .padding(.bottom, 90)
             }//ZStack
             .ignoresSafeArea(.keyboard)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    ToolbarTitleItem(title: "Your Topics")
-                }
-                
-                ToolbarItem(placement: .topBarTrailing) {
-                    ProfileToolbarItem()
-                }
-            }
-            .navigationBarTitleDisplayMode(.inline)
-        }
-        
     }
 }
 

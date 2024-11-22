@@ -14,6 +14,8 @@
 	<string>$(OPENAI_PARTIAL_KEY)</string>
 	<key>OPENAI_ASSISTANT_ID_ENTRY</key>
 	<string>$(OPENAI_ASSISTANT_ID_ENTRY)</string>
+	<key>OPENAI_ASSISTANT_ID_UNDERSTAND</key>
+	<string>$(OPENAI_ASSISTANT_ID_UNDERSTAND)</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>

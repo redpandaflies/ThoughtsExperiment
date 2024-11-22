@@ -1,5 +1,5 @@
 //
-//  EntryToolBarItem.swift
+//  DetailViewToolBarItem.swift
 //  Fearless2
 //
 //  Created by Yue Deng-Wu on 11/15/24.
@@ -7,12 +7,16 @@
 
 import SwiftUI
 
-struct EntryToolBarItem: View {
+struct DetailViewToolBarItem: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var dataController: DataController
     
-    let entryId: UUID
+    let entryId: UUID?
     
+    init(entryId: UUID? = nil) {
+        self.entryId = entryId
+    }
+
     var body: some View {
         HStack (spacing: 5) {
             Spacer()
@@ -22,7 +26,9 @@ struct EntryToolBarItem: View {
                 Button (role: .destructive) {
                     //tbd
                     Task {
-                        await dataController.deleteEntry(id: entryId)
+                        if let currentEntryId = entryId {
+                            await dataController.deleteEntry(id: currentEntryId)
+                        }
                     }
                     dismiss()
                     

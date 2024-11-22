@@ -1,30 +1,32 @@
 //
-//  ProfileToolbarItem.swift
+//  UnderstandToolbarItem.swift
 //  Fearless2
 //
-//  Created by Yue Deng-Wu on 9/30/24.
+//  Created by Yue Deng-Wu on 11/21/24.
 //
 
 import SwiftUI
 
-struct ProfileToolbarItem: View {
+struct UnderstandToolbarItem: View {
+    
+    let action: () -> Void
+    
     var body: some View {
+        
         VStack {
             Button {
-               //tbd
+              action()
             } label: {
-                Image(systemName: "person.crop.circle")
+                Image(systemName: "book.circle")
                     .font(.system(size: 18))
                     .foregroundStyle(Color.white)
                     .opacity(0.6)
             }
             
         }
-       
     }
-    
 }
 
-#Preview {
-    ProfileToolbarItem()
-}
+//#Preview {
+//    UnderstandToolbarItem()
+//}

@@ -10,7 +10,6 @@ import SwiftUI
 struct QuestionOpenView: View {
     
     @Binding var topicText: String
-    @Binding var selectedQuestion: Int
     @FocusState.Binding var isFocused: Bool
     
     var question: String? = nil
@@ -28,7 +27,6 @@ struct QuestionOpenView: View {
                 .font(.system(size: 16))
                 .fontWeight(.light)
                 .foregroundStyle(Color.white)
-                .opacity(0.4)
                 .lineSpacing(3)
                 .lineLimit(7)
                 .focused($isFocused)

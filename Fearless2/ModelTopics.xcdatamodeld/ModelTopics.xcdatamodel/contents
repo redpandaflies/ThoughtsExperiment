@@ -79,4 +79,10 @@
         <relationship name="questions" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Question" inverseName="topic" inverseEntity="Question"/>
         <relationship name="sections" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Section" inverseName="topic" inverseEntity="Section"/>
     </entity>
+    <entity name="Understand" representedClassName="Understand" syncable="YES" codeGenerationType="class">
+        <attribute name="answer" optional="YES" attributeType="String"/>
+        <attribute name="createdAt" optional="YES" attributeType="String"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="question" optional="YES" attributeType="String"/>
+    </entity>
 </model>

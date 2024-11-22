@@ -228,7 +228,8 @@ final class TopicViewModel: ObservableObject {
                     }
                     userContext += gatheredContext
                 
-                
+                default:
+                    break
 
             }
             

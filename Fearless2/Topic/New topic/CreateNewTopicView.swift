@@ -11,15 +11,12 @@ struct CreateNewTopicView: View {
     @EnvironmentObject var dataController: DataController
     @ObservedObject var topicViewModel: TopicViewModel
     
-    @State private var topicText = ""
     @State private var showCard: Bool = false
     @State private var selectedTab: Int = 0
     
     @Binding var showCreateNewTopicView: Bool
     
     let selectedCategory: TopicCategoryItem
-
-    let screenWidth = UIScreen.current.bounds.width
     
     var body: some View {
         ZStack {

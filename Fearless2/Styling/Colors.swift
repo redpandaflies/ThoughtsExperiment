@@ -49,4 +49,7 @@ struct AppColors {
     //entry
     static let entrySubtitle = Color(#colorLiteral(red: 0.929, green: 0.741, blue: 0.408, alpha: 1)) // #edbd68
     
+    //understand
+    static let understandYellow = Color(#colorLiteral(red: 0.973, green: 0.69, blue: 0.435, alpha: 1)) // #f8b06f
+    static let understandWhite = Color(#colorLiteral(red: 0.631, green: 0.584, blue: 0.545, alpha: 1)) // #a1958b
 }

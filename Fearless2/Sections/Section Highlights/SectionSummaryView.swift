@@ -64,7 +64,7 @@ struct SectionSummaryView: View {
                     }
             }
             
-            RectangleButton(buttonName: "Done")
+            RectangleButton(buttonName: "Done", buttonColor: Color.white.opacity(0.6))
                 .onTapGesture {
                     closeView()
                 }

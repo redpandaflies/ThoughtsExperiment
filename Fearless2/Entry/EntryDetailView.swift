@@ -104,7 +104,7 @@ struct EntryDetailView: View {
             }//ScrollView
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    EntryToolBarItem(entryId: entry.entryId)
+                    DetailViewToolBarItem(entryId: entry.entryId)
                 }
             }
             .toolbarBackground(Color.black)

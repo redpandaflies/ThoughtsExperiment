@@ -90,6 +90,23 @@ final class DataController: ObservableObject {
         
     }
     
+    //fetch all topics
+    func fetchAllTopics() async -> [Topic] {
+        let request = NSFetchRequest<Topic>(entityName: "Topic")
+        
+        var fetchedTopics: [Topic] = []
+        
+        await context.perform {
+            do {
+                fetchedTopics = try self.context.fetch(request)
+            } catch {
+                self.logger.error("Error fetching all topics: \(error.localizedDescription)")
+            }
+        }
+        
+        return fetchedTopics
+    }
+    
     //fetch a section
     func fetchSection(id: UUID) async -> Section? {
         let request = NSFetchRequest<Section>(entityName: "Section")

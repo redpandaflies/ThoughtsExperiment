@@ -10,6 +10,17 @@
 		8A1DCD272CB1C44D00580DE6 /* QuestionScaleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A1DCD262CB1C44A00580DE6 /* QuestionScaleView.swift */; };
 		8A26DFC82CED43DD002C4F60 /* InsightsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A26DFC72CED43D1002C4F60 /* InsightsListView.swift */; };
 		8A26DFCA2CED4575002C4F60 /* InsightBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A26DFC92CED456A002C4F60 /* InsightBoxView.swift */; };
+		8A26DFCD2CEEC076002C4F60 /* UnderstandView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A26DFCC2CEEC06C002C4F60 /* UnderstandView.swift */; };
+		8A26DFCF2CEEF3A0002C4F60 /* Understand-CoreDataHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A26DFCE2CEEF395002C4F60 /* Understand-CoreDataHelpers.swift */; };
+		8A26DFD12CEF0224002C4F60 /* UnderstandViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A26DFD02CEF0224002C4F60 /* UnderstandViewModel.swift */; };
+		8A26DFD32CEFADE6002C4F60 /* UnderstandQuestionDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A26DFD22CEFADE6002C4F60 /* UnderstandQuestionDetailView.swift */; };
+		8A26DFD52CEFAE42002C4F60 /* UnderstandQuestionsList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A26DFD42CEFAE42002C4F60 /* UnderstandQuestionsList.swift */; };
+		8A26DFD72CEFAE58002C4F60 /* UnderstandAskQuestionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A26DFD62CEFAE58002C4F60 /* UnderstandAskQuestionView.swift */; };
+		8A26DFD92CEFAEE3002C4F60 /* UnderstandAskQuestionBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A26DFD82CEFAEE3002C4F60 /* UnderstandAskQuestionBox.swift */; };
+		8A26DFDB2CEFC4FF002C4F60 /* UnderstandLoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A26DFDA2CEFC4FF002C4F60 /* UnderstandLoadingView.swift */; };
+		8A26DFDD2CEFF2EB002C4F60 /* UnderstandToolbarItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A26DFDC2CEFF2EB002C4F60 /* UnderstandToolbarItem.swift */; };
+		8A26DFDF2CF00B43002C4F60 /* XmarkToolbarItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A26DFDE2CF00B43002C4F60 /* XmarkToolbarItem.swift */; };
+		8A26DFE42CF0181A002C4F60 /* UnderstandQuestionAnswer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A26DFE32CF0181A002C4F60 /* UnderstandQuestionAnswer.swift */; };
 		8A6332492CD8257A00EF34FA /* FocusArea-CoreDataHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A6332482CD8257A00EF34FA /* FocusArea-CoreDataHelpers.swift */; };
 		8A63324C2CD8415600EF34FA /* FocusAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A63324B2CD8415600EF34FA /* FocusAreaView.swift */; };
 		8A63324F2CDAB85A00EF34FA /* TabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A63324E2CDAB84000EF34FA /* TabBar.swift */; };
@@ -32,7 +43,7 @@
 		8A74F4A82CE6A923008A33B0 /* EntryBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A74F4A72CE6A923008A33B0 /* EntryBoxView.swift */; };
 		8A74F4AA2CE7F10D008A33B0 /* EntryInsightBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A74F4A92CE7F10D008A33B0 /* EntryInsightBoxView.swift */; };
 		8A74F4AC2CE7F451008A33B0 /* TextLimitMax.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A74F4AB2CE7F43D008A33B0 /* TextLimitMax.swift */; };
-		8A74F4AE2CE802A1008A33B0 /* EntryToolBarItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A74F4AD2CE8028E008A33B0 /* EntryToolBarItem.swift */; };
+		8A74F4AE2CE802A1008A33B0 /* DetailViewToolBarItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A74F4AD2CE8028E008A33B0 /* DetailViewToolBarItem.swift */; };
 		8A74F4B02CE83A2A008A33B0 /* SectionSummary-CoreDataHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A74F4AF2CE83A2A008A33B0 /* SectionSummary-CoreDataHelpers.swift */; };
 		8A79EAB02CE3F045000A966B /* AudioRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A79EAAF2CE3F042000A966B /* AudioRecorder.swift */; };
 		8A79EAB22CE40A6D000A966B /* TranscriptionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A79EAB12CE40A68000A966B /* TranscriptionViewModel.swift */; };
@@ -97,6 +108,17 @@
 		8A1DCD262CB1C44A00580DE6 /* QuestionScaleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionScaleView.swift; sourceTree = "<group>"; };
 		8A26DFC72CED43D1002C4F60 /* InsightsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsListView.swift; sourceTree = "<group>"; };
 		8A26DFC92CED456A002C4F60 /* InsightBoxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightBoxView.swift; sourceTree = "<group>"; };
+		8A26DFCC2CEEC06C002C4F60 /* UnderstandView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnderstandView.swift; sourceTree = "<group>"; };
+		8A26DFCE2CEEF395002C4F60 /* Understand-CoreDataHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Understand-CoreDataHelpers.swift"; sourceTree = "<group>"; };
+		8A26DFD02CEF0224002C4F60 /* UnderstandViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnderstandViewModel.swift; sourceTree = "<group>"; };
+		8A26DFD22CEFADE6002C4F60 /* UnderstandQuestionDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnderstandQuestionDetailView.swift; sourceTree = "<group>"; };
+		8A26DFD42CEFAE42002C4F60 /* UnderstandQuestionsList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnderstandQuestionsList.swift; sourceTree = "<group>"; };
+		8A26DFD62CEFAE58002C4F60 /* UnderstandAskQuestionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnderstandAskQuestionView.swift; sourceTree = "<group>"; };
+		8A26DFD82CEFAEE3002C4F60 /* UnderstandAskQuestionBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnderstandAskQuestionBox.swift; sourceTree = "<group>"; };
+		8A26DFDA2CEFC4FF002C4F60 /* UnderstandLoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnderstandLoadingView.swift; sourceTree = "<group>"; };
+		8A26DFDC2CEFF2EB002C4F60 /* UnderstandToolbarItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnderstandToolbarItem.swift; sourceTree = "<group>"; };
+		8A26DFDE2CF00B43002C4F60 /* XmarkToolbarItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XmarkToolbarItem.swift; sourceTree = "<group>"; };
+		8A26DFE32CF0181A002C4F60 /* UnderstandQuestionAnswer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnderstandQuestionAnswer.swift; sourceTree = "<group>"; };
 		8A6332482CD8257A00EF34FA /* FocusArea-CoreDataHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FocusArea-CoreDataHelpers.swift"; sourceTree = "<group>"; };
 		8A63324B2CD8415600EF34FA /* FocusAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusAreaView.swift; sourceTree = "<group>"; };
 		8A63324E2CDAB84000EF34FA /* TabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBar.swift; sourceTree = "<group>"; };
@@ -119,7 +141,7 @@
 		8A74F4A72CE6A923008A33B0 /* EntryBoxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryBoxView.swift; sourceTree = "<group>"; };
 		8A74F4A92CE7F10D008A33B0 /* EntryInsightBoxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryInsightBoxView.swift; sourceTree = "<group>"; };
 		8A74F4AB2CE7F43D008A33B0 /* TextLimitMax.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextLimitMax.swift; sourceTree = "<group>"; };
-		8A74F4AD2CE8028E008A33B0 /* EntryToolBarItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryToolBarItem.swift; sourceTree = "<group>"; };
+		8A74F4AD2CE8028E008A33B0 /* DetailViewToolBarItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailViewToolBarItem.swift; sourceTree = "<group>"; };
 		8A74F4AF2CE83A2A008A33B0 /* SectionSummary-CoreDataHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SectionSummary-CoreDataHelpers.swift"; sourceTree = "<group>"; };
 		8A79EAAF2CE3F042000A966B /* AudioRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecorder.swift; sourceTree = "<group>"; };
 		8A79EAB12CE40A68000A966B /* TranscriptionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionViewModel.swift; sourceTree = "<group>"; };
@@ -204,6 +226,36 @@
 			path = Insights;
 			sourceTree = "<group>";
 		};
+		8A26DFCB2CEEBF33002C4F60 /* Understand */ = {
+			isa = PBXGroup;
+			children = (
+				8A26DFE22CF0143B002C4F60 /* Questions List */,
+				8A26DFE12CF01423002C4F60 /* Ask Question */,
+				8A26DFCC2CEEC06C002C4F60 /* UnderstandView.swift */,
+			);
+			path = Understand;
+			sourceTree = "<group>";
+		};
+		8A26DFE12CF01423002C4F60 /* Ask Question */ = {
+			isa = PBXGroup;
+			children = (
+				8A26DFD62CEFAE58002C4F60 /* UnderstandAskQuestionView.swift */,
+				8A26DFD82CEFAEE3002C4F60 /* UnderstandAskQuestionBox.swift */,
+				8A26DFDA2CEFC4FF002C4F60 /* UnderstandLoadingView.swift */,
+				8A26DFE32CF0181A002C4F60 /* UnderstandQuestionAnswer.swift */,
+			);
+			path = "Ask Question";
+			sourceTree = "<group>";
+		};
+		8A26DFE22CF0143B002C4F60 /* Questions List */ = {
+			isa = PBXGroup;
+			children = (
+				8A26DFD22CEFADE6002C4F60 /* UnderstandQuestionDetailView.swift */,
+				8A26DFD42CEFAE42002C4F60 /* UnderstandQuestionsList.swift */,
+			);
+			path = "Questions List";
+			sourceTree = "<group>";
+		};
 		8A63324A2CD83E6800EF34FA /* Focus Area */ = {
 			isa = PBXGroup;
 			children = (
@@ -278,6 +330,7 @@
 				8A63325B2CDDCA7E00EF34FA /* SectionRecapPreviewBox.swift */,
 				8ACE0DD62CD0C33700718B9E /* Section Highlights */,
 				8ACE0DE12CD1EE6A00718B9E /* Section recap */,
+				8A9CC1DB2CAE80D8007C2AA9 /* Summary */,
 			);
 			path = Sections;
 			sourceTree = "<group>";
@@ -315,7 +368,7 @@
 				8A26DFC62CED431F002C4F60 /* Insights */,
 				8A63324A2CD83E6800EF34FA /* Focus Area */,
 				8A9191F82CBDDC3F007E17A0 /* Sections */,
-				8A9CC1DB2CAE80D8007C2AA9 /* Summary */,
+				8A26DFCB2CEEBF33002C4F60 /* Understand */,
 				8A9CC1962CAB66B3007C2AA9 /* Styling */,
 				8A9CC1A42CAB8120007C2AA9 /* Reusable Views */,
 				8A9CC17A2CAB3DEB007C2AA9 /* Assets.xcassets */,
@@ -370,10 +423,12 @@
 		8A9CC19F2CAB7BD3007C2AA9 /* Header */ = {
 			isa = PBXGroup;
 			children = (
-				8A74F4AD2CE8028E008A33B0 /* EntryToolBarItem.swift */,
+				8A74F4AD2CE8028E008A33B0 /* DetailViewToolBarItem.swift */,
 				8A9CC1A02CAB7C34007C2AA9 /* SettingsToolbarItem.swift */,
 				8A9CC1A22CAB7C94007C2AA9 /* ProfileToolbarItem.swift */,
 				8A6332572CDD9E0000EF34FA /* ToolbarTitleItem.swift */,
+				8A26DFDC2CEFF2EB002C4F60 /* UnderstandToolbarItem.swift */,
+				8A26DFDE2CF00B43002C4F60 /* XmarkToolbarItem.swift */,
 			);
 			path = Header;
 			sourceTree = "<group>";
@@ -404,6 +459,7 @@
 		8A9CC1BC2CAD26C7007C2AA9 /* Data */ = {
 			isa = PBXGroup;
 			children = (
+				8A26DFCE2CEEF395002C4F60 /* Understand-CoreDataHelpers.swift */,
 				8A9CC1BD2CAD26E7007C2AA9 /* Topic-CoreDataHelpers.swift */,
 				8A9191F62CBDA392007E17A0 /* Section-CoreDataHelpers.swift */,
 				8A9CC1BF2CAD26F6007C2AA9 /* Question-CoreDataHelpers.swift */,
@@ -421,6 +477,7 @@
 		8A9CC1CF2CAE42BF007C2AA9 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				8A26DFD02CEF0224002C4F60 /* UnderstandViewModel.swift */,
 				8A79EAB12CE40A68000A966B /* TranscriptionViewModel.swift */,
 				8A9CC1D02CAE4325007C2AA9 /* TopicViewModel.swift */,
 			);
@@ -570,6 +627,7 @@
 				8A74F4A42CE69AAB008A33B0 /* EntriesListView.swift in Sources */,
 				8A9CC1982CAB66DF007C2AA9 /* Colors.swift in Sources */,
 				8A63324C2CD8415600EF34FA /* FocusAreaView.swift in Sources */,
+				8A26DFDD2CEFF2EB002C4F60 /* UnderstandToolbarItem.swift in Sources */,
 				8A6332562CDD66D500EF34FA /* TopicBox.swift in Sources */,
 				8A9CC1A12CAB7C34007C2AA9 /* SettingsToolbarItem.swift in Sources */,
 				8A74F4A62CE6A90F008A33B0 /* DateFormatter.swift in Sources */,
@@ -578,11 +636,12 @@
 				8A74F4AC2CE7F451008A33B0 /* TextLimitMax.swift in Sources */,
 				8A63325C2CDDCA7E00EF34FA /* SectionRecapPreviewBox.swift in Sources */,
 				8ACE0DE32CD1F31700718B9E /* SectionSuggestions.swift in Sources */,
+				8A26DFCD2CEEC076002C4F60 /* UnderstandView.swift in Sources */,
 				8ACE0DE52CD2B58F00718B9E /* SectionRecapView.swift in Sources */,
 				8A63325E2CDEAC1C00EF34FA /* FocusAreaBox.swift in Sources */,
 				8A74F4AA2CE7F10D008A33B0 /* EntryInsightBoxView.swift in Sources */,
 				8A74F49F2CE5A71A008A33B0 /* RecordingLoadingAnimation.swift in Sources */,
-				8A74F4AE2CE802A1008A33B0 /* EntryToolBarItem.swift in Sources */,
+				8A74F4AE2CE802A1008A33B0 /* DetailViewToolBarItem.swift in Sources */,
 				8A9191F72CBDA392007E17A0 /* Section-CoreDataHelpers.swift in Sources */,
 				8A9CC1BE2CAD26E7007C2AA9 /* Topic-CoreDataHelpers.swift in Sources */,
 				8A9191F52CB4A240007E17A0 /* QuestionsNewTopic.swift in Sources */,
@@ -597,11 +656,15 @@
 				8A6332582CDD9E0000EF34FA /* ToolbarTitleItem.swift in Sources */,
 				8A74F49D2CE59420008A33B0 /* TopicDetailViewFooter.swift in Sources */,
 				8ACE0DDE2CD1E1CC00718B9E /* SectionReflectionQuestions.swift in Sources */,
+				8A26DFD32CEFADE6002C4F60 /* UnderstandQuestionDetailView.swift in Sources */,
 				8A79EAB52CE45B1B000A966B /* TopicDetailView.swift in Sources */,
 				8ACE0DE02CD1E48500718B9E /* SliderView.swift in Sources */,
 				8A9CC1D82CAE763F007C2AA9 /* LoadingAnimation.swift in Sources */,
 				8A9CC1B42CAC6ABE007C2AA9 /* TopicCategoryItem.swift in Sources */,
+				8A26DFD72CEFAE58002C4F60 /* UnderstandAskQuestionView.swift in Sources */,
+				8A26DFDF2CF00B43002C4F60 /* XmarkToolbarItem.swift in Sources */,
 				8A9CC1E32CAF38D6007C2AA9 /* ContextGatherer.swift in Sources */,
+				8A26DFCF2CEEF3A0002C4F60 /* Understand-CoreDataHelpers.swift in Sources */,
 				8A9CC1CC2CAE1DCB007C2AA9 /* AssistantItem.swift in Sources */,
 				8A79EAB02CE3F045000A966B /* AudioRecorder.swift in Sources */,
 				8A9CC1DA2CAE7697007C2AA9 /* LottieView.swift in Sources */,
@@ -610,7 +673,10 @@
 				8A9CC18C2CAB5BF7007C2AA9 /* AppViewsManager.swift in Sources */,
 				8A9CC1B62CAC9B88007C2AA9 /* CreateNewTopicView.swift in Sources */,
 				8A9191FC2CBDDC78007E17A0 /* SectionListView.swift in Sources */,
+				8A26DFDB2CEFC4FF002C4F60 /* UnderstandLoadingView.swift in Sources */,
 				8A6332532CDD66B700EF34FA /* ActiveTopicsView.swift in Sources */,
+				8A26DFD12CEF0224002C4F60 /* UnderstandViewModel.swift in Sources */,
+				8A26DFE42CF0181A002C4F60 /* UnderstandQuestionAnswer.swift in Sources */,
 				8ABE9AE22CB2597700483CFD /* NextButton.swift in Sources */,
 				8A9CC1882CAB44C5007C2AA9 /* OpenAISwiftService.swift in Sources */,
 				8A9CC1A32CAB7C94007C2AA9 /* ProfileToolbarItem.swift in Sources */,
@@ -627,6 +693,7 @@
 				8A74F4A82CE6A923008A33B0 /* EntryBoxView.swift in Sources */,
 				8A6332622CDFE33600EF34FA /* QuestionsProgressBar.swift in Sources */,
 				8A9192002CBE36D8007E17A0 /* SectionCategoryItem.swift in Sources */,
+				8A26DFD92CEFAEE3002C4F60 /* UnderstandAskQuestionBox.swift in Sources */,
 				8A9CC1E12CAF1BC4007C2AA9 /* CreateNewTopicBox.swift in Sources */,
 				8A9CC1A62CAB8342007C2AA9 /* BubblesCategory.swift in Sources */,
 				8ACE0DDA2CD0C54800718B9E /* SectionInsightBoxView.swift in Sources */,
@@ -635,6 +702,7 @@
 				8A9CC1E72CAF5477007C2AA9 /* UpdateTopicBox.swift in Sources */,
 				8A9CC1862CAB44B1007C2AA9 /* Constants.swift in Sources */,
 				8ABE9AE42CB2627A00483CFD /* QuestionMultipleChoiceView.swift in Sources */,
+				8A26DFD52CEFAE42002C4F60 /* UnderstandQuestionsList.swift in Sources */,
 				8ACE0DD82CD0C4A700718B9E /* SectionSummaryView.swift in Sources */,
 				8ACE0DDC2CD0C54F00718B9E /* EntryQuestionView.swift in Sources */,
 			);

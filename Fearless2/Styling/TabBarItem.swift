@@ -9,15 +9,15 @@ import SwiftUI
 enum TabBarItem: Int, CaseIterable {
 
     case topics
-    case lifeChart
+    case understand
    
 
     func selectedIconName() -> String {
         switch self {
         case .topics:
             return "rectangle.portrait.on.rectangle.portrait.angled.fill"
-        case .lifeChart:
-            return "chart.dots.scatter"
+        case .understand:
+            return "lightbulb.max.fill"
        
 
         }
@@ -27,18 +27,9 @@ enum TabBarItem: Int, CaseIterable {
         switch self {
         case .topics:
             return "Topics"
-        case .lifeChart:
-            return "Life Chart"
+        case .understand:
+            return "Understand"
         
-        }
-    }
-    
-    func iconSize() -> Font {
-        switch self {
-        case .topics:
-            .title3
-        case .lifeChart:
-            .title2
         }
     }
 

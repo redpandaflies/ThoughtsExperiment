@@ -20,7 +20,6 @@ struct TabBar: View {
                     TabBarButton(
                         tab: tab,
                         isSelected: selectedTab == tab,
-                        iconSize: tab.iconSize(),
                         action: {
                             selectedTab = tab
 //                            DispatchQueue.global(qos: .background).async {
@@ -45,7 +44,6 @@ struct TabBarButton: View {
 
     let tab: TabBarItem
     let isSelected: Bool
-    let iconSize: Font
     
     let action: () -> Void
 

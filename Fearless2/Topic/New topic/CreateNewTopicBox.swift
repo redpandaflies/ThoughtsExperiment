@@ -34,7 +34,7 @@ struct CreateNewTopicBox: View {
                 
                 switch QuestionsNewTopic.questions[selectedQuestion].questionType {
                 case .open:
-                    QuestionOpenView(topicText: $topicText, selectedQuestion: $selectedQuestion, isFocused: $isFocused, question: QuestionsNewTopic.questions[selectedQuestion].content)
+                    QuestionOpenView(topicText: $topicText, isFocused: $isFocused, question: QuestionsNewTopic.questions[selectedQuestion].content)
                 case .scale:
                     if let minLabel = QuestionsNewTopic.questions[selectedQuestion].minLabel,
                        let maxLabel = QuestionsNewTopic.questions[selectedQuestion].maxLabel {

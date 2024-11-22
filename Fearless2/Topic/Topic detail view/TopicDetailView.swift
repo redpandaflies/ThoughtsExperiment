@@ -71,6 +71,11 @@ struct TopicDetailView: View {
                     }//VStack
                 }
                 .scrollClipDisabled(true)
+                .safeAreaInset(edge: .top, content: {
+                    Rectangle()
+                        .fill(Color.clear)
+                        .frame(height: ((showUpdateTopicView ?? false) || showSectionRecapView) ? 50 : 0)
+                })
         
                 TopicDetailViewFooter(transcriptionViewModel: transcriptionViewModel, showRecordingView: $showRecordingView, topicId: topic.topicId)
                     .transition(.opacity)
@@ -112,7 +117,9 @@ struct TopicDetailView: View {
                 }
             }
             .toolbarBackground(Color.black)
+            .toolbarVisibility(((showUpdateTopicView ?? false) || showSectionRecapView) ? .hidden : .automatic)
         }//NavigationStack
+       
     }
 }
 

@@ -421,6 +421,39 @@ extension OpenAISwiftService {
         return suggestions
     }
     
+    
+    @MainActor
+    func processUnderstandAnswer(question: String) async -> Understand? {
+        let arguments = self.messageText
+        let context = self.dataController.container.viewContext
+        
+        var newUnderstand: Understand? = nil
+        
+        await context.perform {
+            
+            guard let newAnswer = self.decodeArguments(arguments: arguments, as: NewUnderstandAnswer.self) else {
+                self.loggerOpenAI.error("Couldn't decode arguments for section summary.")
+                return
+            }
+            
+            //create entry
+            let understand = Understand(context: context)
+            understand.understandId = UUID()
+            understand.understandCreatedAt = getCurrentTimeString()
+            understand.understandAnswer = newAnswer.answer
+            understand.understandQuestion = question
+            newUnderstand = understand
+            //Save the context
+            do {
+                try context.save()
+            } catch {
+                self.loggerCoreData.error("Error saving topic: \(error.localizedDescription)")
+            }
+        }
+        
+        return newUnderstand
+    }
+    
 }
 
 
@@ -526,4 +559,9 @@ struct NewEntry: Codable, Hashable {
     let summary: String
     let feedback: String
     let insights: [NewInsight]
+}
+
+//understand answer
+struct NewUnderstandAnswer: Codable, Hashable {
+    let answer: String
 }

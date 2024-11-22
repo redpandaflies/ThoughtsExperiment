@@ -39,7 +39,7 @@ struct UpdateTopicBox: View {
                     switch questionType {
                         
                     case .open:
-                        QuestionOpenView(topicText: $topicText, selectedQuestion: $selectedQuestion, isFocused: $isFocused, question: currentQuestion.questionContent)
+                        QuestionOpenView(topicText: $topicText, isFocused: $isFocused, question: currentQuestion.questionContent)
                         
                     case .scale:
                         let minLabel = currentQuestion.questionMinLabel

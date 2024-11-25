@@ -8,7 +8,6 @@
 import Foundation
 
 
-
 struct QuestionsNewTopic: Identifiable, Codable {
     let id: Int
     var content: String
@@ -31,8 +30,7 @@ extension QuestionsNewTopic {
     
     static var questions: [QuestionsNewTopic] {
         [
-            .init(id: 0, content: "Which area of life is on your mind?", questionType: .multiSelect, options: TopicCategoryItem.allCases.map {$0.getFullName()}),
-            .init(id: 1, content: "What's on your mind", questionType: .open)
+            .init(id: 0, content: "What's on your mind and why is it important to you?", questionType: .open)
         ]
     }
 }

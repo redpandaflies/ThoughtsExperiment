@@ -10,82 +10,69 @@ import SwiftUI
 struct TopicDetailView: View {
     @ObservedObject var topicViewModel: TopicViewModel
     @ObservedObject var transcriptionViewModel: TranscriptionViewModel
-    @State private var selectedTab: TopicPickerItem = .insights
+    @State private var selectedTab: TopicPickerItem = .paths
     @State private var showRecordingView: Bool = false
     @State private var selectedEntry: Entry? = nil
     @State private var showUpdateTopicView: Bool? = nil
     @State private var showSectionRecapView: Bool = false
     @State private var selectedSection: Section? = nil
+    @State private var headerHeight: CGFloat = 0
     
     let topic: Topic
     var topicCategory: TopicCategoryItem {
         return TopicCategoryItem.fromFullName(topic.topicCategory) ?? .work
     }
-   
-    
+  
     var body: some View {
         
         NavigationStack {
             ZStack {
                 
-                ScrollView (showsIndicators: false) {
+                VStack {
+                    switch selectedTab {
+                        
+                    case .paths:
+                        FocusAreasView(topicViewModel: topicViewModel, showUpdateTopicView: $showUpdateTopicView, showSectionRecapView: $showSectionRecapView, selectedSection: $selectedSection, topicId: topic.topicId, selectedCategory: topicCategory)
+                        
+                    case .entries:
+                        EntriesListView(transcriptionViewModel: transcriptionViewModel, selectedEntry: $selectedEntry, showRecordingView: $showRecordingView, topicId: topic.topicId)
+                            .padding(.horizontal)
+                        
+                    case .insights:
+                        InsightsListView(selectedEntry: $selectedEntry, topicId: topic.topicId)
+                            .padding(.horizontal)
+                    }
                     
-                    VStack (spacing: 10){
-                        
-                        Group {
-                            Image(systemName: topicCategory.getCategoryEmoji())
-                                .font(.system(size: 20))
-                                .foregroundStyle(AppColors.whiteDefault)
-                                .symbolRenderingMode(.monochrome)
-                            
-                            
-                            Text(topic.topicTitle)
-                                .font(.system(size: 20))
-                                .foregroundStyle(AppColors.whiteDefault)
-                            
-                            Text("I’m focused on building a product that aligns with my values and creates real, meaningful progress for users.")
-                                .font(.system(size: 14))
-                                .foregroundStyle(AppColors.topicSubtitle)
-                                .opacity(0.6)
-                                .padding(.bottom)
-                            
-                            Divider()
-                                .overlay(topicCategory.getDividerColor())
-                            
-                            TopicPickerView(selectedTab: $selectedTab, selectedCategory: topicCategory)
-                        }
-                        .padding(.horizontal)
-                        
-                        switch selectedTab {
-                        case .insights:
-                            InsightsListView(selectedEntry: $selectedEntry, topicId: topic.topicId)
-                                .padding(.horizontal)
-                        case .paths:
-                            FocusAreasView(topicViewModel: topicViewModel, showUpdateTopicView: $showUpdateTopicView, showSectionRecapView: $showSectionRecapView, selectedSection: $selectedSection, topicId: topic.topicId, selectedCategory: topicCategory)
-                               
-                        case .entries:
-                            EntriesListView(selectedEntry: $selectedEntry, topicId: topic.topicId)
-                                .padding(.horizontal)
-                        }
-
-                    }//VStack
+                    Spacer()
+                    
                 }
-                .scrollClipDisabled(true)
-                .safeAreaInset(edge: .top, content: {
-                    Rectangle()
-                        .fill(Color.clear)
-                        .frame(height: ((showUpdateTopicView ?? false) || showSectionRecapView) ? 50 : 0)
-                })
-        
-                TopicDetailViewFooter(transcriptionViewModel: transcriptionViewModel, showRecordingView: $showRecordingView, topicId: topic.topicId)
-                    .transition(.opacity)
+                .padding(.top, headerHeight)
+   
+                VStack {
+                    TopicDetailViewHeader(title: topic.topicTitle)
+                        .background {
+                            GeometryReader { geo in
+                                Color.clear
+                                    .onAppear {
+                                        let calculatedHeight = geo.size.height
+                                        headerHeight = calculatedHeight + 10
+                                    }
+                            }
+                        }
+                    
+                    Spacer()
+                    
+                    TopicDetailViewFooter(transcriptionViewModel: transcriptionViewModel, selectedTab: $selectedTab, topicId: topic.topicId)
+                        .transition(.opacity)
+                }
+                .ignoresSafeArea(edges: .bottom)
                 
             }//ZStack
             .overlay {
                 if let showingUpdateTopicView = showUpdateTopicView, showingUpdateTopicView {
                     UpdateTopicView(topicViewModel: topicViewModel, showUpdateTopicView: $showUpdateTopicView, selectedCategory: topicCategory, topicId: topic.topicId, section: selectedSection)
                 } else if showSectionRecapView {
-                    SectionRecapView(topicViewModel: topicViewModel, showSectionRecapView: $showSectionRecapView, topicId: topic.topicId, selectedCategory: topicCategory)
+                    FocusAreaRecapView(topicViewModel: topicViewModel, showSectionRecapView: $showSectionRecapView, topicId: topic.topicId, selectedCategory: topicCategory)
                 }
             }
             .sheet(isPresented: $showRecordingView, onDismiss: {
@@ -116,10 +103,10 @@ struct TopicDetailView: View {
                     selectedEntry = newEntry
                 }
             }
-            .toolbarBackground(Color.black)
             .toolbarVisibility(((showUpdateTopicView ?? false) || showSectionRecapView) ? .hidden : .automatic)
+            .navigationBarTitleDisplayMode(.inline)
         }//NavigationStack
-       
+     
     }
 }
 

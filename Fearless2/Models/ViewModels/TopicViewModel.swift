@@ -12,7 +12,7 @@ final class TopicViewModel: ObservableObject {
     
     @Published var topicUpdated: Bool = false
     @Published var updatedEntry: Entry? = nil
-    @Published var sectionSuggestions: [String] = []
+    @Published var focusAreaSuggestions: [NewSuggestion] = []
     
     private var openAISwiftService: OpenAISwiftService
     private var dataController: DataController
@@ -51,27 +51,27 @@ final class TopicViewModel: ObservableObject {
     //MARK: create new topic
     //note: send the full name of category to GPT as context, save the short name to CoreData
     //note: kept the optionals for userInput and question for now, in case we want to add back in the follow-up questions and summary
-    func manageRun(selectedAssistant: AssistantItem, userInput: [String]? = nil, topicId: UUID? = nil, entryId: UUID? = nil, transcript: String? = nil, section: Section? = nil, question: String? = nil) async {
+    func manageRun(selectedAssistant: AssistantItem, userInput: [String]? = nil, topicId: UUID? = nil, entryId: UUID? = nil, transcript: String? = nil, focusArea: FocusArea? = nil, section: Section? = nil, question: String? = nil) async {
     
         //reset published vars
         await MainActor.run {
             self.threadId = nil
             self.topicUpdated = false
             self.updatedEntry = nil
-            self.sectionSuggestions = []
+            self.focusAreaSuggestions = []
         }
 
-        await manageRunWithStreaming(selectedAssistant: selectedAssistant, userInput: userInput, topicId: topicId, entryId: entryId, transcript: transcript, section: section, question: question, retryCount: 1)
+        await manageRunWithStreaming(selectedAssistant: selectedAssistant, userInput: userInput, topicId: topicId, entryId: entryId, transcript: transcript, focusArea: focusArea, section: section, question: question, retryCount: 1)
         
     }
     
-    func manageRunWithStreaming(selectedAssistant: AssistantItem, userInput: [String]? = nil, topicId: UUID? = nil, entryId: UUID? = nil, transcript: String? = nil, section: Section? = nil, question: String? = nil, retryCount: Int) async {
+    func manageRunWithStreaming(selectedAssistant: AssistantItem, userInput: [String]? = nil, topicId: UUID? = nil, entryId: UUID? = nil, transcript: String? = nil, focusArea: FocusArea? = nil, section: Section? = nil, question: String? = nil, retryCount: Int) async {
         
         guard let threadId = await createThread(selectedAssistant: selectedAssistant) else {
             return
         }
         
-        await sendFirstMessage(selectedAssistant: selectedAssistant, threadId: threadId, topicId: topicId, transcript: transcript, section: section, userInput: userInput)
+        await sendFirstMessage(selectedAssistant: selectedAssistant, threadId: threadId, topicId: topicId, transcript: transcript, focusArea: focusArea, section: section, userInput: userInput)
         
         
         do {
@@ -90,46 +90,68 @@ final class TopicViewModel: ObservableObject {
                         
                     loggerOpenAI.log("Updated section with summary")
                     
-                    case .sectionSuggestions:
-                        
-                        if let newSectionSuggestions = await openAISwiftService.processSectionSuggestions() {
-                            loggerOpenAI.log("Processed section suggestions")
-                            await MainActor.run {
-                                self.sectionSuggestions = newSectionSuggestions
-                            }
+                case .focusAreaSuggestions:
+                    
+                    if let newSectionSuggestions = await openAISwiftService.processSectionSuggestions() {
+                        loggerOpenAI.log("Processed section suggestions")
+                        await MainActor.run {
+                            self.focusAreaSuggestions = newSectionSuggestions
                         }
+                    }
+                
+                case .focusAreaSummary:
                     
-                    case .entry:
+                    guard let currentFocusArea = focusArea else {
+                        loggerCoreData.error("Failed to get focus area")
+                        return
+                    }
                     
-                        guard let currentEntryId = entryId else {
-                            loggerCoreData.error("Failed to get new topic ID")
-                            return
-                        }
+                    await openAISwiftService.processFocusAreaSummary(focusArea: currentFocusArea)
                     
+                case .entry:
+                
+                    guard let currentEntryId = entryId else {
+                        loggerCoreData.error("Failed to get new topic ID")
+                        return
+                    }
+                
                     if let updatedEntry = await openAISwiftService.processEntry(entryId: currentEntryId) {
                         loggerOpenAI.log("Updated new entry with insights and summary")
                         await MainActor.run {
                             self.updatedEntry = updatedEntry
                         }
                     }
-                    
-                    default:
-                        
-                        guard let currentTopicId = topicId else {
-                            loggerCoreData.error("Failed to get new topic ID")
-                            return
-                        }
-                        await openAISwiftService.processNewTopic(topicId: currentTopicId)
-                        
-                        loggerOpenAI.log("Added new sections to topic")
-                    }
                 
-                    await MainActor.run {
-                        if selectedAssistant != .entry {
-                            self.topicUpdated = true
-                        }
+                case .topic:
+                    
+                    guard let currentTopicId = topicId else {
+                        loggerCoreData.error("Failed to get new topic ID")
+                        return
+                    }
+                    await openAISwiftService.processNewTopic(topicId: currentTopicId)
+                    
+                    loggerOpenAI.log("Added new sections to topic")
+                
+                case .focusArea:
+                
+                    guard let currentTopicId = topicId else {
+                        loggerCoreData.error("Failed to get new topic ID")
+                        return
+                    }
+                    await openAISwiftService.processFocusArea(topicId: currentTopicId)
+                    
+                    loggerOpenAI.log("Added new focus area to topic")
+                
+                default:
+                    break
+                }
+            
+                await MainActor.run {
+                    if selectedAssistant != .entry {
+                        self.topicUpdated = true
                     }
                 }
+            }
                 
                 
          
@@ -168,13 +190,13 @@ final class TopicViewModel: ObservableObject {
     }
     
     //for creating a set of questions to gather context on a topic
-    private func sendFirstMessage(selectedAssistant: AssistantItem, threadId: String, topicId: UUID? = nil, transcript: String? = nil, section: Section? = nil, userInput: [String]? = nil) async {
+    private func sendFirstMessage(selectedAssistant: AssistantItem, threadId: String, topicId: UUID? = nil, transcript: String? = nil, focusArea: FocusArea? = nil, section: Section? = nil, userInput: [String]? = nil) async {
             
         do {
             var userContext: String = ""
             
             switch selectedAssistant {
-                case .section, .focusArea:
+                case .topic, .focusArea:
                     guard let currentTopic = topicId else {
                         loggerCoreData.error("Failed to get new topic ID")
                         return
@@ -199,7 +221,7 @@ final class TopicViewModel: ObservableObject {
                     userContext += gatheredContext
                     
                     
-                case .sectionSuggestions:
+                case .focusAreaSuggestions:
                     guard let currentTopic = topicId else {
                         loggerCoreData.error("Failed to get new topic ID")
                         return
@@ -211,6 +233,17 @@ final class TopicViewModel: ObservableObject {
                     }
                     userContext += gatheredContext
                 
+                case .focusAreaSummary:
+                    guard let currentFocusArea = focusArea else {
+                        loggerCoreData.error("Failed to get focus area")
+                        return
+                    }
+                    
+                    guard let gatheredContext = await ContextGatherer.gatherContextFocusArea(dataController: dataController, loggerCoreData: loggerCoreData, focusArea: currentFocusArea) else {
+                            loggerCoreData.error("Failed to get user context")
+                            return
+                        }
+                    userContext += gatheredContext
                 case .entry:
                     guard let currentTopic = topicId else {
                        loggerCoreData.error("Failed to get new topic ID")

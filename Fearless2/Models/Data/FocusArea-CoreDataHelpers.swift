@@ -32,4 +32,9 @@ extension FocusArea {
         let result = sections?.allObjects as? [Section] ?? []
         return result
     }
+    
+    func assignSummary(_ summary: FocusAreaSummary) {
+        self.summary = summary
+        summary.focusArea = self
+    }
 }

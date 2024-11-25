@@ -12,7 +12,8 @@ struct TopicDetailViewFooter: View {
     @EnvironmentObject var dataController: DataController
     @ObservedObject var transcriptionViewModel: TranscriptionViewModel
     
-    @Binding var showRecordingView: Bool
+    @Binding var selectedTab: TopicPickerItem
+ 
     
     let topicId: UUID?
     let screenWidth = UIScreen.current.bounds.width
@@ -20,7 +21,7 @@ struct TopicDetailViewFooter: View {
     
     var body: some View {
         VStack {
-            Spacer()
+           
             HStack {
                 Button {
                     dismiss()
@@ -33,48 +34,7 @@ struct TopicDetailViewFooter: View {
                 
                 Spacer()
                 
-                HStack {
-                    
-                    Group {
-                        Image(systemName: "waveform")
-                            .font(.system(size: 20))
-                            .foregroundStyle(Color.black)
-                            .padding(.horizontal, 6)
-                            .padding(.leading, 10)
-                    }
-                    .onTapGesture {
-                        Task {
-                            
-                           let startRecording = await transcriptionViewModel.recordingButtonClick(action: .newEntry)
-                            
-                            if startRecording {
-                                logger.info("Started recording")
-                            } else {
-                                logger.error("Failed to start recording")
-                                return
-                            }
-                            
-                            showRecordingView = true
-                        }
-                    }
-                    
-                    Rectangle()
-                        .frame(width: 1, height: 35)
-                        .foregroundStyle(AppColors.footerDivider)
-                    
-                    Image(systemName: "map.fill")
-                        .font(.system(size: 20))
-                        .foregroundStyle(Color.black)
-                        .padding(.horizontal, 6)
-                        .padding(.trailing, 10)
-                    
-                }
-                .padding(.vertical, 3)
-               
-                .background {
-                    Capsule(style: .continuous)
-                        .fill(AppColors.categoryYellow)
-                }
+                TopicPickerView(selectedTab: $selectedTab)
                 
                 Spacer()
                 
@@ -106,15 +66,13 @@ struct TopicDetailViewFooter: View {
             }//HStack
             .padding(.bottom, 25)
             .padding()
-            .padding(.horizontal, 20)
             .frame(width: screenWidth)
-           
             .background {
                 Rectangle()
-                    .fill(Color.black)
+                    .fill(AppColors.topicFooterBackground)
             }
             
         }//VStack
-        .ignoresSafeArea(.all)
+        
     }
 }

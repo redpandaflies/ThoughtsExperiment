@@ -1,5 +1,5 @@
 //
-//  SectionRecapView.swift
+//  FocusAreaRecapView.swift
 //  Fearless2
 //
 //  Created by Yue Deng-Wu on 10/30/24.
@@ -7,7 +7,7 @@
 import CoreData
 import SwiftUI
 
-struct SectionRecapView: View {
+struct FocusAreaRecapView: View {
     @EnvironmentObject var dataController: DataController
     @ObservedObject var topicViewModel: TopicViewModel
     @State private var selectedTab: Int = 0
@@ -30,7 +30,7 @@ struct SectionRecapView: View {
             switch selectedTab {
             case 0:
                 if showCard {
-                    SectionRecapBox(topicViewModel: topicViewModel, selectedTab: $selectedTab, topicId: topicId, selectedPage: .reflection, selectedCategory: selectedCategory)
+                    FocusAreaRecapBox(topicViewModel: topicViewModel, selectedTab: $selectedTab, topicId: topicId, selectedPage: .reflection, selectedCategory: selectedCategory)
                         .padding(.horizontal)
                         .transition(.move(edge: .bottom))
                 }
@@ -39,7 +39,7 @@ struct SectionRecapView: View {
                 LoadingAnimation(selectedCategory: selectedCategory)
             
             case 2:
-                SectionRecapBox(topicViewModel: topicViewModel, selectedTab: $selectedTab, topicId: topicId, selectedPage: .suggestions, selectedCategory: selectedCategory)
+                FocusAreaRecapBox(topicViewModel: topicViewModel, selectedTab: $selectedTab, topicId: topicId, selectedPage: .suggestions, selectedCategory: selectedCategory)
                     .padding(.horizontal)
                     .transition(.move(edge: .bottom))
              

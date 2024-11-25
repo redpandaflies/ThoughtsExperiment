@@ -10,13 +10,11 @@ import SwiftUI
 struct CreateNewTopicView: View {
     @EnvironmentObject var dataController: DataController
     @ObservedObject var topicViewModel: TopicViewModel
-    
-    @State private var showCard: Bool = false
     @State private var selectedTab: Int = 0
+    @State private var showCard: Bool = false
     
     @Binding var showCreateNewTopicView: Bool
-    
-    let selectedCategory: TopicCategoryItem
+    @Binding var selectedCategory: TopicCategoryItem
     
     var body: some View {
         ZStack {
@@ -27,17 +25,11 @@ struct CreateNewTopicView: View {
                     cancelEntry()
                 }
             
-            switch selectedTab {
-            case 0:
-                if showCard {
-                    CreateNewTopicBox(topicViewModel: topicViewModel, showCard: $showCard, selectedTab: $selectedTab, selectedCategory: selectedCategory)
-                        .padding(.horizontal)
-                        .transition(.move(edge: .bottom))
-                }
-                
-            default:
-                LoadingAnimation(selectedCategory: selectedCategory)
-                
+           
+            if showCard {
+                CreateNewTopicBox(topicViewModel: topicViewModel, showCard: $showCard, selectedTab: $selectedTab)
+                    .padding(.horizontal)
+                    .transition(.move(edge: .bottom))
             }
             
         }
@@ -56,15 +48,15 @@ struct CreateNewTopicView: View {
     }
     
     private func cancelEntry() {
+        Task {
+            if let topicId = dataController.newTopic?.topicId {
+                await self.dataController.deleteTopic(id: topicId)
+            }
+        }
         withAnimation(.snappy(duration: 0.2)) {
             self.showCard = false
         }
         showCreateNewTopicView = false
-//        Task {
-//            if let topicId = dataController.newTopic?.topicId {
-//                await self.dataController.deleteTopic(id: topicId)
-//            }
-//        }
     }
 }
 

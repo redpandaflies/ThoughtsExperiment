@@ -12,16 +12,14 @@ struct SectionBox: View {
     @ObservedObject var section: Section
     
     var body: some View {
-        VStack (alignment: .leading, spacing: 5) {
-            
-            HStack {
-                Text(section.sectionTitle)
-                    .multilineTextAlignment(.leading)
-                    .font(.system(size: 17, weight: .regular))
-                    .foregroundStyle(Color.white)
+        VStack (spacing: 5) {
+ 
+            Text(section.sectionTitle)
+                .multilineTextAlignment(.center)
+                .font(.system(size: 17, weight: .regular))
+                .foregroundStyle(Color.white)
                 
-                Spacer()
-            }
+          
             Text("\(section.sectionQuestions.count) prompts")
                 .font(.system(size: 11))
                 .foregroundStyle(Color.white)

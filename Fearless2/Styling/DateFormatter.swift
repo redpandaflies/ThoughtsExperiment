@@ -45,7 +45,7 @@ extension DateFormatter {
 extension DateFormatter {
     static let displayFormat2: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.dateFormat = "MMMM d"
+        formatter.dateFormat = "MMM d, yyyy"
         return formatter
     }()
     

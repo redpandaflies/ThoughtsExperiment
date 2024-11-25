@@ -31,7 +31,7 @@ struct ActiveTopicsView: View {
     
     var body: some View {
        
-            ZStack {
+            VStack {
                 
                 ScrollView (showsIndicators: false) {
                     LazyVGrid(columns: columns, spacing: 15) {
@@ -42,32 +42,29 @@ struct ActiveTopicsView: View {
                             }
                             
                         }
+                        
+                        AddTopicButton()
+                            .onTapGesture {
+                                showCreateNewTopicView = true
+                            }
+                            .sensoryFeedback(.selection, trigger: showCreateNewTopicView) { oldValue, newValue in
+                                return oldValue != newValue && newValue == true
+                            }
+                        
                     }
                     
                 }
                 .scrollClipDisabled(true)
                 .padding()
-                .safeAreaInset(edge: .top, content: {
+                .safeAreaInset(edge: .bottom, content: {
                     Rectangle()
                         .fill(Color.clear)
-                        .frame(height: 20)
+                        .frame(height: 50)
                 })
                 
                 
-                VStack {
-                    Spacer()
-                    
-                    RectangleButton(buttonName: "New Topic", buttonColor: Color.white.opacity(0.6))
-                        .padding()
-                        .onTapGesture {
-                            showCreateNewTopicView = true
-                        }
-                        .sensoryFeedback(.selection, trigger: showCreateNewTopicView) { oldValue, newValue in
-                            return oldValue != newValue && newValue == true
-                        }
-                }
-                .padding(.bottom, 90)
-            }//ZStack
+               
+            }//VStack
             .ignoresSafeArea(.keyboard)
     }
 }

@@ -1,5 +1,5 @@
 //
-//  SectionSuggestions.swift
+//  FocusAreaSuggestions.swift
 //  Fearless2
 //
 //  Created by Yue Deng-Wu on 10/29/24.
@@ -7,9 +7,9 @@
 
 import SwiftUI
 
-struct SectionSuggestionsView: View {
+struct FocusAreaSuggestionsView: View {
     @Binding var selectedOptions: [String]
-    let items: [String]
+    let items: [NewSuggestion]
     
     var body: some View {
         VStack (alignment: .leading, spacing: 10) {
@@ -35,9 +35,9 @@ struct SectionSuggestionsView: View {
             
           
             ForEach(items, id: \.self) { pill in
-                QuestionBubble(selected: selectedOptions.contains(pill), option: pill)
+                QuestionBubble(selected: selectedOptions.contains(pill.content), option: pill.content)
                     .onTapGesture {
-                            selectPill(pillLabel: pill)
+                        selectPill(pillLabel: pill.content)
                     }
             }
             

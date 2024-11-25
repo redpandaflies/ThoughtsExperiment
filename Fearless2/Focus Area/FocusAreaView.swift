@@ -16,6 +16,7 @@ struct FocusAreasView: View {
     
     let topicId: UUID
     let selectedCategory: TopicCategoryItem
+    let screenHeight = UIScreen.current.bounds.height
     
     @FetchRequest var focusAreas: FetchedResults<FocusArea>
     
@@ -32,6 +33,7 @@ struct FocusAreasView: View {
         request.predicate = NSPredicate(format: "topic.id == %@", topicId as CVarArg)
         
         self._focusAreas = FetchRequest(fetchRequest: request)
+        
     }
     
     var body: some View {
@@ -40,21 +42,37 @@ struct FocusAreasView: View {
                 VStack (alignment: .leading) {
                     ForEach(Array(focusAreas.enumerated()), id: \.element.focusAreaId) { index, area in
                         
-                        FocusAreaBox(showUpdateTopicView: $showUpdateTopicView, showSectionRecapView: $showSectionRecapView, selectedSection: $selectedSection, focusArea: area, selectedCategory: selectedCategory, index: index)
-                            .padding(.bottom, 20)
+                        FocusAreaBox(showUpdateTopicView: $showUpdateTopicView, showSectionRecapView: $showSectionRecapView, selectedSection: $selectedSection, focusArea: area, index: index)
+                            .containerRelativeFrame(.vertical, alignment: .top)
+                            .scrollTransition { content, phase in
+                                content
+                                .opacity(phase.isIdentity ? 1 : 0)
+                                .scaleEffect(phase.isIdentity ? 1 : 0.8)
+                                .blur(radius: phase.isIdentity ? 0 : 10)
+                            }
                         
                     }//ForEach
                 }//VStack
             }//ScrollView
-            .padding(.vertical)
+            .scrollTargetLayout()
+            .scrollTargetBehavior(.paging)
+            .scrollBounceBehavior(.basedOnSize)
+            .scrollClipDisabled(true)
             .ignoresSafeArea(.keyboard)
-            .safeAreaInset(edge: .bottom, content: {
-                Rectangle()
-                    .foregroundStyle(.clear)
-                    .frame(height: 50)
-            })
+            .onAppear {
+                if !focusAreas.isEmpty {
+                   //tbd
+                }
+            }
+//            .onChange(of: topicViewModel.topicUpdated) {
+//                if topicViewModel.topicUpdated {
+//                    selectedTab = 2
+//                }
+//            }
+  
         
     }
+    
 }
 
 

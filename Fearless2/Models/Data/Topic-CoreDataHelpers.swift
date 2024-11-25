@@ -29,6 +29,11 @@ extension Topic {
         set { title = newValue }
     }
     
+    var topicDefinition: String {
+        get { definition ?? "" }
+        set { definition = newValue }
+    }
+    
     var topicUserDescription: String {
         get { userDescription ?? "" }
         set { userDescription = newValue }  
@@ -72,6 +77,11 @@ extension Topic {
     
     var topicInsights: [Insight] {
         let result = insights?.allObjects as? [Insight] ?? []
+        return result
+    }
+    
+    var topicSuggestions: [FocusAreaSuggestion] {
+        let result = insights?.allObjects as? [FocusAreaSuggestion] ?? []
         return result
     }
 }

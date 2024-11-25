@@ -17,7 +17,23 @@
         <attribute name="reasoning" optional="YES" attributeType="String"/>
         <attribute name="title" optional="YES" attributeType="String"/>
         <relationship name="sections" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Section" inverseName="focusArea" inverseEntity="Section"/>
+        <relationship name="summary" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="FocusAreaSummary" inverseName="focusArea" inverseEntity="FocusAreaSummary"/>
         <relationship name="topic" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Topic" inverseName="focusAreas" inverseEntity="Topic"/>
+    </entity>
+    <entity name="FocusAreaSuggestion" representedClassName="FocusAreaSuggestion" syncable="YES" codeGenerationType="class">
+        <attribute name="content" optional="YES" attributeType="String"/>
+        <attribute name="emoji" optional="YES" attributeType="String"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="reasoning" optional="YES" attributeType="String"/>
+        <relationship name="topic" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Topic" inverseName="suggestions" inverseEntity="Topic"/>
+    </entity>
+    <entity name="FocusAreaSummary" representedClassName="FocusAreaSummary" syncable="YES" codeGenerationType="class">
+        <attribute name="createdAt" optional="YES" attributeType="String"/>
+        <attribute name="feedback" optional="YES" attributeType="String"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="summary" optional="YES" attributeType="String"/>
+        <relationship name="focusArea" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="FocusArea" inverseName="summary" inverseEntity="FocusArea"/>
+        <relationship name="insights" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Insight" inverseName="focusAreaSummary" inverseEntity="Insight"/>
     </entity>
     <entity name="Insight" representedClassName="Insight" syncable="YES" codeGenerationType="class">
         <attribute name="content" optional="YES" attributeType="String"/>
@@ -25,6 +41,7 @@
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="markedSaved" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <relationship name="entry" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Entry" inverseName="insights" inverseEntity="Entry"/>
+        <relationship name="focusAreaSummary" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="FocusAreaSummary" inverseName="insights" inverseEntity="FocusAreaSummary"/>
         <relationship name="sectionSummary" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SectionSummary" inverseName="insights" inverseEntity="SectionSummary"/>
         <relationship name="topic" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Topic" inverseName="insights" inverseEntity="Topic"/>
     </entity>
@@ -67,6 +84,7 @@
     <entity name="Topic" representedClassName="Topic" syncable="YES" codeGenerationType="class">
         <attribute name="category" optional="YES" attributeType="String"/>
         <attribute name="createdAt" optional="YES" attributeType="String"/>
+        <attribute name="definition" optional="YES" attributeType="String"/>
         <attribute name="emotions" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="people" optional="YES" attributeType="String"/>
@@ -78,6 +96,7 @@
         <relationship name="insights" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Insight" inverseName="topic" inverseEntity="Insight"/>
         <relationship name="questions" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Question" inverseName="topic" inverseEntity="Question"/>
         <relationship name="sections" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Section" inverseName="topic" inverseEntity="Section"/>
+        <relationship name="suggestions" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="FocusAreaSuggestion" inverseName="topic" inverseEntity="FocusAreaSuggestion"/>
     </entity>
     <entity name="Understand" representedClassName="Understand" syncable="YES" codeGenerationType="class">
         <attribute name="answer" optional="YES" attributeType="String"/>

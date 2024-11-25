@@ -11,7 +11,6 @@ import OSLog
 @MainActor
 struct ContextGatherer {
     
-    //for creating a brand new topic
     static func gatherContextGeneral(dataController: DataController, loggerCoreData: Logger, topicId: UUID, transcript: String? = nil, userInput: [String]? = nil) async -> String? {
         
         var context = "Here is what we know so far about the topic: \n"
@@ -121,9 +120,7 @@ struct ContextGatherer {
                     """
                 }
                 
-                
             }
-            
         }
         
         return context
@@ -178,7 +175,38 @@ struct ContextGatherer {
 
         return context
     }
+    
+    //for focus area summary
+    static func gatherContextFocusArea(dataController: DataController, loggerCoreData: Logger, focusArea: FocusArea) async -> String? {
+        var context = "The user is wrapping up this focus area: \(focusArea.focusAreaTitle). Your summary, feedback, and insights should be created based on the user's answers for the sections below.\n"
+        
+        // Fetch and add information for the topic, if available
+        if let topic = focusArea.topic {
+            context += """
+            The user is adding thoughts to this topic:
+            - name: \(topic.topicTitle)
+            - topic relates to this part of the user's life: \(topic.topicCategory)\n\n
+            
+            The user is working on a section from this focus area:
+            - focus area title: \(focusArea.focusAreaTitle)\n
+            - focus area reasoning: \(focusArea.focusAreaReasoning)\n\n
+            """
+            
+            // Add previous sections' answers
+            let savedSections = focusArea.focusAreaSections
+            
+            context += "Here are the sections in this focus area. Assume that questions without answers are the ones that the user purposefully skipped: \n"
+            
+            for section in savedSections {
+                
+                context += "\n Section number: \(section.sectionNumber).\n Section title: \(section.sectionTitle)\nHere are the questions in this section that the user has already answered:\n"
+                context += getQuestions(section.sectionQuestions)
+            }
+            
+        }
 
+        return context
+    }
     // Helper function to format questions and answers
     private static func getQuestions(_ questions: [Question]) -> String {
         var result = ""

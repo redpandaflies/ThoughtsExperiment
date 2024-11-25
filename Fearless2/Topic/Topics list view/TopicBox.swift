@@ -10,40 +10,32 @@ import SwiftUI
 struct TopicBox: View {
 
     @ObservedObject var topic: Topic
-   
-    var topicCategory: TopicCategoryItem {
-        return TopicCategoryItem.fromFullName(topic.topicCategory) ?? .work
-    }
     
     var body: some View {
-        VStack (alignment: .leading) {
+        
+        ZStack (alignment: .top) {
+            RoundedRectangle(cornerRadius: 25)
+                .stroke(AppColors.darkBrown)
+                .fill(AppColors.darkBrown)
             
-            HStack {
-                Image(systemName: topicCategory.getCategoryEmoji())
-                    .symbolRenderingMode(.monochrome)
-                    .foregroundStyle(topicCategory.getCategoryColor())
+            VStack (spacing: 18){
                 
-               Spacer()
+                Image("topicPlaceholder")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                
+                Text(topic.topicTitle)
+                    .multilineTextAlignment(.center)
+                    .font(.system(size: 15, weight: .light))
+                    .foregroundStyle(Color.white)
+                    .lineSpacing(0.5)
+                    .padding(.horizontal, 9)
+                    .padding(.bottom, 13)
+                
             }
-            
-            
-            Text(topic.topicTitle)
-                .multilineTextAlignment(.leading)
-                .font(.system(size: 19))
-                .foregroundStyle(topicCategory.getCategoryColor())
-                .padding(.top, 1)
-                .padding(.bottom, 30)
-            
-            Spacer()
-            
+            .padding(5)
         }
-        .padding()
-        .frame(height: 230)
         .contentShape(Rectangle())
-        .background {
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(topicCategory.getCategoryColor(), lineWidth: 1)
-        }
 
     }
 }

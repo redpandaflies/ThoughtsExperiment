@@ -52,25 +52,24 @@ struct AppViewsManager: View {
                 TabBar(selectedTab: $selectedTab)
                 
             }
-          
             .toolbarBackground(Color.black)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     getTopBarLeadingItem()
                 }
                 
-                ToolbarItem(placement: .topBarTrailing) {
-                    ProfileToolbarItem()
-                }
+//                ToolbarItem(placement: .topBarTrailing) {
+//                    ProfileToolbarItem()
+//                }
             }
             .navigationBarTitleDisplayMode(.inline)
-           
         }
         .environment(\.colorScheme, .dark)
-        .tint(Color.black)
+        .customToolbarAppearance()
+//        .tint(Color.black)
         .overlay  {
             if showCreateNewTopicView {
-                CreateNewTopicView(topicViewModel: topicViewModel, showCreateNewTopicView: $showCreateNewTopicView, selectedCategory: selectedCategory)
+                CreateNewTopicView(topicViewModel: topicViewModel, showCreateNewTopicView: $showCreateNewTopicView, selectedCategory: $selectedCategory)
             } else if showAskQuestionView {
                 UnderstandAskQuestionView(understandViewModel: understandViewModel, showAskQuestionView: $showAskQuestionView, askQuestionTab: $askQuestionTab)
             }
@@ -81,7 +80,7 @@ struct AppViewsManager: View {
         Group {
             switch selectedTab {
             case .topics:
-                ToolbarTitleItem(title: "Your Topics", regularSize: true)
+                ToolbarTitleItem(title: "Top of mind", regularSize: true)
             case .understand:
                 UnderstandToolbarItem(action: {
                     showUnderstandQuestionsList = true

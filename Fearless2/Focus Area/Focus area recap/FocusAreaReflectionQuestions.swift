@@ -1,5 +1,5 @@
 //
-//  SectionReflectionQuestions.swift
+//  FocusAreaReflectionQuestions.swift
 //  Fearless2
 //
 //  Created by Yue Deng-Wu on 10/29/24.
@@ -7,7 +7,7 @@
 import CoreData
 import SwiftUI
 
-struct SectionReflectionQuestions: View {
+struct FocusAreaReflectionQuestions: View {
     
     let topicId: UUID
     let selectedCategory: TopicCategoryItem

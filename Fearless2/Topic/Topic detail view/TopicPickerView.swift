@@ -11,8 +11,6 @@ import SwiftUI
 struct TopicPickerView: View {
     
     @Binding var selectedTab: TopicPickerItem
-    let selectedCategory: TopicCategoryItem
-    
     
     let screenWidth = UIScreen.current.bounds.width
     
@@ -21,25 +19,29 @@ struct TopicPickerView: View {
             ForEach(TopicPickerItem.allCases, id: \.self) { item in
                 Group {
                     Text("\(item.rawValue)")
-                        .font(.system(size: 17))
-                        .foregroundStyle(selectedCategory.getCategoryColor())
+                        .font(.system(size: 12))
+                        .foregroundStyle(Color.white)
                         .textCase(.uppercase)
-                        .opacity(item == selectedTab ? 1: 0.5)
+                        .opacity(0.7)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
-                .frame(width: 90, height: 20)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 5)
+                .background {
+                    Capsule(style: .circular)
+                        .fill(item == selectedTab ? Color.white.opacity(0.05) : Color.clear)
+                }
+                .frame(width: 80)
                 .contentShape(Rectangle())
                 .onTapGesture {
                     selectedTab = item
-                }
-                .sensoryFeedback(.selection, trigger: item == selectedTab) { oldValue, newValue in
-                    return oldValue != newValue && newValue == true
+                    if item == selectedTab {
+                        let generator = UIImpactFeedbackGenerator(style: .medium)
+                        generator.impactOccurred()
+                    }
                 }
                 
-                if item != TopicPickerItem.allCases.last {
-                    Spacer()
-                }
             }
         }
-        .padding(.vertical)
     }
 }

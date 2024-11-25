@@ -13,29 +13,27 @@ struct FocusAreaBox: View {
     @Binding var selectedSection: Section?
    
     let focusArea: FocusArea
-    let selectedCategory: TopicCategoryItem
     let index: Int
     
     var body: some View {
        
-        VStack (alignment: .leading, spacing: 10){
+        VStack (spacing: 10){
             Group {
                 
                 Text("\(index + 1)")
-                    .multilineTextAlignment(.leading)
-                    .font(.system(size: 30))
-                    .fontWeight(.regular)
-                    .foregroundStyle(selectedCategory.getCategoryColor())
+                    .multilineTextAlignment(.center)
+                    .font(.system(size: 40, weight: .semibold))
+                    .foregroundStyle(Color.white)
                 
                 Text(focusArea.focusAreaTitle)
-                    .multilineTextAlignment(.leading)
+                    .multilineTextAlignment(.center)
                     .font(.system(size: 25))
                     .fontWeight(.regular)
                     .foregroundStyle(Color.white)
                 
                 
                 Text(focusArea.focusAreaReasoning)
-                    .multilineTextAlignment(.leading)
+                    .multilineTextAlignment(.center)
                     .font(.system(size: 16))
                     .fontWeight(.regular)
                     .foregroundStyle(Color.white)

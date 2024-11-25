@@ -8,9 +8,9 @@
 import SwiftUI
 
 enum TopicPickerItem: String, CaseIterable {
-
-    case insights
+   
     case paths
     case entries
+    case insights
 
 }

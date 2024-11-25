@@ -14,9 +14,8 @@ struct ToolbarTitleItem: View {
     
     var body: some View {
         Text(title)
-            .font(.system(size: regularSize ? 25 : 20, weight: .light))
+            .font(.system(size: regularSize ? 20 : 20, weight: .light))
             .foregroundStyle(Color.white)
-            .opacity(0.6)
             .textCase(.uppercase)
     }
 }

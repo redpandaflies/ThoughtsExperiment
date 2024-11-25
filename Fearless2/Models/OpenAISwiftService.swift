@@ -237,19 +237,63 @@ extension OpenAISwiftService {
                     return
                 }
                 
-                if topic.topicTitle.isEmpty {
-                    topic.topicTitle = newTopic.topicTitle
+                
+                topic.topicTitle = newTopic.title
+                topic.topicDefinition = newTopic.definition
+                
+                for newSuggestion in newTopic.suggestions {
+                    let suggestion = FocusAreaSuggestion(context: context)
+                    suggestion.suggestionId = UUID()
+                    suggestion.suggestionContent = newSuggestion.content
+                    suggestion.suggestionReasoning = newSuggestion.reasoning
+                    suggestion.suggestionEmoji = newSuggestion.emoji
+                    topic.addToSuggestions(suggestion)
+                }
+              
+            } catch {
+                self.loggerCoreData.error("Error fetching topic: \(error.localizedDescription)")
+            }
+            
+            // Save the context after processing each section and its questions
+            do {
+                try context.save()
+            } catch {
+                self.loggerCoreData.error("Error saving section: \(error.localizedDescription)")
+            }
+        }
+    }
+    
+    @MainActor
+    func processFocusArea(topicId: UUID) async {
+        let arguments = self.messageText
+        let context = self.dataController.container.viewContext
+
+        await context.perform {
+            // Fetch the topic with the provided topicId
+            let request = NSFetchRequest<Topic>(entityName: "Topic")
+            request.predicate = NSPredicate(format: "id == %@", topicId as CVarArg)
+
+            do {
+                guard let topic = try context.fetch(request).first else {
+                    self.loggerCoreData.error("No topic found with topicId: \(topicId)")
+                    return
+                }
+
+                // Decode the arguments to get the new section data
+                guard let newFocusArea = self.decodeArguments(arguments: arguments, as: NewFocusArea.self) else {
+                    self.loggerOpenAI.error("Couldn't decode arguments for sections.")
+                    return
                 }
                 
                 let focusArea = FocusArea(context: context)
                 focusArea.focusAreaId = UUID()
                 focusArea.createdAt = getCurrentTimeString()
-                focusArea.focusAreaTitle = newTopic.focusArea.title
-                focusArea.focusAreaReasoning = newTopic.focusArea.reasoning
+                focusArea.focusAreaTitle = newFocusArea.title
+                focusArea.focusAreaReasoning = newFocusArea.reasoning
                 topic.addToFocusAreas(focusArea)
                 
                 // Loop through the new sections and save them to CoreData, attaching them to the topic
-                for newSection in newTopic.sections {
+                for newSection in newFocusArea.sections {
                     //check if the section number already exists, if not, add the section (AI sometimes hallucinates)
                     
                     if focusArea.focusAreaSections.contains(where: { $0.sectionNumber == newSection.sectionNumber }) {
@@ -300,8 +344,45 @@ extension OpenAISwiftService {
         }
     }
     
-    //save new entry to CoreData
-    //need entryId, so we know which entry AND topic is being updated
+    
+    @MainActor
+    func processFocusAreaSummary(focusArea: FocusArea) async {
+        let arguments = self.messageText
+        let context = self.dataController.container.viewContext
+
+        await context.perform {
+            // Decode the arguments to get the new topic data
+            guard let newSummary = self.decodeArguments(arguments: arguments, as: NewFocusAreaSummary.self) else {
+                self.loggerOpenAI.error("Couldn't decode arguments for section summary.")
+                return
+            }
+            
+            //create entry
+            let summary: FocusAreaSummary
+            summary = FocusAreaSummary(context: context)
+            summary.summaryId = UUID()
+            summary.summaryCreatedAt = getCurrentTimeString()
+            summary.summarySummary = newSummary.summary
+            summary.summaryFeedback = newSummary.feedback
+            focusArea.assignSummary(summary)
+            
+            //update entry insights
+            for newInsight in newSummary.insights {
+                let insight = Insight(context: context)
+                insight.insightId = UUID()
+                insight.insightContent = newInsight.content
+                summary.addToInsights(insight)
+            }
+            
+            //Save the context
+            do {
+                try context.save()
+            } catch {
+                self.loggerCoreData.error("Error saving summary: \(error.localizedDescription)")
+            }
+        }
+    }
+    
     @MainActor
     func processSectionSummary(section: Section) async {
         let arguments = self.messageText
@@ -323,7 +404,7 @@ extension OpenAISwiftService {
             summary.summaryFeedback = newSummary.feedback
             section.assignSummary(summary)
             
-            //Update entry insights
+            //update entry insights
             for newInsight in newSummary.insights {
                 let insight = Insight(context: context)
                 insight.insightId = UUID()
@@ -335,7 +416,7 @@ extension OpenAISwiftService {
             do {
                 try context.save()
             } catch {
-                self.loggerCoreData.error("Error saving topic: \(error.localizedDescription)")
+                self.loggerCoreData.error("Error saving summary: \(error.localizedDescription)")
             }
         }
     }
@@ -382,8 +463,7 @@ extension OpenAISwiftService {
                         topic.addToInsights(insight)
                     }
                 }
-                
-              
+
                 //set return value
                 currentEntry = entry
                 
@@ -404,18 +484,18 @@ extension OpenAISwiftService {
     }
     
     @MainActor
-    func processSectionSuggestions() async -> [String]? {
+    func processSectionSuggestions() async -> [NewSuggestion]? {
         let arguments = self.messageText
         
-        guard let newSuggestions = self.decodeArguments(arguments: arguments, as: NewSectionSuggestions.self) else {
+        guard let newSuggestions = self.decodeArguments(arguments: arguments, as: NewFocusAreaSuggestions.self) else {
             self.loggerOpenAI.error("Couldn't decode arguments for section suggestions.")
             return nil
         }
         
-        var suggestions: [String] = []
+        var suggestions: [NewSuggestion] = []
         
         for item in newSuggestions.suggestions {
-            suggestions.append(item.content)
+            suggestions.append(item)
         }
         
         return suggestions
@@ -443,7 +523,8 @@ extension OpenAISwiftService {
             understand.understandAnswer = newAnswer.answer
             understand.understandQuestion = question
             newUnderstand = understand
-            //Save the context
+            
+            //save the context
             do {
                 try context.save()
             } catch {
@@ -476,20 +557,15 @@ enum SenderRole: String, Codable {
 
 //Create new focus area
 struct NewTopic: Codable, Hashable {
-    let topicTitle: String
-    let focusArea: NewFocusArea
-    let sections: [NewSection]
-    
-    enum CodingKeys: String, CodingKey {
-        case topicTitle = "topic_title"
-        case focusArea = "focus_area"
-        case sections
-    }
+    let title: String
+    let definition: String
+    let suggestions: [NewSuggestion]
 }
 
 struct NewFocusArea: Codable, Hashable {
     let title: String
     let reasoning: String
+    let sections: [NewSection]
 }
 
 struct NewSection: Codable, Hashable {
@@ -531,7 +607,14 @@ struct Option: Codable, Hashable {
     let text: String
 }
 
-//process update to topic
+//focus area summary
+struct NewFocusAreaSummary: Codable, Hashable {
+    let summary: String
+    let feedback: String
+    let insights: [NewInsight]
+}
+
+//section summary
 struct NewSectionSummary: Codable, Hashable {
     let summary: String
     let feedback: String
@@ -543,13 +626,15 @@ struct NewInsight: Codable, Hashable {
     let content: String
 }
 
-//section suggestions
-struct NewSectionSuggestions: Codable, Hashable {
-    let suggestions: [SectionSuggestion]
+//focus area suggestions
+struct NewFocusAreaSuggestions: Codable, Hashable {
+    let suggestions: [NewSuggestion]
 }
 
-struct SectionSuggestion: Codable, Hashable {
+struct NewSuggestion: Codable, Hashable {
     let content: String
+    let reasoning: String
+    let emoji: String
 }
 
 //entry

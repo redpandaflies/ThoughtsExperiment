@@ -15,36 +15,34 @@ struct CreateNewTopicBox: View {
     @State private var selectedValue: Double = 5.0 //value user selects on the slider
     @State private var selectedOptions: [String] = [] //answers user choose for muti-select questions
     @State private var currentQuestionIndex = 0 //for the progress bar
+    
+    
     @Binding var showCard: Bool
     @Binding var selectedTab: Int
+    
     @FocusState var isFocused: Bool
-    
-    let selectedCategory: TopicCategoryItem
-    
+
     var body: some View {
         
         VStack {
             VStack (alignment: .leading, spacing: 5) {
                 
-                Text(selectedCategory.getFullName())
+               
+                Text("New Topic")
                     .multilineTextAlignment(.leading)
                     .font(.system(size: 11, weight: .regular))
-                    .foregroundStyle(selectedCategory.getCategoryColor())
+                    .foregroundStyle(AppColors.categoryYellow)
                     .textCase(.uppercase)
                 
-                switch QuestionsNewTopic.questions[selectedQuestion].questionType {
-                case .open:
+                switch selectedTab {
+                case 0:
                     QuestionOpenView(topicText: $topicText, isFocused: $isFocused, question: QuestionsNewTopic.questions[selectedQuestion].content)
-                case .scale:
-                    if let minLabel = QuestionsNewTopic.questions[selectedQuestion].minLabel,
-                       let maxLabel = QuestionsNewTopic.questions[selectedQuestion].maxLabel {
-                        QuestionScaleView(selectedValue: $selectedValue, selectedCategory: selectedCategory, question: QuestionsNewTopic.questions[selectedQuestion].content, minLabel: minLabel, maxLabel: maxLabel)
-                    }
-                case .multiSelect:
-                    if let options = QuestionsNewTopic.questions[selectedQuestion].options {
-                        QuestionMultiSelectView(selectedOptions: $selectedOptions, question: QuestionsNewTopic.questions[selectedQuestion].content, items: options)
-                    }
+                    
+                default:
+                    NewTopicLoadingView()
                 }
+               
+               
                 
                 Spacer()
                 
@@ -76,13 +74,13 @@ struct CreateNewTopicBox: View {
         var answeredQuestionSelectedOptions: [String]?
         
         switch answeredQuestion.questionType {
-        case .open:
-            isFocused = false
-            answeredQuestionTopicText = topicText
-        case .scale:
-            answeredQuestionSelectedValue = selectedValue
-        case .multiSelect:
-            answeredQuestionSelectedOptions = selectedOptions
+            case .open:
+                isFocused = false
+                answeredQuestionTopicText = topicText
+            case .scale:
+                answeredQuestionSelectedValue = selectedValue
+            case .multiSelect:
+                answeredQuestionSelectedOptions = selectedOptions
         }
         
         //move to next question
@@ -93,7 +91,6 @@ struct CreateNewTopicBox: View {
             submitForm()
         }
         
-        
         selectedValue = 5.0
         topicText = ""
         
@@ -102,6 +99,10 @@ struct CreateNewTopicBox: View {
             switch answeredQuestion.questionType {
             case .open:
                 if let newTopicText = answeredQuestionTopicText {
+                    if answeredQuestionIndex == 0 {
+                        await dataController.createTopic()
+                    }
+                    
                     await dataController.saveAnswer(questionType: .open, questionContent: answeredQuestion.content, userAnswer: newTopicText)
                 }
             case .scale:
@@ -111,12 +112,6 @@ struct CreateNewTopicBox: View {
                 }
             case .multiSelect:
                 if let newSelectedOptions = answeredQuestionSelectedOptions {
-                    if answeredQuestionIndex == 0 {
-                        if let category = newSelectedOptions.first {
-                            await dataController.createTopic(category: category)
-                        }
-                    }
-                    
                     await dataController.saveAnswer(questionType: .multiSelect, questionContent: answeredQuestion.content, userAnswer: newSelectedOptions)
                 }
             }
@@ -126,10 +121,9 @@ struct CreateNewTopicBox: View {
             if answeredQuestionIndex + 1 == totalQuestions {
                 await dataController.save()
                 
-                print("Answered question index is 6")
                 if let topicId = dataController.newTopic?.topicId {
                     print("Creating new topic, sending to context assistant")
-                    await topicViewModel.manageRun(selectedAssistant: .focusArea, topicId: topicId)
+                    await topicViewModel.manageRun(selectedAssistant: .topic, topicId: topicId)
                 }
             }
         }
@@ -137,15 +131,42 @@ struct CreateNewTopicBox: View {
     }
     
     private func submitForm() {
-        isFocused = false
-        
-        withAnimation(.snappy(duration: 0.2)) {
-            self.showCard = false
-        }
         selectedTab += 1
         
     }
 }
+
+struct NewTopicLoadingView: View {
+    @State private var animationValue: Bool = false
+    
+    var body: some View {
+       
+        HStack {
+            VStack (alignment: .center, spacing: 15) {
+                
+                Text("Thinking")
+                    .multilineTextAlignment(.leading)
+                    .font(.system(size: 19))
+                    .foregroundStyle(Color.white)
+                
+                Image(systemName: "ellipsis")
+                    .multilineTextAlignment(.leading)
+                    .font(.system(size: 40))
+                    .foregroundStyle(Color.white)
+                    .symbolEffect(.variableColor.cumulative.dimInactiveLayers.nonReversing, options: animationValue ? .repeating : .nonRepeating, value: animationValue)
+            }
+            
+            Spacer()
+        }
+        .onAppear {
+            animationValue = true
+        }
+        .onDisappear {
+            animationValue = false
+        }
+    }
+}
+
 
 //#Preview {
 //    CreateNewTopicBox()

@@ -17,13 +17,17 @@ struct AppViewsManager: View {
     @StateObject var understandViewModel: UnderstandViewModel
     @StateObject var topicViewModel: TopicViewModel
     
-    @State private var selectedTab: TabBarItem = .topics
+    @State private var currentTabBar: TabBarType = .home
+    @State private var selectedTabHome: TabBarItemHome = .topics
+    @State private var selectedTabTopic: TopicPickerItem = .paths
+    @State private var showTabBar: Bool = true
+    @State private var navigateToTopicDetailView: Bool = false
     @State private var showCreateNewTopicView: Bool = false
     @State private var selectedCategory: TopicCategoryItem = .personal
     @State private var selectedTopic: Topic? = nil
     @State private var showAskQuestionView: Bool = false
     @State private var askQuestionTab: Int = 0 //to control which view shows up when showAskQuestionView is true
-    @State private var showUnderstandQuestionsList: Bool = false
+
      
     init(dataController: DataController, openAISwiftService: OpenAISwiftService) {
 
@@ -40,33 +44,21 @@ struct AppViewsManager: View {
     }
 
     var body: some View {
-        NavigationStack {
-            ZStack {
-                switch selectedTab {
-                case .topics:
-                    ActiveTopicsView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, showCreateNewTopicView: $showCreateNewTopicView, selectedTopic: $selectedTopic)
-                case .understand:
-                    UnderstandView(understandViewModel: understandViewModel, showAskQuestionView: $showAskQuestionView, showUnderstandQuestionsList: $showUnderstandQuestionsList, askQuestionTab: $askQuestionTab)
-                }
-                
-                TabBar(selectedTab: $selectedTab)
-                
+        
+        ZStack {
+            switch selectedTabHome {
+            case .topics:
+                ActiveTopicsView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, showCreateNewTopicView: $showCreateNewTopicView, selectedTopic: $selectedTopic, showTabBar: $showTabBar, currentTabBar: $currentTabBar, selectedTabTopic: $selectedTabTopic, navigateToTopicDetailView: $navigateToTopicDetailView)
+            case .understand:
+                UnderstandView(understandViewModel: understandViewModel, showAskQuestionView: $showAskQuestionView, askQuestionTab: $askQuestionTab)
             }
-            .toolbarBackground(Color.black)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    getTopBarLeadingItem()
-                }
-                
-//                ToolbarItem(placement: .topBarTrailing) {
-//                    ProfileToolbarItem()
-//                }
+            
+            if showTabBar {
+                TabBar(transcriptionViewModel: transcriptionViewModel, currentTabBar: $currentTabBar, selectedTabHome: $selectedTabHome, selectedTabTopic: $selectedTabTopic, navigateToTopicDetailView: $navigateToTopicDetailView, topicId: selectedTopic?.topicId)
+                    .transition(.move(edge: .bottom))
             }
-            .navigationBarTitleDisplayMode(.inline)
+            
         }
-        .environment(\.colorScheme, .dark)
-        .customToolbarAppearance()
-//        .tint(Color.black)
         .overlay  {
             if showCreateNewTopicView {
                 CreateNewTopicView(topicViewModel: topicViewModel, showCreateNewTopicView: $showCreateNewTopicView, selectedCategory: $selectedCategory)
@@ -76,18 +68,6 @@ struct AppViewsManager: View {
         }
     }
     
-    private func getTopBarLeadingItem() -> some View {
-        Group {
-            switch selectedTab {
-            case .topics:
-                ToolbarTitleItem(title: "Top of mind", regularSize: true)
-            case .understand:
-                UnderstandToolbarItem(action: {
-                    showUnderstandQuestionsList = true
-                })
-            }
-        }
-    }
 }
 
 

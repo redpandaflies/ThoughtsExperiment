@@ -19,9 +19,10 @@ struct EntriesEmptyState: View {
                 .foregroundStyle(Color.white)
             
             WhyBox(text: "This helps you uncover more insights and\nshape your path.", backgroundColor: AppColors.black2)
-                .padding(.bottom, 50)
+                .padding(.bottom, 70)
             
             StartRecordingButton(transcriptionViewModel: transcriptionViewModel, showRecordingView: $showRecordingView)
         }
+        
     }
 }

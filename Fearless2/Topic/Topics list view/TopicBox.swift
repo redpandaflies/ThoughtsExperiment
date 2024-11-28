@@ -20,9 +20,10 @@ struct TopicBox: View {
             
             VStack (spacing: 18){
                 
-                Image("topicPlaceholder")
+                Image("topicPlaceholder1")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
+                    .clipShape(RoundedRectangle(cornerRadius: 20))
                 
                 Text(topic.topicTitle)
                     .multilineTextAlignment(.center)

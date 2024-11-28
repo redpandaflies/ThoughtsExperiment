@@ -11,15 +11,17 @@ struct ActiveTopicsView: View {
     @ObservedObject var topicViewModel: TopicViewModel
     @ObservedObject var transcriptionViewModel: TranscriptionViewModel
     
-    @State private var showUpdateTopicView: Bool? = nil
     @State private var showSectionRecapView: Bool = false
-   
+    
     @State private var selectedSection: Section? = nil
     @State private var selectedCategory: TopicCategoryItem = .personal
     
     @Binding var showCreateNewTopicView: Bool
     @Binding var selectedTopic: Topic?
-   
+    @Binding var showTabBar: Bool
+    @Binding var currentTabBar: TabBarType
+    @Binding var selectedTabTopic: TopicPickerItem
+    @Binding var navigateToTopicDetailView: Bool
     
     let columns = [GridItem(.adaptive(minimum:150), spacing: 15)]
     
@@ -30,17 +32,27 @@ struct ActiveTopicsView: View {
     ) var topics: FetchedResults<Topic>
     
     var body: some View {
-       
+        NavigationStack {
             VStack {
                 
                 ScrollView (showsIndicators: false) {
                     LazyVGrid(columns: columns, spacing: 15) {
                         ForEach(topics, id: \.topicId) { topic in
-                            
-                            NavigationLink (destination: TopicDetailView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, topic: topic)) {
-                                TopicBox(topic: topic)
-                            }
-                            
+
+                            TopicBox(topic: topic)
+                                .onTapGesture {
+                                    //set selected topic ID so that delete topic works
+                                    selectedTopic = topic
+                                    
+                                    navigateToTopicDetailView = true
+                                    
+                                    
+                                    //change footer
+                                    withAnimation(.snappy(duration: 0.2)) {
+                                        currentTabBar = .topic
+                                    }
+                                }
+                                
                         }
                         
                         AddTopicButton()
@@ -52,6 +64,13 @@ struct ActiveTopicsView: View {
                             }
                         
                     }
+                    .navigationDestination(isPresented: $navigateToTopicDetailView) {
+                        if let topic = selectedTopic {
+                            TopicDetailView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, showTabBar: $showTabBar, selectedTabTopic: $selectedTabTopic, topic: topic)
+                        }
+                    }
+                
+                
                     
                 }
                 .scrollClipDisabled(true)
@@ -66,6 +85,19 @@ struct ActiveTopicsView: View {
                
             }//VStack
             .ignoresSafeArea(.keyboard)
+            .toolbarBackground(Color.black)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    ToolbarTitleItem(title: "Top of mind", regularSize: true)
+                }
+                
+//                ToolbarItem(placement: .topBarTrailing) {
+//                    ProfileToolbarItem()
+//                }
+            }
+            .navigationBarTitleDisplayMode(.inline)
+        }
+        .environment(\.colorScheme, .dark)
     }
 }
 

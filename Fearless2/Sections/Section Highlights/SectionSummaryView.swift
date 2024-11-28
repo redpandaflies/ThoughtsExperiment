@@ -8,79 +8,76 @@
 import SwiftUI
 
 struct SectionSummaryView: View {
+    @Environment(\.dismiss) var dismiss
     @EnvironmentObject var dataController: DataController
     @ObservedObject var summary: SectionSummary
-    @Binding var showCreateNewTopicView: Bool?
-    @Binding var showUpdateTopicView: Bool?
-    
-    let isFullScreen: Bool
-    let selectedCategory: TopicCategoryItem
-    
-    init(summary: SectionSummary, showCreateNewTopicView: Binding<Bool?> = .constant(nil), showUpdateTopicView: Binding<Bool?> = .constant(nil), isFullScreen: Bool = false, selectedCategory: TopicCategoryItem) {
-        self.summary = summary
-        self._showCreateNewTopicView = showCreateNewTopicView
-        self._showUpdateTopicView = showUpdateTopicView
-        self.isFullScreen = isFullScreen
-        self.selectedCategory = selectedCategory
-        
-    }
     
     var body: some View {
         
-        VStack {
-            VStack (alignment: .leading) {
-                
-                Text(summary.section?.sectionTitle ?? "")
-                    .multilineTextAlignment(.leading)
-                    .font(.system(size: 11, weight: .regular))
-                    .foregroundStyle(selectedCategory.getCategoryColor())
-                    .textCase(.uppercase)
-                    .padding(.bottom, 5)
-                
-                ScrollView {
+        ZStack {
+            ScrollView (showsIndicators: false) {
+                VStack (spacing: 5) {
+                    
+                    Text(summary.section?.focusArea?.focusAreaTitle ?? "")
+                        .font(.system(size: 14))
+                        .foregroundStyle(Color.white)
+                        .textCase(.uppercase)
+                        .opacity(0.5)
+                        .padding(.top)
+                    
+                    Text(summary.section?.sectionTitle ?? "")
+                        .multilineTextAlignment(.center)
+                        .font(.system(size: 20, weight: .regular))
+                        .foregroundStyle(Color.white)
+                        .padding(.bottom, 40)
+                    
+                    
+                    
                     VStack (alignment: .leading, spacing: 15) {
+                        
+                        Text("Save Insights")
+                            .font(.system(size: 20))
+                            .foregroundStyle(AppColors.yellow1)
+                            .textCase(.uppercase)
+                        
                         ForEach(summary.summaryInsights, id: \.insightId) { insight in
                             
-                            SectionInsightBoxView(insight: insight)
+                            SummaryInsightBox(insight: insight)
                         }
                     }
-                }//Scrollview
-                .scrollIndicators(.hidden)
-
-            }//VStack
-            .padding()
-            .padding(.top)
-            .frame(height: 460)
-            .background {
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(AppColors.questionBoxBackground)
-                    .shadow(color: .black.opacity(0.07), radius: 3, x: 0, y: 1)
-                    .overlay {
-                        RoundedRectangle(cornerRadius: 20)
-                            .strokeBorder(
-                                AngularGradient(gradient: Gradient(colors: [.red, .purple, .blue, .purple, .yellow, .red]), center: .center, startAngle: .zero, endAngle: .degrees(360)),
-                                lineWidth: 1
-                            )
+                    
+                }//Vstack
+                
+            }//Scrollview
+            .scrollDisabled(true)
+            
+            VStack (spacing: 20) {
+                Spacer()
+                
+                RectangleButton(buttonImage: "arrow.right.circle.fill", buttonColor: Color.white)
+                    
+                    .onTapGesture {
+                        closeView()
                     }
+                
+                Text("Find your saved insights on the Insights tab of each topic.")
+                    .font(.system(size: 12))
+                    .foregroundStyle(Color.white)
+                    .opacity(0.5)
+                
             }
+            .padding(.bottom, 50)
             
-            RectangleButton(buttonName: "Done", buttonColor: Color.white.opacity(0.6))
-                .onTapGesture {
-                    closeView()
-                }
-                .sensoryFeedback(.selection, trigger: showCreateNewTopicView) { oldValue, newValue in
-                    return oldValue != newValue && newValue == true
-                }
-            
-            
-        }
+        }//ZStack
+        .padding()
     }
     
     private func closeView() {
-        withAnimation(.snappy(duration: 0.2)) {
-            showUpdateTopicView = false
-            if let section = summary.section {
-                Task {
+        dismiss()
+        
+        if let section = summary.section {
+            Task {
+                if !section.completed {
                     section.completed = true
                     await dataController.save()
                 }

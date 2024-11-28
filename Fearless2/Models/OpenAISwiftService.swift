@@ -264,77 +264,64 @@ extension OpenAISwiftService {
     }
     
     @MainActor
-    func processFocusArea(topicId: UUID) async {
+    func processFocusArea(focusArea: FocusArea) async {
         let arguments = self.messageText
         let context = self.dataController.container.viewContext
 
         await context.perform {
-            // Fetch the topic with the provided topicId
-            let request = NSFetchRequest<Topic>(entityName: "Topic")
-            request.predicate = NSPredicate(format: "id == %@", topicId as CVarArg)
-
-            do {
-                guard let topic = try context.fetch(request).first else {
-                    self.loggerCoreData.error("No topic found with topicId: \(topicId)")
-                    return
-                }
-
-                // Decode the arguments to get the new section data
-                guard let newFocusArea = self.decodeArguments(arguments: arguments, as: NewFocusArea.self) else {
-                    self.loggerOpenAI.error("Couldn't decode arguments for sections.")
-                    return
-                }
-                
-                let focusArea = FocusArea(context: context)
-                focusArea.focusAreaId = UUID()
-                focusArea.createdAt = getCurrentTimeString()
-                focusArea.focusAreaTitle = newFocusArea.title
-                focusArea.focusAreaReasoning = newFocusArea.reasoning
-                topic.addToFocusAreas(focusArea)
-                
-                // Loop through the new sections and save them to CoreData, attaching them to the topic
-                for newSection in newFocusArea.sections {
-                    //check if the section number already exists, if not, add the section (AI sometimes hallucinates)
-                    
-                    if focusArea.focusAreaSections.contains(where: { $0.sectionNumber == newSection.sectionNumber }) {
-                        continue
-                    }
-                    
-                    // Create a new section
-                    let section = Section(context: context)
-                    section.sectionId = UUID()
-                    section.sectionTitle = newSection.title
-                    section.sectionNumber = Int16(newSection.sectionNumber)
-                   
-                    
-                    // Add new questions to the section
-                    for newQuestion in newSection.questions {
-                        let question = Question(context: context)
-                        question.questionId = UUID()
-                        question.questionContent = newQuestion.content
-                        question.questionType = newQuestion.questionType.rawValue
-                        
-                        if newQuestion.questionType == .scale {
-                            question.questionMinLabel = newQuestion.minLabel
-                            question.questionMaxLabel = newQuestion.maxLabel
-                        } else if newQuestion.questionType == .multiSelect {
-                            question.questionMultiSelectOptions = newQuestion.options.map {$0.text}.joined(separator: ",")
-                            
-                        }
-
-                        // Add the question to the section
-                        section.addToQuestions(question)
-                    }
-
-                    // Add the section to the topic & focus area
-                    focusArea.addToSections(section)
-                }
-
-              
-            } catch {
-                self.loggerCoreData.error("Error fetching topic: \(error.localizedDescription)")
+            
+            guard let topic = focusArea.topic else {
+                self.loggerOpenAI.error("Couldn't find the topic for the focus area.")
+                return
             }
             
+            // Decode the arguments to get the new section data
+            guard let newFocusArea = self.decodeArguments(arguments: arguments, as: NewFocusArea.self) else {
+                self.loggerOpenAI.error("Couldn't decode arguments for sections.")
+                return
+            }
+            
+            
+            // Loop through the new sections and save them to CoreData, attaching them to the topic
+            for newSection in newFocusArea.sections {
+                //check if the section number already exists, if not, add the section (AI sometimes hallucinates)
+                
+                if focusArea.focusAreaSections.contains(where: { $0.sectionNumber == newSection.sectionNumber }) {
+                    continue
+                }
+                
+                // Create a new section
+                let section = Section(context: context)
+                section.sectionId = UUID()
+                section.sectionTitle = newSection.title
+                section.sectionNumber = Int16(newSection.sectionNumber)
+               
+                
+                // Add new questions to the section
+                for newQuestion in newSection.questions {
+                    let question = Question(context: context)
+                    question.questionId = UUID()
+                    question.questionContent = newQuestion.content
+                    question.questionNumber = Int16(newQuestion.questionNumber)
+                    question.questionType = newQuestion.questionType.rawValue
+                    
+                    if newQuestion.questionType == .scale {
+                        question.questionMinLabel = newQuestion.minLabel
+                        question.questionMaxLabel = newQuestion.maxLabel
+                    } else if newQuestion.questionType == .multiSelect {
+                        question.questionMultiSelectOptions = newQuestion.options.map {$0.text}.joined(separator: ",")
+                        
+                    }
+
+                    // Add the question to the section
+                    section.addToQuestions(question)
+                }
+
+                // Add the section to the topic & focus area
+                topic.addToSections(section)
+                focusArea.addToSections(section)
+            }
+
             // Save the context after processing each section and its questions
             do {
                 try context.save()
@@ -357,6 +344,12 @@ extension OpenAISwiftService {
                 return
             }
             
+            //focus area topic
+            guard let topic = focusArea.topic else {
+                self.loggerOpenAI.error("Couldn't create summary for focus area without topic.")
+                return
+            }
+            
             //create entry
             let summary: FocusAreaSummary
             summary = FocusAreaSummary(context: context)
@@ -372,7 +365,11 @@ extension OpenAISwiftService {
                 insight.insightId = UUID()
                 insight.insightContent = newInsight.content
                 summary.addToInsights(insight)
+                topic.addToInsights(insight)
             }
+            
+            //mark focus area as complete
+            focusArea.completed = true
             
             //Save the context
             do {
@@ -395,6 +392,11 @@ extension OpenAISwiftService {
                 return
             }
             
+            guard let topic = section.topic else {
+                self.loggerOpenAI.error("Couldn't create summary for section without topic.")
+                return
+            }
+            
             //create entry
             let summary: SectionSummary
             summary = SectionSummary(context: context)
@@ -410,6 +412,7 @@ extension OpenAISwiftService {
                 insight.insightId = UUID()
                 insight.insightContent = newInsight.content
                 summary.addToInsights(insight)
+                topic.addToInsights(insight)
             }
             
             //Save the context
@@ -563,8 +566,6 @@ struct NewTopic: Codable, Hashable {
 }
 
 struct NewFocusArea: Codable, Hashable {
-    let title: String
-    let reasoning: String
     let sections: [NewSection]
 }
 
@@ -583,6 +584,7 @@ struct NewSection: Codable, Hashable {
 //question belongs to a section
 struct SectionQuestion: Codable, Hashable {
     let content: String
+    let questionNumber: Int
     let questionType: QuestionType
     let options: [Option]
     let minLabel: String
@@ -590,6 +592,7 @@ struct SectionQuestion: Codable, Hashable {
     
     enum CodingKeys: String, CodingKey {
         case content
+        case questionNumber = "question_number"
         case questionType = "question_type"
         case options
         case minLabel
@@ -638,7 +641,6 @@ struct NewSuggestion: Codable, Hashable {
 }
 
 //entry
-
 struct NewEntry: Codable, Hashable {
     let title: String
     let summary: String

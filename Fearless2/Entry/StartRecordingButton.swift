@@ -18,7 +18,7 @@ struct StartRecordingButton: View {
             Image(systemName: "waveform")
                 .font(.system(size: 27))
                 .foregroundStyle(Color.black)
-                .frame(width: 120, height: 120)
+                .frame(width: 110, height: 120)
                 .background {
                     Circle()
                         .fill(AppColors.yellow1)

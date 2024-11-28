@@ -10,7 +10,7 @@ import SwiftUI
 
 struct TopicPickerView: View {
     
-    @Binding var selectedTab: TopicPickerItem
+    @Binding var selectedTabTopic: TopicPickerItem
     
     let screenWidth = UIScreen.current.bounds.width
     
@@ -29,13 +29,13 @@ struct TopicPickerView: View {
                 .padding(.vertical, 5)
                 .background {
                     Capsule(style: .circular)
-                        .fill(item == selectedTab ? Color.white.opacity(0.05) : Color.clear)
+                        .fill(item == selectedTabTopic ? Color.white.opacity(0.05) : Color.clear)
                 }
                 .frame(width: 80)
                 .contentShape(Rectangle())
                 .onTapGesture {
-                    selectedTab = item
-                    if item == selectedTab {
+                    selectedTabTopic = item
+                    if item == selectedTabTopic {
                         let generator = UIImpactFeedbackGenerator(style: .medium)
                         generator.impactOccurred()
                     }

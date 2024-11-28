@@ -27,23 +27,7 @@ struct TopicDetailViewHeader: View {
                 .padding(.bottom, 15)
         }
         .padding(.top)
-        .frame(width: 270)
-        .background {
-            Rectangle()
-                .fill(
-                    LinearGradient(
-                        gradient: Gradient(stops: [
-                            .init(color: Color.clear, location: 0.0),
-                            .init(color: Color.black.opacity(0.3), location: 0.3),
-                            .init(color: Color.black, location: 1.0)
-                        ]),
-                        startPoint: .bottom,
-                        endPoint: .top
-                    )
-                )
-                .frame(width: screenWidth)
-        }
-        
+        .frame(width: 270)     
     }
 }
 

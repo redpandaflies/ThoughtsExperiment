@@ -29,30 +29,36 @@ struct EntriesListView: View {
     }
     
     var body: some View {
-        
-        if entries.isEmpty {
-            EntriesEmptyState(transcriptionViewModel: transcriptionViewModel, showRecordingView: $showRecordingView)
-            
-        } else {
-            VStack {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack (spacing: 14){
-                        ForEach(entries, id: \.entryId) { entry in
-                            EntryBoxView(entry: entry)
-                                .onTapGesture {
-                                    selectedEntry = entry
-                                }
-                        }
-                    }//HStack
-                    .padding(.bottom, 90)
+        Group {
+            if entries.isEmpty {
+                EntriesEmptyState(transcriptionViewModel: transcriptionViewModel, showRecordingView: $showRecordingView)
+                
+            } else {
+                VStack (spacing: 40){
+                    Text("Your thoughts on this topic")
+                        .font(.system(size: 25))
+                        .foregroundStyle(Color.white)
+                    
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack (spacing: 14){
+                            ForEach(entries, id: \.entryId) { entry in
+                                EntryBoxView(entry: entry)
+                                    .onTapGesture {
+                                        selectedEntry = entry
+                                    }
+                            }
+                        }//HStack
+                        .padding(.bottom, 20)
+                    }
+                    .scrollClipDisabled(true)
+
+                    StartRecordingButton(transcriptionViewModel: transcriptionViewModel, showRecordingView: $showRecordingView)
+                       
+                    
+                    
                 }
-                .scrollClipDisabled(true)
-                
-                StartRecordingButton(transcriptionViewModel: transcriptionViewModel, showRecordingView: $showRecordingView)
-                
             }
         }
-        
     }
 }
 

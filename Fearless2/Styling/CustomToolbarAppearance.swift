@@ -33,7 +33,7 @@ struct CustomToolbarAppearance: ViewModifier {
                
                 appearance.backButtonAppearance = buttonAppearance
                 
-                UINavigationBar.appearance().standardAppearance = appearance
+//                UINavigationBar.appearance().standardAppearance = appearance
                 UINavigationBar.appearance().compactAppearance = appearance
                 UINavigationBar.appearance().scrollEdgeAppearance = appearance
                 

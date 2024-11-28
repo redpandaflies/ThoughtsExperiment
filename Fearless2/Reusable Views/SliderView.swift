@@ -10,14 +10,13 @@ import SwiftUI
 struct SliderView: View {
     @Binding var selectedValue: Double
     
-    let selectedCategory: TopicCategoryItem
     let minLabel: String
     let maxLabel: String
     
     var body: some View {
         VStack {
             Slider(value: $selectedValue, in: 0...10, step: 1.0)
-                .tint(selectedCategory.getCategoryColor())
+                .tint(AppColors.yellow1)
            
             HStack {
                 Text(minLabel)

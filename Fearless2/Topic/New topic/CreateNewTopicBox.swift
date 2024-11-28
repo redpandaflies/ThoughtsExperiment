@@ -26,7 +26,6 @@ struct CreateNewTopicBox: View {
         
         VStack {
             VStack (alignment: .leading, spacing: 5) {
-                
                
                 Text("New Topic")
                     .multilineTextAlignment(.leading)

@@ -13,6 +13,7 @@ struct AppColors {
     static let blackDefault = Color(#colorLiteral(red: 0.082, green: 0.106, blue: 0.133, alpha: 1)) // #151b22
     static let black1 = Color(#colorLiteral(red: 0.102, green: 0.102, blue: 0.102, alpha: 1)) // #1a1a1a **
     static let black2 = Color(#colorLiteral(red: 0.063, green: 0.063, blue: 0.063, alpha: 1)) // #101010 **
+    static let black3 = Color(#colorLiteral(red: 0.078, green: 0.078, blue: 0.078, alpha: 1)) // #141414 **
     static let yellow1 = Color(#colorLiteral(red: 0.929, green: 0.741, blue: 0.408, alpha: 1)) // #edbd68
     static let ellipsisMenuColor = Color(#colorLiteral(red: 0.733, green: 0.733, blue: 0.706, alpha: 1)) // #bbbbb4
     static let whiteDefault = Color(#colorLiteral(red: 0.847, green: 0.827, blue: 0.788, alpha: 1)) // #d8d3c9

@@ -1,5 +1,5 @@
 {
-  "originHash" : "276fb1700c3a6cb3eb2991da2a7037c5c2bd44ace71c3a3e68030e6dafe14e26",
+  "originHash" : "4fa1ef875833bbfb3773e15d32ee2ed01c92fee8d3725804c4fb6d70159ef6ee",
   "pins" : [
     {
       "identity" : "lottie-spm",
@@ -8,6 +8,15 @@
       "state" : {
         "revision" : "b842598f1295f3ffa1475b1580672d1fe5b83580",
         "version" : "4.5.0"
+      }
+    },
+    {
+      "identity" : "pow",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/EmergeTools/Pow",
+      "state" : {
+        "revision" : "a504eb6d144bcf49f4f33029a2795345cb39e6b4",
+        "version" : "1.0.5"
       }
     },
     {

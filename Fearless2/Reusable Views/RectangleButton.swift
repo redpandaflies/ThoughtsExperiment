@@ -8,22 +8,37 @@
 import SwiftUI
 
 struct RectangleButton: View {
-    let buttonName: String
+    let buttonName: String?
+    let buttonImage: String?
     let buttonColor: Color
+
+    init(buttonName: String? = nil, buttonImage: String? = nil, buttonColor: Color) {
+        self.buttonName = buttonName
+        self.buttonImage = buttonImage
+        self.buttonColor = buttonColor
+    }
     
     var body: some View {
         HStack {
             Spacer()
-            Text(buttonName)
-                .font(.system(size: 17, weight: .regular))
-                .foregroundStyle(buttonColor)
-                .opacity(0.6)
+            
+            Group {
+                if let currentButtonName = buttonName {
+                    Text(currentButtonName)
+                        .font(.system(size: 17, weight: .regular))
+                } else if let currentButtonImage = buttonImage {
+                    Image(systemName: currentButtonImage)
+                        .font(.system(size: 30, weight: .regular))
+                }
+            }
+            .foregroundStyle(buttonColor)
+               
             Spacer()
         }
         .padding()
         .contentShape(Rectangle())
         .background {
-            RoundedRectangle(cornerRadius: 20)
+            RoundedRectangle(cornerRadius: 15)
                 .stroke(buttonColor)
                 .shadow(color: Color.black, radius: 20, x: 0, y: 0)
         }

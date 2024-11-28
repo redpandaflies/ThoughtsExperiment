@@ -8,14 +8,12 @@ import SwiftUI
 
 struct LoadingAnimation: View {
     
-    let selectedCategory: TopicCategoryItem
-    
     var body: some View {
         VStack (alignment: .leading) {
-            Text(selectedCategory.getFullName())
+            Text("Finding insights")
                 .multilineTextAlignment(.leading)
                 .font(.system(size: 11, weight: .regular))
-                .foregroundStyle(selectedCategory.getCategoryColor())
+                .foregroundStyle(AppColors.yellow1)
                 .textCase(.uppercase)
                 .padding(.bottom, 5)
             

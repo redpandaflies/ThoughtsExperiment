@@ -9,6 +9,7 @@ import CoreData
 import SwiftUI
 
 struct FocusAreaEmptyState: View {
+    
     @ObservedObject var topicViewModel: TopicViewModel
     @Binding var selectedTab: Int
     let topicId: UUID
@@ -27,62 +28,30 @@ struct FocusAreaEmptyState: View {
     }
     
     var body: some View {
-        VStack (alignment: .leading, spacing: 10) {
-            
-            HStack {
-                Text("What would you like to focus on?")
-                    .multilineTextAlignment(.leading)
-                    .font(.system(size: 19))
-                    .fontWeight(.semibold)
-                    .foregroundStyle(Color.white)
-                    .padding(.vertical, 10)
-                
-                Spacer()
-                
-            }
-            
-            Text("Select one")
+        VStack (spacing: 10) {
+           
+            Text("Choose a starting point")
                 .multilineTextAlignment(.leading)
-                .font(.system(size: 11))
+                .font(.system(size: 20))
+                .foregroundStyle(Color.white)
+                .padding(.vertical, 10)
+            
+            Text("Paths help you explore your topics. Each path is unique.")
+                .multilineTextAlignment(.leading)
+                .font(.system(size: 13))
                 .fontWeight(.light)
                 .foregroundStyle(Color.white)
-                .textCase(.uppercase)
+                .opacity(0.8)
+                .padding(.bottom)
             
-            ForEach(suggestions, id: \.suggestionId) { suggestion in
-                suggestionBox(suggestion.suggestionContent)
-                    .onTapGesture {
-                        createFocusArea(suggestion.suggestionContent)
-                    }
-            }
-            
+            FocusAreaSuggestionsList(topicViewModel: topicViewModel, suggestions: suggestions.map { $0 as any SuggestionProtocol }, action: {
+                selectedTab += 1
+            }, topic: suggestions.first?.topic)
         }
-        .padding(.horizontal, 30)
+        
         
     }
     
-    private func suggestionBox(_ suggestion: String) -> some View {
-       
-        HStack (spacing: 5) {
-            Text(suggestion)
-                .font(.system(size: 16))
-                .foregroundStyle(Color.white)
-                .fontWeight(.light)
-                .textCase(.lowercase)
-                .fixedSize(horizontal: true, vertical: true)
-        }
-        .padding(.horizontal, 18)
-        .padding(.vertical, 12)
-        .background {
-            RoundedRectangle(cornerRadius: 10)
-                .stroke(Color.white, lineWidth: 1)
-                .fill(Color.clear)
-        }
-    }
     
-    private func createFocusArea(_ suggestion: String) {
-        selectedTab += 1
-        Task {
-            await topicViewModel.manageRun(selectedAssistant: .focusArea, userInput: [suggestion], topicId: topicId)
-        }
-    }
 }
+

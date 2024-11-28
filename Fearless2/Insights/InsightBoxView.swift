@@ -3,7 +3,7 @@
 //  Fearless2
 //
 //  Created by Yue Deng-Wu on 11/19/24.
-//
+// insight box for the insights list
 
 import SwiftUI
 

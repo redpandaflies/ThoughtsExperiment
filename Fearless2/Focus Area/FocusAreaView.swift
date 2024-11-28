@@ -9,24 +9,30 @@ import SwiftUI
 
 struct FocusAreasView: View {
     @ObservedObject var topicViewModel: TopicViewModel
-   
-    @Binding var showUpdateTopicView: Bool?
-    @Binding var showSectionRecapView: Bool
+    @State private var selectedTab: Int = 0
+    
+    @Binding var showUpdateSectionView: Bool?
+    @Binding var showFocusAreaRecapView: Bool
     @Binding var selectedSection: Section?
+    @Binding var selectedSectionSummary: SectionSummary?
+    @Binding var selectedFocusArea: FocusArea?
+    @Binding var selectedFocusAreaSummary: FocusAreaSummary?
     
     let topicId: UUID
-    let selectedCategory: TopicCategoryItem
+  
     let screenHeight = UIScreen.current.bounds.height
     
     @FetchRequest var focusAreas: FetchedResults<FocusArea>
     
-    init(topicViewModel: TopicViewModel, showUpdateTopicView: Binding<Bool?>, showSectionRecapView: Binding<Bool>, selectedSection: Binding<Section?>, topicId: UUID, selectedCategory: TopicCategoryItem) {
+    init(topicViewModel: TopicViewModel, showUpdateSectionView: Binding<Bool?>, showFocusAreaRecapView: Binding<Bool>, selectedSection: Binding<Section?>, selectedSectionSummary: Binding<SectionSummary?>, selectedFocusArea: Binding<FocusArea?>, selectedFocusAreaSummary: Binding<FocusAreaSummary?>, topicId: UUID) {
         self.topicViewModel = topicViewModel
-        self._showUpdateTopicView = showUpdateTopicView
-        self._showSectionRecapView = showSectionRecapView
+        self._showUpdateSectionView = showUpdateSectionView
+        self._showFocusAreaRecapView = showFocusAreaRecapView
         self._selectedSection = selectedSection
+        self._selectedSectionSummary = selectedSectionSummary
+        self._selectedFocusArea = selectedFocusArea
+        self._selectedFocusAreaSummary = selectedFocusAreaSummary
         self.topicId = topicId
-        self.selectedCategory = selectedCategory
         
         let request: NSFetchRequest<FocusArea> = FocusArea.fetchRequest()
         request.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: true)]
@@ -37,44 +43,77 @@ struct FocusAreasView: View {
     }
     
     var body: some View {
-       
-            ScrollView (showsIndicators: false) {
-                VStack (alignment: .leading) {
-                    ForEach(Array(focusAreas.enumerated()), id: \.element.focusAreaId) { index, area in
-                        
-                        FocusAreaBox(showUpdateTopicView: $showUpdateTopicView, showSectionRecapView: $showSectionRecapView, selectedSection: $selectedSection, focusArea: area, index: index)
-                            .containerRelativeFrame(.vertical, alignment: .top)
-                            .scrollTransition { content, phase in
-                                content
-                                .opacity(phase.isIdentity ? 1 : 0)
-                                .scaleEffect(phase.isIdentity ? 1 : 0.8)
-                                .blur(radius: phase.isIdentity ? 0 : 10)
-                            }
-                        
-                    }//ForEach
-                }//VStack
-            }//ScrollView
-            .scrollTargetLayout()
-            .scrollTargetBehavior(.paging)
-            .scrollBounceBehavior(.basedOnSize)
-            .scrollClipDisabled(true)
-            .ignoresSafeArea(.keyboard)
-            .onAppear {
-                if !focusAreas.isEmpty {
-                   //tbd
-                }
-            }
-//            .onChange(of: topicViewModel.topicUpdated) {
-//                if topicViewModel.topicUpdated {
-//                    selectedTab = 2
-//                }
-//            }
-  
         
+        VStack {
+            switch selectedTab {
+            case 0:
+                FocusAreaEmptyState(topicViewModel: topicViewModel, selectedTab: $selectedTab, topicId: topicId)
+            default:
+                FocusAreaList(topicViewModel: topicViewModel, showUpdateSectionView: $showUpdateSectionView, showFocusAreaRecapView: $showFocusAreaRecapView, selectedSection: $selectedSection, selectedSectionSummary: $selectedSectionSummary, selectedFocusArea: $selectedFocusArea, selectedFocusAreaSummary: $selectedFocusAreaSummary, focusAreas: focusAreas)
+                
+                
+            }
+        }
+        .ignoresSafeArea(.keyboard)
+        .onAppear {
+            if !focusAreas.isEmpty {
+                selectedTab = 1
+            }
+        }
     }
     
 }
 
+
+struct FocusAreaList: View {
+    @EnvironmentObject var dataController: DataController
+   @ObservedObject var topicViewModel: TopicViewModel
+    @State private var scrollViewHeight: CGFloat = 0
+    @State private var scrollPosition: Int?
+   @Binding var showUpdateSectionView: Bool?
+   @Binding var showFocusAreaRecapView: Bool
+   @Binding var selectedSection: Section?
+    @Binding var selectedSectionSummary: SectionSummary?
+    @Binding var selectedFocusArea: FocusArea?
+    @Binding var selectedFocusAreaSummary: FocusAreaSummary?
+       
+    let focusAreas: FetchedResults<FocusArea>
+    let screenHeight = UIScreen.current.bounds.height
+    
+    var body: some View {
+        ScrollView (showsIndicators: false) {
+            VStack (alignment: .leading) {
+                ForEach(Array(focusAreas.enumerated()), id: \.element.focusAreaId) { index, area in
+                    
+                    FocusAreaBox(topicViewModel: topicViewModel, showUpdateSectionView: $showUpdateSectionView, showFocusAreaRecapView: $showFocusAreaRecapView, selectedSection: $selectedSection, selectedSectionSummary: $selectedSectionSummary, selectedFocusArea: $selectedFocusArea, selectedFocusAreaSummary: $selectedFocusAreaSummary, focusArea: area, index: index)
+                        .id(index)
+                        .containerRelativeFrame(.vertical, alignment: .top)
+                        .scrollTransition { content, phase in
+                            content
+                            .opacity(phase.isIdentity ? 1 : 0)
+                            .scaleEffect(phase.isIdentity ? 1 : 0.8)
+                            .blur(radius: phase.isIdentity ? 0 : 30)
+                        }
+                    
+                }//ForEach
+            }//VStack
+            
+        }//ScrollView
+        .frame(height: screenHeight * 0.6)
+        .scrollPosition(id: $scrollPosition)
+        .scrollTargetLayout()
+        .scrollTargetBehavior(.paging)
+        .scrollBounceBehavior(.basedOnSize)
+        .scrollClipDisabled(true)
+        .contentMargins(.vertical, 10, for: .scrollContent)
+        .onChange(of: dataController.newFocusArea) {
+            scrollPosition = dataController.newFocusArea
+        }
+        .onAppear {
+            scrollPosition = focusAreas.count - 1
+        }
+    }
+}
 
 
 //#Preview {

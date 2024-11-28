@@ -8,9 +8,12 @@
 import SwiftUI
 
 struct SectionListView: View {
-    @Binding var showUpdateTopicView: Bool?
-    @Binding var showSectionRecapView: Bool
+    @Binding var showUpdateSectionView: Bool?
+    @Binding var showFocusAreaRecapView: Bool
     @Binding var selectedSection: Section?
+    @Binding var selectedSectionSummary: SectionSummary?
+    @Binding var selectedFocusArea: FocusArea?
+    @Binding var selectedFocusAreaSummary: FocusAreaSummary?
     let sections: [Section]
     let focusAreaCompleted: Bool
     
@@ -25,13 +28,20 @@ struct SectionListView: View {
                 SectionBox(section: section)
                     .onTapGesture {
                         selectedSection = section
-                        showUpdateTopicView = true
+                        if section.completed {
+                            selectedSectionSummary = section.summary
+                        } else {
+                            showUpdateSectionView = true
+                        }
                     }
             }
             
-            SectionRecapPreviewBox(focusAreaCompleted: focusAreaCompleted)
+            FocusAreaRecapPreviewBox(focusAreaCompleted: focusAreaCompleted)
                 .onTapGesture {
-                    showSectionRecapView = true
+                    selectedFocusArea = sections.first?.focusArea
+                    print("Selected focus area: \(String(describing: selectedFocusArea))")
+                    selectedFocusAreaSummary = selectedFocusArea?.summary
+                    showFocusAreaRecapView = true
                 }
         }
     }

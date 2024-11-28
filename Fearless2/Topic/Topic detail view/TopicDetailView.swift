@@ -10,13 +10,19 @@ import SwiftUI
 struct TopicDetailView: View {
     @ObservedObject var topicViewModel: TopicViewModel
     @ObservedObject var transcriptionViewModel: TranscriptionViewModel
-    @State private var selectedTab: TopicPickerItem = .paths
+  
     @State private var showRecordingView: Bool = false
     @State private var selectedEntry: Entry? = nil
-    @State private var showUpdateTopicView: Bool? = nil
-    @State private var showSectionRecapView: Bool = false
+    @State private var showUpdateSectionView: Bool? = nil
+    @State private var showFocusAreaRecapView: Bool = false
     @State private var selectedSection: Section? = nil
+    @State private var selectedSectionSummary: SectionSummary? = nil
+    @State private var selectedFocusArea: FocusArea? = nil
+    @State private var selectedFocusAreaSummary: FocusAreaSummary? = nil
     @State private var headerHeight: CGFloat = 0
+    
+    @Binding var showTabBar: Bool
+    @Binding var selectedTabTopic: TopicPickerItem
     
     let topic: Topic
     var topicCategory: TopicCategoryItem {
@@ -28,19 +34,24 @@ struct TopicDetailView: View {
         NavigationStack {
             ZStack {
                 
+                backgroundImage()
+                
+                
                 VStack {
-                    switch selectedTab {
+                    switch selectedTabTopic {
                         
                     case .paths:
-                        FocusAreasView(topicViewModel: topicViewModel, showUpdateTopicView: $showUpdateTopicView, showSectionRecapView: $showSectionRecapView, selectedSection: $selectedSection, topicId: topic.topicId, selectedCategory: topicCategory)
+                        FocusAreasView(topicViewModel: topicViewModel, showUpdateSectionView: $showUpdateSectionView, showFocusAreaRecapView: $showFocusAreaRecapView, selectedSection: $selectedSection, selectedSectionSummary: $selectedSectionSummary, selectedFocusArea: $selectedFocusArea, selectedFocusAreaSummary: $selectedFocusAreaSummary, topicId: topic.topicId)
                         
                     case .entries:
                         EntriesListView(transcriptionViewModel: transcriptionViewModel, selectedEntry: $selectedEntry, showRecordingView: $showRecordingView, topicId: topic.topicId)
                             .padding(.horizontal)
+                            .padding(.top, 90)
                         
                     case .insights:
                         InsightsListView(selectedEntry: $selectedEntry, topicId: topic.topicId)
                             .padding(.horizontal)
+                            .padding(.top, 90)
                     }
                     
                     Spacer()
@@ -55,24 +66,20 @@ struct TopicDetailView: View {
                                 Color.clear
                                     .onAppear {
                                         let calculatedHeight = geo.size.height
-                                        headerHeight = calculatedHeight + 10
+                                        headerHeight = calculatedHeight + 70
                                     }
                             }
                         }
                     
                     Spacer()
                     
-                    TopicDetailViewFooter(transcriptionViewModel: transcriptionViewModel, selectedTab: $selectedTab, topicId: topic.topicId)
-                        .transition(.opacity)
                 }
                 .ignoresSafeArea(edges: .bottom)
                 
             }//ZStack
             .overlay {
-                if let showingUpdateTopicView = showUpdateTopicView, showingUpdateTopicView {
-                    UpdateTopicView(topicViewModel: topicViewModel, showUpdateTopicView: $showUpdateTopicView, selectedCategory: topicCategory, topicId: topic.topicId, section: selectedSection)
-                } else if showSectionRecapView {
-                    FocusAreaRecapView(topicViewModel: topicViewModel, showSectionRecapView: $showSectionRecapView, topicId: topic.topicId, selectedCategory: topicCategory)
+                if let showingUpdateSectionView = showUpdateSectionView, showingUpdateSectionView {
+                    UpdateSectionView(topicViewModel: topicViewModel, showUpdateSectionView: $showUpdateSectionView, selectedSectionSummary: $selectedSectionSummary, topicId: topic.topicId, section: selectedSection)
                 }
             }
             .sheet(isPresented: $showRecordingView, onDismiss: {
@@ -95,6 +102,20 @@ struct TopicDetailView: View {
                     .presentationCornerRadius(20)
                     .presentationBackground(Color.black)
             }
+            .sheet(item: $selectedSectionSummary, onDismiss: {
+                selectedSectionSummary = nil
+            }) { summary in
+                SectionSummaryView(summary: summary)
+                    .presentationCornerRadius(20)
+                    .presentationBackground(Color.black)
+            }
+            .sheet(isPresented: $showFocusAreaRecapView, onDismiss: {
+                showFocusAreaRecapView = false
+            }) {
+                FocusAreaRecapView(topicViewModel: topicViewModel, selectedFocusAreaSummary: $selectedFocusAreaSummary, focusArea: $selectedFocusArea)
+                    .presentationCornerRadius(20)
+                    .presentationBackground(Color.black)
+            }
             .onChange(of: topicViewModel.updatedEntry) {
                 if let newEntry = topicViewModel.updatedEntry {
                     if showRecordingView {
@@ -103,10 +124,56 @@ struct TopicDetailView: View {
                     selectedEntry = newEntry
                 }
             }
-            .toolbarVisibility(((showUpdateTopicView ?? false) || showSectionRecapView) ? .hidden : .automatic)
+            .onChange(of: showUpdateSectionView) {
+                if showUpdateSectionView == true {
+                    withAnimation(.snappy(duration: 0.1)) {
+                        showTabBar = false
+                    }
+                } else {
+                    withAnimation(.snappy(duration: 0.1)) {
+                        showTabBar = true
+                    }
+                }
+            }
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarVisibility(.hidden, for: .navigationBar)
         }//NavigationStack
      
+    }
+    
+    private func backgroundImage() -> some View {
+        VStack {
+            
+            Group {
+                Circle()
+                    .stroke(Color.black)
+                    .fill(
+                        RadialGradient(
+                            gradient: Gradient(stops: [
+                                .init(color: .black.opacity(0), location: 0.0),
+                                .init(color: .black, location: 0.87),
+                            ]),
+                            center: UnitPoint(x: 0.5, y: 0.2),
+                            startRadius: 0,
+                            endRadius: 300
+                        )
+                    )
+                    .background {
+                        Image("topicPlaceholder1")
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .opacity(0.5)
+                            
+                            .clipShape(Circle())
+                    }
+            }
+            .scaleEffect(1.2)
+            .offset(y: -100)
+        
+            Spacer()
+           
+        }
+        .ignoresSafeArea(.all)
     }
 }
 

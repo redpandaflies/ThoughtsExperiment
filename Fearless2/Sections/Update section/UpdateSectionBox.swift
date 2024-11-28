@@ -1,5 +1,5 @@
 //
-//  UpdateTopicBox.swift
+//  UpdateSectionBox.swift
 //  Fearless2
 //
 //  Created by Yue Deng-Wu on 10/3/24.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct UpdateTopicBox: View {
+struct UpdateSectionBox: View {
     @EnvironmentObject var dataController: DataController
     @ObservedObject var topicViewModel: TopicViewModel
     @State private var selectedQuestion: Int = 0
@@ -19,9 +19,11 @@ struct UpdateTopicBox: View {
     @Binding var selectedTab: Int
     @FocusState var isFocused: Bool
 
-    let selectedCategory: TopicCategoryItem
     let section: Section?
     let questions: [Question]
+    var sortedQuestions: [Question] {
+        questions.sorted { $0.questionNumber < $1.questionNumber }
+    }
     
     var body: some View {
         VStack (alignment: .leading, spacing: 10) {
@@ -30,12 +32,12 @@ struct UpdateTopicBox: View {
                 Text(section?.sectionTitle ?? "")
                     .multilineTextAlignment(.leading)
                     .font(.system(size: 11, weight: .regular))
-                    .foregroundStyle(selectedCategory.getCategoryColor())
+                    .foregroundStyle(AppColors.yellow1)
                     .textCase(.uppercase)
                 
                 
-                if let questionType = QuestionType(rawValue: questions[selectedQuestion].questionType) {
-                    let currentQuestion = questions[selectedQuestion]
+                if let questionType = QuestionType(rawValue: sortedQuestions[selectedQuestion].questionType) {
+                    let currentQuestion = sortedQuestions[selectedQuestion]
                     switch questionType {
                         
                     case .open:
@@ -44,7 +46,7 @@ struct UpdateTopicBox: View {
                     case .scale:
                         let minLabel = currentQuestion.questionMinLabel
                         let maxLabel = currentQuestion.questionMaxLabel
-                        QuestionScaleView(selectedValue: $selectedValue, selectedCategory: selectedCategory, question: currentQuestion.questionContent, minLabel: minLabel, maxLabel: maxLabel)
+                        QuestionScaleView(selectedValue: $selectedValue, question: currentQuestion.questionContent, minLabel: minLabel, maxLabel: maxLabel)
                         
                     case .multiSelect:
                         let optionsString = currentQuestion.questionMultiSelectOptions
@@ -77,7 +79,7 @@ struct UpdateTopicBox: View {
         //capture current state
         guard let currentSection = section else { return }
         let answeredQuestionIndex = selectedQuestion
-        let answeredQuestion = questions[answeredQuestionIndex]
+        let answeredQuestion = sortedQuestions[answeredQuestionIndex]
         let numberOfQuestions = questions.count
         
         var answeredQuestionSelectedValue: Double?

@@ -1,5 +1,5 @@
 //
-//  SectionRecapPreviewBox.swift
+//  FocusAreaRecapPreviewBox.swift
 //  Fearless2
 //
 //  Created by Yue Deng-Wu on 11/7/24.
@@ -7,16 +7,16 @@
 
 import SwiftUI
 
-struct SectionRecapPreviewBox: View {
+struct FocusAreaRecapPreviewBox: View {
     
     let focusAreaCompleted: Bool
     
     var body: some View {
-        VStack (alignment: .leading, spacing: 5) {
+        VStack (spacing: 5) {
             
             HStack {
                 Text("Section Recap")
-                    .multilineTextAlignment(.leading)
+                    .multilineTextAlignment(.center)
                     .font(.system(size: 17, weight: .regular))
                     .foregroundStyle(Color.white)
                 
@@ -24,7 +24,6 @@ struct SectionRecapPreviewBox: View {
             }
             
             Spacer()
-            
             
             if focusAreaCompleted {
                 Image(systemName: "checkmark")

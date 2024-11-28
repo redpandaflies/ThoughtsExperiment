@@ -21,17 +21,20 @@ struct QuestionsProgressBar: View {
             
             Spacer()
             
-            HStack(spacing: 5) {
-                ForEach(0..<questionCount, id: \.self) { index in
-                    Circle()
-                        .stroke(getDotStrokeColor(index: index), lineWidth: 1)
-                        .fill(getDotColor(index: index))
-                        .frame(width: 10, height: 10)
-                    
+            if questionCount > 1 {
+                HStack(spacing: 5) {
+                    ForEach(0..<questionCount, id: \.self) { index in
+                        Circle()
+                            .stroke(getDotStrokeColor(index: index), lineWidth: 1)
+                            .fill(getDotColor(index: index))
+                            .frame(width: 10, height: 10)
+                        
+                    }
                 }
+                
+                
+                Spacer()
             }
-            
-            Spacer()
             
             Button {
                 action()

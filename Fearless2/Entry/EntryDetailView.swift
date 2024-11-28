@@ -60,7 +60,7 @@ struct EntryDetailView: View {
                         .padding(.bottom, 5)
                     
                     ForEach(entry.entryInsights, id: \.insightId) { insight in
-                        EntryInsightBoxView(insight: insight)
+                        SummaryInsightBox(insight: insight)
                     }
                     .padding(.bottom)
                     

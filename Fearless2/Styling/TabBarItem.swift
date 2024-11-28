@@ -6,7 +6,7 @@
 //
 import SwiftUI
 
-enum TabBarItem: Int, CaseIterable {
+enum TabBarItemHome: Int, CaseIterable {
 
     case topics
     case understand

@@ -13,6 +13,7 @@ import OSLog
 final class DataController: ObservableObject {
     
     @Published var newTopic: Topic? = nil
+    @Published var newFocusArea: Int = 0
 
     let container: NSPersistentCloudKitContainer
     var context: NSManagedObjectContext
@@ -64,6 +65,47 @@ final class DataController: ObservableObject {
             self.logger.log("Updated newTopic published variable")
         }
 //        await self.save()
+    }
+    
+    //create new topic
+    func createFocusArea(suggestion: any SuggestionProtocol, topic: Topic?) async -> FocusArea? {
+        
+        var focusArea: FocusArea?
+        var totalFocusAreas: Int?
+
+        await context.perform {
+            let newFocusArea = FocusArea(context: self.context)
+            newFocusArea.focusAreaId = UUID()
+            newFocusArea.focusAreaCreatedAt = getCurrentTimeString()
+            newFocusArea.focusAreaTitle = suggestion.title
+            newFocusArea.focusAreaReasoning = suggestion.suggestionDescription
+            
+            guard let currentTopic = topic else {
+                self.logger.log("Topic not found, unable to create new focus area")
+                return
+            }
+            
+            currentTopic.addToFocusAreas(newFocusArea)
+          
+
+            self.logger.log("Created new focus area")
+            focusArea = newFocusArea
+            
+            //get total number of focus areas
+            totalFocusAreas = currentTopic.focusAreas?.count
+        
+        }
+        
+        await self.save()
+        
+        if let focusAreasCount = totalFocusAreas {
+            await MainActor.run {
+                newFocusArea = focusAreasCount - 1
+            }
+        }
+        
+        
+        return focusArea
     }
     
     //fetch a topic

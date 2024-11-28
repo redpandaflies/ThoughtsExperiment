@@ -29,25 +29,31 @@ struct InsightsListView: View {
     }
     
     var body: some View {
-        
-        if insights.isEmpty {
-            InsightsEmptyState()
-        } else {
-            VStack (spacing: 10) {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack (spacing: 14) {
-                        ForEach(insights, id: \.insightId) { insight in
-                            InsightBoxView(insight: insight)
-                                .onTapGesture {
-                                    if let entry = insight.entry {
-                                        selectedEntry = entry
-                                    }
-                                }
-                        }
-                    }//HStack
-                }//ScrollView
-                .scrollDisabled(true)
-            }//VStack
+        Group {
+            if insights.isEmpty {
+                InsightsEmptyState()
+            } else {
+                VStack (spacing: 40) {
+                    
+                    Text("Your insights on this topic")
+                        .font(.system(size: 25))
+                        .foregroundStyle(Color.white)
+                    
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack (spacing: 14) {
+                            ForEach(insights, id: \.insightId) { insight in
+                                InsightBoxView(insight: insight)
+//                                    .onTapGesture {
+//                                        if let entry = insight.entry {
+//                                            selectedEntry = entry
+//                                        }
+//                                    }
+                            }
+                        }//HStack
+                    }//ScrollView
+                    .scrollDisabled(true)
+                }//VStack
+            }
         }
         
     }

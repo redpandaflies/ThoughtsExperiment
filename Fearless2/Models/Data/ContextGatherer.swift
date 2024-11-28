@@ -11,7 +11,7 @@ import OSLog
 @MainActor
 struct ContextGatherer {
     
-    static func gatherContextGeneral(dataController: DataController, loggerCoreData: Logger, topicId: UUID, transcript: String? = nil, userInput: [String]? = nil) async -> String? {
+    static func gatherContextGeneral(dataController: DataController, loggerCoreData: Logger, topicId: UUID, transcript: String? = nil, userInput: [String]? = nil, focusArea: FocusArea? = nil) async -> String? {
         
         var context = "Here is what we know so far about the topic: \n"
         
@@ -49,8 +49,8 @@ struct ContextGatherer {
             }
         }
         
-        if let focusArea = userInput {
-            context += "The user would like three (no more & no less!) new sections around this: \(focusArea)\n"
+        if let newFocusArea = focusArea {
+            context += "The user would like three (no more & no less!) new sections around this: \(newFocusArea.focusAreaTitle). The reasoning for it is: \(newFocusArea.focusAreaReasoning)\n"
         }
         
         if let currentTranscript = transcript {

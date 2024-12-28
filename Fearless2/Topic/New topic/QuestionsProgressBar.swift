@@ -42,10 +42,10 @@ struct QuestionsProgressBar: View {
                 Image(systemName: "arrow.right.circle.fill")
                     .font(.system(size: 30, weight: .light))
                     .foregroundStyle(Color.white)
+                    .padding(.horizontal)
             }
-            
-            
         }
+        .padding(.vertical, 10)
     }
     
     private func getDotColor(index: Int) -> Color {

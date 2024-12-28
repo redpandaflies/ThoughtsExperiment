@@ -15,6 +15,7 @@ extension Logger {
     static let openAIEvents = Logger(subsystem: subsystem, category: "openAIEvents")
     static let coreDataEvents = Logger(subsystem: subsystem, category: "coreDataEvents")
     static let audioEvents = Logger(subsystem: subsystem, category: "audioEvents")
-   
+    static let fileManagerEvents = Logger(subsystem: subsystem, category: "fileManagerEvents")
+    static let stabilityEvents = Logger(subsystem: subsystem, category: "stabilityEvents")
    
 }

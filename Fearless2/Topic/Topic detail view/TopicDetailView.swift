@@ -20,6 +20,7 @@ struct TopicDetailView: View {
     @State private var selectedFocusArea: FocusArea? = nil
     @State private var selectedFocusAreaSummary: FocusAreaSummary? = nil
     @State private var headerHeight: CGFloat = 0
+    @State private var focusAreaScrollPosition: Int?
     
     @Binding var showTabBar: Bool
     @Binding var selectedTabTopic: TopicPickerItem
@@ -41,7 +42,7 @@ struct TopicDetailView: View {
                     switch selectedTabTopic {
                         
                     case .paths:
-                        FocusAreasView(topicViewModel: topicViewModel, showUpdateSectionView: $showUpdateSectionView, showFocusAreaRecapView: $showFocusAreaRecapView, selectedSection: $selectedSection, selectedSectionSummary: $selectedSectionSummary, selectedFocusArea: $selectedFocusArea, selectedFocusAreaSummary: $selectedFocusAreaSummary, topicId: topic.topicId)
+                        FocusAreasView(topicViewModel: topicViewModel, showUpdateSectionView: $showUpdateSectionView, showFocusAreaRecapView: $showFocusAreaRecapView, selectedSection: $selectedSection, selectedSectionSummary: $selectedSectionSummary, selectedFocusArea: $selectedFocusArea, selectedFocusAreaSummary: $selectedFocusAreaSummary, focusAreaScrollPosition: $focusAreaScrollPosition, topicId: topic.topicId)
                         
                     case .entries:
                         EntriesListView(transcriptionViewModel: transcriptionViewModel, selectedEntry: $selectedEntry, showRecordingView: $showRecordingView, topicId: topic.topicId)
@@ -73,8 +74,15 @@ struct TopicDetailView: View {
                     
                     Spacer()
                     
+                    if (topic.topicFocusAreas.count > 1) && (focusAreaScrollPosition != topic.topicFocusAreas.count - 1) {
+                        nextIndicator()
+                            .onTapGesture {
+                                getNewScrollPosition()
+                            }
+                    }
+                    
                 }
-                .ignoresSafeArea(edges: .bottom)
+                .padding(.bottom)
                 
             }//ZStack
             .overlay {
@@ -88,11 +96,7 @@ struct TopicDetailView: View {
                 RecordingView(transcriptionViewModel: transcriptionViewModel, categoryEmoji: topicCategory.getCategoryEmoji(), topic: topic)
                     .presentationCornerRadius(20)
                     .presentationDetents([.fraction(0.75)])
-                    .presentationBackground {
-                        Color.clear
-                            .background(.ultraThinMaterial)
-                            .environment(\.colorScheme, .dark)
-                    }
+                    .presentationBackground(AppColors.black3)
                 
             }
             .sheet(item: $selectedEntry, onDismiss: {
@@ -174,6 +178,32 @@ struct TopicDetailView: View {
            
         }
         .ignoresSafeArea(.all)
+    }
+    
+    private func nextIndicator() -> some View {
+        VStack (alignment: .center, spacing: 10){
+            Text("Next")
+                .font(.caption)
+                .fontWeight(.regular)
+                .foregroundStyle(Color.white)
+                .opacity(0.7)
+            
+            
+            Image(systemName: "chevron.compact.down")
+                .font(.largeTitle)
+                .fontWeight(.regular)
+                .foregroundStyle(Color.white)
+                .opacity(0.7)
+            
+        }
+        .contentShape(Rectangle())
+    }
+    
+    private func getNewScrollPosition() {
+        if let currentScrollPosition = focusAreaScrollPosition {
+            let newScrollPosition = currentScrollPosition + 1
+            focusAreaScrollPosition = newScrollPosition
+        }
     }
 }
 

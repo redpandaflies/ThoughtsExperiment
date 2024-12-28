@@ -286,4 +286,22 @@ final class DataController: ObservableObject {
         }
     }
     
+    //save topic image
+    @MainActor
+    func saveTopicImage(topic: Topic, imageURL: String) async {
+       
+        context.performAndWait {
+           
+            topic.topicMainImage = imageURL
+            
+            Task {
+               await self.save()
+            }
+            
+        }
+        
+    }
+    
 }
+
+

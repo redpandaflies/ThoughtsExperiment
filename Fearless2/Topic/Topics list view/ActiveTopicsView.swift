@@ -27,7 +27,7 @@ struct ActiveTopicsView: View {
     
     @FetchRequest(
         sortDescriptors: [
-            NSSortDescriptor(key: "createdAt", ascending: true)
+            NSSortDescriptor(key: "createdAt", ascending: false)
         ]
     ) var topics: FetchedResults<Topic>
     
@@ -39,7 +39,7 @@ struct ActiveTopicsView: View {
                     LazyVGrid(columns: columns, spacing: 15) {
                         ForEach(topics, id: \.topicId) { topic in
 
-                            TopicBox(topic: topic)
+                            TopicBox(topicViewModel: topicViewModel, topic: topic)
                                 .onTapGesture {
                                     //set selected topic ID so that delete topic works
                                     selectedTopic = topic

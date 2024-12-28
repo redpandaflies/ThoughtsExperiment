@@ -17,6 +17,7 @@ struct FocusAreasView: View {
     @Binding var selectedSectionSummary: SectionSummary?
     @Binding var selectedFocusArea: FocusArea?
     @Binding var selectedFocusAreaSummary: FocusAreaSummary?
+    @Binding var focusAreaScrollPosition: Int?
     
     let topicId: UUID
   
@@ -24,7 +25,7 @@ struct FocusAreasView: View {
     
     @FetchRequest var focusAreas: FetchedResults<FocusArea>
     
-    init(topicViewModel: TopicViewModel, showUpdateSectionView: Binding<Bool?>, showFocusAreaRecapView: Binding<Bool>, selectedSection: Binding<Section?>, selectedSectionSummary: Binding<SectionSummary?>, selectedFocusArea: Binding<FocusArea?>, selectedFocusAreaSummary: Binding<FocusAreaSummary?>, topicId: UUID) {
+    init(topicViewModel: TopicViewModel, showUpdateSectionView: Binding<Bool?>, showFocusAreaRecapView: Binding<Bool>, selectedSection: Binding<Section?>, selectedSectionSummary: Binding<SectionSummary?>, selectedFocusArea: Binding<FocusArea?>, selectedFocusAreaSummary: Binding<FocusAreaSummary?>, focusAreaScrollPosition: Binding<Int?>, topicId: UUID) {
         self.topicViewModel = topicViewModel
         self._showUpdateSectionView = showUpdateSectionView
         self._showFocusAreaRecapView = showFocusAreaRecapView
@@ -32,6 +33,7 @@ struct FocusAreasView: View {
         self._selectedSectionSummary = selectedSectionSummary
         self._selectedFocusArea = selectedFocusArea
         self._selectedFocusAreaSummary = selectedFocusAreaSummary
+        self._focusAreaScrollPosition = focusAreaScrollPosition
         self.topicId = topicId
         
         let request: NSFetchRequest<FocusArea> = FocusArea.fetchRequest()
@@ -49,7 +51,7 @@ struct FocusAreasView: View {
             case 0:
                 FocusAreaEmptyState(topicViewModel: topicViewModel, selectedTab: $selectedTab, topicId: topicId)
             default:
-                FocusAreaList(topicViewModel: topicViewModel, showUpdateSectionView: $showUpdateSectionView, showFocusAreaRecapView: $showFocusAreaRecapView, selectedSection: $selectedSection, selectedSectionSummary: $selectedSectionSummary, selectedFocusArea: $selectedFocusArea, selectedFocusAreaSummary: $selectedFocusAreaSummary, focusAreas: focusAreas)
+                FocusAreaList(topicViewModel: topicViewModel, showUpdateSectionView: $showUpdateSectionView, showFocusAreaRecapView: $showFocusAreaRecapView, selectedSection: $selectedSection, selectedSectionSummary: $selectedSectionSummary, selectedFocusArea: $selectedFocusArea, selectedFocusAreaSummary: $selectedFocusAreaSummary, focusAreaScrollPosition: $focusAreaScrollPosition, focusAreas: focusAreas)
                 
                 
             }
@@ -69,13 +71,14 @@ struct FocusAreaList: View {
     @EnvironmentObject var dataController: DataController
    @ObservedObject var topicViewModel: TopicViewModel
     @State private var scrollViewHeight: CGFloat = 0
-    @State private var scrollPosition: Int?
+   
    @Binding var showUpdateSectionView: Bool?
    @Binding var showFocusAreaRecapView: Bool
    @Binding var selectedSection: Section?
     @Binding var selectedSectionSummary: SectionSummary?
     @Binding var selectedFocusArea: FocusArea?
     @Binding var selectedFocusAreaSummary: FocusAreaSummary?
+    @Binding var focusAreaScrollPosition: Int?
        
     let focusAreas: FetchedResults<FocusArea>
     let screenHeight = UIScreen.current.bounds.height
@@ -100,17 +103,17 @@ struct FocusAreaList: View {
             
         }//ScrollView
         .frame(height: screenHeight * 0.6)
-        .scrollPosition(id: $scrollPosition)
+        .scrollPosition(id: $focusAreaScrollPosition)
         .scrollTargetLayout()
         .scrollTargetBehavior(.paging)
         .scrollBounceBehavior(.basedOnSize)
         .scrollClipDisabled(true)
         .contentMargins(.vertical, 10, for: .scrollContent)
         .onChange(of: dataController.newFocusArea) {
-            scrollPosition = dataController.newFocusArea
+            focusAreaScrollPosition = dataController.newFocusArea
         }
         .onAppear {
-            scrollPosition = focusAreas.count - 1
+            focusAreaScrollPosition = focusAreas.count - 1
         }
     }
 }

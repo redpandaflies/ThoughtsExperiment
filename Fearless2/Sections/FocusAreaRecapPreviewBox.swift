@@ -10,6 +10,7 @@ import SwiftUI
 struct FocusAreaRecapPreviewBox: View {
     
     let focusAreaCompleted: Bool
+    let available: Bool
     
     var body: some View {
         VStack (spacing: 5) {
@@ -26,26 +27,30 @@ struct FocusAreaRecapPreviewBox: View {
             Spacer()
             
             if focusAreaCompleted {
-                Image(systemName: "checkmark")
-                    .font(.system(size: 20))
-                    .foregroundStyle(Color.white)
+                getImage(name: "checkmark")
                 
+            } else if !available {
+                getImage(name: "lock.fill")
             } else {
-                Image(systemName: "arrow.forward.circle.fill")
-                    .font(.system(size: 20))
-                    .foregroundStyle(Color.white)
+                getImage(name: "arrow.forward.circle.fill")
             }
 
         }
-        .opacity(focusAreaCompleted ? 0.6 : 1)
+        .opacity((focusAreaCompleted || !available) ? 0.6 : 1)
         .padding()
         .frame(width: 150, height: 180)
         .contentShape(Rectangle())
         .background {
             RoundedRectangle(cornerRadius: 20)
-                .stroke(focusAreaCompleted ? Color.clear : Color.white, lineWidth: 1)
-                .fill(focusAreaCompleted ? AppColors.sectionBoxBackground : Color.clear)
+                .stroke((focusAreaCompleted || !available) ? Color.clear : Color.white, lineWidth: 1)
+                .fill((focusAreaCompleted || !available) ? AppColors.sectionBoxBackground : Color.clear)
         }
+    }
+    
+    private func getImage(name: String) -> some View {
+        Image(systemName: name)
+            .font(.system(size: 20))
+            .foregroundStyle(Color.white)
     }
 }
 

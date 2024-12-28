@@ -24,5 +24,7 @@
 		<string>processing</string>
 		<string>remote-notification</string>
 	</array>
+	<key>STABILITY_PARTIAL_KEY</key>
+	<string>$(STABILITY_PARTIAL_KEY)</string>
 </dict>
 </plist>

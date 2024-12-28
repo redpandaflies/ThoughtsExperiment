@@ -13,6 +13,7 @@ struct UpdateSectionView: View {
     @State private var topicText = ""
     @State private var showCard: Bool = false
     @State private var selectedTab: Int = 0
+    @State private var showWarningSheet: Bool = false
     
     @Binding var showUpdateSectionView: Bool?
     @Binding var selectedSectionSummary: SectionSummary?
@@ -37,9 +38,7 @@ struct UpdateSectionView: View {
                 .fill(Material.ultraThin)
                 .ignoresSafeArea()
                 .onTapGesture {
-                    if selectedTab < 1 {
-                        closeView()
-                    }
+                    closeView()
                 }
                 
             switch selectedTab {
@@ -73,7 +72,16 @@ struct UpdateSectionView: View {
                 }
             }
         }
-        
+        .sheet(isPresented: $showWarningSheet, onDismiss: {
+            showWarningSheet = false
+        }) {
+            WarningLostProgress(quitAction: {
+                closeView()
+            })
+            .presentationCornerRadius(20)
+            .presentationBackground(AppColors.black3)
+            .presentationDetents([.medium])
+        }
     }
     
     private func closeView() {

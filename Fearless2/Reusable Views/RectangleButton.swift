@@ -11,11 +11,13 @@ struct RectangleButton: View {
     let buttonName: String?
     let buttonImage: String?
     let buttonColor: Color
+    let backgroundColor: Color?
 
-    init(buttonName: String? = nil, buttonImage: String? = nil, buttonColor: Color) {
+    init(buttonName: String? = nil, buttonImage: String? = nil, buttonColor: Color, backgroundColor: Color? = nil) {
         self.buttonName = buttonName
         self.buttonImage = buttonImage
         self.buttonColor = buttonColor
+        self.backgroundColor = backgroundColor
     }
     
     var body: some View {
@@ -40,6 +42,7 @@ struct RectangleButton: View {
         .background {
             RoundedRectangle(cornerRadius: 15)
                 .stroke(buttonColor)
+                .foregroundStyle(backgroundColor ?? Color.clear)
                 .shadow(color: Color.black, radius: 20, x: 0, y: 0)
         }
     }

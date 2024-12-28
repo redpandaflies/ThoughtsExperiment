@@ -1,6 +1,15 @@
 {
-  "originHash" : "4fa1ef875833bbfb3773e15d32ee2ed01c92fee8d3725804c4fb6d70159ef6ee",
+  "originHash" : "5f007cfac1f20f3aad41d4d0e2061805e5a4150128a754cc2d2ca4c7b0d32ec5",
   "pins" : [
+    {
+      "identity" : "aiproxyswift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/lzell/AIProxySwift",
+      "state" : {
+        "revision" : "a71eac7de6e1f9a80a0ba659a66bec7db9196bd6",
+        "version" : "0.49.0"
+      }
+    },
     {
       "identity" : "lottie-spm",
       "kind" : "remoteSourceControl",

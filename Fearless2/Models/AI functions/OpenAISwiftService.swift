@@ -216,10 +216,11 @@ extension OpenAISwiftService {
     }
     
     @MainActor
-    func processNewTopic(topicId: UUID) async {
+    func processNewTopic(topicId: UUID) async -> Topic? {
         let arguments = self.messageText
         let context = self.dataController.container.viewContext
-
+        var fetchedTopic: Topic? = nil
+        
         await context.perform {
             // Fetch the topic with the provided topicId
             let request = NSFetchRequest<Topic>(entityName: "Topic")
@@ -230,7 +231,7 @@ extension OpenAISwiftService {
                     self.loggerCoreData.error("No topic found with topicId: \(topicId)")
                     return
                 }
-
+                
                 // Decode the arguments to get the new section data
                 guard let newTopic = self.decodeArguments(arguments: arguments, as: NewTopic.self) else {
                     self.loggerOpenAI.error("Couldn't decode arguments for sections.")
@@ -249,6 +250,9 @@ extension OpenAISwiftService {
                     suggestion.suggestionEmoji = newSuggestion.emoji
                     topic.addToSuggestions(suggestion)
                 }
+                
+                //update fetchedTopic
+                fetchedTopic = topic
               
             } catch {
                 self.loggerCoreData.error("Error fetching topic: \(error.localizedDescription)")
@@ -261,6 +265,8 @@ extension OpenAISwiftService {
                 self.loggerCoreData.error("Error saving section: \(error.localizedDescription)")
             }
         }
+        
+        return fetchedTopic
     }
     
     @MainActor

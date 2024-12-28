@@ -117,5 +117,17 @@ enum Constants {
         return openAIId
     }()
     
+    static let stabilityPartialKey: String = {
+        guard let infoDict = infoDictionary,
+              let stabilityPartialKey = infoDict["STABILITY_PARTIAL_KEY"] as? String else {
+            logger.error("Stability partial key not available, using placeholder")
+            return ""
+        }
+       
+        logger.info("Retrieved stability partial key: \(stabilityPartialKey)")
+        
+        return stabilityPartialKey
+    }()
+    
 }
 

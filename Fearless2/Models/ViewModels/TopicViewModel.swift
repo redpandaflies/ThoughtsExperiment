@@ -11,6 +11,8 @@ import OSLog
 final class TopicViewModel: ObservableObject {
     
     @Published var topicUpdated: Bool = false
+    @Published var showPlaceholder: Bool = false
+    @Published var generatingImage: Bool = false
     @Published var updatedEntry: Entry? = nil
     @Published var focusAreaUpdated: Bool = false
     @Published var focusAreaSuggestions: [NewSuggestion] = []
@@ -21,12 +23,15 @@ final class TopicViewModel: ObservableObject {
     private var openAISwiftService: OpenAISwiftService
     private var dataController: DataController
     private let transcriptionViewModel: TranscriptionViewModel
+    private var stabilityService = StabilityService.instance
+    
     private var cancellables = Set<AnyCancellable>()
     
     var threadId: String? = nil //needed for cancelling runs
     
     let loggerOpenAI = Logger.openAIEvents
     let loggerCoreData = Logger.coreDataEvents
+    let loggerStability = Logger.stabilityEvents
     
     init(openAISwiftService: OpenAISwiftService, dataController: DataController, transcriptionViewModel: TranscriptionViewModel) {
         self.openAISwiftService = openAISwiftService
@@ -61,12 +66,13 @@ final class TopicViewModel: ObservableObject {
         await MainActor.run {
             self.threadId = nil
             self.topicUpdated = false
+            self.showPlaceholder = false
+            self.generatingImage = false
             self.focusAreaUpdated = false
             self.focusAreaSuggestions = []
             self.focusAreaSummaryCreated = false
             self.sectionSummaryCreated = false
             self.updatedEntry = nil
-          
            
         }
 
@@ -141,16 +147,31 @@ final class TopicViewModel: ObservableObject {
                 
                 case .topic:
                     
+                    await MainActor.run {
+                        self.generatingImage = true
+                    }
+                    
                     guard let currentTopicId = topicId else {
                         loggerCoreData.error("Failed to get new topic ID")
                         return
                     }
-                    await openAISwiftService.processNewTopic(topicId: currentTopicId)
+                    
+                    let currentTopic = await openAISwiftService.processNewTopic(topicId: currentTopicId)
                     
                     loggerOpenAI.log("Added new sections to topic")
                     
                     await MainActor.run {
                         self.topicUpdated = true
+                    }
+                    
+                    if let topic = currentTopic {
+                       await self.getTopicImage(topic: topic)
+                    } else {
+                        loggerOpenAI.log("Unable to get image; no topic found")
+                        await MainActor.run {
+                            self.showPlaceholder = true
+                            self.generatingImage = false
+                        }
                     }
                 
                 case .focusArea:
@@ -289,8 +310,6 @@ final class TopicViewModel: ObservableObject {
 
             }
             
-            
-            
             if let newMessage = try await openAISwiftService.createMessage(threadId: threadId, content: userContext) {
                
                 loggerOpenAI.info("First message sent: \(newMessage.content)")
@@ -301,4 +320,39 @@ final class TopicViewModel: ObservableObject {
                 loggerOpenAI.error("Error sending user message to OpenAI: \(error.localizedDescription)")
             }
         }
+}
+
+//MARK: generate topic image
+extension TopicViewModel {
+    
+    func getTopicImage(topic: Topic) async {
+        
+        
+        let topicId = await MainActor.run {
+            return topic.topicId.uuidString
+        }
+        
+        let newImagePrompt = await MainActor.run {
+            return "A beautifully rendered illustration of this theme: \(topic.topicTitle). Incorporate vibrant colors, subtle cinematic lighting, and whimsical details that capture the essence of the theme, with a visually striking composition that draws the viewer into the scene."
+        }
+        
+        loggerStability.log("Creating image for topic: \(topicId)")
+        
+        //get image from Stability
+        if let topicImageURL = await stabilityService.getTopicImage(fromPrompt: newImagePrompt, topicId: topicId) {
+            
+            await dataController.saveTopicImage(topic: topic, imageURL: topicImageURL.absoluteString)
+            
+            await MainActor.run {
+                self.generatingImage = false
+            }
+        } else {
+            await MainActor.run {
+                self.showPlaceholder = true
+                self.generatingImage = false
+            }
+        }
+        
+    }
+
 }

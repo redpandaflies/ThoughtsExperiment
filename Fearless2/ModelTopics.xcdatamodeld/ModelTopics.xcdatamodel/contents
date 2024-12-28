@@ -88,6 +88,7 @@
         <attribute name="definition" optional="YES" attributeType="String"/>
         <attribute name="emotions" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="mainImage" optional="YES" attributeType="String"/>
         <attribute name="people" optional="YES" attributeType="String"/>
         <attribute name="summary" optional="YES" attributeType="String"/>
         <attribute name="title" optional="YES" attributeType="String"/>

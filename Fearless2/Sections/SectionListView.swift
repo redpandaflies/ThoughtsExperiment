@@ -21,6 +21,12 @@ struct SectionListView: View {
     var sortedSections: [Section] {
         sections.sorted { $0.sectionNumber < $1.sectionNumber }
     }
+    //determin if all sections are completed
+    var sectionsAllComplete: Bool {
+        let completedSections = sections.filter { $0.completed == true }
+        
+        return completedSections.count == sections.count ? true : false
+    }
     
     var body: some View {
         HStack(spacing: 12) {
@@ -36,12 +42,14 @@ struct SectionListView: View {
                     }
             }
             
-            FocusAreaRecapPreviewBox(focusAreaCompleted: focusAreaCompleted)
+            FocusAreaRecapPreviewBox(focusAreaCompleted: focusAreaCompleted, available: sectionsAllComplete)
                 .onTapGesture {
-                    selectedFocusArea = sections.first?.focusArea
-                    print("Selected focus area: \(String(describing: selectedFocusArea))")
-                    selectedFocusAreaSummary = selectedFocusArea?.summary
-                    showFocusAreaRecapView = true
+                    if sectionsAllComplete {
+                        selectedFocusArea = sections.first?.focusArea
+                        print("Selected focus area: \(String(describing: selectedFocusArea))")
+                        selectedFocusAreaSummary = selectedFocusArea?.summary
+                        showFocusAreaRecapView = true
+                    }
                 }
         }
     }

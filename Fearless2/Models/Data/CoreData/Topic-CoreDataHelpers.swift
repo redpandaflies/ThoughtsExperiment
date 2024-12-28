@@ -54,6 +54,11 @@ extension Topic {
         set { emotions = newValue }
     }
     
+    var topicMainImage: String {
+        get { mainImage ?? "" }
+        set { mainImage = newValue }
+    }
+    
     var topicQuestions: [Question] {
         let result = questions?.allObjects as? [Question] ?? []
         return result

@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct TopicBox: View {
-
+    @ObservedObject var topicViewModel: TopicViewModel
     @ObservedObject var topic: Topic
     
     var body: some View {
@@ -20,10 +20,7 @@ struct TopicBox: View {
             
             VStack (spacing: 18){
                 
-                Image("topicPlaceholder1")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .clipShape(RoundedRectangle(cornerRadius: 20))
+                TopicImageView(topicViewModel: topicViewModel, topic: topic)
                 
                 Text(topic.topicTitle)
                     .multilineTextAlignment(.center)

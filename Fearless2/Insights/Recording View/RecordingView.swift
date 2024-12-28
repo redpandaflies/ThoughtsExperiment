@@ -20,33 +20,8 @@ struct RecordingView: View {
         
         VStack (spacing: 10) {
                 
-                HStack {
-                    
-                    Spacer()
-                    
-                    Button {
-                        cancelRecording()
-                    } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.system(size: 30))
-                            .foregroundStyle(Color.white)
-                            .opacity(0.6)
-                            
-                    }
-                    
-                }
-                
-                Image(systemName: categoryEmoji)
-                    .font(.system(size: 20))
-                    .foregroundStyle(AppColors.whiteDefault)
-                    .symbolRenderingMode(.monochrome)
-                
-                Text(topic.topicTitle)
-                    .font(.system(size: 15))
-                    .foregroundStyle(AppColors.whiteDefault)
-                
-                Spacer()
-            
+            header()
+
             switch selectedTab {
                 case 0:
                 RecordingStartView(transcriptionViewModel: transcriptionViewModel, selectedTab: $selectedTab, topic: topic)
@@ -59,6 +34,44 @@ struct RecordingView: View {
             .padding()
             .padding(.bottom, 20)
         
+    }
+    
+    private func header() -> some View {
+        HStack {
+           
+            Image(systemName: "xmark.circle.fill")
+                .font(.system(size: 30))
+                .foregroundStyle(Color.clear)
+            
+            Spacer()
+            
+            HStack {
+                Image(systemName: "record.circle")
+                    .font(.system(size: 14))
+                    .foregroundStyle(Color.white)
+                    .textCase(.uppercase)
+                    .opacity(0.5)
+                
+                Text("Recording")
+                    .font(.system(size: 14))
+                    .foregroundStyle(Color.white)
+                    .textCase(.uppercase)
+                    .opacity(0.5)
+            }
+            
+            
+            Spacer()
+            
+            Button {
+                cancelRecording()
+            } label: {
+                Image(systemName: "xmark.circle.fill")
+                    .font(.system(size: 30))
+                    .foregroundStyle(Color.white)
+                    .opacity(0.6)
+                    
+            }
+        }//HStack
     }
     
     private func cancelRecording() {
@@ -85,37 +98,39 @@ struct RecordingStartView: View {
     
     var body: some View {
         VStack (spacing: 10){
-            Text("Talk freely about\nanything related to\nthis topic.")
+            Text("Talk freely about this topic.")
                 .multilineTextAlignment(.center)
-                .font(.system(size: 25))
+                .font(.system(size: 20))
                 .foregroundStyle(AppColors.categoryYellow)
-            
-            Text("For up to 5 minutes")
-                .font(.system(size: 15))
-                .foregroundStyle(AppColors.whiteDefault)
-                .textCase(.uppercase)
             
             Spacer()
             
             Group {
-                Image(systemName: "waveform")
+                Image(systemName: playAnimation ? "stop.fill" : "circle.fill")
                     .font(.system(size: 30))
                     .foregroundStyle(Color.black)
-                    .frame(width: 140, height: 140)
-                    .symbolEffect(.variableColor.iterative.dimInactiveLayers.nonReversing, options: .speed(0.5), isActive: playAnimation)
+                    .frame(width: 100, height: 100)
+                    .contentTransition(.symbolEffect(.replace.offUp.byLayer))
                     .background {
                         Circle()
                             .fill(AppColors.categoryYellow)
                     }
             }
             .contentShape(Circle())
+            .padding(.bottom, 100)
             .onTapGesture {
                 handleRecordingButtonAction(recordingAction: .newEntry)
             }
             .onAppear {
                 playAnimation = true
             }
+            
+            Text("Sometimes it helps to simply talk out loud\nabout the things on your mind.")
+                .font(.system(size: 12))
+                .foregroundStyle(Color.white)
+                .opacity(0.5)
         }
+        .padding(.bottom, 30)
     }
     
     private func handleRecordingButtonAction(recordingAction: RecordingAction) {

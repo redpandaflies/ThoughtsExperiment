@@ -17,7 +17,7 @@ struct SummaryInsightBox: View {
             
             Text(insight.insightContent)
                 .font(.system(size: 15))
-                .foregroundStyle(insight.markedSaved ? Color.black : Color.white)
+                .foregroundStyle(insight.markedSaved ? Color.black : AppColors.whiteDefault)
                 .fixedSize(horizontal: false, vertical: true)
                 
             Spacer()
@@ -25,7 +25,7 @@ struct SummaryInsightBox: View {
             Image(systemName: insight.markedSaved ? "checkmark.circle.fill" : "plus.circle")
                 .font(.system(size: 20))
                 .fontWeight(.light)
-                .foregroundStyle(insight.markedSaved ? Color.black : Color.white)
+                .foregroundStyle(insight.markedSaved ? Color.black : AppColors.whiteDefault)
                 .contentTransition(.symbolEffect(.replace.offUp.byLayer))
              
 
@@ -34,7 +34,7 @@ struct SummaryInsightBox: View {
         .contentShape(Rectangle())
         .background {
             RoundedRectangle(cornerRadius: 10)
-                .stroke(insight.markedSaved ? AppColors.yellow1 : Color.white)
+                .stroke(insight.markedSaved ? AppColors.yellow1 : AppColors.whiteDefault)
                 .fill(insight.markedSaved ? AppColors.yellow1 : Color.clear)
                 
         }

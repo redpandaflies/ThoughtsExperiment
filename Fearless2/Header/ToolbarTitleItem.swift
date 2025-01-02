@@ -15,7 +15,7 @@ struct ToolbarTitleItem: View {
     var body: some View {
         Text(title)
             .font(.system(size: regularSize ? 20 : 20, weight: .light))
-            .foregroundStyle(Color.white)
+            .foregroundStyle(AppColors.whiteDefault)
             .textCase(.uppercase)
     }
 }

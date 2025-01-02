@@ -17,12 +17,12 @@ struct SectionBox: View {
             Text(section.sectionTitle)
                 .multilineTextAlignment(.center)
                 .font(.system(size: 17, weight: .regular))
-                .foregroundStyle(Color.white)
+                .foregroundStyle(AppColors.whiteDefault)
                 
           
             Text("\(section.sectionQuestions.count) prompts")
                 .font(.system(size: 11))
-                .foregroundStyle(Color.white)
+                .foregroundStyle(AppColors.whiteDefault)
                 .opacity(0.6)
                 .textCase(.uppercase)
             
@@ -31,12 +31,12 @@ struct SectionBox: View {
             if section.completed {
                 Image(systemName: "checkmark")
                     .font(.system(size: 20))
-                    .foregroundStyle(Color.white)
+                    .foregroundStyle(AppColors.whiteDefault)
                 
             } else {
                 Image(systemName: "arrow.forward.circle.fill")
                     .font(.system(size: 20))
-                    .foregroundStyle(Color.white)
+                    .foregroundStyle(AppColors.whiteDefault)
             }
                 
         }
@@ -46,7 +46,7 @@ struct SectionBox: View {
         .contentShape(Rectangle())
         .background {
             RoundedRectangle(cornerRadius: 20)
-                .stroke(section.completed ? Color.clear : Color.white, lineWidth: 1)
+                .stroke(section.completed ? Color.clear : AppColors.whiteDefault, lineWidth: 1)
                 .fill(section.completed ? AppColors.sectionBoxBackground : Color.clear)
         }
     }

@@ -14,7 +14,7 @@ struct RecordingLoadingAnimation: View {
         VStack {
             Image(systemName: "ellipsis")
                 .font(.system(size: 40))
-                .foregroundStyle(Color.white)
+                .foregroundStyle(AppColors.whiteDefault)
                 .symbolEffect(.variableColor.cumulative.dimInactiveLayers.nonReversing, options: animationValue ? .repeating : .nonRepeating, value: animationValue)
                 .padding(.top, 40)
             

@@ -12,7 +12,6 @@ struct FocusAreaBox: View {
     @ObservedObject var topicViewModel: TopicViewModel
     @State private var selectedTab: Int = 0
     
-    @Binding var showUpdateSectionView: Bool?
     @Binding var showFocusAreaRecapView: Bool
     @Binding var selectedSection: Section?
     @Binding var selectedSectionSummary: SectionSummary?
@@ -29,13 +28,13 @@ struct FocusAreaBox: View {
                 Text("\(index + 1)")
                     .multilineTextAlignment(.center)
                     .font(.system(size: 40, weight: .semibold))
-                    .foregroundStyle(Color.white)
+                    .foregroundStyle(AppColors.whiteDefault)
                 
                 Text(focusArea.focusAreaTitle)
                     .multilineTextAlignment(.center)
                     .font(.system(size: 25))
                     .fontWeight(.regular)
-                    .foregroundStyle(Color.white)
+                    .foregroundStyle(AppColors.whiteDefault)
                     .fixedSize(horizontal: false, vertical: true)
                 
                 
@@ -43,7 +42,7 @@ struct FocusAreaBox: View {
                     .multilineTextAlignment(.center)
                     .font(.system(size: 16))
                     .fontWeight(.regular)
-                    .foregroundStyle(Color.white)
+                    .foregroundStyle(AppColors.whiteDefault)
                     .fixedSize(horizontal: false, vertical: true)
                     .opacity(0.7)
                     .padding(.bottom, 10)
@@ -55,7 +54,7 @@ struct FocusAreaBox: View {
                     case 0:
                         FocusAreaLoadingPlaceholder()
                     default:
-                    SectionListView(showUpdateSectionView: $showUpdateSectionView, showFocusAreaRecapView: $showFocusAreaRecapView, selectedSection: $selectedSection, selectedSectionSummary: $selectedSectionSummary, selectedFocusArea: $selectedFocusArea, selectedFocusAreaSummary: $selectedFocusAreaSummary, sections: focusArea.focusAreaSections, focusAreaCompleted: focusArea.completed)
+                        SectionListView(showFocusAreaRecapView: $showFocusAreaRecapView, selectedSection: $selectedSection, selectedSectionSummary: $selectedSectionSummary, selectedFocusArea: $selectedFocusArea, selectedFocusAreaSummary: $selectedFocusAreaSummary, sections: focusArea.focusAreaSections, focusAreaCompleted: focusArea.completed)
                     
                 }
 
@@ -101,7 +100,7 @@ struct FocusAreaLoadingPlaceholder: View {
             
             Text("Generating")
                 .font(.system(size: 11))
-                .foregroundStyle(Color.white)
+                .foregroundStyle(AppColors.whiteDefault)
                 .opacity(0.6)
                 .textCase(.uppercase)
             
@@ -109,7 +108,7 @@ struct FocusAreaLoadingPlaceholder: View {
         .frame(width: 150, height: 180)
         .background {
             RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                .stroke(AppColors.whiteDefault.opacity(0.2), lineWidth: 1)
                 .fill(Color.black)
         }
         .animation(.default, value: animationEffect)

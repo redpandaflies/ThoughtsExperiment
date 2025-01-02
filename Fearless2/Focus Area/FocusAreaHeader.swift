@@ -38,7 +38,7 @@ struct FocusAreaHeader: View {
                 } label: {
                     Image(systemName: "ellipsis.circle.fill")
                         .font(.system(size: 30))
-                        .foregroundStyle(Color.white)
+                        .foregroundStyle(AppColors.whiteDefault)
                         .opacity(0.6)
                 }
                 
@@ -47,7 +47,7 @@ struct FocusAreaHeader: View {
                 } label: {
                     Image(systemName: "xmark.circle.fill")
                         .font(.system(size: 30))
-                        .foregroundStyle(Color.white)
+                        .foregroundStyle(AppColors.whiteDefault)
                         .opacity(0.6)
                 }
                 

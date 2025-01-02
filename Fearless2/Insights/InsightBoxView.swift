@@ -17,7 +17,7 @@ struct InsightBoxView: View {
             Text(insight.insightContent)
                 .multilineTextAlignment(.leading)
                 .font(.system(size: 17))
-                .foregroundStyle(Color.white)
+                .foregroundStyle(AppColors.whiteDefault)
                 .lineSpacing(0.5)
             
             Spacer()
@@ -38,7 +38,7 @@ struct InsightBoxView: View {
         .frame(width: 150, height: 180)
         .background {
             RoundedRectangle(cornerRadius: 15)
-                .stroke(Color.white.opacity(0.1))
+                .stroke(AppColors.whiteDefault.opacity(0.1))
                 .fill(AppColors.black2)
                 .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 2)
         }

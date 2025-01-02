@@ -14,7 +14,7 @@ struct InsightsEmptyState: View {
             Text("Uncover insights by logging your\nthoughts on this topic and\nexploring its path.")
                 .multilineTextAlignment(.center)
                 .font(.system(size: 22))
-                .foregroundStyle(Color.white)
+                .foregroundStyle(AppColors.whiteDefault)
             
             WhyBox(text: "Insights reveal patterns and opportunities.\nThey help you reflect, grow, and take\nmeaningful action.", backgroundColor: AppColors.black2)
             

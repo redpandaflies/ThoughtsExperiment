@@ -66,7 +66,7 @@ enum TopicCategoryItem: Int, CaseIterable, CategoryItemProtocol{
        case .personal:
            return AppColors.blackDefault
        default:
-           return Color.white
+           return AppColors.whiteDefault
        }
    }
    

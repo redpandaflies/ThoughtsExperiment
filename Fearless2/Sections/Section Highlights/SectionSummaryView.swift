@@ -20,7 +20,7 @@ struct SectionSummaryView: View {
                     
                     Text(summary.section?.focusArea?.focusAreaTitle ?? "")
                         .font(.system(size: 14))
-                        .foregroundStyle(Color.white)
+                        .foregroundStyle(AppColors.whiteDefault)
                         .textCase(.uppercase)
                         .opacity(0.5)
                         .padding(.top)
@@ -28,7 +28,7 @@ struct SectionSummaryView: View {
                     Text(summary.section?.sectionTitle ?? "")
                         .multilineTextAlignment(.center)
                         .font(.system(size: 20, weight: .regular))
-                        .foregroundStyle(Color.white)
+                        .foregroundStyle(AppColors.whiteDefault)
                         .padding(.bottom, 40)
                     
                     
@@ -54,7 +54,7 @@ struct SectionSummaryView: View {
             VStack (spacing: 20) {
                 Spacer()
                 
-                RectangleButton(buttonImage: "arrow.right.circle.fill", buttonColor: Color.white)
+                RectangleButton(buttonImage: "arrow.right.circle.fill", buttonColor: AppColors.whiteDefault)
                     
                     .onTapGesture {
                         closeView()
@@ -62,7 +62,7 @@ struct SectionSummaryView: View {
                 
                 Text("Find your saved insights on the Insights tab of each topic.")
                     .font(.system(size: 12))
-                    .foregroundStyle(Color.white)
+                    .foregroundStyle(AppColors.whiteDefault)
                     .opacity(0.5)
                 
             }

@@ -19,6 +19,8 @@ final class DataController: ObservableObject {
     var context: NSManagedObjectContext
     let logger = Logger.coreDataEvents
     
+    private var fileManager = LocalFileManager.instance
+    private let imageCacheManager = ImageCacheManager.instance
     private var saveTask: Task<Void, Error>?
     
     init(inMemory: Bool = false) {
@@ -57,14 +59,20 @@ final class DataController: ObservableObject {
     //create new topic
     func createTopic() async {
         await context.perform {
-            let topic = Topic(context: self.context)
-            topic.topicId = UUID()
-            topic.topicCreatedAt = getCurrentTimeString()
-            
-            self.newTopic = topic
-            self.logger.log("Updated newTopic published variable")
+            if let topic = self.newTopic {
+                self.logger.log("Topic already exists")
+            } else {
+                
+                let topic = Topic(context: self.context)
+                topic.topicId = UUID()
+                topic.topicCreatedAt = getCurrentTimeString()
+                
+                self.newTopic = topic
+                self.logger.log("Updated newTopic published variable")
+            }
+           
         }
-//        await self.save()
+       
     }
     
     //create new topic
@@ -218,9 +226,10 @@ final class DataController: ObservableObject {
                 if let answer = userAnswer as? String {
                     question.questionAnswerOpen = answer
                 }
-            case .scale:
-                if let answer = userAnswer as? Double {
-                    question.answerScale = answer
+            case .singleSelect:
+                if let answer = userAnswer as? [String] {
+                    let arrayString = answer.joined(separator: ",")
+                    question.questionSingleSelectOptions = arrayString
                 }
             case .multiSelect:
                 if let answer = userAnswer as? [String] {
@@ -240,6 +249,7 @@ final class DataController: ObservableObject {
     }
     
     //delete topic
+    @MainActor
     func deleteTopic(id: UUID) async {
         
         let request = NSFetchRequest<Topic>(entityName: "Topic")
@@ -254,13 +264,27 @@ final class DataController: ObservableObject {
                     
                     Task {
                         await self.save()
+                        
+                        //don't use topic.topicId because topic has been deleted already
+                        let topicId = id.uuidString
+                        
+                        await self.deleteTopicImage(topicId: topicId)
                     }
                 }
                     
             } catch {
                 self.logger.error("Failed to delete topic from Core Data: \(error.localizedDescription)")
             }
+
         }
+ 
+    }
+    
+    private func deleteTopicImage(topicId: String) async {
+        let folderName = "topic_images"
+      
+        imageCacheManager.deleteImage(key: topicId)
+        fileManager.deleteImage(imageId: topicId, folderName: folderName)
     }
     
     func deleteEntry(id: UUID) async {

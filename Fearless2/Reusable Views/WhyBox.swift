@@ -15,14 +15,14 @@ struct WhyBox: View {
         VStack (spacing: 7) {
             Text("Why")
                 .font(.system(size: 14, weight: .semibold))
-                .foregroundStyle(Color.white)
+                .foregroundStyle(AppColors.whiteDefault)
                 .textCase(.uppercase)
                 .opacity(0.5)
             
             Text(text)
                 .multilineTextAlignment(.center)
                 .font(.system(size: 13))
-                .foregroundStyle(Color.white)
+                .foregroundStyle(AppColors.whiteDefault)
                 .lineSpacing(0.5)
                 .opacity(0.8)
             

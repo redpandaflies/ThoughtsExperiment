@@ -22,7 +22,7 @@ struct SliderView: View {
                 Text(minLabel)
                     .font(.system(size: 11))
                     .fontWeight(.light)
-                    .foregroundStyle(Color.white)
+                    .foregroundStyle(AppColors.whiteDefault)
                     .textCase(.uppercase)
                 
                 Spacer()
@@ -31,7 +31,7 @@ struct SliderView: View {
                 Text(maxLabel)
                     .font(.system(size: 11))
                     .fontWeight(.light)
-                    .foregroundStyle(Color.white)
+                    .foregroundStyle(AppColors.whiteDefault)
                     .textCase(.uppercase)
             }
            

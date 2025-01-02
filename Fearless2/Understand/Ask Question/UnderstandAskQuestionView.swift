@@ -113,7 +113,7 @@ struct UnderstandAskQuestionView: View {
             } label: {
                 Image(systemName: "arrow.right.circle.fill")
                     .font(.system(size: 30, weight: .light))
-                    .foregroundStyle(Color.white)
+                    .foregroundStyle(AppColors.whiteDefault)
             }
             
             

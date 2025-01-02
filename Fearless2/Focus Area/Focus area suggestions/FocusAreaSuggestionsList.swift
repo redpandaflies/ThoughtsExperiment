@@ -68,19 +68,19 @@ struct FocusAreaSuggestionBox: View {
 
             Text(suggestion.title)
                 .font(.system(size: 17))
-                .foregroundStyle(Color.white)
+                .foregroundStyle(AppColors.whiteDefault)
             
             WhyBox(text: suggestion.suggestionDescription, backgroundColor: AppColors.black1)
             
             Image(systemName: "checkmark.circle.fill")
                 .font(.system(size: 30))
-                .foregroundStyle(Color.white)
+                .foregroundStyle(AppColors.whiteDefault)
         }
         .padding()
         .contentShape(Rectangle())
         .background {
             RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.white.opacity(0.1))
+                .stroke(AppColors.whiteDefault.opacity(0.1))
                 .fill(AppColors.black3)
                 .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 2)
         }

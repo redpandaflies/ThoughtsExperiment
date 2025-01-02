@@ -37,8 +37,8 @@ struct ContextGatherer {
             
             if let questionType = QuestionType(rawValue: question.questionType) {
                 switch questionType {
-                case .scale:
-                    context += "Answer: on a scale of 0 to 10, this is a \(question.answerScale)\n"
+                case .singleSelect:
+                    context += "Answer: \(question.questionAnswerSingleSelect)\n"
                 case .multiSelect:
                     context += "Answer: \(question.questionAnswerMultiSelect)\n"
                 case .open:
@@ -215,8 +215,8 @@ struct ContextGatherer {
             if question.completed {
                 if let questionType = QuestionType(rawValue: question.questionType) {
                     switch questionType {
-                    case .scale:
-                        result += "Answer: on a scale of 0 to 10, this is a \(question.answerScale)\n"
+                    case .singleSelect:
+                        result += "Answer: on a scale of 0 to 10, this is a \(question.questionAnswerSingleSelect)\n"
                     case .multiSelect:
                         result += "Answer: \(question.questionAnswerMultiSelect)\n"
                     case .open:

@@ -21,7 +21,7 @@ struct QuestionScaleView: View {
                 .multilineTextAlignment(.leading)
                 .font(.system(size: 19))
                 .fontWeight(.semibold)
-                .foregroundStyle(Color.white)
+                .foregroundStyle(AppColors.whiteDefault)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.vertical, 10)
             

@@ -13,7 +13,6 @@ struct TopicDetailView: View {
   
     @State private var showRecordingView: Bool = false
     @State private var selectedEntry: Entry? = nil
-    @State private var showUpdateSectionView: Bool? = nil
     @State private var showFocusAreaRecapView: Bool = false
     @State private var selectedSection: Section? = nil
     @State private var selectedSectionSummary: SectionSummary? = nil
@@ -22,7 +21,6 @@ struct TopicDetailView: View {
     @State private var headerHeight: CGFloat = 0
     @State private var focusAreaScrollPosition: Int?
     
-    @Binding var showTabBar: Bool
     @Binding var selectedTabTopic: TopicPickerItem
     
     let topic: Topic
@@ -37,12 +35,11 @@ struct TopicDetailView: View {
                 
                 backgroundImage()
                 
-                
                 VStack {
                     switch selectedTabTopic {
                         
                     case .paths:
-                        FocusAreasView(topicViewModel: topicViewModel, showUpdateSectionView: $showUpdateSectionView, showFocusAreaRecapView: $showFocusAreaRecapView, selectedSection: $selectedSection, selectedSectionSummary: $selectedSectionSummary, selectedFocusArea: $selectedFocusArea, selectedFocusAreaSummary: $selectedFocusAreaSummary, focusAreaScrollPosition: $focusAreaScrollPosition, topicId: topic.topicId)
+                        FocusAreasView(topicViewModel: topicViewModel, showFocusAreaRecapView: $showFocusAreaRecapView, selectedSection: $selectedSection, selectedSectionSummary: $selectedSectionSummary, selectedFocusArea: $selectedFocusArea, selectedFocusAreaSummary: $selectedFocusAreaSummary, focusAreaScrollPosition: $focusAreaScrollPosition, topicId: topic.topicId)
                         
                     case .entries:
                         EntriesListView(transcriptionViewModel: transcriptionViewModel, selectedEntry: $selectedEntry, showRecordingView: $showRecordingView, topicId: topic.topicId)
@@ -85,10 +82,11 @@ struct TopicDetailView: View {
                 .padding(.bottom)
                 
             }//ZStack
-            .overlay {
-                if let showingUpdateSectionView = showUpdateSectionView, showingUpdateSectionView {
-                    UpdateSectionView(topicViewModel: topicViewModel, showUpdateSectionView: $showUpdateSectionView, selectedSectionSummary: $selectedSectionSummary, topicId: topic.topicId, section: selectedSection)
-                }
+            .fullScreenCover(item: $selectedSection, onDismiss: {
+                selectedSection = nil
+            }) { section in
+                UpdateSectionView(topicViewModel: topicViewModel, selectedSectionSummary: $selectedSectionSummary, topicId: topic.topicId, section: section)
+                    .presentationBackground(Color.black)
             }
             .sheet(isPresented: $showRecordingView, onDismiss: {
                 showRecordingView = false
@@ -126,17 +124,6 @@ struct TopicDetailView: View {
                         showRecordingView = false
                     }
                     selectedEntry = newEntry
-                }
-            }
-            .onChange(of: showUpdateSectionView) {
-                if showUpdateSectionView == true {
-                    withAnimation(.snappy(duration: 0.1)) {
-                        showTabBar = false
-                    }
-                } else {
-                    withAnimation(.snappy(duration: 0.1)) {
-                        showTabBar = true
-                    }
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -185,14 +172,14 @@ struct TopicDetailView: View {
             Text("Next")
                 .font(.caption)
                 .fontWeight(.regular)
-                .foregroundStyle(Color.white)
+                .foregroundStyle(AppColors.whiteDefault)
                 .opacity(0.7)
             
             
             Image(systemName: "chevron.compact.down")
                 .font(.largeTitle)
                 .fontWeight(.regular)
-                .foregroundStyle(Color.white)
+                .foregroundStyle(AppColors.whiteDefault)
                 .opacity(0.7)
             
         }

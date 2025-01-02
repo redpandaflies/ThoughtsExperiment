@@ -11,7 +11,6 @@ struct FocusAreasView: View {
     @ObservedObject var topicViewModel: TopicViewModel
     @State private var selectedTab: Int = 0
     
-    @Binding var showUpdateSectionView: Bool?
     @Binding var showFocusAreaRecapView: Bool
     @Binding var selectedSection: Section?
     @Binding var selectedSectionSummary: SectionSummary?
@@ -25,9 +24,8 @@ struct FocusAreasView: View {
     
     @FetchRequest var focusAreas: FetchedResults<FocusArea>
     
-    init(topicViewModel: TopicViewModel, showUpdateSectionView: Binding<Bool?>, showFocusAreaRecapView: Binding<Bool>, selectedSection: Binding<Section?>, selectedSectionSummary: Binding<SectionSummary?>, selectedFocusArea: Binding<FocusArea?>, selectedFocusAreaSummary: Binding<FocusAreaSummary?>, focusAreaScrollPosition: Binding<Int?>, topicId: UUID) {
+    init(topicViewModel: TopicViewModel, showFocusAreaRecapView: Binding<Bool>, selectedSection: Binding<Section?>, selectedSectionSummary: Binding<SectionSummary?>, selectedFocusArea: Binding<FocusArea?>, selectedFocusAreaSummary: Binding<FocusAreaSummary?>, focusAreaScrollPosition: Binding<Int?>, topicId: UUID) {
         self.topicViewModel = topicViewModel
-        self._showUpdateSectionView = showUpdateSectionView
         self._showFocusAreaRecapView = showFocusAreaRecapView
         self._selectedSection = selectedSection
         self._selectedSectionSummary = selectedSectionSummary
@@ -51,7 +49,7 @@ struct FocusAreasView: View {
             case 0:
                 FocusAreaEmptyState(topicViewModel: topicViewModel, selectedTab: $selectedTab, topicId: topicId)
             default:
-                FocusAreaList(topicViewModel: topicViewModel, showUpdateSectionView: $showUpdateSectionView, showFocusAreaRecapView: $showFocusAreaRecapView, selectedSection: $selectedSection, selectedSectionSummary: $selectedSectionSummary, selectedFocusArea: $selectedFocusArea, selectedFocusAreaSummary: $selectedFocusAreaSummary, focusAreaScrollPosition: $focusAreaScrollPosition, focusAreas: focusAreas)
+                FocusAreaList(topicViewModel: topicViewModel, showFocusAreaRecapView: $showFocusAreaRecapView, selectedSection: $selectedSection, selectedSectionSummary: $selectedSectionSummary, selectedFocusArea: $selectedFocusArea, selectedFocusAreaSummary: $selectedFocusAreaSummary, focusAreaScrollPosition: $focusAreaScrollPosition, focusAreas: focusAreas)
                 
                 
             }
@@ -72,7 +70,6 @@ struct FocusAreaList: View {
    @ObservedObject var topicViewModel: TopicViewModel
     @State private var scrollViewHeight: CGFloat = 0
    
-   @Binding var showUpdateSectionView: Bool?
    @Binding var showFocusAreaRecapView: Bool
    @Binding var selectedSection: Section?
     @Binding var selectedSectionSummary: SectionSummary?
@@ -88,7 +85,7 @@ struct FocusAreaList: View {
             VStack (alignment: .leading) {
                 ForEach(Array(focusAreas.enumerated()), id: \.element.focusAreaId) { index, area in
                     
-                    FocusAreaBox(topicViewModel: topicViewModel, showUpdateSectionView: $showUpdateSectionView, showFocusAreaRecapView: $showFocusAreaRecapView, selectedSection: $selectedSection, selectedSectionSummary: $selectedSectionSummary, selectedFocusArea: $selectedFocusArea, selectedFocusAreaSummary: $selectedFocusAreaSummary, focusArea: area, index: index)
+                    FocusAreaBox(topicViewModel: topicViewModel, showFocusAreaRecapView: $showFocusAreaRecapView, selectedSection: $selectedSection, selectedSectionSummary: $selectedSectionSummary, selectedFocusArea: $selectedFocusArea, selectedFocusAreaSummary: $selectedFocusAreaSummary, focusArea: area, index: index)
                         .id(index)
                         .containerRelativeFrame(.vertical, alignment: .top)
                         .scrollTransition { content, phase in

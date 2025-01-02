@@ -8,55 +8,55 @@
 import SwiftUI
 
 struct QuestionsProgressBar: View {
+    
     @Binding var currentQuestionIndex: Int
-    let questionCount: Int
-    let screenWidth = UIScreen.current.bounds.width
-    let action: () -> Void
+    let wholeBarWidth: CGFloat = UIScreen.current.bounds.width * 0.7
+    let totalQuestions: Int
+   
+    var progressBarWidth: CGFloat {
+        if totalQuestions > 0 {
+            let barWidth = (wholeBarWidth/CGFloat (totalQuestions)) * CGFloat(currentQuestionIndex + 1)
+            
+            return barWidth
+        } else {
+            return wholeBarWidth
+        }
+    }
+    
+    let xmarkAction: () -> Void 
     
     var body: some View {
-        HStack {
-            Image(systemName: "arrow.right.circle.fill")
-                .font(.system(size: 30, weight: .light))
-                .foregroundStyle(Color.clear)
+        
+        HStack (spacing: 30) {
+            ZStack (alignment: .leading) {
+                RoundedRectangle(cornerRadius: 50)
+                    .fill(Color.black.opacity(0.2))
+                    .frame(width: wholeBarWidth, height: 15)
+                
+                
+                RoundedRectangle(cornerRadius: 50)
+                    .fill(AppColors.yellow1)
+                    .frame(width: progressBarWidth, height: 15)
+                
+            }//ZStack)
             
             Spacer()
             
-            if questionCount > 1 {
-                HStack(spacing: 5) {
-                    ForEach(0..<questionCount, id: \.self) { index in
-                        Circle()
-                            .stroke(getDotStrokeColor(index: index), lineWidth: 1)
-                            .fill(getDotColor(index: index))
-                            .frame(width: 10, height: 10)
-                        
-                    }
-                }
-                
-                
-                Spacer()
-            }
-            
             Button {
-                action()
+                xmarkAction()
             } label: {
-                Image(systemName: "arrow.right.circle.fill")
-                    .font(.system(size: 30, weight: .light))
-                    .foregroundStyle(Color.white)
-                    .padding(.horizontal)
+                
+                Image(systemName: "xmark.circle.fill")
+                    .font(.system(size: 25))
+                    .foregroundStyle(AppColors.whiteDefault.opacity(0.2))
             }
-        }
-        .padding(.vertical, 10)
-    }
     
-    private func getDotColor(index: Int) -> Color {
-        index < currentQuestionIndex ? Color.white : Color.clear
-    }
-    
-    private func getDotStrokeColor(index: Int) -> Color {
-        index <= currentQuestionIndex ? Color.white : Color.white.opacity(0.4)
+        }//HStack
+        .padding(.vertical)
+        
     }
 }
 
 //#Preview {
-//    QuestionsProgressBar(questionCount: 5)
+//    TestProgressBar()
 //}

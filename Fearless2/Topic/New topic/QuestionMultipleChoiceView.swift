@@ -9,7 +9,7 @@ import SwiftUI
 import WrappingHStack
 
 struct QuestionMultiSelectView: View {
-    @Binding var selectedOptions: [String]
+    @Binding var multiSelectAnswers: [String]
     let question: String
     let items: [String]
         
@@ -18,59 +18,57 @@ struct QuestionMultiSelectView: View {
             
             Text(question)
                 .multilineTextAlignment(.leading)
-                .font(.system(size: 19))
-                .fontWeight(.semibold)
-                .foregroundStyle(Color.white)
+                .font(.system(size: 25, weight: .light))
+                .foregroundStyle(AppColors.whiteDefault)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.vertical, 10)
             
             Text("Choose all that apply")
                 .font(.system(size: 11))
                 .fontWeight(.light)
-                .foregroundStyle(Color.white)
+                .foregroundStyle(AppColors.whiteDefault)
                 .textCase(.uppercase)
             
             WrappingHStack(items, id: \.self, alignment: .leading, spacing: .constant(13), lineSpacing: 12) { pill in
-                QuestionBubble(selected: selectedOptions.contains(pill), option: pill)
+                MultiSelectQuestionBubble(selected: multiSelectAnswers.contains(pill), option: pill)
                     .onTapGesture {
                         selectPill(pillLabel: pill)
                     }
             }
-            .padding(.bottom, 30)
-            
-        }
+
+        }//VStack
     }
     
     private func selectPill(pillLabel: String) {
-        if let index = selectedOptions.firstIndex(of: pillLabel) {
+        if let index = multiSelectAnswers.firstIndex(of: pillLabel) {
             // If the pill is already selected, remove it
-            selectedOptions.remove(at: index)
+            multiSelectAnswers.remove(at: index)
         } else {
             // Otherwise, add it to the selected pills
-            selectedOptions.append(pillLabel)
+            multiSelectAnswers.append(pillLabel)
         }
     }
 }
 
-struct QuestionBubble: View {
+struct MultiSelectQuestionBubble: View {
     let selected: Bool
     let option: String
     
     var body: some View {
         HStack (spacing: 5) {
             Text(option)
-                .font(.system(size: 14))
-                .foregroundStyle(selected ? Color.black : Color.white)
+                .font(.system(size: 16))
+                .foregroundStyle(selected ? Color.black : AppColors.whiteDefault)
                 .fontWeight(.light)
                 .textCase(.lowercase)
                 .fixedSize(horizontal: true, vertical: true)
         }
         .padding(.horizontal, 18)
-        .frame(height: 33)
+        .frame(height: 35)
         .background {
             RoundedRectangle(cornerRadius: 10)
-                .stroke(Color.white, lineWidth: 1)
-                .fill(selected ? Color.white : Color.clear)
+                .stroke(AppColors.whiteDefault, lineWidth: 1)
+                .fill(selected ? AppColors.whiteDefault : Color.clear)
         }
     }
 }

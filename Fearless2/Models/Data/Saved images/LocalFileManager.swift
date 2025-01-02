@@ -42,7 +42,7 @@ final class LocalFileManager {
             do {
                 try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true, attributes: nil)
             } catch let error {
-                print("Error creating directory. FolderName: \(folderName). \(error)")
+                loggerFileManager.error("Error creating directory. FolderName: \(folderName). \(error.localizedDescription)")
             }
         }
     }
@@ -69,21 +69,26 @@ final class LocalFileManager {
         guard let folderURL = getURLForFolder(folderName: folderName) else {
             return nil
         }
-        return folderURL.appendingPathComponent(imageId + ".png")
+        
+        let imageURL = folderURL.appendingPathComponent(imageId + ".png")
+        
+//        print("Got image URL: \(imageURL)")
+        
+        return imageURL
     }
     
     func deleteImage(imageId: String, folderName: String) {
             guard let url = getURLForImage(imageId: imageId, folderName: folderName),
                   FileManager.default.fileExists(atPath: url.path) else {
-                print("Image file not found.")
+                loggerFileManager.error("Image file not found in file manager.")
                 return
             }
 
             do {
                 try FileManager.default.removeItem(at: url)
-                print("Image deleted successfully.")
+                loggerFileManager.error("Image deleted successfully from file manager.")
             } catch let error {
-                print("Error deleting image file: \(error)")
+                loggerFileManager.error("Error deleting image file from file manager: \(error.localizedDescription)")
             }
     }
 

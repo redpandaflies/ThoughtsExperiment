@@ -16,7 +16,7 @@ struct EntriesEmptyState: View {
             Text("Log any thoughts you have\non this topic")
                 .multilineTextAlignment(.center)
                 .font(.system(size: 22))
-                .foregroundStyle(Color.white)
+                .foregroundStyle(AppColors.whiteDefault)
             
             WhyBox(text: "This helps you uncover more insights and\nshape your path.", backgroundColor: AppColors.black2)
                 .padding(.bottom, 70)

@@ -18,7 +18,7 @@ struct AddTopicButton: View {
                 
                 Image(systemName: "plus")
                     .font(.system(size: 34, weight: .light))
-                    .foregroundStyle(Color.white)
+                    .foregroundStyle(AppColors.whiteDefault)
                     .opacity(0.5)
                 
                 Spacer()
@@ -29,7 +29,7 @@ struct AddTopicButton: View {
         .contentShape(Rectangle())
         .background {
             RoundedRectangle(cornerRadius: 25)
-                .stroke(Color.white.opacity(0.5))
+                .stroke(AppColors.whiteDefault.opacity(0.5))
         }
         .background(Color.black)
     }

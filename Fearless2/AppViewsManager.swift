@@ -22,7 +22,7 @@ struct AppViewsManager: View {
     @State private var selectedTabTopic: TopicPickerItem = .paths
     @State private var showTabBar: Bool = true
     @State private var navigateToTopicDetailView: Bool = false
-    @State private var showCreateNewTopicView: Bool = false
+   
     @State private var selectedCategory: TopicCategoryItem = .personal
     @State private var selectedTopic: Topic? = nil
     @State private var showAskQuestionView: Bool = false
@@ -48,7 +48,7 @@ struct AppViewsManager: View {
         ZStack {
             switch selectedTabHome {
             case .topics:
-                ActiveTopicsView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, showCreateNewTopicView: $showCreateNewTopicView, selectedTopic: $selectedTopic, showTabBar: $showTabBar, currentTabBar: $currentTabBar, selectedTabTopic: $selectedTabTopic, navigateToTopicDetailView: $navigateToTopicDetailView)
+                ActiveTopicsView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, selectedTopic: $selectedTopic, currentTabBar: $currentTabBar, selectedTabTopic: $selectedTabTopic, navigateToTopicDetailView: $navigateToTopicDetailView)
             case .understand:
                 UnderstandView(understandViewModel: understandViewModel, showAskQuestionView: $showAskQuestionView, askQuestionTab: $askQuestionTab)
             }
@@ -60,9 +60,7 @@ struct AppViewsManager: View {
             
         }
         .overlay  {
-            if showCreateNewTopicView {
-                CreateNewTopicView(topicViewModel: topicViewModel, showCreateNewTopicView: $showCreateNewTopicView, selectedCategory: $selectedCategory)
-            } else if showAskQuestionView {
+           if showAskQuestionView {
                 UnderstandAskQuestionView(understandViewModel: understandViewModel, showAskQuestionView: $showAskQuestionView, askQuestionTab: $askQuestionTab)
             }
         }

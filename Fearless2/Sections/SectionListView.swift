@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct SectionListView: View {
-    @Binding var showUpdateSectionView: Bool?
     @Binding var showFocusAreaRecapView: Bool
     @Binding var selectedSection: Section?
     @Binding var selectedSectionSummary: SectionSummary?
@@ -33,11 +32,11 @@ struct SectionListView: View {
             ForEach(sortedSections, id: \.sectionId) { section in
                 SectionBox(section: section)
                     .onTapGesture {
-                        selectedSection = section
+                        
                         if section.completed {
                             selectedSectionSummary = section.summary
                         } else {
-                            showUpdateSectionView = true
+                            selectedSection = section
                         }
                     }
             }

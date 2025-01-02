@@ -44,6 +44,11 @@ extension Question {
         set { maxLabel = newValue }
     }
     
+    var questionSingleSelectOptions: String {
+        get { singleSelectOptions ?? "" }
+        set { singleSelectOptions = newValue }
+    }
+    
     var questionMultiSelectOptions: String {
         get { multiSelectOptions ?? "" }
         set { multiSelectOptions = newValue }
@@ -57,6 +62,11 @@ extension Question {
     var questionAnswerMultiSelect: String {
         get { answerMultiSelect ?? "" }
         set { answerMultiSelect = newValue }
+    }
+    
+    var questionAnswerSingleSelect: String {
+        get { answerSingleSelect ?? "" }
+        set { answerSingleSelect = newValue }
     }
     
 }

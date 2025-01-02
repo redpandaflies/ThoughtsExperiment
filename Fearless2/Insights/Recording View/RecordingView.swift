@@ -48,13 +48,13 @@ struct RecordingView: View {
             HStack {
                 Image(systemName: "record.circle")
                     .font(.system(size: 14))
-                    .foregroundStyle(Color.white)
+                    .foregroundStyle(AppColors.whiteDefault)
                     .textCase(.uppercase)
                     .opacity(0.5)
                 
                 Text("Recording")
                     .font(.system(size: 14))
-                    .foregroundStyle(Color.white)
+                    .foregroundStyle(AppColors.whiteDefault)
                     .textCase(.uppercase)
                     .opacity(0.5)
             }
@@ -67,7 +67,7 @@ struct RecordingView: View {
             } label: {
                 Image(systemName: "xmark.circle.fill")
                     .font(.system(size: 30))
-                    .foregroundStyle(Color.white)
+                    .foregroundStyle(AppColors.whiteDefault)
                     .opacity(0.6)
                     
             }
@@ -127,7 +127,7 @@ struct RecordingStartView: View {
             
             Text("Sometimes it helps to simply talk out loud\nabout the things on your mind.")
                 .font(.system(size: 12))
-                .foregroundStyle(Color.white)
+                .foregroundStyle(AppColors.whiteDefault)
                 .opacity(0.5)
         }
         .padding(.bottom, 30)

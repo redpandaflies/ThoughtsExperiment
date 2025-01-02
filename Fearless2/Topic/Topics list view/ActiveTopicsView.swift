@@ -15,10 +15,9 @@ struct ActiveTopicsView: View {
     
     @State private var selectedSection: Section? = nil
     @State private var selectedCategory: TopicCategoryItem = .personal
+    @State private var showCreateNewTopicView: Bool = false
     
-    @Binding var showCreateNewTopicView: Bool
     @Binding var selectedTopic: Topic?
-    @Binding var showTabBar: Bool
     @Binding var currentTabBar: TabBarType
     @Binding var selectedTabTopic: TopicPickerItem
     @Binding var navigateToTopicDetailView: Bool
@@ -66,12 +65,9 @@ struct ActiveTopicsView: View {
                     }
                     .navigationDestination(isPresented: $navigateToTopicDetailView) {
                         if let topic = selectedTopic {
-                            TopicDetailView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, showTabBar: $showTabBar, selectedTabTopic: $selectedTabTopic, topic: topic)
+                            TopicDetailView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, selectedTabTopic: $selectedTabTopic, topic: topic)
                         }
                     }
-                
-                
-                    
                 }
                 .scrollClipDisabled(true)
                 .padding()
@@ -80,12 +76,15 @@ struct ActiveTopicsView: View {
                         .fill(Color.clear)
                         .frame(height: 50)
                 })
-                
-                
-               
             }//VStack
             .ignoresSafeArea(.keyboard)
             .toolbarBackground(Color.black)
+            .fullScreenCover(isPresented: $showCreateNewTopicView, onDismiss: {
+                showCreateNewTopicView = false
+            }) {
+                NewTopicView(topicViewModel: topicViewModel, selectedTopic: $selectedTopic, navigateToTopicDetailView: $navigateToTopicDetailView, currentTabBar: $currentTabBar)
+                    .presentationBackground(Color.black)
+            }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     ToolbarTitleItem(title: "Top of mind", regularSize: true)

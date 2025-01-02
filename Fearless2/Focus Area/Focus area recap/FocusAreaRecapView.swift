@@ -13,6 +13,7 @@ struct FocusAreaRecapView: View {
     @EnvironmentObject var dataController: DataController
     @ObservedObject var topicViewModel: TopicViewModel
     @State private var selectedTab: Int = 0 // [0] loader, [1] feedback, [2] insights, [3] suggestions
+    @State private var showSuggestions: Bool = false
     @Binding var selectedFocusAreaSummary: FocusAreaSummary?
     
     @Binding var focusArea: FocusArea?
@@ -26,7 +27,7 @@ struct FocusAreaRecapView: View {
                 VStack (spacing: 5) {
                     Text("End of section")
                         .font(.system(size: 14))
-                        .foregroundStyle(Color.white)
+                        .foregroundStyle(AppColors.whiteDefault)
                         .textCase(.uppercase)
                         .opacity(0.5)
                         .padding(.top)
@@ -77,6 +78,7 @@ struct FocusAreaRecapView: View {
             if topicViewModel.focusAreaSummaryCreated {
                 selectedFocusAreaSummary = focusArea?.summary
                 withAnimation(.snappy(duration: 0.2)) {
+                    showSuggestions = true
                     selectedTab += 1
                 }
             }
@@ -97,7 +99,7 @@ struct FocusAreaRecapView: View {
         }
         .multilineTextAlignment(.center)
         .font(.system(size: 20, weight: .regular))
-        .foregroundStyle(Color.white)
+        .foregroundStyle(AppColors.whiteDefault)
        
     }
     
@@ -114,24 +116,28 @@ struct FocusAreaRecapView: View {
     
     private func getContent() -> some View {
         switch selectedTab {
-        case 0:
-            return AnyView(FocusAreaLoadingView())
-        case 1:
-            return AnyView(feedbackView(selectedFocusAreaSummary?.summaryFeedback ?? ""))
-        case 2:
-           return AnyView(insightsView())
-        default:
-            return AnyView(FocusAreaSuggestionsList(topicViewModel: topicViewModel, suggestions: topicViewModel.focusAreaSuggestions, action: {
-                dismiss()
-                
-            }, topic: focusArea?.topic))
+        
+            case 0:
+                return AnyView(FocusAreaLoadingView())
+            
+            case 1:
+                return AnyView(feedbackView(selectedFocusAreaSummary?.summaryFeedback ?? ""))
+            
+            case 2:
+               return AnyView(insightsView())
+            
+            default:
+                return AnyView(FocusAreaSuggestionsList(topicViewModel: topicViewModel, suggestions: topicViewModel.focusAreaSuggestions, action: {
+                    dismiss()
+                    
+                }, topic: focusArea?.topic))
         }
     }
     
     private func feedbackView(_ feedback: String) -> some View {
         Text(feedback)
             .font(.system(size: 15))
-            .foregroundStyle(Color.white)
+            .foregroundStyle(AppColors.whiteDefault)
             .lineSpacing(0.5)
     }
     
@@ -145,7 +151,7 @@ struct FocusAreaRecapView: View {
     private func getButton() -> AnyView? {
         switch selectedTab {
         case 1, 2:
-          return AnyView( RectangleButton(buttonImage: "arrow.right.circle.fill", buttonColor: Color.white))
+          return AnyView( RectangleButton(buttonImage: "arrow.right.circle.fill", buttonColor: AppColors.whiteDefault))
             
         default:
            return nil
@@ -157,8 +163,10 @@ struct FocusAreaRecapView: View {
             case 1:
             selectedTab += 1
         case 2:
-            if let _ = selectedFocusAreaSummary {
+            if !showSuggestions {
                 dismiss()
+            } else {
+                selectedTab += 1
             }
         default:
             break
@@ -178,7 +186,7 @@ struct FocusAreaRecapView: View {
             }
         }
         .font(.system(size: 12))
-        .foregroundStyle(Color.white)
+        .foregroundStyle(AppColors.whiteDefault)
         .opacity(0.5)
     }
     
@@ -222,7 +230,7 @@ struct FocusAreaLoadingView: View {
     private func loadingBox() -> some View {
         
         RoundedRectangle(cornerRadius: 15)
-            .stroke(Color.white.opacity(0.2), lineWidth: 1)
+            .stroke(AppColors.whiteDefault.opacity(0.2), lineWidth: 1)
             .fill(Color.black)
             .changeEffect (
                 .shine.delay(0.2),

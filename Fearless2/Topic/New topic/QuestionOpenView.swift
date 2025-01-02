@@ -12,27 +12,38 @@ struct QuestionOpenView: View {
     @Binding var topicText: String
     @FocusState.Binding var isFocused: Bool
     
-    var question: String? = nil
+    var question: String
+    let placeholderText: String
+    
+    init(topicText: Binding<String>,
+         isFocused: FocusState<Bool>.Binding,
+         question: String = "",
+         placeholderText: String = "Enter your answer") {
+        self._topicText = topicText
+        self._isFocused = isFocused
+        self.question = question
+        self.placeholderText = placeholderText
+    }
     
     var body: some View {
-        VStack (alignment: .leading, spacing: 10) {
+        
+        VStack (alignment: .leading, spacing: 15) {
             
-            Text(question ?? "")
-            .multilineTextAlignment(.leading)
-            .font(.system(size: 19))
-            .foregroundStyle(Color.white)
-            .fixedSize(horizontal: false, vertical: true)
+            Text(question)
+                .multilineTextAlignment(.leading)
+                .font(.system(size: 25, weight: .light))
+                .foregroundStyle(AppColors.whiteDefault)
+                .fixedSize(horizontal: false, vertical: true)
             
-            TextField("Enter your answer", text: $topicText, axis: .vertical)
+            TextField(placeholderText, text: $topicText, axis: .vertical)
                 .font(.system(size: 16))
                 .fontWeight(.light)
-                .foregroundStyle(Color.white)
+                .foregroundStyle(AppColors.whiteDefault)
                 .lineSpacing(3)
-                .lineLimit(7)
                 .focused($isFocused)
                 .keyboardType(.alphabet)
                 
-        }//HStack
-        .padding(.vertical, 10)
+        }//VStack
+        
     }
 }

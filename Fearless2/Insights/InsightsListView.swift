@@ -37,7 +37,7 @@ struct InsightsListView: View {
                     
                     Text("Your insights on this topic")
                         .font(.system(size: 25))
-                        .foregroundStyle(Color.white)
+                        .foregroundStyle(AppColors.whiteDefault)
                     
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack (spacing: 14) {

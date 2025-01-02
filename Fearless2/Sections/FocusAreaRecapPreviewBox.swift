@@ -19,7 +19,7 @@ struct FocusAreaRecapPreviewBox: View {
                 Text("Section Recap")
                     .multilineTextAlignment(.center)
                     .font(.system(size: 17, weight: .regular))
-                    .foregroundStyle(Color.white)
+                    .foregroundStyle(AppColors.whiteDefault)
                 
                 Spacer()
             }
@@ -42,7 +42,7 @@ struct FocusAreaRecapPreviewBox: View {
         .contentShape(Rectangle())
         .background {
             RoundedRectangle(cornerRadius: 20)
-                .stroke((focusAreaCompleted || !available) ? Color.clear : Color.white, lineWidth: 1)
+                .stroke((focusAreaCompleted || !available) ? Color.clear : AppColors.whiteDefault, lineWidth: 1)
                 .fill((focusAreaCompleted || !available) ? AppColors.sectionBoxBackground : Color.clear)
         }
     }
@@ -50,7 +50,7 @@ struct FocusAreaRecapPreviewBox: View {
     private func getImage(name: String) -> some View {
         Image(systemName: name)
             .font(.system(size: 20))
-            .foregroundStyle(Color.white)
+            .foregroundStyle(AppColors.whiteDefault)
     }
 }
 

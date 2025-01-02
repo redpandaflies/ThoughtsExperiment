@@ -19,7 +19,7 @@ struct UnderstandToolbarItem: View {
             } label: {
                 Image(systemName: "book.circle")
                     .font(.system(size: 18))
-                    .foregroundStyle(Color.white)
+                    .foregroundStyle(AppColors.whiteDefault)
                     .opacity(0.6)
             }
             

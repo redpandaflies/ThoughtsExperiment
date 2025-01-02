@@ -21,7 +21,7 @@ struct LoadingAnimation: View {
                 Text("Thinking...")
                     .multilineTextAlignment(.leading)
                     .font(.system(size: 19))
-                    .foregroundStyle(Color.white)
+                    .foregroundStyle(AppColors.whiteDefault)
                 
                 Spacer()
             }

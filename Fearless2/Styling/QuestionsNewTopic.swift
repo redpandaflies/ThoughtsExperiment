@@ -30,7 +30,8 @@ extension QuestionsNewTopic {
     
     static var questions: [QuestionsNewTopic] {
         [
-            .init(id: 0, content: "What's on your mind and why is it important to you?", questionType: .open)
+            .init(id: 0, content: "What's on your mind and why is it important to you?", questionType: .open),
+            .init(id: 1, content: "What would resolve this topic?", questionType: .open)
         ]
     }
 }

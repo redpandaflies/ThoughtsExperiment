@@ -88,14 +88,14 @@ struct TabBarButton: View {
                     
                     Image(systemName: tab.selectedIconName())
                         .font(.system(size: 15))
-                        .foregroundStyle(Color.white)
+                        .foregroundStyle(AppColors.whiteDefault)
                         .fontWeight(.regular)
                         .padding(.bottom, 2)
                         
                     Text(tab.iconLabel())
                         .multilineTextAlignment(.center)
                         .font(.system(size: 10))
-                        .foregroundStyle(Color.white)
+                        .foregroundStyle(AppColors.whiteDefault)
                         .fontWeight(.regular)
                        
                 }

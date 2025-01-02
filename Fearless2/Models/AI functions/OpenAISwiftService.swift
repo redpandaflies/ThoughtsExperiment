@@ -311,9 +311,9 @@ extension OpenAISwiftService {
                     question.questionNumber = Int16(newQuestion.questionNumber)
                     question.questionType = newQuestion.questionType.rawValue
                     
-                    if newQuestion.questionType == .scale {
-                        question.questionMinLabel = newQuestion.minLabel
-                        question.questionMaxLabel = newQuestion.maxLabel
+                    if newQuestion.questionType == .singleSelect {
+                        question.questionSingleSelectOptions = newQuestion.options.map {$0.text}.joined(separator: ",")
+                       
                     } else if newQuestion.questionType == .multiSelect {
                         question.questionMultiSelectOptions = newQuestion.options.map {$0.text}.joined(separator: ",")
                         
@@ -421,7 +421,7 @@ extension OpenAISwiftService {
                 topic.addToInsights(insight)
             }
             
-            //Save the context
+            //save the context
             do {
                 try context.save()
             } catch {
@@ -593,23 +593,19 @@ struct SectionQuestion: Codable, Hashable {
     let questionNumber: Int
     let questionType: QuestionType
     let options: [Option]
-    let minLabel: String
-    let maxLabel: String
     
     enum CodingKeys: String, CodingKey {
         case content
         case questionNumber = "question_number"
         case questionType = "question_type"
         case options
-        case minLabel
-        case maxLabel
     }
 }
 
 enum QuestionType: String, Codable {
     case open
+    case singleSelect
     case multiSelect
-    case scale
 }
 
 struct Option: Codable, Hashable {

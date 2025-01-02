@@ -37,7 +37,7 @@ struct EntriesListView: View {
                 VStack (spacing: 40){
                     Text("Your thoughts on this topic")
                         .font(.system(size: 25))
-                        .foregroundStyle(Color.white)
+                        .foregroundStyle(AppColors.whiteDefault)
                     
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack (spacing: 14){

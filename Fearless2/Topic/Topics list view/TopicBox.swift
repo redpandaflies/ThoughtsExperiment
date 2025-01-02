@@ -25,7 +25,7 @@ struct TopicBox: View {
                 Text(topic.topicTitle)
                     .multilineTextAlignment(.center)
                     .font(.system(size: 15, weight: .light))
-                    .foregroundStyle(Color.white)
+                    .foregroundStyle(AppColors.whiteDefault)
                     .lineSpacing(0.5)
                     .padding(.horizontal, 9)
                     .padding(.bottom, 13)

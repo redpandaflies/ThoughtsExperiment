@@ -19,7 +19,7 @@ struct WarningLostProgress: View {
             
             Text("You'll lose your progress on this section if you quit")
                 .font(.system(size: 20))
-                .foregroundStyle(Color.white)
+                .foregroundStyle(AppColors.whiteDefault)
                 .padding(.bottom, 20)
             
             Spacer()
@@ -34,7 +34,7 @@ struct WarningLostProgress: View {
             Button {
                 quitAction()
             } label: {
-                RectangleButton(buttonName: "Quit", buttonColor: Color.white)
+                RectangleButton(buttonName: "Quit", buttonColor: AppColors.whiteDefault)
             }
             
             

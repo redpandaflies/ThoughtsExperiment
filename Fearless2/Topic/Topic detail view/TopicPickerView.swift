@@ -20,7 +20,7 @@ struct TopicPickerView: View {
                 Group {
                     Text("\(item.rawValue)")
                         .font(.system(size: 12))
-                        .foregroundStyle(Color.white)
+                        .foregroundStyle(AppColors.whiteDefault)
                         .textCase(.uppercase)
                         .opacity(0.7)
                         .fixedSize(horizontal: false, vertical: true)
@@ -29,7 +29,7 @@ struct TopicPickerView: View {
                 .padding(.vertical, 5)
                 .background {
                     Capsule(style: .circular)
-                        .fill(item == selectedTabTopic ? Color.white.opacity(0.05) : Color.clear)
+                        .fill(item == selectedTabTopic ? AppColors.whiteDefault.opacity(0.05) : Color.clear)
                 }
                 .frame(width: 80)
                 .contentShape(Rectangle())

@@ -33,14 +33,14 @@ struct FocusAreaEmptyState: View {
             Text("Choose a starting point")
                 .multilineTextAlignment(.leading)
                 .font(.system(size: 20))
-                .foregroundStyle(Color.white)
+                .foregroundStyle(AppColors.whiteDefault)
                 .padding(.vertical, 10)
             
             Text("Paths help you explore your topics. Each path is unique.")
                 .multilineTextAlignment(.leading)
                 .font(.system(size: 13))
                 .fontWeight(.light)
-                .foregroundStyle(Color.white)
+                .foregroundStyle(AppColors.whiteDefault)
                 .opacity(0.8)
                 .padding(.bottom)
             

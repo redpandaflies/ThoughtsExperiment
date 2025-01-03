@@ -8,23 +8,20 @@
 import SwiftUI
 
 struct SectionListView: View {
+    @EnvironmentObject var dataController: DataController
+    @State private var sectionsComplete: Bool = false
+    
     @Binding var showFocusAreaRecapView: Bool
     @Binding var selectedSection: Section?
     @Binding var selectedSectionSummary: SectionSummary?
     @Binding var selectedFocusArea: FocusArea?
     @Binding var selectedFocusAreaSummary: FocusAreaSummary?
-    let sections: [Section]
+    @ObservedObject var focusArea: FocusArea
     let focusAreaCompleted: Bool
     
     // Computed property to sort sections
     var sortedSections: [Section] {
-        sections.sorted { $0.sectionNumber < $1.sectionNumber }
-    }
-    //determin if all sections are completed
-    var sectionsAllComplete: Bool {
-        let completedSections = sections.filter { $0.completed == true }
-        
-        return completedSections.count == sections.count ? true : false
+        focusArea.focusAreaSections.sorted { $0.sectionNumber < $1.sectionNumber }
     }
     
     var body: some View {
@@ -41,16 +38,30 @@ struct SectionListView: View {
                     }
             }
             
-            FocusAreaRecapPreviewBox(focusAreaCompleted: focusAreaCompleted, available: sectionsAllComplete)
+            FocusAreaRecapPreviewBox(focusAreaCompleted: focusAreaCompleted, available: sectionsComplete)
                 .onTapGesture {
-                    if sectionsAllComplete {
-                        selectedFocusArea = sections.first?.focusArea
+                    if sectionsComplete {
+                        selectedFocusArea = focusArea
                         print("Selected focus area: \(String(describing: selectedFocusArea))")
                         selectedFocusAreaSummary = selectedFocusArea?.summary
                         showFocusAreaRecapView = true
                     }
                 }
+        }//HStack
+        .onAppear {
+            sectionsComplete = checkSectionsStatus()
         }
+        .onChange(of: dataController.allSectionsComplete) {
+            if dataController.allSectionsComplete {
+                sectionsComplete = checkSectionsStatus()
+            }
+        }
+    }
+    
+    private func checkSectionsStatus() -> Bool {
+        let completedSections = focusArea.focusAreaSections.filter { $0.completed == true }
+        
+        return completedSections.count == focusArea.focusAreaSections.count
     }
 }
 

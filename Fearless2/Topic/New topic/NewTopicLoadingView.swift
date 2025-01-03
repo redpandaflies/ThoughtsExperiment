@@ -35,6 +35,7 @@ struct NewTopicLoadingView: View {
                     
                 }//HStack
                 .animation(.easeInOut, value: activeIndex)
+                
             }//ForEach
             
             Spacer()
@@ -48,14 +49,15 @@ struct NewTopicLoadingView: View {
     private func startAnimating() {
         var currentIndex = 0
         
-        Timer.scheduledTimer(withTimeInterval: 1.5, repeats: true) { timer in
-            if currentIndex < loadingText.count - 1 {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            activeIndex = currentIndex
+            currentIndex += 1
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 activeIndex = currentIndex
-                currentIndex += 1
-            } else {
-                timer.invalidate()
             }
         }
+        
     }
     
 }

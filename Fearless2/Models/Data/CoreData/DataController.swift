@@ -14,6 +14,7 @@ final class DataController: ObservableObject {
     
     @Published var newTopic: Topic? = nil
     @Published var newFocusArea: Int = 0
+    @Published var allSectionsComplete: Bool = false //to manage when section recap gets unlocked
 
     let container: NSPersistentCloudKitContainer
     var context: NSManagedObjectContext
@@ -86,6 +87,7 @@ final class DataController: ObservableObject {
             newFocusArea.focusAreaId = UUID()
             newFocusArea.focusAreaCreatedAt = getCurrentTimeString()
             newFocusArea.focusAreaTitle = suggestion.title
+            newFocusArea.focusAreaEmoji = suggestion.symbol
             newFocusArea.focusAreaReasoning = suggestion.suggestionDescription
             
             guard let currentTopic = topic else {

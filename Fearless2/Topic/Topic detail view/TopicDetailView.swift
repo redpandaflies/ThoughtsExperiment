@@ -85,7 +85,7 @@ struct TopicDetailView: View {
             .fullScreenCover(item: $selectedSection, onDismiss: {
                 selectedSection = nil
             }) { section in
-                UpdateSectionView(topicViewModel: topicViewModel, selectedSectionSummary: $selectedSectionSummary, topicId: topic.topicId, section: section)
+                UpdateSectionView(topicViewModel: topicViewModel, selectedSectionSummary: $selectedSectionSummary, topicId: topic.topicId, focusArea: section.focusArea, section: section)
                     .presentationBackground(Color.black)
             }
             .sheet(isPresented: $showRecordingView, onDismiss: {

@@ -38,10 +38,10 @@ struct NewTopicView: View {
                         .padding(.top)
         
                 case 1:
-                NewTopicLoadingView(activeIndex: $activeIndex)
+                    NewTopicLoadingView(activeIndex: $activeIndex)
                     
                 default:
-                NewTopicReadyView()
+                    NewTopicReadyView()
                 
             }
            
@@ -63,17 +63,18 @@ struct NewTopicView: View {
         .padding()
         .environment(\.colorScheme, .dark)
         .onChange(of: topicViewModel.topicUpdated) {
-            
-            if activeIndex == 1 {
-                activeIndex = 2
-            } else {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            if topicViewModel.topicUpdated {
+                if activeIndex == 1 {
                     activeIndex = 2
+                } else {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                        activeIndex = 2
+                    }
                 }
-            }
-
-            withAnimation(.snappy(duration: 0.2)) {
-                selectedTab += 1
+                
+                withAnimation(.snappy(duration: 0.2)) {
+                    selectedTab += 1
+                }
             }
         }
     }
@@ -203,8 +204,10 @@ struct NewTopicView: View {
     }
     
     private func submitForm() {
-        isFocused = false
-        selectedTab += 1
+        if isFocused {
+            isFocused = false
+        }
+        selectedTab = 1
     }
 }
 

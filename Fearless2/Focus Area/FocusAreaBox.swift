@@ -17,7 +17,7 @@ struct FocusAreaBox: View {
     @Binding var selectedSectionSummary: SectionSummary?
     @Binding var selectedFocusArea: FocusArea?
     @Binding var selectedFocusAreaSummary: FocusAreaSummary?
-    let focusArea: FocusArea
+    @ObservedObject var focusArea: FocusArea
     let index: Int
     
     var body: some View {
@@ -54,7 +54,7 @@ struct FocusAreaBox: View {
                     case 0:
                         FocusAreaLoadingPlaceholder()
                     default:
-                        SectionListView(showFocusAreaRecapView: $showFocusAreaRecapView, selectedSection: $selectedSection, selectedSectionSummary: $selectedSectionSummary, selectedFocusArea: $selectedFocusArea, selectedFocusAreaSummary: $selectedFocusAreaSummary, sections: focusArea.focusAreaSections, focusAreaCompleted: focusArea.completed)
+                    SectionListView(showFocusAreaRecapView: $showFocusAreaRecapView, selectedSection: $selectedSection, selectedSectionSummary: $selectedSectionSummary, selectedFocusArea: $selectedFocusArea, selectedFocusAreaSummary: $selectedFocusAreaSummary, focusArea: focusArea, focusAreaCompleted: focusArea.completed)
                     
                 }
 

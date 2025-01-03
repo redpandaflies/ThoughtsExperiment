@@ -23,6 +23,7 @@ struct UpdateSectionView: View {
     @Binding var selectedSectionSummary: SectionSummary?
     
     let topicId: UUID?
+    let focusArea: FocusArea?
     let section: Section
     
     var questions: [Question] {
@@ -31,12 +32,12 @@ struct UpdateSectionView: View {
     
     @FocusState var isFocused: Bool
     
-    init(topicViewModel: TopicViewModel, selectedSectionSummary: Binding<SectionSummary?>, topicId: UUID?, section: Section) {
+    init(topicViewModel: TopicViewModel, selectedSectionSummary: Binding<SectionSummary?>, topicId: UUID?, focusArea: FocusArea?, section: Section) {
         self.topicViewModel = topicViewModel
         self._selectedSectionSummary = selectedSectionSummary
         self.topicId = topicId
+        self.focusArea = focusArea
         self.section = section
-        
         
     }
     
@@ -58,14 +59,19 @@ struct UpdateSectionView: View {
                     .transition(.move(edge: .bottom))
                 
             default:
-                LoadingAnimation()
-                
+                if let currentFocusArea = focusArea {
+                    UpdateSectionCompleteView(focusArea: currentFocusArea)
+                }
             }//switch
             
             //Next button
-            RectangleButtonYellow(buttonText: "Next question", action: {
-                saveAnswer()
-            }, showChevron: true)
+            RectangleButtonYellow(
+                buttonText: getButtonText(),
+                action: {
+                    getMainButtonAction()
+                },
+                showChevron: displayChevron()
+            )
             
                 
         }//VStack
@@ -80,6 +86,63 @@ struct UpdateSectionView: View {
             .presentationCornerRadius(20)
             .presentationBackground(AppColors.black3)
             .presentationDetents([.medium])
+        }
+    }
+    
+    private func getButtonText() -> String {
+        switch selectedTab {
+        case 0:
+            if selectedQuestion < section.sectionQuestions.count - 1 {
+                return "Next question"
+            } else {
+               
+                return "Complete section"
+            }
+        default:
+            guard let currentFocusArea = focusArea else { return "Next"}
+            
+            let completedSections = currentFocusArea.focusAreaSections.filter {
+                $0.completed == true
+                }.count
+            
+            let totalSections = currentFocusArea.focusAreaSections.count
+            
+            let sortedSections = currentFocusArea.focusAreaSections.sorted { $0.sectionNumber < $1.sectionNumber }
+            
+            if completedSections < totalSections {
+                //newly completed section will not have been marked complete when this view first appears
+                let sectionIndex = completedSections
+                return sortedSections[sectionIndex].sectionTitle
+            } else {
+                return "Recap"
+            }
+           
+            
+        }
+        
+    }
+    
+    private func getMainButtonAction() {
+        switch selectedTab {
+        case 0:
+            saveAnswer()
+        default:
+            completeSection()
+        }
+    }
+    
+    private func displayChevron() -> Bool {
+        let numberOfQuestions = questions.count
+        
+        switch selectedTab {
+        case 0:
+            if selectedQuestion < numberOfQuestions - 1 {
+                return true
+            } else {
+                return false
+            }
+        default:
+            return true
         }
     }
     
@@ -110,8 +173,9 @@ struct UpdateSectionView: View {
         if selectedQuestion + 1 < numberOfQuestions {
             selectedQuestion += 1
             currentQuestionIndex += 1
-        } else {
-           submitForm()
+            if dataController.allSectionsComplete {
+                dataController.allSectionsComplete = false
+            }
         }
         
         //reset the value of @State vars managing answers
@@ -146,6 +210,8 @@ struct UpdateSectionView: View {
                 await dataController.save()
                 
                 print("Answered question index is \(answeredQuestionIndex), number of questions is \(numberOfQuestions)")
+                
+                submitForm()
             }
         }
             
@@ -156,8 +222,14 @@ struct UpdateSectionView: View {
             isFocused = false
         }
         
-        dismiss()
+        selectedTab += 1
+        
+        dataController.allSectionsComplete = true
 
+    }
+    
+    private func completeSection() {
+        dismiss()
     }
 }
 

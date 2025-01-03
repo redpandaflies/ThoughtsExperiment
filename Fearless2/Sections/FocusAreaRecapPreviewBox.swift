@@ -16,7 +16,7 @@ struct FocusAreaRecapPreviewBox: View {
         VStack (spacing: 5) {
             
             HStack {
-                Text("Section Recap")
+                Text("Recap")
                     .multilineTextAlignment(.center)
                     .font(.system(size: 17, weight: .regular))
                     .foregroundStyle(AppColors.whiteDefault)

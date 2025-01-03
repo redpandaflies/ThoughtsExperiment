@@ -23,6 +23,11 @@ extension FocusArea {
         set { title = newValue }
     }
     
+    var focusAreaEmoji: String {
+        get { emoji ?? "" }
+        set { emoji = newValue }
+    }
+    
     var focusAreaReasoning: String {
         get { reasoning ?? "" }
         set { reasoning = newValue }

@@ -13,7 +13,6 @@ struct SummaryInsightBox: View {
     
     var body: some View {
         HStack (spacing: 10){
-                
             
             Text(insight.insightContent)
                 .font(.system(size: 15))
@@ -34,9 +33,11 @@ struct SummaryInsightBox: View {
         .contentShape(Rectangle())
         .background {
             RoundedRectangle(cornerRadius: 10)
-                .stroke(insight.markedSaved ? AppColors.yellow1 : AppColors.whiteDefault)
-                .fill(insight.markedSaved ? AppColors.yellow1 : Color.clear)
-                
+                .fill(
+                    getBackgroundColor()
+                        .shadow(.inner(color: insight.markedSaved ? AppColors.blackDefault.opacity(0.2) : Color.clear, radius: 4, x: 0, y: 2))
+                )
+                .shadow(color: AppColors.blackDefault.opacity(0.3), radius: 0, x: 0, y: 3)
         }
         .onTapGesture {
             saveInsight()
@@ -49,8 +50,8 @@ struct SummaryInsightBox: View {
             await dataController.save()
         }
     }
+    
+    private func getBackgroundColor() -> Color {
+        return insight.markedSaved ? AppColors.white2: AppColors.black3
+    }
 }
-
-//#Preview {
-//    InsightBoxView()
-//}

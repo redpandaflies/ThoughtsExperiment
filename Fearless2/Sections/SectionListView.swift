@@ -15,7 +15,6 @@ struct SectionListView: View {
     @Binding var selectedSection: Section?
     @Binding var selectedSectionSummary: SectionSummary?
     @Binding var selectedFocusArea: FocusArea?
-    @Binding var selectedFocusAreaSummary: FocusAreaSummary?
     @ObservedObject var focusArea: FocusArea
     let focusAreaCompleted: Bool
     
@@ -29,7 +28,6 @@ struct SectionListView: View {
             ForEach(sortedSections, id: \.sectionId) { section in
                 SectionBox(section: section)
                     .onTapGesture {
-                        
                         if section.completed {
                             selectedSectionSummary = section.summary
                         } else {
@@ -43,7 +41,6 @@ struct SectionListView: View {
                     if sectionsComplete {
                         selectedFocusArea = focusArea
                         print("Selected focus area: \(String(describing: selectedFocusArea))")
-                        selectedFocusAreaSummary = selectedFocusArea?.summary
                         showFocusAreaRecapView = true
                     }
                 }

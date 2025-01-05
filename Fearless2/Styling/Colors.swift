@@ -16,12 +16,14 @@ struct AppColors {
     static let black3 = Color(#colorLiteral(red: 0.078, green: 0.078, blue: 0.078, alpha: 1)) // #141414 **
     static let lightGrey1 = Color(#colorLiteral(red: 0.796, green: 0.796, blue: 0.796, alpha: 1)) // #cbcbcb
     static let lightGrey2 = Color(#colorLiteral(red: 0.569, green: 0.569, blue: 0.569, alpha: 1)) // #919191
+    
     static let darkGrey1 =  Color(#colorLiteral(red: 0.267, green: 0.267, blue: 0.267, alpha: 1)) // #444444
     static let darkGrey2 = Color(#colorLiteral(red: 0.161, green: 0.161, blue: 0.161, alpha: 1)) // #292929
     static let yellow1 = Color(#colorLiteral(red: 1, green: 0.722, blue: 0, alpha: 1)) // #ffb800
     static let green1 = Color(#colorLiteral(red: 0.22, green: 0.871, blue: 0.118, alpha: 1)) // #38de1e
     static let ellipsisMenuColor = Color(#colorLiteral(red: 0.733, green: 0.733, blue: 0.706, alpha: 1)) // #bbbbb4
     static let whiteDefault = Color(#colorLiteral(red: 0.89, green: 0.89, blue: 0.89, alpha: 1)) // #e3e3e3
+    static let white2 = Color(#colorLiteral(red: 0.859, green: 0.859, blue: 0.859, alpha: 1)) // #dbdbdb
     static let darkBrown = Color(#colorLiteral(red: 0.11, green: 0.09, blue: 0.059, alpha: 1)) // #1c170f
     static let lightBrown = Color(#colorLiteral(red: 0.608, green: 0.475, blue: 0.235, alpha: 1)) // #9b793c
     static let lightBrown2 = Color(#colorLiteral(red: 0.667, green: 0.482, blue: 0, alpha: 1)) // #aa7b00

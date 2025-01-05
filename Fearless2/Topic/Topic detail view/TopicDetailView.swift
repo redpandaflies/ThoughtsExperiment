@@ -17,7 +17,6 @@ struct TopicDetailView: View {
     @State private var selectedSection: Section? = nil
     @State private var selectedSectionSummary: SectionSummary? = nil
     @State private var selectedFocusArea: FocusArea? = nil
-    @State private var selectedFocusAreaSummary: FocusAreaSummary? = nil
     @State private var headerHeight: CGFloat = 0
     @State private var focusAreaScrollPosition: Int?
     
@@ -28,35 +27,37 @@ struct TopicDetailView: View {
         return TopicCategoryItem.fromFullName(topic.topicCategory) ?? .work
     }
   
+    let screenWidth = UIScreen.current.bounds.width
+    
     var body: some View {
         
         NavigationStack {
             ZStack {
-                
-                backgroundImage()
+                if selectedTabTopic == .explore {
+                    backgroundImage()
+                }
                 
                 VStack {
                     switch selectedTabTopic {
                         
-                    case .paths:
-                        FocusAreasView(topicViewModel: topicViewModel, showFocusAreaRecapView: $showFocusAreaRecapView, selectedSection: $selectedSection, selectedSectionSummary: $selectedSectionSummary, selectedFocusArea: $selectedFocusArea, selectedFocusAreaSummary: $selectedFocusAreaSummary, focusAreaScrollPosition: $focusAreaScrollPosition, topicId: topic.topicId)
+                    case .explore:
+                        FocusAreasView(topicViewModel: topicViewModel, showFocusAreaRecapView: $showFocusAreaRecapView, selectedSection: $selectedSection, selectedSectionSummary: $selectedSectionSummary, selectedFocusArea: $selectedFocusArea, focusAreaScrollPosition: $focusAreaScrollPosition, topicId: topic.topicId)
                         
-                    case .entries:
-                        EntriesListView(transcriptionViewModel: transcriptionViewModel, selectedEntry: $selectedEntry, showRecordingView: $showRecordingView, topicId: topic.topicId)
+                    case .review:
+                        TopicReviewView(topicId: topic.topicId)
                             .padding(.horizontal)
-                            .padding(.top, 90)
-                        
-                    case .insights:
-                        InsightsListView(selectedEntry: $selectedEntry, topicId: topic.topicId)
-                            .padding(.horizontal)
-                            .padding(.top, 90)
+                            
                     }
                     
                     Spacer()
                     
                 }
-                .padding(.top, headerHeight)
-   
+                .padding(.top, (selectedTabTopic == .explore) ? headerHeight : (headerHeight - 20))
+                
+                if selectedTabTopic == .review {
+                    headerBackground2()
+                    headerBackground()
+                }
                 VStack {
                     TopicDetailViewHeader(title: topic.topicTitle)
                         .background {
@@ -111,10 +112,10 @@ struct TopicDetailView: View {
                     .presentationCornerRadius(20)
                     .presentationBackground(Color.black)
             }
-            .sheet(isPresented: $showFocusAreaRecapView, onDismiss: {
+            .fullScreenCover(isPresented: $showFocusAreaRecapView, onDismiss: {
                 showFocusAreaRecapView = false
             }) {
-                FocusAreaRecapView(topicViewModel: topicViewModel, selectedFocusAreaSummary: $selectedFocusAreaSummary, focusArea: $selectedFocusArea)
+                FocusAreaRecapView(topicViewModel: topicViewModel, focusArea: $selectedFocusArea)
                     .presentationCornerRadius(20)
                     .presentationBackground(Color.black)
             }
@@ -191,6 +192,42 @@ struct TopicDetailView: View {
             let newScrollPosition = currentScrollPosition + 1
             focusAreaScrollPosition = newScrollPosition
         }
+    }
+    
+    private func headerBackground() -> some View {
+        VStack {
+            
+            Rectangle()
+                .fill(
+                    LinearGradient(
+                        stops: [
+                            Gradient.Stop(color: Color.black, location: 0.70),
+                            Gradient.Stop(color: Color.black.opacity(0.1), location: 1.0)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .blur(radius: 3)
+                .frame(width: screenWidth, height: headerHeight)
+            
+            Spacer()
+            
+        }
+        .ignoresSafeArea(edges: .top)
+    }
+    
+    private func headerBackground2() -> some View {
+        VStack {
+            
+            Rectangle()
+                .fill(Color.black)
+                .frame(width: screenWidth, height: 20)
+            
+            Spacer()
+            
+        }
+        .ignoresSafeArea(edges: .top)
     }
 }
 

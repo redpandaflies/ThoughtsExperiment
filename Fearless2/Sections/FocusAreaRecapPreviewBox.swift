@@ -14,15 +14,11 @@ struct FocusAreaRecapPreviewBox: View {
     
     var body: some View {
         VStack (spacing: 5) {
-            
-            HStack {
-                Text("Recap")
-                    .multilineTextAlignment(.center)
-                    .font(.system(size: 17, weight: .regular))
-                    .foregroundStyle(AppColors.whiteDefault)
+           
+            Text("Recap")
+                .font(.system(size: 17, weight: .regular))
+                .foregroundStyle(AppColors.whiteDefault)
                 
-                Spacer()
-            }
             
             Spacer()
             

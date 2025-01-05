@@ -52,6 +52,7 @@ struct RectangleButtonYellow: View {
                         }
                 }
             }
+            
             Button {
                 if !disableMainButton {
                     action()

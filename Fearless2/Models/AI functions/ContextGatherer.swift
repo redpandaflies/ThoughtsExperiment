@@ -187,7 +187,7 @@ struct ContextGatherer {
             - name: \(topic.topicTitle)
             - topic relates to this part of the user's life: \(topic.topicCategory)\n\n
             
-            The user is working on a section from this focus area:
+            The user is working on a focus area related to this topic:
             - focus area title: \(focusArea.focusAreaTitle)\n
             - focus area reasoning: \(focusArea.focusAreaReasoning)\n\n
             """

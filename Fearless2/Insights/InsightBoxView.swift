@@ -8,39 +8,53 @@
 import SwiftUI
 
 struct InsightBoxView: View {
+    @EnvironmentObject var dataController: DataController
     @ObservedObject var insight: Insight
     
     var body: some View {
         
-        VStack (alignment: .leading, spacing: 15) {
+        HStack {
             
             Text(insight.insightContent)
                 .multilineTextAlignment(.leading)
-                .font(.system(size: 17))
+                .font(.system(size: 14))
                 .foregroundStyle(AppColors.whiteDefault)
-                .lineSpacing(0.5)
+                .lineSpacing(0.75)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.vertical, 12)
             
             Spacer()
             
-            HStack {
-                Text(DateFormatter.displayString2(from: DateFormatter.incomingFormat.date(from: insight.insightCreatedAt) ?? Date()))
-                    .multilineTextAlignment(.leading)
-                    .font(.system(size: 11))
-                    .fontWeight(.light)
-                    .foregroundStyle(AppColors.whiteDefault)
-                    .textCase(.uppercase)
-                    .opacity(0.5)
+            Menu {
+                Button (role: .destructive) {
+                    unsaveInsight()
+                } label: {
+                    Label("Remove insight", systemImage: "lightbulb.slash")
+                }
                 
-                Spacer()
+            } label: {
+                Image(systemName: "ellipsis")
+                    .font(.system(size: 17))
+                    .foregroundStyle(AppColors.whiteDefault.opacity(0.5))
+                    .padding(.vertical, 12)
+                    .padding(.trailing, 12)
+                    .padding(.leading, 5)
             }
-        }//VStack
-        .padding(13)
-        .frame(width: 150, height: 180)
+           
+        }//HStack
+        .padding(.leading, 12)
         .background {
-            RoundedRectangle(cornerRadius: 15)
-                .stroke(AppColors.whiteDefault.opacity(0.1))
-                .fill(AppColors.black2)
-                .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 2)
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(AppColors.whiteDefault.opacity(0.2))
+                .fill(AppColors.black3)
+                .shadow(color: .black.opacity(0.3), radius: 0, x: 0, y: 3)
+        }
+    }
+    
+    private func unsaveInsight() {
+        Task { @MainActor in
+            insight.markedSaved = false
+            await dataController.save()
         }
     }
 }

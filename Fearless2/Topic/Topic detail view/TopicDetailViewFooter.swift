@@ -73,7 +73,7 @@ struct TopicDetailViewFooter: View {
         navigateToTopicDetailView = false
         withAnimation(.snappy(duration: 0.2)) {
             currentTabBar = .home
-            selectedTabTopic = .paths
+            selectedTabTopic = .explore
         }
     }
 }

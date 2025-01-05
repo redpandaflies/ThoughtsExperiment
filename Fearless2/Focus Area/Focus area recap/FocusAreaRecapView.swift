@@ -14,162 +14,205 @@ struct FocusAreaRecapView: View {
     @ObservedObject var topicViewModel: TopicViewModel
     @State private var selectedTab: Int = 0 // [0] loader, [1] feedback, [2] insights, [3] suggestions
     @State private var showSuggestions: Bool = false
-    @Binding var selectedFocusAreaSummary: FocusAreaSummary?
+    @State private var recapReady: Bool = false //manage the UI changes when recap is ready
     
     @Binding var focusArea: FocusArea?
-   
-
+    
     var body: some View {
         
-        ZStack {
-           
-            ScrollView(showsIndicators: false) {
-                VStack (spacing: 5) {
-                    Text("End of section")
-                        .font(.system(size: 14))
-                        .foregroundStyle(AppColors.whiteDefault)
-                        .textCase(.uppercase)
-                        .opacity(0.5)
-                        .padding(.top)
-                    
-                    getTitle()
-                        .padding(.bottom, 40)
-                    
-                    VStack (alignment: .leading, spacing: 15) {
-                        
-                        Text(getSubtitle())
-                            .font(.system(size: 20))
-                            .foregroundStyle(AppColors.yellow1)
-                            .textCase(.uppercase)
-                            .padding(.horizontal)
-                        
-                        getContent()
-                            .padding(.horizontal, selectedTab == 3 ? 0 : 16)
-                    }
-                    .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .identity))
-                   
-                }//VStack
-                
-            }
-            .scrollDisabled(true)
+        VStack (spacing: 10) {
             
-            VStack (spacing: 20) {
-                Spacer()
-
-                if let button = getButton() {
-                    button
-                        .onTapGesture {
-                            buttonAction()
-                        }
-                }
-               
-                getFootnote()
-                               
-            }
-            .padding(.bottom, 50)
+            //Header
+            FocusAreaRecapHeader(
+                selectedTab: $selectedTab,
+                focusAreaTitle: focusArea?.focusAreaTitle ?? "",
+                xmarkAction: {
+                    dismiss()
+                },
+                showSuggestions: showSuggestions
+            )
+            .padding(.bottom)
             .padding(.horizontal)
+                    
+            VStack (alignment: .leading, spacing: 5) {
+                
+                getHeading()
+                    .padding(.horizontal)
+                
+                getTitle()
+                    .padding(.bottom, 10)
+                    .padding(.horizontal)
+                
+                getContent()
+                    .padding(.horizontal, (selectedTab == 3) ? 0 : 16)
+                    
+            }
+            .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .identity))
+
+            Spacer()
             
-        }//ZStack
-       
+            if selectedTab < 3 {
+                RectangleButtonYellow(
+                    buttonText: getButtonText(),
+                    action: {
+                        buttonAction()
+                    },
+                    showChevron: chevronStatus(),
+                    showBackButton: (selectedTab == 2),
+                    backAction: {
+                        selectedTab -= 1
+                    },
+                    disableMainButton: disableButton()
+                )
+                .padding(.bottom, 10)
+                .padding(.horizontal)
+                
+                getFootnote()
+            }
+            
+        }//VStack
+        .padding(.bottom)
         .onAppear {
             createSummary()
         }
         .onChange(of: topicViewModel.focusAreaSummaryCreated) {
             if topicViewModel.focusAreaSummaryCreated {
-                selectedFocusAreaSummary = focusArea?.summary
-                withAnimation(.snappy(duration: 0.2)) {
-                    showSuggestions = true
-                    selectedTab += 1
-                }
+                showSuggestions = true
+                recapReady = true
             }
         }
+    }
+
+    private func getHeading() -> some View {
+        HStack {
+            Group {
+                switch selectedTab {
+                case 0:
+                    Text("")
+                case 1, 2:
+                    Text("Recap")
+                default:
+                    Text("Next up")
+                }
+            }
+            .multilineTextAlignment(.leading)
+            .font(.system(size: 14, weight: .light))
+            .foregroundStyle(AppColors.yellow1)
+            .textCase(.uppercase)
             
-        
+            Spacer()
+        }
     }
     
     private func getTitle() -> some View {
         Group {
             switch selectedTab {
-            case 3:
-                Text("Continue your path")
+            case 0:
+                Text("")
+            case 1:
+                Text("Feedback")
                 
+            case 2:
+                Text("Save insights")
+            
             default:
-                Text(focusArea?.focusAreaTitle ?? "")
+                Text("Choose the next section to keep exploring this topic")
             }
         }
-        .multilineTextAlignment(.center)
-        .font(.system(size: 20, weight: .regular))
+        .multilineTextAlignment(.leading)
+        .font(.system(size: 25, weight: .light))
         .foregroundStyle(AppColors.whiteDefault)
        
-    }
-    
-    private func getSubtitle() -> String {
-        switch selectedTab {
-        case 0, 1:
-            return "Your confidante says"
-        case 2:
-            return "Insights"
-        default:
-            return "Focus areas"
-        }
     }
     
     private func getContent() -> some View {
         switch selectedTab {
         
             case 0:
-                return AnyView(FocusAreaLoadingView())
+            guard let currentFocusArea = focusArea else { return AnyView(EmptyView())}
+            
+            return AnyView(FocusAreaLoadingView(topicViewModel: topicViewModel, recapReady: $recapReady, focusArea: currentFocusArea))
             
             case 1:
-                return AnyView(feedbackView(selectedFocusAreaSummary?.summaryFeedback ?? ""))
+            return AnyView(feedbackView(focusArea?.summary?.summaryFeedback ?? ""))
             
             case 2:
                return AnyView(insightsView())
             
             default:
                 return AnyView(FocusAreaSuggestionsList(topicViewModel: topicViewModel, suggestions: topicViewModel.focusAreaSuggestions, action: {
-                    dismiss()
-                    
-                }, topic: focusArea?.topic))
+                        dismiss()
+                    }, topic: focusArea?.topic))
         }
     }
     
     private func feedbackView(_ feedback: String) -> some View {
         Text(feedback)
-            .font(.system(size: 15))
+            .font(.system(size: 17))
             .foregroundStyle(AppColors.whiteDefault)
-            .lineSpacing(0.5)
+            .lineSpacing(0.6)
     }
     
     private func insightsView() -> some View {
-        ForEach(selectedFocusAreaSummary?.summaryInsights ?? [], id: \.insightId) { insight in
+        ForEach(focusArea?.summary?.summaryInsights ?? [], id: \.insightId) { insight in
             
             SummaryInsightBox(insight: insight)
+                .padding(.bottom, 5)
         }
     }
     
-    private func getButton() -> AnyView? {
+    private func getButtonText() -> String {
         switch selectedTab {
-        case 1, 2:
-          return AnyView( RectangleButton(buttonImage: "arrow.right.circle.fill", buttonColor: AppColors.whiteDefault))
+        case 0:
+            return recapReady ? "Section recap" : "Working on it..."
+            
+        case 1:
+            return "Uncover insights"
+            
+        case 2:
+            
+            if showSuggestions {
+                return "Choose next section"
+            } else {
+                return "End recap review"
+            }
             
         default:
-           return nil
+           return ""
         }
     }
     
     private func buttonAction() {
         switch selectedTab {
-            case 1:
-            selectedTab += 1
         case 2:
-            if !showSuggestions {
-                dismiss()
-            } else {
+            if showSuggestions {
                 selectedTab += 1
+            } else {
+                dismiss()
             }
-        default:
+            
+        case 3:
             break
+        default:
+            selectedTab += 1
+        }
+    }
+    
+    private func chevronStatus() -> Bool {
+        switch selectedTab {
+        case 0:
+            return recapReady
+        default:
+            return false
+        }
+    }
+    
+    private func disableButton() -> Bool {
+        switch selectedTab {
+        case 0:
+            return !recapReady
+        default:
+            return false
         }
     }
     
@@ -178,9 +221,8 @@ struct FocusAreaRecapView: View {
             switch selectedTab {
                 
             case 2:
-                Text("Find your saved insights on the Insights tab of each topic.")
-            case 3:
-                Text("Paths help you explore your topics. Each path is unique.")
+                Text("Find your saved insights on the **Review** tab of each topic.")
+           
             default:
                 Text("")
             }
@@ -192,7 +234,7 @@ struct FocusAreaRecapView: View {
     
     //create focus area summary
     private func createSummary() {
-        if let _ = selectedFocusAreaSummary {
+        if let currentFocusArea = focusArea, currentFocusArea.completed {
             selectedTab = 1
         } else {
             Task {
@@ -206,56 +248,6 @@ struct FocusAreaRecapView: View {
 
 
 
-struct FocusAreaLoadingView: View {
-    @State private var enableAnimation: Bool = false
-    @State private var animationEffect: Int = 0
-    let timer = Timer.publish(every: 3, on: .main, in: .common).autoconnect()
-    
-    
-    var body: some View {
-        VStack (alignment: .leading, spacing: 10) {
-            
-            ForEach(0..<3) { index in
-                HStack {
-                    loadingBox()
-                        .frame(width: CGFloat(100 - (index * 10)), height: 30)
-                    Spacer()
-                }
-            }
-            
-        }
-        
-    }
-    
-    private func loadingBox() -> some View {
-        
-        RoundedRectangle(cornerRadius: 15)
-            .stroke(AppColors.whiteDefault.opacity(0.2), lineWidth: 1)
-            .fill(Color.black)
-            .changeEffect (
-                .shine.delay(0.2),
-                value: animationEffect,
-                isEnabled: enableAnimation
-            )
-            .onAppear {
-                
-                withAnimation(.easeIn(duration: 0.5)) {
-                    enableAnimation = true
-                    animationEffect += 1
-                }
-                
-            }
-            .onDisappear {
-                
-                timer.upstream.connect().cancel()
-                                
-            }
-            .onReceive(timer) { time in
-
-                animationEffect += 1
-            }
-    }
-}
 
 
 

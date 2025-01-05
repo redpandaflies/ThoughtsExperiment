@@ -75,7 +75,8 @@ struct UpdateSectionView: View {
             
                 
         }//VStack
-        .padding()
+        .padding(.horizontal)
+        .padding(.bottom)
         .environment(\.colorScheme, .dark)
         .sheet(isPresented: $showWarningSheet, onDismiss: {
             showWarningSheet = false

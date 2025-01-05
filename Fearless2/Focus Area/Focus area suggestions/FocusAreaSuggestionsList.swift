@@ -21,16 +21,15 @@ struct FocusAreaSuggestionsList: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack (alignment: .top, spacing: 15) {
                 ForEach(suggestions, id: \.title) { suggestion in
-                    FocusAreaSuggestionBox(suggestion: suggestion)
+                    FocusAreaSuggestionBox(suggestion: suggestion, action: {
+                        action()
+                         createFocusArea(suggestion: suggestion, topic: topic)
+                    })
                         .frame(width: screenWidth * 0.85)
                         .scrollTransition { content, phase in
                             content
                                 .opacity(phase.isIdentity ? 1 : 0.5)
                                 .scaleEffect(y: phase.isIdentity ? 1 : 0.85)
-                        }
-                        .onTapGesture {
-                           action()
-                            createFocusArea(suggestion: suggestion, topic: topic)
                         }
                 }
             }//Hstack
@@ -59,6 +58,7 @@ struct FocusAreaSuggestionsList: View {
 struct FocusAreaSuggestionBox: View {
    
     let suggestion: any SuggestionProtocol
+    let action: () -> Void
     
     var body: some View {
         VStack (spacing: 20) {
@@ -72,9 +72,11 @@ struct FocusAreaSuggestionBox: View {
             
             WhyBox(text: suggestion.suggestionDescription, backgroundColor: AppColors.black1)
             
-            Image(systemName: "checkmark.circle.fill")
-                .font(.system(size: 30))
-                .foregroundStyle(AppColors.whiteDefault)
+            RectangleButtonYellow(
+                buttonText: "Choose",
+                action: {
+                    action()
+                })
         }
         .padding()
         .contentShape(Rectangle())

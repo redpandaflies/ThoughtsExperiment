@@ -10,14 +10,17 @@ import SwiftUI
 struct InsightsEmptyState: View {
     
     var body: some View {
-        VStack (spacing: 30) {
-            Text("Uncover insights by logging your\nthoughts on this topic and\nexploring its path.")
-                .multilineTextAlignment(.center)
-                .font(.system(size: 22))
-                .foregroundStyle(AppColors.whiteDefault)
+        
+        Text("Explore this topic’s paths to uncover insights. \nCollect the ones that resonate with you during the path recap.")
+            .multilineTextAlignment(.leading)
+            .font(.system(size: 13))
+            .foregroundStyle(AppColors.whiteDefault.opacity(0.7))
+            .padding()
+            .background {
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(Color.white.opacity(0.2), lineWidth: 0.5)
+            }
             
-            WhyBox(text: "Insights reveal patterns and opportunities.\nThey help you reflect, grow, and take\nmeaningful action.", backgroundColor: AppColors.black2)
-            
-        }
+        
     }
 }

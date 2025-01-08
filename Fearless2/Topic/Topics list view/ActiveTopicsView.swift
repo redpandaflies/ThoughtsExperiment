@@ -77,13 +77,14 @@ struct ActiveTopicsView: View {
                         .frame(height: 50)
                 })
             }//VStack
+            .background(AppColors.black4)
             .ignoresSafeArea(.keyboard)
             .toolbarBackground(Color.black)
             .fullScreenCover(isPresented: $showCreateNewTopicView, onDismiss: {
                 showCreateNewTopicView = false
             }) {
                 NewTopicView(topicViewModel: topicViewModel, selectedTopic: $selectedTopic, navigateToTopicDetailView: $navigateToTopicDetailView, currentTabBar: $currentTabBar)
-                    .presentationBackground(Color.black)
+                    .presentationBackground(AppColors.black4)
             }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {

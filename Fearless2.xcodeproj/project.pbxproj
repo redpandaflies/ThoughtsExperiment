@@ -29,6 +29,8 @@
 		8A2C37042D285DB400C37315 /* FocusAreaRecapHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A2C37032D285DB400C37315 /* FocusAreaRecapHeader.swift */; };
 		8A2C37062D286BA400C37315 /* FocusAreaLoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A2C37052D286BA400C37315 /* FocusAreaLoadingView.swift */; };
 		8A2C37092D29B93200C37315 /* TopicReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A2C37082D29B93200C37315 /* TopicReviewView.swift */; };
+		8A2C370F2D2C5B5F00C37315 /* loadingAnimation.json in Resources */ = {isa = PBXBuildFile; fileRef = 8A2C370E2D2C5B5F00C37315 /* loadingAnimation.json */; };
+		8A2C37112D2D36BC00C37315 /* WhyBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A2C37102D2D36BC00C37315 /* WhyBox.swift */; };
 		8A6332492CD8257A00EF34FA /* FocusArea-CoreDataHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A6332482CD8257A00EF34FA /* FocusArea-CoreDataHelpers.swift */; };
 		8A63324C2CD8415600EF34FA /* FocusAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A63324B2CD8415600EF34FA /* FocusAreaView.swift */; };
 		8A63324F2CDAB85A00EF34FA /* TabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A63324E2CDAB84000EF34FA /* TabBar.swift */; };
@@ -68,7 +70,6 @@
 		8A8ED7332CF2EE5D00780384 /* FocusAreaSummary-CoreDataHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A8ED7322CF2EE2A00780384 /* FocusAreaSummary-CoreDataHelpers.swift */; };
 		8A8ED7352CF3ACE900780384 /* AddTopicButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A8ED7342CF3ACDC00780384 /* AddTopicButton.swift */; };
 		8A8ED7372CF3BFAB00780384 /* TopicDetailViewHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A8ED7362CF3BFA300780384 /* TopicDetailViewHeader.swift */; };
-		8A8ED7392CF42AAC00780384 /* WhyBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A8ED7382CF42AA700780384 /* WhyBox.swift */; };
 		8A8ED73B2CF42CD200780384 /* EntriesEmptyState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A8ED73A2CF42CC700780384 /* EntriesEmptyState.swift */; };
 		8A8ED73D2CF433D600780384 /* InsightsEmptyState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A8ED73C2CF433D600780384 /* InsightsEmptyState.swift */; };
 		8A8ED73F2CF43EC700780384 /* StartRecordingButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A8ED73E2CF43EB500780384 /* StartRecordingButton.swift */; };
@@ -103,7 +104,6 @@
 		8A9CC1CC2CAE1DCB007C2AA9 /* AssistantItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9CC1CB2CAE1DCB007C2AA9 /* AssistantItem.swift */; };
 		8A9CC1CE2CAE22C9007C2AA9 /* CurrentTime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9CC1CD2CAE22C9007C2AA9 /* CurrentTime.swift */; };
 		8A9CC1D12CAE4325007C2AA9 /* TopicViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9CC1D02CAE4325007C2AA9 /* TopicViewModel.swift */; };
-		8A9CC1D32CAE75A6007C2AA9 /* loadingAnimation3.json in Resources */ = {isa = PBXBuildFile; fileRef = 8A9CC1D22CAE75A6007C2AA9 /* loadingAnimation3.json */; };
 		8A9CC1D62CAE7609007C2AA9 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 8A9CC1D52CAE7609007C2AA9 /* Lottie */; };
 		8A9CC1D82CAE763F007C2AA9 /* LoadingAnimation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9CC1D72CAE763F007C2AA9 /* LoadingAnimation.swift */; };
 		8A9CC1DA2CAE7697007C2AA9 /* LottieView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9CC1D92CAE7697007C2AA9 /* LottieView.swift */; };
@@ -149,6 +149,8 @@
 		8A2C37032D285DB400C37315 /* FocusAreaRecapHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusAreaRecapHeader.swift; sourceTree = "<group>"; };
 		8A2C37052D286BA400C37315 /* FocusAreaLoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusAreaLoadingView.swift; sourceTree = "<group>"; };
 		8A2C37082D29B93200C37315 /* TopicReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicReviewView.swift; sourceTree = "<group>"; };
+		8A2C370E2D2C5B5F00C37315 /* loadingAnimation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = loadingAnimation.json; sourceTree = "<group>"; };
+		8A2C37102D2D36BC00C37315 /* WhyBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhyBox.swift; sourceTree = "<group>"; };
 		8A6332482CD8257A00EF34FA /* FocusArea-CoreDataHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FocusArea-CoreDataHelpers.swift"; sourceTree = "<group>"; };
 		8A63324B2CD8415600EF34FA /* FocusAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusAreaView.swift; sourceTree = "<group>"; };
 		8A63324E2CDAB84000EF34FA /* TabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBar.swift; sourceTree = "<group>"; };
@@ -187,7 +189,6 @@
 		8A8ED7322CF2EE2A00780384 /* FocusAreaSummary-CoreDataHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FocusAreaSummary-CoreDataHelpers.swift"; sourceTree = "<group>"; };
 		8A8ED7342CF3ACDC00780384 /* AddTopicButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddTopicButton.swift; sourceTree = "<group>"; };
 		8A8ED7362CF3BFA300780384 /* TopicDetailViewHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicDetailViewHeader.swift; sourceTree = "<group>"; };
-		8A8ED7382CF42AA700780384 /* WhyBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhyBox.swift; sourceTree = "<group>"; };
 		8A8ED73A2CF42CC700780384 /* EntriesEmptyState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntriesEmptyState.swift; sourceTree = "<group>"; };
 		8A8ED73C2CF433D600780384 /* InsightsEmptyState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsEmptyState.swift; sourceTree = "<group>"; };
 		8A8ED73E2CF43EB500780384 /* StartRecordingButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartRecordingButton.swift; sourceTree = "<group>"; };
@@ -225,7 +226,6 @@
 		8A9CC1CB2CAE1DCB007C2AA9 /* AssistantItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssistantItem.swift; sourceTree = "<group>"; };
 		8A9CC1CD2CAE22C9007C2AA9 /* CurrentTime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrentTime.swift; sourceTree = "<group>"; };
 		8A9CC1D02CAE4325007C2AA9 /* TopicViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicViewModel.swift; sourceTree = "<group>"; };
-		8A9CC1D22CAE75A6007C2AA9 /* loadingAnimation3.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = loadingAnimation3.json; path = "../../UI Components Fearless 2/loadingAnimation3.json"; sourceTree = "<group>"; };
 		8A9CC1D72CAE763F007C2AA9 /* LoadingAnimation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingAnimation.swift; sourceTree = "<group>"; };
 		8A9CC1D92CAE7697007C2AA9 /* LottieView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LottieView.swift; sourceTree = "<group>"; };
 		8A9CC1E02CAF1BC4007C2AA9 /* NewTopicBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewTopicBox.swift; sourceTree = "<group>"; };
@@ -487,7 +487,7 @@
 				8A9CC1962CAB66B3007C2AA9 /* Styling */,
 				8A9CC1A42CAB8120007C2AA9 /* Reusable Views */,
 				8A9CC17A2CAB3DEB007C2AA9 /* Assets.xcassets */,
-				8A9CC1D22CAE75A6007C2AA9 /* loadingAnimation3.json */,
+				8A2C370E2D2C5B5F00C37315 /* loadingAnimation.json */,
 				8A9CC17C2CAB3DEB007C2AA9 /* Preview Content */,
 				8A9CC1C42CAE066D007C2AA9 /* Production.xcconfig */,
 			);
@@ -551,7 +551,6 @@
 			children = (
 				8AA56BFA2CFA328C005D0119 /* WarningLostProgress.swift */,
 				8ACE0DD92CD0C54800718B9E /* SummaryInsightBox.swift */,
-				8A8ED7382CF42AA700780384 /* WhyBox.swift */,
 				8A6332592CDDA01300EF34FA /* RectangleButton.swift */,
 				8A74F49E2CE5A70B008A33B0 /* RecordingLoadingAnimation.swift */,
 				8ABE9AE12CB2597300483CFD /* NextButton.swift */,
@@ -559,6 +558,7 @@
 				8A9CC1D72CAE763F007C2AA9 /* LoadingAnimation.swift */,
 				8ACE0DDF2CD1E48500718B9E /* SliderView.swift */,
 				8A2C36FB2D22CA2100C37315 /* RectangleButtonYellow.swift */,
+				8A2C37102D2D36BC00C37315 /* WhyBox.swift */,
 			);
 			path = "Reusable Views";
 			sourceTree = "<group>";
@@ -713,7 +713,7 @@
 			files = (
 				8A9CC17E2CAB3DEB007C2AA9 /* Preview Assets.xcassets in Resources */,
 				8A9CC17B2CAB3DEB007C2AA9 /* Assets.xcassets in Resources */,
-				8A9CC1D32CAE75A6007C2AA9 /* loadingAnimation3.json in Resources */,
+				8A2C370F2D2C5B5F00C37315 /* loadingAnimation.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -724,6 +724,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8A2C37112D2D36BC00C37315 /* WhyBox.swift in Sources */,
 				8A9CC1CE2CAE22C9007C2AA9 /* CurrentTime.swift in Sources */,
 				8AA56BFB2CFA32B4005D0119 /* WarningLostProgress.swift in Sources */,
 				8AEFB6E62CF6F60B00942293 /* SuggestionProtocol.swift in Sources */,
@@ -771,7 +772,6 @@
 				8A74F49D2CE59420008A33B0 /* TopicDetailViewFooter.swift in Sources */,
 				8A26DFD32CEFADE6002C4F60 /* UnderstandQuestionDetailView.swift in Sources */,
 				8A79EAB52CE45B1B000A966B /* TopicDetailView.swift in Sources */,
-				8A8ED7392CF42AAC00780384 /* WhyBox.swift in Sources */,
 				8A8ED7352CF3ACE900780384 /* AddTopicButton.swift in Sources */,
 				8ACE0DE02CD1E48500718B9E /* SliderView.swift in Sources */,
 				8A2C36FE2D242B4A00C37315 /* NewTopicLoadingView.swift in Sources */,
@@ -974,6 +974,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Fearless2/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Burrow;
 				INFOPLIST_KEY_MetalCaptureEnabled = YES;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Audio is recorded for AI to transcribe and process.  ";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -1009,6 +1010,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Fearless2/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Burrow;
 				INFOPLIST_KEY_MetalCaptureEnabled = YES;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Audio is recorded for AI to transcribe and process.  ";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;

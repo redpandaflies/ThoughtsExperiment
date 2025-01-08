@@ -46,7 +46,7 @@ struct InsightBoxView: View {
         .background {
             RoundedRectangle(cornerRadius: 10)
                 .stroke(AppColors.whiteDefault.opacity(0.2))
-                .fill(AppColors.black3)
+                .fill(AppColors.black5)
                 .shadow(color: .black.opacity(0.3), radius: 0, x: 0, y: 3)
         }
     }

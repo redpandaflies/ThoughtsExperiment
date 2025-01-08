@@ -37,7 +37,6 @@ final class OpenAISwiftService: ObservableObject {
         self.service = OpenAIServiceFactory.service(aiproxyPartialKey: openAIPartialKey, aiproxyServiceURL: "https://api.aiproxy.pro/bf7d055e/e37b3324-720f-4b83-aa07-25eb3547173d")
     }
     
-    
     //send recording to Whisper for transcript
     func getTranscript(newEntryId: String, data: Data) async -> String? {
         let fileName = "recording\(newEntryId).m4a"
@@ -493,23 +492,45 @@ extension OpenAISwiftService {
     }
     
     @MainActor
-    func processSectionSuggestions() async -> [NewSuggestion]? {
+    func processSectionSuggestions(topicId: UUID) async -> [NewSuggestion]? {
         let arguments = self.messageText
-        
-        guard let newSuggestions = self.decodeArguments(arguments: arguments, as: NewFocusAreaSuggestions.self) else {
-            self.loggerOpenAI.error("Couldn't decode arguments for section suggestions.")
-            return nil
-        }
-        
+        let context = self.dataController.container.viewContext
         var suggestions: [NewSuggestion] = []
         
-        for item in newSuggestions.suggestions {
-            suggestions.append(item)
-        }
+        //delete all existing suggestions
+        let topic = await self.dataController.deleteTopicSuggestions(topicId: topicId)
         
+        //decode new suggestions
+        await context.perform {
+            
+            guard let newSuggestions = self.decodeArguments(arguments: arguments, as: NewFocusAreaSuggestions.self) else {
+                self.loggerOpenAI.error("Couldn't decode arguments for section suggestions.")
+                return
+            }
+            
+            for item in newSuggestions.suggestions {
+                suggestions.append(item)
+                let newSuggestion = FocusAreaSuggestion(context: context)
+                newSuggestion.suggestionId = UUID()
+                newSuggestion.suggestionEmoji = item.emoji
+                newSuggestion.suggestionContent = item.content
+                newSuggestion.suggestionReasoning = item.reasoning
+                if let currentTopic = topic {
+                    currentTopic.addToSuggestions(newSuggestion)
+                }
+                
+            }
+            
+            //save new suggestions
+            do {
+                try context.save()
+            } catch {
+                self.loggerCoreData.error("Error saving topic: \(error.localizedDescription)")
+            }
+            
+        }
         return suggestions
     }
-    
     
     @MainActor
     func processUnderstandAnswer(question: String) async -> Understand? {

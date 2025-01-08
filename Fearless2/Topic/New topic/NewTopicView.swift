@@ -77,6 +77,7 @@ struct NewTopicView: View {
                 }
             }
         }
+        
     }
     
     private func cancelEntry() {
@@ -85,7 +86,6 @@ struct NewTopicView: View {
                 await self.dataController.deleteTopic(id: topicId)
             }
         }
-        
         dismiss()
     }
     
@@ -120,11 +120,12 @@ struct NewTopicView: View {
     private func startNewTopic() {
         dismiss()
         selectedTopic = dataController.newTopic
+        dataController.newTopic = nil
         navigateToTopicDetailView = true
         withAnimation(.snappy(duration: 0.2)) {
             currentTabBar = .topic
         }
-        dataController.newTopic = nil
+       
     }
     
     private func backButtonAction() {
@@ -149,10 +150,10 @@ struct NewTopicView: View {
                 if answeredQuestionIndex == 0 {
                     answer1 = topicText
                 }
-        case .singleSelect:
-            answeredQuestionSingleSelect = singleSelectAnswer
+            case .singleSelect:
+                answeredQuestionSingleSelect = singleSelectAnswer
             case .multiSelect:
-            answeredQuestionMultiSelect = multiSelectAnswers
+                answeredQuestionMultiSelect = multiSelectAnswers
         }
         
         //move to next question
@@ -217,16 +218,23 @@ struct NewTopicReadyView: View {
         VStack (alignment: .leading, spacing: 15){
             Spacer()
             
-            Text("Ready to go.")
-                .font(.system(size: 25, weight: .semibold))
-                .foregroundStyle(AppColors.whiteDefault)
+            HStack {
+                Text("Ready to go.")
+                    .multilineTextAlignment(.leading)
+                    .font(.system(size: 25, weight: .semibold))
+                    .foregroundStyle(AppColors.whiteDefault)
+                
+                Spacer()
+            }
             
             Text("Start exploring your new topic by\nchoosing a starting point.")
+                .multilineTextAlignment(.leading)
                 .font(.system(size: 20))
                 .foregroundStyle(AppColors.whiteDefault)
             
             Spacer()
         }
+        .padding(.bottom, 40)
     }
 }
 

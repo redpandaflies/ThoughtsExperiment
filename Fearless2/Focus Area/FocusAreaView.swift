@@ -53,10 +53,46 @@ struct FocusAreasView: View {
             }
         }
         .ignoresSafeArea(.keyboard)
+        .overlay {
+            if let scrollPosition = focusAreaScrollPosition {
+                nextFocusAreaIndicator(scrollPosition: scrollPosition)
+            }
+            
+        }
         .onAppear {
             if !focusAreas.isEmpty {
                 selectedTab = 1
             }
+        }
+    }
+    
+    private func nextFocusAreaIndicator(scrollPosition: Int) -> some View {
+        VStack (spacing: 10){
+            Spacer()
+            if scrollPosition < focusAreas.count - 1 {
+                Text(getNextFocusAreaTitle(scrollPosition: scrollPosition))
+                    .font(.system(size: 12))
+                    .foregroundStyle(AppColors.whiteDefault.opacity(0.7))
+                    .onAppear {
+                        print("Scroll position: \(scrollPosition), total focus area \(focusAreas.count)")
+                    }
+                
+                Image(systemName: "chevron.compact.down")
+                    .font(.system(size: 20))
+                    .foregroundStyle(AppColors.whiteDefault.opacity(0.7))
+            }
+        }
+        
+    }
+    
+    private func getNextFocusAreaTitle(scrollPosition: Int) -> String {
+        let totalFocusAreas = focusAreas.count
+        if scrollPosition < totalFocusAreas - 1 {
+            let nextFocusAreaIndex = scrollPosition + 1
+            let nextFocusArea = focusAreas[nextFocusAreaIndex]
+            return nextFocusArea.focusAreaTitle
+        } else {
+            return ""
         }
     }
     
@@ -107,7 +143,13 @@ struct FocusAreaList: View {
             focusAreaScrollPosition = dataController.newFocusArea
         }
         .onAppear {
-            focusAreaScrollPosition = focusAreas.count - 1
+            let totalFocusArea = focusAreas.count
+            let scrollPosition = totalFocusArea - 1
+            if scrollPosition >= 0 {
+                focusAreaScrollPosition = scrollPosition
+            } else {
+                focusAreaScrollPosition = 0
+            }
         }
     }
 }

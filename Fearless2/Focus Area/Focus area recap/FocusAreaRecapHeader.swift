@@ -10,7 +10,7 @@ import SwiftUI
 struct FocusAreaRecapHeader: View {
     
     @Binding var selectedTab: Int
-    let focusAreaTitle: String
+    let topicTitle: String
  
     let xmarkAction: () -> Void
     
@@ -25,7 +25,7 @@ struct FocusAreaRecapHeader: View {
         HStack (spacing: 30) {
             switch selectedTab {
             case 0:
-                showFocusAreaTitle()
+                showTopicTitle()
             default:
                 progressBar()
             }
@@ -38,7 +38,7 @@ struct FocusAreaRecapHeader: View {
                 
                 Image(systemName: "xmark.circle.fill")
                     .font(.system(size: 25))
-                    .foregroundStyle(AppColors.whiteDefault.opacity(0.2))
+                    .foregroundStyle(AppColors.whiteDefault.opacity(0.3))
             }
     
         }//HStack
@@ -46,8 +46,8 @@ struct FocusAreaRecapHeader: View {
         
     }
     
-    private func showFocusAreaTitle() -> some View {
-        Text(focusAreaTitle)
+    private func showTopicTitle() -> some View {
+        Text(topicTitle)
             .font(.system(size: 14))
             .foregroundStyle(AppColors.whiteDefault.opacity(0.5))
             .textCase(.uppercase)

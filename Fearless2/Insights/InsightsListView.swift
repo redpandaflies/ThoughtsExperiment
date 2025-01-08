@@ -29,21 +29,26 @@ struct InsightsListView: View {
     
     var body: some View {
             
-        VStack (alignment: .leading, spacing: 15) {
+        VStack (spacing: 15) {
             
-            Text("Collected insights")
-                .multilineTextAlignment(.leading)
-                .font(.system(size: 16, weight: .light))
-                .foregroundStyle(AppColors.yellow1)
-                .textCase(.uppercase)
+            HStack {
+                Text("Collected insights")
+                    .multilineTextAlignment(.leading)
+                    .font(.system(size: 16, weight: .light))
+                    .foregroundStyle(AppColors.yellow1)
+                    .textCase(.uppercase)
+                
+                Spacer()
+            }
             
             if insights.isEmpty {
                 InsightsEmptyState()
                 
             } else {
-               
-                ForEach(insights, id: \.insightId) { insight in
-                    InsightBoxView(insight: insight)
+                VStack (alignment: .leading) {
+                    ForEach(insights, id: \.insightId) { insight in
+                        InsightBoxView(insight: insight)
+                    }
                 }
             }
         }//VStack

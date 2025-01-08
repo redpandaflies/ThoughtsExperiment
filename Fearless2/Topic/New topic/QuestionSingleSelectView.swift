@@ -59,6 +59,7 @@ struct SingleSelectQuestionBubble: View {
             Spacer()
         }
         .padding(20)
+        .contentShape(Rectangle())
         .background {
             RoundedRectangle(cornerRadius: 15)
                 .stroke(AppColors.whiteDefault, lineWidth: 1)

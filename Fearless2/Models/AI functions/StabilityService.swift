@@ -25,14 +25,13 @@ final class StabilityService: ObservableObject {
 
    
     func getTopicImage(fromPrompt prompt: String, topicId: String) async -> URL? {
-
-        let body = StabilityAIUltraRequestBody(prompt: prompt, negativePrompt: "blurry, bad, deformed, margin, border, frame, person, man, woman, ugly, cluttered, brand, logo, panel, split, app, dashboard, text, distorted, gun, tiling, poorly drawn hands, poorly drawn feet, poorly drawn face, out of frame, extra limbs, disfigured, body out of frame, bad anatomy, watermark, signature, cut off, low contrast, underexposed, overexposed, bad art, beginner, amateur, draft, grainy, error, writing", outputFormat: .png)
-            
+        
+        let body = StabilityAIStableDiffusionRequestBody(prompt: prompt, negativePrompt: "blurry, bad, deformed, margin, border, frame, person, man, woman, ugly, cluttered, brand, logo, panel, split, app, dashboard, text, distorted, gun, tiling, poorly drawn hands, poorly drawn feet, poorly drawn face, out of frame, extra limbs, disfigured, body out of frame, bad anatomy, watermark, signature, cut off, low contrast, underexposed, overexposed, bad art, beginner, amateur, draft, grainy, error, writing, poster, words", outputFormat: .png)
             
         do {
             loggerStability.log("Getting topic image from Stability")
             
-            let response = try await service.ultraRequest(body: body)
+            let response = try await service.stableDiffusionRequest(body: body)
             
             loggerStability.log("Response from Stability: \(String(describing: response))")
             

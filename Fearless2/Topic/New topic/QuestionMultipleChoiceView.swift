@@ -60,7 +60,6 @@ struct MultiSelectQuestionBubble: View {
                 .font(.system(size: 16))
                 .foregroundStyle(selected ? Color.black : AppColors.whiteDefault)
                 .fontWeight(.light)
-                .textCase(.lowercase)
                 .fixedSize(horizontal: true, vertical: true)
         }
         .padding(.horizontal, 18)

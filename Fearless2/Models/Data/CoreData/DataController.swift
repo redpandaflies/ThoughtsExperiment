@@ -60,7 +60,7 @@ final class DataController: ObservableObject {
     //create new topic
     func createTopic() async {
         await context.perform {
-            if let topic = self.newTopic {
+            if let _ = self.newTopic {
                 self.logger.log("Topic already exists")
             } else {
                 
@@ -272,6 +272,11 @@ final class DataController: ObservableObject {
                         
                         await self.deleteTopicImage(topicId: topicId)
                     }
+                   
+                    //reset newTopic so that new topic creation flow functions properly
+                    if let _ = self.newTopic {
+                        self.newTopic = nil
+                    }
                 }
                     
             } catch {
@@ -327,6 +332,58 @@ final class DataController: ObservableObject {
         }
         
     }
+    
+    //delete all suggestions
+    @MainActor
+    func deleteTopicSuggestions(topicId: UUID) async -> Topic? {
+        
+        let request = NSFetchRequest<Topic>(entityName: "Topic")
+        request.predicate = NSPredicate(format: "id == %@", topicId as CVarArg)
+       
+        var topic: Topic? = nil
+        
+       await context.perform {
+            do {
+                
+                guard let fetchedTopic = try self.context.fetch(request).first else { return }
+                
+                let topicSuggestions = fetchedTopic.topicSuggestions
+               
+                for item in topicSuggestions {
+                    self.context.delete(item)
+                }
+               
+                Task {
+                    await self.save()
+                }
+                
+                topic = fetchedTopic
+                
+            } catch {
+                self.logger.error("Failed to batch delete suggestions: \(error.localizedDescription)")
+                return
+            }
+           
+        }
+        return topic
+    }
+    
+//    @MainActor
+//    func fetchAllSuggestions() async -> [FocusAreaSuggestion] {
+//        let request = NSFetchRequest<FocusAreaSuggestion>(entityName: "FocusAreaSuggestion")
+//        
+//        var fetchedSuggestions: [FocusAreaSuggestion] = []
+//        
+//        await context.perform {
+//            do {
+//                fetchedSuggestions = try self.context.fetch(request)
+//            } catch {
+//                self.logger.error("Error fetching all suggestions: \(error.localizedDescription)")
+//            }
+//        }
+//        
+//        return fetchedSuggestions
+//    }
     
 }
 

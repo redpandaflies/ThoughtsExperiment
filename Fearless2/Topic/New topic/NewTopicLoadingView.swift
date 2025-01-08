@@ -33,6 +33,8 @@ struct NewTopicLoadingView: View {
                         .font(.system(size: 17))
                         .foregroundStyle((activeIndex ?? -1) >= index ? Color.green : AppColors.whiteDefault.opacity(0.5))
                     
+                    Spacer()
+                    
                 }//HStack
                 .animation(.easeInOut, value: activeIndex)
                 

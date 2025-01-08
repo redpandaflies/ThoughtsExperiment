@@ -26,7 +26,14 @@ struct TabBar: View {
             
             ZStack {
                 Rectangle()
-                    .fill(Color.black)
+                    .stroke(.white.opacity(0.1), lineWidth: 0.5)
+                    .fill(AppColors.black3.opacity(0.93))
+                    .shadow(color: .black.opacity(0.2), radius: 2.5, x: 0, y: -2)
+                    .background {
+                        Rectangle()
+                            .fill(Color.black.opacity(0.1))
+                            .blur(radius: 5)
+                    }
                 
                 Group {
                     switch currentTabBar {
@@ -41,7 +48,6 @@ struct TabBar: View {
                 }
                 .padding(.bottom, 30)
             }
-            
             .frame(width: screenWidth, height: 90)
             
         }.edgesIgnoringSafeArea(.all)

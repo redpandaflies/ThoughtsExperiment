@@ -10,12 +10,33 @@ import SwiftUI
 struct QuestionsProgressBar: View {
     
     @Binding var currentQuestionIndex: Int
-    let wholeBarWidth: CGFloat = UIScreen.current.bounds.width * 0.7
+    let screenWidth = UIScreen.current.bounds.width
+    
+    var frame: CGFloat {
+        return screenWidth - 64
+    }
+    
+    var wholeBarWidth: CGFloat {
+        return frame * 0.923
+    }
+    
+    var xmarkSize: CGFloat {
+        return frame * 0.075
+    }
+    
+    var trailingSpace: CGFloat {
+        return frame * 0.002
+    }
+   
     let totalQuestions: Int
    
     var progressBarWidth: CGFloat {
         if totalQuestions > 0 {
-            let barWidth = (wholeBarWidth/CGFloat (totalQuestions)) * CGFloat(currentQuestionIndex + 1)
+            var barWidth: CGFloat = wholeBarWidth * 0.1
+            
+            if currentQuestionIndex > 0 {
+                barWidth = (wholeBarWidth/CGFloat (totalQuestions)) * CGFloat(currentQuestionIndex)
+            }
             
             return barWidth
         } else {
@@ -30,31 +51,34 @@ struct QuestionsProgressBar: View {
         HStack (spacing: 30) {
             ZStack (alignment: .leading) {
                 RoundedRectangle(cornerRadius: 50)
-                    .fill(Color.black.opacity(0.2))
+                    .fill(AppColors.black5)
                     .frame(width: wholeBarWidth, height: 15)
                 
                 
                 RoundedRectangle(cornerRadius: 50)
                     .fill(AppColors.yellow1)
                     .frame(width: progressBarWidth, height: 15)
+                    .contentTransition(.interpolate)
                 
-            }//ZStack)
-            
-            Spacer()
+            }//ZStack
+            .padding(.trailing, trailingSpace)
             
             Button {
                 xmarkAction()
             } label: {
                 
                 Image(systemName: "xmark.circle.fill")
-                    .font(.system(size: 25))
-                    .foregroundStyle(AppColors.whiteDefault.opacity(0.2))
+                    .font(.system(size: xmarkSize))
+                    .foregroundStyle(AppColors.whiteDefault.opacity(0.3))
             }
     
         }//HStack
+        .frame(width: screenWidth - 32)
         .padding(.vertical)
+       
         
     }
+
 }
 
 //#Preview {

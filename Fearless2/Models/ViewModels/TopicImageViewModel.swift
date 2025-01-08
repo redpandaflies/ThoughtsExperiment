@@ -71,7 +71,7 @@ final class TopicImageViewModel: ObservableObject {
             imageCacheManager.saveImage(key: imageId, value: savedImage)
             
         } else {
-            loggerFileManager.info("Couldn't find image in file manager with ID: \(imageId)")
+            loggerFileManager.info("Couldn't find image in file manager with ID: \(imageId). Updating image status.")
             await MainActor.run {
                 if topicViewModel.generatingImage {
                     self.imageStatus = .loading

@@ -46,7 +46,7 @@ struct SectionBox: View {
         .contentShape(Rectangle())
         .background {
             RoundedRectangle(cornerRadius: 20)
-                .stroke(section.completed ? Color.clear : AppColors.whiteDefault, lineWidth: 1)
+                .stroke(section.completed ? Color.clear : AppColors.whiteDefault.opacity(0.5), lineWidth: 1)
                 .fill(section.completed ? AppColors.sectionBoxBackground : Color.clear)
         }
     }

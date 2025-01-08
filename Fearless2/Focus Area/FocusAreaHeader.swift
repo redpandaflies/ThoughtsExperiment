@@ -47,8 +47,7 @@ struct FocusAreaHeader: View {
                 } label: {
                     Image(systemName: "xmark.circle.fill")
                         .font(.system(size: 30))
-                        .foregroundStyle(AppColors.whiteDefault)
-                        .opacity(0.6)
+                        .foregroundStyle(AppColors.whiteDefault.opacity(0.3))
                 }
                 
             }

@@ -108,7 +108,7 @@ struct FocusAreaLoadingPlaceholder: View {
         .background {
             RoundedRectangle(cornerRadius: 20)
                 .stroke(AppColors.whiteDefault.opacity(0.2), lineWidth: 1)
-                .fill(Color.black)
+                .fill(AppColors.black4)
         }
         .animation(.default, value: animationEffect)
         .changeEffect (

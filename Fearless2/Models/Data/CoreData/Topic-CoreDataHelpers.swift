@@ -34,24 +34,9 @@ extension Topic {
         set { definition = newValue }
     }
     
-    var topicUserDescription: String {
-        get { userDescription ?? "" }
-        set { userDescription = newValue }  
-    }
-    
     var topicSummary: String {
         get { summary ?? "" }
         set { summary = newValue }
-    }
-    
-    var topicPeople: String {
-        get { people ?? "" }
-        set { people = newValue }
-    }
-    
-    var topicEmotions: String {
-        get { emotions ?? "" }
-        set { emotions = newValue }
     }
     
     var topicMainImage: String {

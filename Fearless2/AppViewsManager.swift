@@ -20,7 +20,7 @@ struct AppViewsManager: View {
     @State private var currentTabBar: TabBarType = .home
     @State private var selectedTabHome: TabBarItemHome = .topics
     @State private var selectedTabTopic: TopicPickerItem = .explore
-    @State private var showTabBar: Bool = true
+    @State private var showTabBar: Bool = false
     @State private var navigateToTopicDetailView: Bool = false
    
     @State private var selectedCategory: TopicCategoryItem = .personal
@@ -47,10 +47,10 @@ struct AppViewsManager: View {
         
         ZStack {
             switch selectedTabHome {
-            case .topics:
+            default:
                 ActiveTopicsView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, selectedTopic: $selectedTopic, currentTabBar: $currentTabBar, selectedTabTopic: $selectedTabTopic, navigateToTopicDetailView: $navigateToTopicDetailView)
-            case .understand:
-                UnderstandView(understandViewModel: understandViewModel, showAskQuestionView: $showAskQuestionView, askQuestionTab: $askQuestionTab)
+//            case .understand:
+//                UnderstandView(understandViewModel: understandViewModel, showAskQuestionView: $showAskQuestionView, askQuestionTab: $askQuestionTab)
             }
             
             if showTabBar {
@@ -62,6 +62,13 @@ struct AppViewsManager: View {
         .overlay  {
            if showAskQuestionView {
                 UnderstandAskQuestionView(understandViewModel: understandViewModel, showAskQuestionView: $showAskQuestionView, askQuestionTab: $askQuestionTab)
+            }
+        }
+        .onChange(of: currentTabBar) {
+            if currentTabBar == .topic {
+                showTabBar = true
+            } else {
+                showTabBar = false
             }
         }
     }

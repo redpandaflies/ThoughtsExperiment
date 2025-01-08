@@ -36,29 +36,25 @@ struct RectangleButtonYellow: View {
         HStack {
             
             if showBackButton {
+              
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 15))
+                    .foregroundStyle(Color.black)
+                    .padding(.horizontal, 20)
+                    .frame(height: 55)
+                    .contentShape(RoundedRectangle(cornerRadius: 15))
+                    .background {
+                        RoundedRectangle(cornerRadius: 15)
+                            .fill(AppColors.lightGrey1)
+                            .shadow(color: AppColors.lightGrey2, radius: 0, x: 0, y: 3)
+                    }
+                    .onTapGesture {
+                        backAction()
+                    }
                 
-                Button {
-                    backAction()
-                } label: {
-                    
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 15))
-                        .foregroundStyle(Color.black)
-                        .padding(20)
-                        .background {
-                            RoundedRectangle(cornerRadius: 15)
-                                .fill(AppColors.lightGrey1)
-                                .shadow(color: AppColors.darkGrey2, radius: 0, x: 0, y: 3)
-                        }
-                }
             }
             
-            Button {
-                if !disableMainButton {
-                    action()
-                }
-            } label: {
-                
+          
                 HStack {
                     
                     Spacer()
@@ -76,13 +72,21 @@ struct RectangleButtonYellow: View {
                     Spacer()
                     
                 }//HStack
-                .padding(20)
+                .padding(.horizontal, 20)
+                .frame(height: 55)
+                .contentShape(RoundedRectangle(cornerRadius: 15))
                 .background {
                     RoundedRectangle(cornerRadius: 15)
                         .fill(disableMainButton ?  AppColors.darkGrey1 : AppColors.yellow1)
                         .shadow(color: disableMainButton ? AppColors.darkGrey2 : AppColors.lightBrown2, radius: 0, x: 0, y: 3)
                 }
-            }
+                .onTapGesture {
+                    if !disableMainButton {
+                        action()
+                    }
+                }
+                
+            
         }
         
     }

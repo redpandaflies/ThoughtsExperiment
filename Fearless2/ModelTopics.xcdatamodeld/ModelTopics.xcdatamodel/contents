@@ -89,13 +89,10 @@
         <attribute name="category" optional="YES" attributeType="String"/>
         <attribute name="createdAt" optional="YES" attributeType="String"/>
         <attribute name="definition" optional="YES" attributeType="String"/>
-        <attribute name="emotions" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="mainImage" optional="YES" attributeType="String"/>
-        <attribute name="people" optional="YES" attributeType="String"/>
         <attribute name="summary" optional="YES" attributeType="String"/>
         <attribute name="title" optional="YES" attributeType="String"/>
-        <attribute name="userDescription" optional="YES" attributeType="String"/>
         <relationship name="entries" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Entry" inverseName="topic" inverseEntity="Entry"/>
         <relationship name="focusAreas" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="FocusArea" inverseName="topic" inverseEntity="FocusArea"/>
         <relationship name="insights" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Insight" inverseName="topic" inverseEntity="Insight"/>

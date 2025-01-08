@@ -27,7 +27,7 @@ struct NewTopicHeader: View {
                 
                 Image(systemName: "xmark.circle.fill")
                     .font(.system(size: 25))
-                    .foregroundStyle(AppColors.whiteDefault.opacity(0.2))
+                    .foregroundStyle(AppColors.whiteDefault.opacity(0.3))
             }
     
         }//HStack

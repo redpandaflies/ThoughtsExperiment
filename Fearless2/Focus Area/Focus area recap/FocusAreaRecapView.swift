@@ -18,6 +18,8 @@ struct FocusAreaRecapView: View {
     
     @Binding var focusArea: FocusArea?
     
+    let lastFocusArea: Bool
+    
     var body: some View {
         
         VStack (spacing: 10) {
@@ -25,9 +27,10 @@ struct FocusAreaRecapView: View {
             //Header
             FocusAreaRecapHeader(
                 selectedTab: $selectedTab,
-                focusAreaTitle: focusArea?.focusAreaTitle ?? "",
+                topicTitle: focusArea?.topic?.topicTitle ?? "",
                 xmarkAction: {
-                    dismiss()
+                    closeView()
+                    
                 },
                 showSuggestions: showSuggestions
             )
@@ -40,7 +43,7 @@ struct FocusAreaRecapView: View {
                     .padding(.horizontal)
                 
                 getTitle()
-                    .padding(.bottom, 10)
+                    .padding(.bottom, (selectedTab == 3) ? 20 : 10)
                     .padding(.horizontal)
                 
                 getContent()
@@ -104,6 +107,13 @@ struct FocusAreaRecapView: View {
         }
     }
     
+    private func closeView() {
+        dismiss()
+        if !topicViewModel.focusAreaSuggestions.isEmpty {
+            topicViewModel.focusAreaSuggestions = []
+        }
+    }
+    
     private func getTitle() -> some View {
         Group {
             switch selectedTab {
@@ -140,9 +150,23 @@ struct FocusAreaRecapView: View {
                return AnyView(insightsView())
             
             default:
-                return AnyView(FocusAreaSuggestionsList(topicViewModel: topicViewModel, suggestions: topicViewModel.focusAreaSuggestions, action: {
-                        dismiss()
+            return AnyView(FocusAreaSuggestionsList(topicViewModel: topicViewModel, suggestions: getSuggestions(), action: {
+                        closeView()
                     }, topic: focusArea?.topic))
+        }
+    }
+    
+    private func getSuggestions()  -> [any SuggestionProtocol] {
+        if topicViewModel.focusAreaSuggestions.isEmpty {
+           if let topic = focusArea?.topic {
+               let suggestions = topic.topicSuggestions
+               return suggestions.map { $0 as (any SuggestionProtocol) }
+           } else {
+               return []
+           }
+            
+        } else {
+          return topicViewModel.focusAreaSuggestions
         }
     }
     
@@ -164,7 +188,7 @@ struct FocusAreaRecapView: View {
     private func getButtonText() -> String {
         switch selectedTab {
         case 0:
-            return recapReady ? "Section recap" : "Working on it..."
+            return recapReady ? "Start recap" : "Working on it..."
             
         case 1:
             return "Uncover insights"
@@ -236,10 +260,19 @@ struct FocusAreaRecapView: View {
     private func createSummary() {
         if let currentFocusArea = focusArea, currentFocusArea.completed {
             selectedTab = 1
+            
+            print("This is the last focus area: \(lastFocusArea)")
+            
+            if lastFocusArea {
+                showSuggestions = true
+            }
+            
         } else {
             Task {
-                await topicViewModel.manageRun(selectedAssistant: .focusAreaSummary, focusArea: focusArea)
-                await topicViewModel.manageRun(selectedAssistant: .focusAreaSuggestions, topicId: focusArea?.topic?.topicId)
+                let topicId = focusArea?.topic?.topicId
+                
+                await topicViewModel.manageRun(selectedAssistant: .focusAreaSummary, topicId: topicId, focusArea: focusArea)
+                await topicViewModel.manageRun(selectedAssistant: .focusAreaSuggestions, topicId: topicId)
             }
         }
     }

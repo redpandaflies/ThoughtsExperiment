@@ -15,8 +15,8 @@ struct TopicBox: View {
         
         ZStack (alignment: .top) {
             RoundedRectangle(cornerRadius: 25)
-                .stroke(AppColors.darkBrown)
-                .fill(AppColors.darkBrown)
+                .fill(AppColors.darkGrey3)
+                .shadow(color: Color.black.opacity(0.05), radius: 7, x: 0, y: 1)
             
             VStack (spacing: 18){
                 

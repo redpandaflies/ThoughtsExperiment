@@ -26,12 +26,12 @@ struct AddTopicButton: View {
             Spacer()
         }
         .frame(minHeight: 230)
-        .contentShape(Rectangle())
+        .contentShape(RoundedRectangle(cornerRadius: 25))
         .background {
             RoundedRectangle(cornerRadius: 25)
                 .stroke(AppColors.whiteDefault.opacity(0.5))
         }
-        .background(Color.black)
+        .background(AppColors.black4)
     }
 }
 

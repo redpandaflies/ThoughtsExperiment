@@ -33,9 +33,9 @@ struct TopicDetailView: View {
         
         NavigationStack {
             ZStack {
-                if selectedTabTopic == .explore {
-                    backgroundImage()
-                }
+//                if selectedTabTopic == .explore {
+//                    backgroundImage()
+//                }
                 
                 VStack {
                     switch selectedTabTopic {
@@ -83,41 +83,42 @@ struct TopicDetailView: View {
                 .padding(.bottom)
                 
             }//ZStack
+            .background(AppColors.black4)
             .fullScreenCover(item: $selectedSection, onDismiss: {
                 selectedSection = nil
             }) { section in
                 UpdateSectionView(topicViewModel: topicViewModel, selectedSectionSummary: $selectedSectionSummary, topicId: topic.topicId, focusArea: section.focusArea, section: section)
-                    .presentationBackground(Color.black)
+                    .presentationBackground(AppColors.black4)
             }
-            .sheet(isPresented: $showRecordingView, onDismiss: {
-                showRecordingView = false
-            }){
-                RecordingView(transcriptionViewModel: transcriptionViewModel, categoryEmoji: topicCategory.getCategoryEmoji(), topic: topic)
-                    .presentationCornerRadius(20)
-                    .presentationDetents([.fraction(0.75)])
-                    .presentationBackground(AppColors.black3)
-                
-            }
-            .sheet(item: $selectedEntry, onDismiss: {
-                selectedEntry = nil
-            }) { entry in
-                EntryDetailView(entry: entry)
-                    .presentationCornerRadius(20)
-                    .presentationBackground(Color.black)
-            }
-            .sheet(item: $selectedSectionSummary, onDismiss: {
-                selectedSectionSummary = nil
-            }) { summary in
-                SectionSummaryView(summary: summary)
-                    .presentationCornerRadius(20)
-                    .presentationBackground(Color.black)
-            }
+//            .sheet(isPresented: $showRecordingView, onDismiss: {
+//                showRecordingView = false
+//            }){
+//                RecordingView(transcriptionViewModel: transcriptionViewModel, categoryEmoji: topicCategory.getCategoryEmoji(), topic: topic)
+//                    .presentationCornerRadius(20)
+//                    .presentationDetents([.fraction(0.75)])
+//                    .presentationBackground(AppColors.black3)
+//                
+//            }
+//            .sheet(item: $selectedEntry, onDismiss: {
+//                selectedEntry = nil
+//            }) { entry in
+//                EntryDetailView(entry: entry)
+//                    .presentationCornerRadius(20)
+//                    .presentationBackground(Color.black)
+//            }
+//            .sheet(item: $selectedSectionSummary, onDismiss: {
+//                selectedSectionSummary = nil
+//            }) { summary in
+//                SectionSummaryView(summary: summary)
+//                    .presentationCornerRadius(20)
+//                    .presentationBackground(Color.black)
+//            }
             .fullScreenCover(isPresented: $showFocusAreaRecapView, onDismiss: {
                 showFocusAreaRecapView = false
             }) {
-                FocusAreaRecapView(topicViewModel: topicViewModel, focusArea: $selectedFocusArea)
+                FocusAreaRecapView(topicViewModel: topicViewModel, focusArea: $selectedFocusArea, lastFocusArea: lastFocusArea())
                     .presentationCornerRadius(20)
-                    .presentationBackground(Color.black)
+                    .presentationBackground(AppColors.black4)
             }
             .onChange(of: topicViewModel.updatedEntry) {
                 if let newEntry = topicViewModel.updatedEntry {
@@ -151,7 +152,7 @@ struct TopicDetailView: View {
                         )
                     )
                     .background {
-                        Image("topicPlaceholder1")
+                        Image("placeholder")
                             .resizable()
                             .aspectRatio(contentMode: .fill)
                             .opacity(0.5)
@@ -229,6 +230,18 @@ struct TopicDetailView: View {
         }
         .ignoresSafeArea(edges: .top)
     }
+    
+    private func lastFocusArea() -> Bool {
+        let totalFocusAreas = topic.topicFocusAreas.count
+        print("Current scroll position: \(String(describing: focusAreaScrollPosition))")
+        
+        if focusAreaScrollPosition != nil {
+            return focusAreaScrollPosition == totalFocusAreas - 1
+        } else {
+            return true
+        }
+    }
+    
 }
 
 

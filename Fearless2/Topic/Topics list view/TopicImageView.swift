@@ -29,17 +29,18 @@ struct TopicImageView: View {
         ZStack {
             
             switch topicImageViewModel.imageStatus {
-            case .loading:
-                loadingView()
-            case .imageReady:
-                if let image = topicImageViewModel.topicImage {
-                    topicImage(image: image)
-                }
-                   
-            case .imageNotFound:
-                topicImage(image: UIImage(imageLiteralResourceName: "topicPlaceholder1"))
+                case .loading:
+                    loadingView()
+                case .imageReady:
+                    if let image = topicImageViewModel.topicImage {
+                        topicImage(image: image)
+                    }
+                       
+                case .imageNotFound:
+                    topicImage(image: UIImage(imageLiteralResourceName: "placeholder"))
             }
         }
+        .clipShape(RoundedRectangle(cornerRadius: 20))
         .animation(.easeInOut(duration: 1), value: topicImageViewModel.imageTransition)
         .onChange(of: topicViewModel.showPlaceholder) {
             if topicViewModel.showPlaceholder {
@@ -54,15 +55,16 @@ struct TopicImageView: View {
     }
     
     private func loadingView() -> some View {
-        LottieView(name: "loadingAnimation3", animationSpeed: $animationSpeed, play: $play)
+      
+        LottieView(name: "loadingAnimation", animationSpeed: $animationSpeed, play: $play)
             .aspectRatio(1, contentMode: .fit)
+ 
     }
     
     private func topicImage(image: UIImage) -> some View {
             Image(uiImage: image)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .clipShape(RoundedRectangle(cornerRadius: 20))
                 .transition(.movingParts.snapshot)
         
     }

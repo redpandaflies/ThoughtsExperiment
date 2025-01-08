@@ -25,12 +25,12 @@ struct FocusAreaSuggestionsList: View {
                         action()
                          createFocusArea(suggestion: suggestion, topic: topic)
                     })
-                        .frame(width: screenWidth * 0.85)
-                        .scrollTransition { content, phase in
-                            content
-                                .opacity(phase.isIdentity ? 1 : 0.5)
-                                .scaleEffect(y: phase.isIdentity ? 1 : 0.85)
-                        }
+                    .frame(width: screenWidth * 0.80)
+                    .scrollTransition { content, phase in
+                        content
+                            .opacity(phase.isIdentity ? 1 : 0.7)
+                            .scaleEffect(y: phase.isIdentity ? 1 : 0.85)
+                    }
                 }
             }//Hstack
             .scrollTargetLayout()
@@ -38,7 +38,7 @@ struct FocusAreaSuggestionsList: View {
         }//Scrollview
         .scrollClipDisabled(true)
         .scrollTargetBehavior(.viewAligned)
-        .contentMargins(.horizontal, (screenWidth * 0.15)/2, for: .scrollContent)
+        .contentMargins(.horizontal, (screenWidth * 0.20)/2, for: .scrollContent)
     }
     
     private func createFocusArea(suggestion: any SuggestionProtocol, topic: Topic?) {
@@ -61,16 +61,22 @@ struct FocusAreaSuggestionBox: View {
     let action: () -> Void
     
     var body: some View {
-        VStack (spacing: 20) {
+        VStack (spacing: 10) {
             
             Text(suggestion.symbol)
                 .font(.system(size: 35))
+                .padding(.bottom, 10)
 
             Text(suggestion.title)
+                .multilineTextAlignment(.center)
                 .font(.system(size: 17))
                 .foregroundStyle(AppColors.whiteDefault)
             
-            WhyBox(text: suggestion.suggestionDescription, backgroundColor: AppColors.black1)
+            Text(suggestion.suggestionDescription)
+                .multilineTextAlignment(.center)
+                .font(.system(size: 13))
+                .foregroundStyle(AppColors.whiteDefault.opacity(0.7))
+                .padding(.bottom, 40)
             
             RectangleButtonYellow(
                 buttonText: "Choose",
@@ -79,11 +85,12 @@ struct FocusAreaSuggestionBox: View {
                 })
         }
         .padding()
+        .padding(.top, 20)
         .contentShape(Rectangle())
         .background {
             RoundedRectangle(cornerRadius: 20)
-                .stroke(AppColors.whiteDefault.opacity(0.1))
-                .fill(AppColors.black3)
+                .stroke(AppColors.whiteDefault.opacity(0.1), lineWidth: 0.5)
+                .fill(AppColors.black5)
                 .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 2)
         }
         

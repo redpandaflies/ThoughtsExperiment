@@ -52,6 +52,6 @@ struct SummaryInsightBox: View {
     }
     
     private func getBackgroundColor() -> Color {
-        return insight.markedSaved ? AppColors.white2: AppColors.black3
+        return insight.markedSaved ? AppColors.white2: AppColors.black5
     }
 }

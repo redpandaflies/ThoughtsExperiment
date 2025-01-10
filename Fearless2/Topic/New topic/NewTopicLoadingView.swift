@@ -8,10 +8,11 @@
 import SwiftUI
 
 struct NewTopicLoadingView: View {
-    @State private var animationValue: Bool = false
-    @Binding var activeIndex: Int?
     
-    let loadingText: [String] = ["Creating the topic", "Understanding the context…", "Figuring out possible starting points"]
+    @Binding var activeIndex: Int?
+    @Binding var animationValue: Bool
+    
+    let loadingText: [String] = ["Creating the topic", "Understanding the context"]
     
     var body: some View {
         VStack (alignment: .leading, spacing: 10) {
@@ -22,16 +23,11 @@ struct NewTopicLoadingView: View {
                 
                 HStack {
                     
-                    Image(systemName: (activeIndex ?? -1) >= index ? "checkmark.circle.fill" : "arrow.right.circle")
-                        .multilineTextAlignment(.leading)
-                        .font(.system(size: 17))
-                        .foregroundStyle((activeIndex ?? -1) >= index ? Color.green : AppColors.whiteDefault.opacity(0.5))
+                    getIcon(index: index, icon: (activeIndex ?? -1) >= index ? "checkmark.circle.fill" : "arrow.right.circle")
                         .contentTransition(.symbolEffect(.replace.offUp.byLayer))
+                        
                     
-                    Text(loadingText[index])
-                        .multilineTextAlignment(.leading)
-                        .font(.system(size: 17))
-                        .foregroundStyle((activeIndex ?? -1) >= index ? Color.green : AppColors.whiteDefault.opacity(0.5))
+                    getText(index: index, text: loadingText[index])
                     
                     Spacer()
                     
@@ -40,10 +36,28 @@ struct NewTopicLoadingView: View {
                 
             }//ForEach
             
+            HStack {
+                
+                if (activeIndex ?? -1) == 2 {
+                    getIcon(index: 2, icon: "checkmark.circle.fill")
+                } else {
+                    getIcon(index: 2, icon: "ellipsis.circle")
+                        .symbolEffect(.variableColor.cumulative.dimInactiveLayers.nonReversing, options: animationValue ? .repeating : .nonRepeating, value: animationValue)
+                }
+                
+                getText(index: 2, text: "Figuring out possible paths")
+                
+                Spacer()
+                
+            }
+            
             Spacer()
         }//VStack
         .onAppear {
             startAnimating()
+        }
+        .onDisappear {
+            animationValue = false
         }
 
     }
@@ -57,9 +71,31 @@ struct NewTopicLoadingView: View {
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 activeIndex = currentIndex
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    animationValue = true
+                }
             }
+
         }
         
+    }
+    
+    private func getIcon(index: Int, icon: String) -> some View {
+       
+        Image(systemName: icon)
+            .multilineTextAlignment(.leading)
+            .font(.system(size: 17, weight: .light))
+            .foregroundStyle((activeIndex ?? -1) >= index ? Color.green : AppColors.whiteDefault.opacity(0.5))
+            
+    }
+    
+    private func getText(index: Int, text: String) -> some View {
+        Text(text)
+            .multilineTextAlignment(.leading)
+            .font(.system(size: 17, weight: .light))
+            .fontWidth(.condensed)
+            .foregroundStyle((activeIndex ?? -1) >= index ? Color.green : AppColors.whiteDefault.opacity(0.5))
     }
     
 }

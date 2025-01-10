@@ -11,7 +11,7 @@ struct InsightsEmptyState: View {
     
     var body: some View {
         
-        Text("Explore this topic’s paths to uncover insights. \nCollect the ones that resonate with you during the path recap.")
+        Text("Explore this topic’s paths to uncover insights. Collect the ones that resonate with you during the path recap.")
             .multilineTextAlignment(.leading)
             .font(.system(size: 13))
             .foregroundStyle(AppColors.whiteDefault.opacity(0.7))

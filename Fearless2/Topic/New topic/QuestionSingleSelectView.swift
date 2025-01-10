@@ -23,7 +23,7 @@ struct QuestionSingleSelectView: View {
                 .fixedSize(horizontal: false, vertical: true)
             
             
-            VStack {
+            VStack (spacing: 15) {
                 ForEach(items, id: \.self) { pill in
                     SingleSelectQuestionBubble(selected: singleSelectAnswer == pill, option: pill)
                         .onTapGesture {
@@ -53,7 +53,6 @@ struct SingleSelectQuestionBubble: View {
             Text(option)
                 .font(.system(size: 15, weight: .light))
                 .foregroundStyle(selected ? Color.black : AppColors.whiteDefault)
-                .textCase(.lowercase)
                 .fixedSize(horizontal: true, vertical: true)
             
             Spacer()
@@ -62,7 +61,7 @@ struct SingleSelectQuestionBubble: View {
         .contentShape(Rectangle())
         .background {
             RoundedRectangle(cornerRadius: 15)
-                .stroke(AppColors.whiteDefault, lineWidth: 1)
+                .stroke(AppColors.whiteDefault, lineWidth: 0.5)
                 .fill(selected ? AppColors.whiteDefault : Color.clear)
         }
     }

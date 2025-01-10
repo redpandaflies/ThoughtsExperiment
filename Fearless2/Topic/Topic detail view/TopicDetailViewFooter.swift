@@ -29,7 +29,7 @@ struct TopicDetailViewFooter: View {
             } label: {
                 Image(systemName: "arrow.backward")
                     .font(.system(size: 20))
-                    .foregroundStyle(AppColors.whiteDefault)
+                    .foregroundStyle(AppColors.whiteDefault.opacity(0.7))
                     .frame(width: 30, height: 30)
             }
             
@@ -49,16 +49,15 @@ struct TopicDetailViewFooter: View {
                     dismissView()
                     
                 } label: {
-                    
+                
                     Label("Delete", systemImage: "trash")
-                    
                 }
                 
             } label: {
                 Group {
                     Image(systemName: "ellipsis")
                         .font(.system(size: 20))
-                        .foregroundStyle(AppColors.whiteDefault)
+                        .foregroundStyle(AppColors.whiteDefault.opacity(0.7))
                         .frame(width: 30, height: 30)
                 }
             }

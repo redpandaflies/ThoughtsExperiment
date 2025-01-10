@@ -10,13 +10,14 @@ import SwiftUI
 struct ToolbarTitleItem: View {
     
     let title: String
-    let regularSize: Bool
     
     var body: some View {
         Text(title)
-            .font(.system(size: regularSize ? 20 : 20, weight: .light))
+            .font(.system(size: 15, weight: .light))
+            .fontWidth(.expanded)
             .foregroundStyle(AppColors.whiteDefault)
             .textCase(.uppercase)
+            .blendMode(.difference)
     }
 }
 

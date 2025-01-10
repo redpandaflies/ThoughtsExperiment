@@ -30,11 +30,10 @@ struct FocusAreaEmptyState: View {
     var body: some View {
         VStack (spacing: 10) {
            
-            Text("Choose a starting point")
+            Text("Choose a starting path")
                 .multilineTextAlignment(.leading)
                 .font(.system(size: 20))
                 .foregroundStyle(AppColors.whiteDefault)
-                .padding(.vertical, 10)
             
             Text("Paths help you explore your topics. Each path is unique.")
                 .multilineTextAlignment(.leading)
@@ -46,7 +45,7 @@ struct FocusAreaEmptyState: View {
             
             FocusAreaSuggestionsList(topicViewModel: topicViewModel, suggestions: suggestions.map { $0 as any SuggestionProtocol }, action: {
                 selectedTab += 1
-            }, topic: suggestions.first?.topic)
+            }, topic: suggestions.first?.topic, useCase: .newTopic)
         }
         
         

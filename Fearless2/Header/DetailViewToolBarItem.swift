@@ -24,7 +24,7 @@ struct DetailViewToolBarItem: View {
             
             Menu {
                 Button (role: .destructive) {
-                    //tbd
+                    
                     Task {
                         if let currentEntryId = entryId {
                             await dataController.deleteEntry(id: currentEntryId)
@@ -35,6 +35,7 @@ struct DetailViewToolBarItem: View {
                 } label: {
                     
                     Label("Delete", systemImage: "trash")
+                        .font(.system(size: 14))
                     
                 }
                 

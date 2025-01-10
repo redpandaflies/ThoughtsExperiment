@@ -33,11 +33,10 @@ struct ActiveTopicsView: View {
     var body: some View {
         NavigationStack {
             VStack {
-                
-                ScrollView (showsIndicators: false) {
+                ScrollView {
                     LazyVGrid(columns: columns, spacing: 15) {
                         ForEach(topics, id: \.topicId) { topic in
-
+                            
                             TopicBox(topicViewModel: topicViewModel, topic: topic)
                                 .onTapGesture {
                                     //set selected topic ID so that delete topic works
@@ -51,7 +50,7 @@ struct ActiveTopicsView: View {
                                         currentTabBar = .topic
                                     }
                                 }
-                                
+                            
                         }
                         
                         AddTopicButton()
@@ -70,6 +69,7 @@ struct ActiveTopicsView: View {
                     }
                 }
                 .scrollClipDisabled(true)
+                .scrollIndicators(.hidden)
                 .padding()
                 .safeAreaInset(edge: .bottom, content: {
                     Rectangle()
@@ -88,7 +88,7 @@ struct ActiveTopicsView: View {
             }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    ToolbarTitleItem(title: "Top of mind", regularSize: true)
+                    ToolbarTitleItem(title: "Top of mind")
                 }
                 
 //                ToolbarItem(placement: .topBarTrailing) {

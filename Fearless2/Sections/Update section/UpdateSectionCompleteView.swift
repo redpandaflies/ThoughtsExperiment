@@ -90,7 +90,8 @@ struct UpdateSectionCompleteView: View {
             
             Text(text)
                 .multilineTextAlignment(.leading)
-                .font(.system(size: 17))
+                .font(.system(size: 17, weight: .light))
+                .fontWidth(.condensed)
                 .foregroundStyle(getColor(index: index))
             
         }//HStack

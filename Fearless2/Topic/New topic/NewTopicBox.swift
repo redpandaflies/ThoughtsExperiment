@@ -25,9 +25,6 @@ struct NewTopicBox: View {
             Spacer()
             
         }//VStack
-        .onAppear {
-            isFocused = true
-        }
        
     }
     

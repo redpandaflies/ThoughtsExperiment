@@ -311,10 +311,10 @@ extension OpenAISwiftService {
                     question.questionType = newQuestion.questionType.rawValue
                     
                     if newQuestion.questionType == .singleSelect {
-                        question.questionSingleSelectOptions = newQuestion.options.map {$0.text}.joined(separator: ",")
+                        question.questionSingleSelectOptions = newQuestion.options.map {$0.text}.joined(separator: ";")
                        
                     } else if newQuestion.questionType == .multiSelect {
-                        question.questionMultiSelectOptions = newQuestion.options.map {$0.text}.joined(separator: ",")
+                        question.questionMultiSelectOptions = newQuestion.options.map {$0.text}.joined(separator: ";")
                         
                     }
 
@@ -492,11 +492,10 @@ extension OpenAISwiftService {
     }
     
     @MainActor
-    func processSectionSuggestions(topicId: UUID) async -> [NewSuggestion]? {
+    func processSectionSuggestions(topicId: UUID) async {
         let arguments = self.messageText
         let context = self.dataController.container.viewContext
-        var suggestions: [NewSuggestion] = []
-        
+       
         //delete all existing suggestions
         let topic = await self.dataController.deleteTopicSuggestions(topicId: topicId)
         
@@ -509,7 +508,6 @@ extension OpenAISwiftService {
             }
             
             for item in newSuggestions.suggestions {
-                suggestions.append(item)
                 let newSuggestion = FocusAreaSuggestion(context: context)
                 newSuggestion.suggestionId = UUID()
                 newSuggestion.suggestionEmoji = item.emoji
@@ -518,18 +516,17 @@ extension OpenAISwiftService {
                 if let currentTopic = topic {
                     currentTopic.addToSuggestions(newSuggestion)
                 }
-                
             }
             
             //save new suggestions
             do {
                 try context.save()
+                
             } catch {
                 self.loggerCoreData.error("Error saving topic: \(error.localizedDescription)")
             }
             
         }
-        return suggestions
     }
     
     @MainActor

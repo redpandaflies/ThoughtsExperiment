@@ -71,7 +71,7 @@ extension Topic {
     }
     
     var topicSuggestions: [FocusAreaSuggestion] {
-        let result = insights?.allObjects as? [FocusAreaSuggestion] ?? []
+        let result = suggestions?.allObjects as? [FocusAreaSuggestion] ?? []
         return result
     }
 }

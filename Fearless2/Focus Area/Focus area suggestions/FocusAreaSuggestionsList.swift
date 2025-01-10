@@ -7,31 +7,35 @@
 
 import SwiftUI
 
+enum SuggestionsListUseCase {
+    case newTopic
+    case recap
+}
+
 struct FocusAreaSuggestionsList: View {
     
     @EnvironmentObject var dataController: DataController
     @ObservedObject var topicViewModel: TopicViewModel
+    @State private var selectedTab: Int = 1
     
     let suggestions: [any SuggestionProtocol]
     private let screenWidth = UIScreen.current.bounds.width
     
     let action: () -> Void
     let topic: Topic?
+    let useCase: SuggestionsListUseCase
+    
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack (alignment: .top, spacing: 15) {
-                ForEach(suggestions, id: \.title) { suggestion in
-                    FocusAreaSuggestionBox(suggestion: suggestion, action: {
-                        action()
-                         createFocusArea(suggestion: suggestion, topic: topic)
-                    })
-                    .frame(width: screenWidth * 0.80)
-                    .scrollTransition { content, phase in
-                        content
-                            .opacity(phase.isIdentity ? 1 : 0.7)
-                            .scaleEffect(y: phase.isIdentity ? 1 : 0.85)
-                    }
+                switch selectedTab {
+                case 0:
+                    placeholder()
+                    
+                default:
+                    suggestionsList()
                 }
+               
             }//Hstack
             .scrollTargetLayout()
             
@@ -39,6 +43,48 @@ struct FocusAreaSuggestionsList: View {
         .scrollClipDisabled(true)
         .scrollTargetBehavior(.viewAligned)
         .contentMargins(.horizontal, (screenWidth * 0.20)/2, for: .scrollContent)
+        .onAppear {
+            switch useCase {
+            case .newTopic:
+                break
+            case .recap:
+                if topicViewModel.creatingFocusAreaSuggestions {
+                    selectedTab = 0
+                }
+            }
+           
+        }
+        .onChange(of: topicViewModel.creatingFocusAreaSuggestions) {
+            if !topicViewModel.creatingFocusAreaSuggestions {
+                selectedTab = 1
+            }
+        }
+    }
+    
+    private func suggestionsList() -> some View {
+        ForEach(suggestions, id: \.title) { suggestion in
+            FocusAreaSuggestionBox(suggestion: suggestion, action: {
+                action()
+                createFocusArea(suggestion: suggestion, topic: topic)
+            })
+            .frame(width: screenWidth * 0.80)
+            .scrollTransition { content, phase in
+                content
+                    .opacity(phase.isIdentity ? 1 : 0.7)
+                    .scaleEffect(y: phase.isIdentity ? 1 : 0.85)
+            }
+        }
+    }
+    
+    private func placeholder() -> some View {
+        ForEach(0..<2, id: \.self) { _ in
+            LoadingPlaceholderContent(contentType: .suggestions)
+                .scrollTransition { content, phase in
+                    content
+                        .opacity(phase.isIdentity ? 1 : 0.7)
+                        .scaleEffect(y: phase.isIdentity ? 1 : 0.85)
+                }
+        }
     }
     
     private func createFocusArea(suggestion: any SuggestionProtocol, topic: Topic?) {
@@ -71,11 +117,14 @@ struct FocusAreaSuggestionBox: View {
                 .multilineTextAlignment(.center)
                 .font(.system(size: 17))
                 .foregroundStyle(AppColors.whiteDefault)
+                .fixedSize(horizontal: false, vertical: true)
+
             
             Text(suggestion.suggestionDescription)
                 .multilineTextAlignment(.center)
                 .font(.system(size: 13))
                 .foregroundStyle(AppColors.whiteDefault.opacity(0.7))
+                .fixedSize(horizontal: false, vertical: true)
                 .padding(.bottom, 40)
             
             RectangleButtonYellow(

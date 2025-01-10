@@ -17,7 +17,7 @@ struct TopicDetailViewHeader: View {
             
             Text(title)
                 .multilineTextAlignment(.center)
-                .font(.system(size: 17))
+                .font(.system(size: 17, weight: .light))
                 .foregroundStyle(AppColors.whiteDefault)
                 .padding(.horizontal, 5)
             

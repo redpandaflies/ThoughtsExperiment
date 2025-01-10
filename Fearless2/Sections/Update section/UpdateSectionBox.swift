@@ -27,9 +27,9 @@ struct UpdateSectionBox: View {
             HStack {
                 Text(section?.sectionTitle ?? "")
                     .multilineTextAlignment(.leading)
-                    .font(.system(size: 11, weight: .regular))
+                    .font(.system(size: 16, weight: .light).smallCaps())
+                    .fontWidth(.condensed)
                     .foregroundStyle(AppColors.yellow1)
-                    .textCase(.uppercase)
                 
                 Spacer()
             }
@@ -42,12 +42,12 @@ struct UpdateSectionBox: View {
                     
                     case .singleSelect:
                         let optionsString = currentQuestion.questionSingleSelectOptions
-                        let optionsArray = optionsString.components(separatedBy: ",")
+                        let optionsArray = optionsString.components(separatedBy: ";")
                         QuestionSingleSelectView(singleSelectAnswer: $singleSelectAnswer, question: currentQuestion.questionContent, items: optionsArray)
                         
                     case .multiSelect:
                         let optionsString = currentQuestion.questionMultiSelectOptions
-                        let optionsArray = optionsString.components(separatedBy: ",")
+                        let optionsArray = optionsString.components(separatedBy: ";")
                         QuestionMultiSelectView(multiSelectAnswers: $multiSelectAnswers, question: currentQuestion.questionContent, items: optionsArray)
                     
                     default:

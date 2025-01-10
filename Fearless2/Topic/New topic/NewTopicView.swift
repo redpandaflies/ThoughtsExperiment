@@ -18,7 +18,7 @@ struct NewTopicView: View {
     @State private var singleSelectAnswer: String = "" //single-select answer
     @State private var multiSelectAnswers: [String] = [] //answers user choose for muti-select questions
     @State private var activeIndex: Int? = nil //controls the state of the loading view
-    
+    @State private var animationValue: Bool = false //controls animation of the ellipsis on loading view
     @FocusState var isFocused: Bool
     
     @Binding var selectedTopic: Topic?
@@ -38,7 +38,7 @@ struct NewTopicView: View {
                         .padding(.top)
         
                 case 1:
-                    NewTopicLoadingView(activeIndex: $activeIndex)
+                    NewTopicLoadingView(activeIndex: $activeIndex, animationValue: $animationValue)
                     
                 default:
                     NewTopicReadyView()
@@ -58,23 +58,35 @@ struct NewTopicView: View {
                 },
                 disableMainButton: (selectedTab == 1)
             )
+            .padding(.bottom)
             
         }
-        .padding()
+        .padding(.horizontal)
         .environment(\.colorScheme, .dark)
         .onChange(of: topicViewModel.topicUpdated) {
             if topicViewModel.topicUpdated {
                 if activeIndex == 1 {
                     activeIndex = 2
+                    
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                        withAnimation(.snappy(duration: 0.2)) {
+                            selectedTab += 1
+                        }
+                    }
                 } else {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                         activeIndex = 2
+                        animationValue = false
+                        
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                            withAnimation(.snappy(duration: 0.2)) {
+                                selectedTab += 1
+                            }
+                        }
                     }
                 }
                 
-                withAnimation(.snappy(duration: 0.2)) {
-                    selectedTab += 1
-                }
+                
             }
         }
         
@@ -100,7 +112,7 @@ struct NewTopicView: View {
         case 1:
             return "Working on it..."
         default:
-            return "Choose a starting point"
+            return "Choose a starting path"
             
         }
         
@@ -156,17 +168,20 @@ struct NewTopicView: View {
                 answeredQuestionMultiSelect = multiSelectAnswers
         }
         
-        //move to next question
-        if selectedQuestion + 1 < totalQuestions {
-            selectedQuestion += 1
-        } else {
-            submitForm()
-        }
-        
         //reset the value of @State vars managing answers
         topicText = ""
         singleSelectAnswer = ""
         multiSelectAnswers = []
+        
+        //move to next question
+        if selectedQuestion + 1 < totalQuestions {
+            if !topicText.isEmpty {
+                topicText = ""
+            }
+            selectedQuestion += 1
+        } else {
+            submitForm()
+        }
         
         //save answers
         Task {
@@ -227,9 +242,9 @@ struct NewTopicReadyView: View {
                 Spacer()
             }
             
-            Text("Start exploring your new topic by\nchoosing a starting point.")
+            Text("Explore your new topic by\nchoosing a starting path.")
                 .multilineTextAlignment(.leading)
-                .font(.system(size: 20))
+                .font(.system(size: 18, weight: .light))
                 .foregroundStyle(AppColors.whiteDefault)
             
             Spacer()

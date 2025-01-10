@@ -17,36 +17,35 @@ struct FocusAreaRecapPreviewBox: View {
            
             Text("Recap")
                 .font(.system(size: 17, weight: .regular))
-                .foregroundStyle(AppColors.whiteDefault)
-                
+                .foregroundStyle(focusAreaCompleted ? AppColors.whiteDefault : (available ? Color.black : AppColors.whiteDefault))
             
             Spacer()
             
             if focusAreaCompleted {
                 getImage(name: "checkmark")
-                
             } else if !available {
                 getImage(name: "lock.fill")
             } else {
                 getImage(name: "arrow.forward.circle.fill")
             }
-
+            
         }
-        .opacity((focusAreaCompleted || !available) ? 0.6 : 1)
+        .opacity(focusAreaCompleted ? 0.6 : (available ? 1 : 0.4))
         .padding()
         .frame(width: 150, height: 180)
         .contentShape(Rectangle())
         .background {
             RoundedRectangle(cornerRadius: 20)
-                .stroke((focusAreaCompleted || !available) ? Color.clear : AppColors.whiteDefault, lineWidth: 1)
-                .fill((focusAreaCompleted || !available) ? AppColors.sectionBoxBackground : Color.clear)
+                .fill(focusAreaCompleted ? AppColors.green2 : (available ? AppColors.yellow1 : AppColors.darkGrey4))
+                .shadow(color: focusAreaCompleted ? AppColors.green3 : (available ? AppColors.lightBrown2 : Color.clear), radius: 0, x: 0, y: 3)
         }
     }
     
     private func getImage(name: String) -> some View {
         Image(systemName: name)
-            .font(.system(size: 20))
-            .foregroundStyle(AppColors.whiteDefault)
+            .font(.system(size: 25))
+            .foregroundStyle(focusAreaCompleted ? AppColors.whiteDefault : (available ? Color.black : AppColors.whiteDefault))
+            .padding(.bottom)
     }
 }
 

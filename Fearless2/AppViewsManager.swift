@@ -20,7 +20,6 @@ struct AppViewsManager: View {
     @State private var currentTabBar: TabBarType = .home
     @State private var selectedTabHome: TabBarItemHome = .topics
     @State private var selectedTabTopic: TopicPickerItem = .explore
-    @State private var showTabBar: Bool = false
     @State private var navigateToTopicDetailView: Bool = false
    
     @State private var selectedCategory: TopicCategoryItem = .personal
@@ -44,33 +43,28 @@ struct AppViewsManager: View {
     }
 
     var body: some View {
-        
-        ZStack {
-            switch selectedTabHome {
-            default:
-                ActiveTopicsView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, selectedTopic: $selectedTopic, currentTabBar: $currentTabBar, selectedTabTopic: $selectedTabTopic, navigateToTopicDetailView: $navigateToTopicDetailView)
-//            case .understand:
-//                UnderstandView(understandViewModel: understandViewModel, showAskQuestionView: $showAskQuestionView, askQuestionTab: $askQuestionTab)
-            }
-            
-            if showTabBar {
+      
+            ZStack {
+                switch selectedTabHome {
+                default:
+                    ActiveTopicsView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, selectedTopic: $selectedTopic, currentTabBar: $currentTabBar, selectedTabTopic: $selectedTabTopic, navigateToTopicDetailView: $navigateToTopicDetailView)
+//                case .understand:
+//                    UnderstandView(understandViewModel: understandViewModel, showAskQuestionView: $showAskQuestionView, askQuestionTab: $askQuestionTab)
+                }
+                
+                
                 TabBar(transcriptionViewModel: transcriptionViewModel, currentTabBar: $currentTabBar, selectedTabHome: $selectedTabHome, selectedTabTopic: $selectedTabTopic, navigateToTopicDetailView: $navigateToTopicDetailView, topicId: selectedTopic?.topicId)
                     .transition(.move(edge: .bottom))
-            }
+                
+                
             
         }
-        .overlay  {
-           if showAskQuestionView {
-                UnderstandAskQuestionView(understandViewModel: understandViewModel, showAskQuestionView: $showAskQuestionView, askQuestionTab: $askQuestionTab)
-            }
-        }
-        .onChange(of: currentTabBar) {
-            if currentTabBar == .topic {
-                showTabBar = true
-            } else {
-                showTabBar = false
-            }
-        }
+//        .overlay  {
+//           if showAskQuestionView {
+//                UnderstandAskQuestionView(understandViewModel: understandViewModel, showAskQuestionView: $showAskQuestionView, askQuestionTab: $askQuestionTab)
+//            }
+//        }
+        
     }
     
 }

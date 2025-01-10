@@ -18,7 +18,7 @@ struct QuestionOpenView: View {
     init(topicText: Binding<String>,
          isFocused: FocusState<Bool>.Binding,
          question: String = "",
-         placeholderText: String = "Enter your answer") {
+         placeholderText: String = "Type your answer") {
         self._topicText = topicText
         self._isFocused = isFocused
         self.question = question
@@ -44,6 +44,16 @@ struct QuestionOpenView: View {
                 .keyboardType(.alphabet)
                 
         }//VStack
+        .onAppear {
+            if !isFocused {
+                isFocused = true
+            }
+        }
+        .onChange(of: question) {
+            if !isFocused {
+                isFocused = true
+            }
+        }
         
     }
 }

@@ -26,12 +26,13 @@ struct FocusAreaBox: View {
                 
                 Text("\(index + 1)")
                     .multilineTextAlignment(.center)
-                    .font(.system(size: 40, weight: .semibold))
+                    .font(.system(size: 40, weight: .thin))
+                    .fontWidth(.expanded)
                     .foregroundStyle(AppColors.whiteDefault)
                 
                 Text(focusArea.focusAreaTitle)
                     .multilineTextAlignment(.center)
-                    .font(.system(size: 25))
+                    .font(.system(size: 25, weight: .light))
                     .fontWeight(.regular)
                     .foregroundStyle(AppColors.whiteDefault)
                     .fixedSize(horizontal: false, vertical: true)
@@ -39,27 +40,28 @@ struct FocusAreaBox: View {
                 
                 Text(focusArea.focusAreaReasoning)
                     .multilineTextAlignment(.center)
-                    .font(.system(size: 16))
+                    .font(.system(size: 16, weight: .light))
+                    .fontWidth(.condensed)
                     .fontWeight(.regular)
                     .foregroundStyle(AppColors.whiteDefault)
                     .fixedSize(horizontal: false, vertical: true)
-                    .opacity(0.7)
+                    .opacity(0.5)
                     .padding(.bottom, 10)
             }
-            .padding(.horizontal, 30)
+            .padding(.horizontal)
             
-            ScrollView(.horizontal, showsIndicators: false) {
-                switch selectedTab {
-                    case 0:
-                        FocusAreaLoadingPlaceholder()
-                    default:
+           
+            switch selectedTab {
+                case 0:
+                    LoadingPlaceholderContent(contentType: .focusArea)
+                
+                default:
                     SectionListView(showFocusAreaRecapView: $showFocusAreaRecapView, selectedSection: $selectedSection, selectedSectionSummary: $selectedSectionSummary, selectedFocusArea: $selectedFocusArea, focusArea: focusArea, focusAreaCompleted: focusArea.completed)
-                    
-                }
-
+                
             }
-            .padding(.horizontal, 30)
-            .scrollClipDisabled(true)
+
+
+         
             
             Spacer()
             
@@ -75,64 +77,6 @@ struct FocusAreaBox: View {
             }
         }
         
-    }
-}
-
-struct FocusAreaLoadingPlaceholder: View {
-    @State private var enableAnimation: Bool = false
-    @State private var animationEffect: Int = 0
-    let timer = Timer.publish(every: 3, on: .main, in: .common).autoconnect()
-    
-    
-    var body: some View {
-        HStack (spacing: 12) {
-            ForEach(0..<4) { _ in
-                
-                loadingBox()
-                
-            }
-        }
-    }
-    
-    private func loadingBox() -> some View {
-        VStack {
-            
-            Text("Generating")
-                .font(.system(size: 11))
-                .foregroundStyle(AppColors.whiteDefault)
-                .opacity(0.6)
-                .textCase(.uppercase)
-            
-        }
-        .frame(width: 150, height: 180)
-        .background {
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(AppColors.whiteDefault.opacity(0.2), lineWidth: 1)
-                .fill(AppColors.black4)
-        }
-        .animation(.default, value: animationEffect)
-        .changeEffect (
-            .shine.delay(0.2),
-            value: animationEffect,
-            isEnabled: enableAnimation
-        )
-        .onAppear {
-            
-            withAnimation(.easeIn(duration: 0.5)) {
-                enableAnimation = true
-                animationEffect += 1
-            }
-            
-        }
-        .onDisappear {
-            
-            timer.upstream.connect().cancel()
-                            
-        }
-        .onReceive(timer) { time in
-
-            animationEffect += 1
-        }
     }
 }
 

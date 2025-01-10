@@ -15,7 +15,7 @@ struct SummaryInsightBox: View {
         HStack (spacing: 10){
             
             Text(insight.insightContent)
-                .font(.system(size: 15))
+                .font(.system(size: 14))
                 .foregroundStyle(insight.markedSaved ? Color.black : AppColors.whiteDefault)
                 .fixedSize(horizontal: false, vertical: true)
                 

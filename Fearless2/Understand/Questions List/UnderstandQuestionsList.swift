@@ -51,7 +51,7 @@ struct UnderstandQuestionsList: View {
             
             .toolbar {
                 ToolbarItem(placement: .principal) {
-                    ToolbarTitleItem(title: "Past Questions", regularSize: false)
+                    ToolbarTitleItem(title: "Past Questions")
                 }
                 
                 ToolbarItem(placement: .topBarTrailing) {

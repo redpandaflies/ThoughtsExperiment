@@ -230,12 +230,12 @@ final class DataController: ObservableObject {
                 }
             case .singleSelect:
                 if let answer = userAnswer as? [String] {
-                    let arrayString = answer.joined(separator: ",")
+                    let arrayString = answer.joined(separator: ";")
                     question.questionSingleSelectOptions = arrayString
                 }
             case .multiSelect:
                 if let answer = userAnswer as? [String] {
-                    let arrayString = answer.joined(separator: ",")
+                    let arrayString = answer.joined(separator: ";")
                     question.questionAnswerMultiSelect = arrayString
                 }
             }

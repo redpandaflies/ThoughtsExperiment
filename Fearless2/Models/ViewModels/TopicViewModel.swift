@@ -15,8 +15,8 @@ final class TopicViewModel: ObservableObject {
     @Published var generatingImage: Bool = false
     @Published var updatedEntry: Entry? = nil
     @Published var focusAreaUpdated: Bool = false
-    @Published var focusAreaSuggestions: [NewSuggestion] = []
     @Published var focusAreaSummaryCreated: Bool = false
+    @Published var creatingFocusAreaSuggestions: Bool = false
     @Published var sectionSummaryCreated: Bool = false
    
     
@@ -69,8 +69,12 @@ final class TopicViewModel: ObservableObject {
             self.showPlaceholder = false
             self.generatingImage = false
             self.focusAreaUpdated = false
-            self.focusAreaSuggestions = []
             self.focusAreaSummaryCreated = false
+            if selectedAssistant == .focusAreaSuggestions {
+                self.creatingFocusAreaSuggestions = true
+            } else {
+                self.creatingFocusAreaSuggestions = false
+            }
             self.sectionSummaryCreated = false
             self.updatedEntry = nil
            
@@ -131,12 +135,12 @@ final class TopicViewModel: ObservableObject {
                         return
                     }
                     
-                    if let newSectionSuggestions = await openAISwiftService.processSectionSuggestions(topicId: currentTopic) {
-                        loggerOpenAI.log("Processed section suggestions")
-                        await MainActor.run {
-                            self.focusAreaSuggestions = newSectionSuggestions
-                        }
+                   await openAISwiftService.processSectionSuggestions(topicId: currentTopic)
+                    
+                    await MainActor.run {
+                        self.creatingFocusAreaSuggestions = false
                     }
+                    
                 
                 case .focusArea:
                     

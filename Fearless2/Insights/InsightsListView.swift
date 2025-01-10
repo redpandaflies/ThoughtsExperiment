@@ -35,6 +35,7 @@ struct InsightsListView: View {
                 Text("Collected insights")
                     .multilineTextAlignment(.leading)
                     .font(.system(size: 16, weight: .light))
+                    .fontWidth(.condensed)
                     .foregroundStyle(AppColors.yellow1)
                     .textCase(.uppercase)
                 

@@ -72,13 +72,6 @@ struct TopicDetailView: View {
                     
                     Spacer()
                     
-                    if (topic.topicFocusAreas.count > 1) && (focusAreaScrollPosition != topic.topicFocusAreas.count - 1) {
-                        nextIndicator()
-                            .onTapGesture {
-                                getNewScrollPosition()
-                            }
-                    }
-                    
                 }
                 .padding(.bottom)
                 
@@ -129,7 +122,7 @@ struct TopicDetailView: View {
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
-            .toolbarVisibility(.hidden, for: .navigationBar)
+            .toolbar(.hidden)
         }//NavigationStack
      
     }
@@ -156,7 +149,6 @@ struct TopicDetailView: View {
                             .resizable()
                             .aspectRatio(contentMode: .fill)
                             .opacity(0.5)
-                            
                             .clipShape(Circle())
                     }
             }
@@ -167,25 +159,6 @@ struct TopicDetailView: View {
            
         }
         .ignoresSafeArea(.all)
-    }
-    
-    private func nextIndicator() -> some View {
-        VStack (alignment: .center, spacing: 10){
-            Text("Next")
-                .font(.caption)
-                .fontWeight(.regular)
-                .foregroundStyle(AppColors.whiteDefault)
-                .opacity(0.7)
-            
-            
-            Image(systemName: "chevron.compact.down")
-                .font(.largeTitle)
-                .fontWeight(.regular)
-                .foregroundStyle(AppColors.whiteDefault)
-                .opacity(0.7)
-            
-        }
-        .contentShape(Rectangle())
     }
     
     private func getNewScrollPosition() {
@@ -202,8 +175,8 @@ struct TopicDetailView: View {
                 .fill(
                     LinearGradient(
                         stops: [
-                            Gradient.Stop(color: Color.black, location: 0.70),
-                            Gradient.Stop(color: Color.black.opacity(0.1), location: 1.0)
+                            Gradient.Stop(color: AppColors.black4, location: 0.70),
+                            Gradient.Stop(color: AppColors.black4.opacity(0.1), location: 1.0)
                         ],
                         startPoint: .top,
                         endPoint: .bottom
@@ -222,7 +195,7 @@ struct TopicDetailView: View {
         VStack {
             
             Rectangle()
-                .fill(Color.black)
+                .fill(AppColors.black4)
                 .frame(width: screenWidth, height: 20)
             
             Spacer()

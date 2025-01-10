@@ -153,6 +153,7 @@ struct UpdateSectionView: View {
         
         let answeredQuestion = questions[answeredQuestionIndex]
         let numberOfQuestions = questions.count
+       
         
         var answeredQuestionTopicText: String?
         var answeredQuestionSingleSelect: String?
@@ -161,7 +162,13 @@ struct UpdateSectionView: View {
         if let answeredQuestionType =  QuestionType(rawValue: answeredQuestion.questionType){
             switch answeredQuestionType {
             case .open:
-                isFocused = false
+                if answeredQuestionIndex < numberOfQuestions - 1 {
+                    let nextQuestion = questions[answeredQuestionIndex + 1]
+                    if nextQuestion.questionType != QuestionType.open.rawValue {
+                        isFocused = false
+                    }
+                }
+                
                 answeredQuestionTopicText = topicText
             case .singleSelect:
                 answeredQuestionSingleSelect = singleSelectAnswer

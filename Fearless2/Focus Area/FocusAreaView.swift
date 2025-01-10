@@ -44,12 +44,10 @@ struct FocusAreasView: View {
         
         VStack {
             switch selectedTab {
-            case 0:
-                FocusAreaEmptyState(topicViewModel: topicViewModel, selectedTab: $selectedTab, topicId: topicId)
-            default:
-                FocusAreaList(topicViewModel: topicViewModel, showFocusAreaRecapView: $showFocusAreaRecapView, selectedSection: $selectedSection, selectedSectionSummary: $selectedSectionSummary, selectedFocusArea: $selectedFocusArea, focusAreaScrollPosition: $focusAreaScrollPosition, focusAreas: focusAreas)
-                
-                
+                case 0:
+                    FocusAreaEmptyState(topicViewModel: topicViewModel, selectedTab: $selectedTab, topicId: topicId)
+                default:
+                    FocusAreaList(topicViewModel: topicViewModel, showFocusAreaRecapView: $showFocusAreaRecapView, selectedSection: $selectedSection, selectedSectionSummary: $selectedSectionSummary, selectedFocusArea: $selectedFocusArea, focusAreaScrollPosition: $focusAreaScrollPosition, focusAreas: focusAreas)
             }
         }
         .ignoresSafeArea(.keyboard)
@@ -67,19 +65,29 @@ struct FocusAreasView: View {
     }
     
     private func nextFocusAreaIndicator(scrollPosition: Int) -> some View {
-        VStack (spacing: 10){
+        VStack {
             Spacer()
+
             if scrollPosition < focusAreas.count - 1 {
-                Text(getNextFocusAreaTitle(scrollPosition: scrollPosition))
-                    .font(.system(size: 12))
-                    .foregroundStyle(AppColors.whiteDefault.opacity(0.7))
-                    .onAppear {
-                        print("Scroll position: \(scrollPosition), total focus area \(focusAreas.count)")
+                VStack (spacing: 10){
+                    Text(getNextFocusAreaTitle(scrollPosition: scrollPosition))
+                        .font(.system(size: 12))
+                        .foregroundStyle(AppColors.whiteDefault.opacity(0.7))
+                        .onAppear {
+                            print("Scroll position: \(scrollPosition), total focus area \(focusAreas.count)")
+                        }
+                    
+                    Image(systemName: "chevron.compact.down")
+                        .font(.system(size: 20))
+                        .foregroundStyle(AppColors.whiteDefault.opacity(0.7))
+                }
+                .padding()
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    withAnimation {
+                        focusAreaScrollPosition = scrollPosition + 1
                     }
-                
-                Image(systemName: "chevron.compact.down")
-                    .font(.system(size: 20))
-                    .foregroundStyle(AppColors.whiteDefault.opacity(0.7))
+                }
             }
         }
         
@@ -130,11 +138,11 @@ struct FocusAreaList: View {
                     
                 }//ForEach
             }//VStack
+            .scrollTargetLayout()
             
         }//ScrollView
         .frame(height: screenHeight * 0.6)
         .scrollPosition(id: $focusAreaScrollPosition)
-        .scrollTargetLayout()
         .scrollTargetBehavior(.paging)
         .scrollBounceBehavior(.basedOnSize)
         .scrollClipDisabled(true)

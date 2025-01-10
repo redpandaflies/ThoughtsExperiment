@@ -30,6 +30,7 @@ struct InsightBoxView: View {
                     unsaveInsight()
                 } label: {
                     Label("Remove insight", systemImage: "lightbulb.slash")
+                        .font(.system(size: 14))
                 }
                 
             } label: {

@@ -48,9 +48,9 @@ struct FocusAreaRecapHeader: View {
     
     private func showTopicTitle() -> some View {
         Text(topicTitle)
-            .font(.system(size: 14))
+            .font(.system(size: 16, weight: .light).smallCaps())
+            .fontWidth(.condensed)
             .foregroundStyle(AppColors.whiteDefault.opacity(0.5))
-            .textCase(.uppercase)
     }
     
     private func progressBar() -> some View {

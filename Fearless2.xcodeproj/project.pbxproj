@@ -31,6 +31,7 @@
 		8A2C37092D29B93200C37315 /* TopicReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A2C37082D29B93200C37315 /* TopicReviewView.swift */; };
 		8A2C370F2D2C5B5F00C37315 /* loadingAnimation.json in Resources */ = {isa = PBXBuildFile; fileRef = 8A2C370E2D2C5B5F00C37315 /* loadingAnimation.json */; };
 		8A2C37112D2D36BC00C37315 /* WhyBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A2C37102D2D36BC00C37315 /* WhyBox.swift */; };
+		8A2C37132D2FF05900C37315 /* LoadingPlaceholderContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A2C37122D2FF05900C37315 /* LoadingPlaceholderContent.swift */; };
 		8A6332492CD8257A00EF34FA /* FocusArea-CoreDataHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A6332482CD8257A00EF34FA /* FocusArea-CoreDataHelpers.swift */; };
 		8A63324C2CD8415600EF34FA /* FocusAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A63324B2CD8415600EF34FA /* FocusAreaView.swift */; };
 		8A63324F2CDAB85A00EF34FA /* TabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A63324E2CDAB84000EF34FA /* TabBar.swift */; };
@@ -151,6 +152,7 @@
 		8A2C37082D29B93200C37315 /* TopicReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicReviewView.swift; sourceTree = "<group>"; };
 		8A2C370E2D2C5B5F00C37315 /* loadingAnimation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = loadingAnimation.json; sourceTree = "<group>"; };
 		8A2C37102D2D36BC00C37315 /* WhyBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhyBox.swift; sourceTree = "<group>"; };
+		8A2C37122D2FF05900C37315 /* LoadingPlaceholderContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingPlaceholderContent.swift; sourceTree = "<group>"; };
 		8A6332482CD8257A00EF34FA /* FocusArea-CoreDataHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FocusArea-CoreDataHelpers.swift"; sourceTree = "<group>"; };
 		8A63324B2CD8415600EF34FA /* FocusAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusAreaView.swift; sourceTree = "<group>"; };
 		8A63324E2CDAB84000EF34FA /* TabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBar.swift; sourceTree = "<group>"; };
@@ -559,6 +561,7 @@
 				8ACE0DDF2CD1E48500718B9E /* SliderView.swift */,
 				8A2C36FB2D22CA2100C37315 /* RectangleButtonYellow.swift */,
 				8A2C37102D2D36BC00C37315 /* WhyBox.swift */,
+				8A2C37122D2FF05900C37315 /* LoadingPlaceholderContent.swift */,
 			);
 			path = "Reusable Views";
 			sourceTree = "<group>";
@@ -786,6 +789,7 @@
 				8A8ED7332CF2EE5D00780384 /* FocusAreaSummary-CoreDataHelpers.swift in Sources */,
 				8A79EAB02CE3F045000A966B /* AudioRecorder.swift in Sources */,
 				8A9CC1DA2CAE7697007C2AA9 /* LottieView.swift in Sources */,
+				8A2C37132D2FF05900C37315 /* LoadingPlaceholderContent.swift in Sources */,
 				8A74F4A22CE69A42008A33B0 /* EntryDetailView.swift in Sources */,
 				8A26DFCA2CED4575002C4F60 /* InsightBoxView.swift in Sources */,
 				8A9CC18C2CAB5BF7007C2AA9 /* AppViewsManager.swift in Sources */,
@@ -988,7 +992,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.spacenotes.app.Fearless2;
+				PRODUCT_BUNDLE_IDENTIFIER = app.spacenotes.burrow;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -1024,7 +1028,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.spacenotes.app.Fearless2;
+				PRODUCT_BUNDLE_IDENTIFIER = app.spacenotes.burrow;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;

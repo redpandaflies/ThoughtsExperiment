@@ -22,14 +22,14 @@ struct TopicPickerView: View {
                         .font(.system(size: 12))
                         .foregroundStyle(AppColors.whiteDefault)
                         .textCase(.uppercase)
-                        .opacity(0.7)
-                        .fixedSize(horizontal: false, vertical: true)
+                        .opacity(item == selectedTabTopic ? 1: 0.7)
+                        .fixedSize(horizontal: true, vertical: false)
                 }
-                .padding(.horizontal, 10)
+                .padding(.horizontal, 15)
                 .padding(.vertical, 5)
                 .background {
                     Capsule(style: .circular)
-                        .fill(item == selectedTabTopic ? AppColors.whiteDefault.opacity(0.05) : Color.clear)
+                        .fill(item == selectedTabTopic ? AppColors.whiteDefault.opacity(0.07) : Color.clear)
                 }
                 .frame(width: 80)
                 .contentShape(Rectangle())

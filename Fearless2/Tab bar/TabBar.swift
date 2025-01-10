@@ -21,25 +21,33 @@ struct TabBar: View {
     let topicId: UUID?
     let screenWidth = UIScreen.current.bounds.width
     var body: some View {
-        VStack {
-            Spacer()
-            
-            ZStack {
-                Rectangle()
-                    .stroke(.white.opacity(0.1), lineWidth: 0.5)
-                    .fill(AppColors.black3.opacity(0.93))
-                    .shadow(color: .black.opacity(0.2), radius: 2.5, x: 0, y: -2)
-                    .background {
-                        Rectangle()
-                            .fill(Color.black.opacity(0.1))
-                            .blur(radius: 5)
-                    }
+        
+            VStack {
+                Spacer()
                 
+                ZStack {
+
+                    switch currentTabBar {
+                        case .home:
+                            HomeGradient()
+                        case .topic:
+                            Rectangle()
+                                .stroke(.white.opacity(0.1), lineWidth: 0.5)
+                                .fill(AppColors.black3.opacity(0.93))
+                                .shadow(color: .black.opacity(0.2), radius: 2.5, x: 0, y: -2)
+                                .background {
+                                    Rectangle()
+                                        .fill(Color.black.opacity(0.1))
+                                        .blur(radius: 5)
+                                }
+                    }
+                    
                 Group {
                     switch currentTabBar {
                     case .home:
-                        HomeTabBar(selectedTabHome: $selectedTabHome)
-                            .transition(.opacity.combined(with: .scale(0.8)))
+                        EmptyView()
+//                        HomeTabBar(selectedTabHome: $selectedTabHome)
+                        //                            .transition(.opacity.combined(with: .scale(0.8)))
                     case .topic:
                         TopicDetailViewFooter(transcriptionViewModel: transcriptionViewModel, selectedTabTopic: $selectedTabTopic, currentTabBar: $currentTabBar, navigateToTopicDetailView: $navigateToTopicDetailView, topicId: topicId)
                             .transition(.opacity.combined(with: .scale(0.8)))
@@ -49,11 +57,37 @@ struct TabBar: View {
                 .padding(.bottom, 30)
             }
             .frame(width: screenWidth, height: 90)
-            
-        }.edgesIgnoringSafeArea(.all)
+           
+        }
+        .edgesIgnoringSafeArea(.bottom)
+        
     }
 }
 
+struct HomeGradient: View {
+    
+    private let screenWidth = UIScreen.current.bounds.width
+    
+    var body: some View {
+      
+        Group {
+            Rectangle()
+                .fill(
+                    LinearGradient(
+                        stops: [
+                            Gradient.Stop(color: AppColors.black4, location: 0.2),
+                            Gradient.Stop(color: AppColors.black4.opacity(0.76), location: 0.43),
+                            Gradient.Stop(color: AppColors.black4.opacity(0), location: 1.00)
+                        ],
+                        startPoint: .bottom,
+                        endPoint: .top
+                    )
+                )
+            
+        }//App was crashing when Group was removed
+    }
+    
+}
 
 struct HomeTabBar: View {
     @Binding var selectedTabHome: TabBarItemHome

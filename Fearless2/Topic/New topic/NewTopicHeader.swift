@@ -15,9 +15,10 @@ struct NewTopicHeader: View {
         
         HStack (spacing: 30) {
             Text("New topic")
-                .font(.system(size: 16))
+                .font(.system(size: 20, weight: .light).smallCaps())
+                .fontWidth(.condensed)
                 .foregroundStyle(AppColors.yellow1)
-                .textCase(.uppercase)
+                
             
             Spacer()
             

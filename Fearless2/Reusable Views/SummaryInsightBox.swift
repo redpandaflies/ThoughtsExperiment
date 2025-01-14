@@ -4,7 +4,7 @@
 //
 //  Created by Yue Deng-Wu on 10/23/24.
 //
-
+import Mixpanel
 import SwiftUI
 
 struct SummaryInsightBox: View {
@@ -48,6 +48,10 @@ struct SummaryInsightBox: View {
         Task { @MainActor in
             insight.markedSaved.toggle()
             await dataController.save()
+        }
+        
+        DispatchQueue.global(qos: .background).async {
+            Mixpanel.mainInstance().track(event: "Saved insight")
         }
     }
     

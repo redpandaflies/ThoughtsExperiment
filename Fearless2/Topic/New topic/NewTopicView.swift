@@ -4,7 +4,7 @@
 //
 //  Created by Yue Deng-Wu on 10/1/24.
 //
-
+import Mixpanel
 import SwiftUI
 
 struct NewTopicView: View {
@@ -15,6 +15,7 @@ struct NewTopicView: View {
     @State private var selectedQuestion: Int = 0
     @State private var topicText: String = ""//user's definition of the new topic
     @State private var answer1: String = ""//user's answer to the first question
+    @State private var answer2: String = ""//user's answer to the second question
     @State private var singleSelectAnswer: String = "" //single-select answer
     @State private var multiSelectAnswers: [String] = [] //answers user choose for muti-select questions
     @State private var activeIndex: Int? = nil //controls the state of the loading view
@@ -137,12 +138,20 @@ struct NewTopicView: View {
         withAnimation(.snappy(duration: 0.2)) {
             currentTabBar = .topic
         }
+        
+        guard let newTopicTitle = selectedTopic?.topicTitle else { return }
+        
+        DispatchQueue.global(qos: .background).async {
+            Mixpanel.mainInstance().track(event: "Created new topic: \(newTopicTitle)")
+        }
        
     }
     
     private func backButtonAction() {
-        selectedQuestion -= 1
+        answer2 = topicText
         topicText = answer1
+        selectedQuestion -= 1
+        
     }
     
     
@@ -168,20 +177,24 @@ struct NewTopicView: View {
                 answeredQuestionMultiSelect = multiSelectAnswers
         }
         
-        //reset the value of @State vars managing answers
-        topicText = ""
-        singleSelectAnswer = ""
-        multiSelectAnswers = []
+       
+       print("Before reset: topicText = \(topicText), answer1 = \(answer1), answer2 = \(answer2)")
+       
+       // Reset the value of @State vars managing answers
+       topicText = answer2.isEmpty ? "" : answer2
+       singleSelectAnswer = ""
+       multiSelectAnswers = []
+       
+       print("After reset: topicText = \(topicText)")
         
         //move to next question
-        if selectedQuestion + 1 < totalQuestions {
-            if !topicText.isEmpty {
-                topicText = ""
+        DispatchQueue.main.async {
+            if selectedQuestion + 1 < totalQuestions {
+                selectedQuestion += 1
+            } else {
+                submitForm()
             }
-            selectedQuestion += 1
-        } else {
-            submitForm()
-        }
+        }//needed to ensure that next question appears after topicText has been reset to ""
         
         //save answers
         Task {

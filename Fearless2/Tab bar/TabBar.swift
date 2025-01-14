@@ -101,9 +101,6 @@ struct HomeTabBar: View {
                     isSelected: selectedTabHome == tab,
                     action: {
                         selectedTabHome = tab
-//                            DispatchQueue.global(qos: .background).async {
-//                                Mixpanel.mainInstance().track(event: "Selected tab: \(tab)")
-//                            }
                     }
                 )
             }

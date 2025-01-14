@@ -5,6 +5,7 @@
 //  Created by Yue Deng-Wu on 10/3/24.
 //
 import CoreData
+import Mixpanel
 import SwiftUI
 
 struct UpdateSectionView: View {
@@ -214,6 +215,10 @@ struct UpdateSectionView: View {
             }
             
             print("SelectedQuestion: \(selectedQuestion)")
+            
+            DispatchQueue.global(qos: .background).async {
+                Mixpanel.mainInstance().track(event: "Answered question")
+            }
             
             if answeredQuestionIndex + 1 == numberOfQuestions {
                 section.completed = true

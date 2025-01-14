@@ -5,6 +5,7 @@
 //  Created by Yue Deng-Wu on 10/14/24.
 //
 import CoreData
+import Mixpanel
 import SwiftUI
 
 struct SectionListView: View {
@@ -97,6 +98,12 @@ struct SectionListView: View {
                     proxy.scrollTo(index, anchor: .center)
                 } else {
                     proxy.scrollTo(sections.count, anchor: .center)
+                    
+                    let focusAreaTitle = focusArea.focusAreaTitle
+                    
+                    DispatchQueue.global(qos: .background).async {
+                        Mixpanel.mainInstance().track(event: "Finished path: \(focusAreaTitle)")
+                    }
                 }
             }
            

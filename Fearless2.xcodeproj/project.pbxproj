@@ -32,6 +32,7 @@
 		8A2C370F2D2C5B5F00C37315 /* loadingAnimation.json in Resources */ = {isa = PBXBuildFile; fileRef = 8A2C370E2D2C5B5F00C37315 /* loadingAnimation.json */; };
 		8A2C37112D2D36BC00C37315 /* WhyBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A2C37102D2D36BC00C37315 /* WhyBox.swift */; };
 		8A2C37132D2FF05900C37315 /* LoadingPlaceholderContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A2C37122D2FF05900C37315 /* LoadingPlaceholderContent.swift */; };
+		8A5881B32D3456E60019C785 /* Mixpanel in Frameworks */ = {isa = PBXBuildFile; productRef = 8A5881B22D3456E60019C785 /* Mixpanel */; };
 		8A6332492CD8257A00EF34FA /* FocusArea-CoreDataHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A6332482CD8257A00EF34FA /* FocusArea-CoreDataHelpers.swift */; };
 		8A63324C2CD8415600EF34FA /* FocusAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A63324B2CD8415600EF34FA /* FocusAreaView.swift */; };
 		8A63324F2CDAB85A00EF34FA /* TabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A63324E2CDAB84000EF34FA /* TabBar.swift */; };
@@ -252,6 +253,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8A5881B32D3456E60019C785 /* Mixpanel in Frameworks */,
 				8A9CC1C32CAD2A6E007C2AA9 /* SwiftOpenAI in Frameworks */,
 				8A8ED7422CF5656100780384 /* Pow in Frameworks */,
 				8A8B63EE2D1F068A00BA57D0 /* AIProxy in Frameworks */,
@@ -664,6 +666,7 @@
 				8ABE9AE92CB2768600483CFD /* WrappingHStack */,
 				8A8ED7412CF5656100780384 /* Pow */,
 				8A8B63ED2D1F068A00BA57D0 /* AIProxy */,
+				8A5881B22D3456E60019C785 /* Mixpanel */,
 			);
 			productName = Fearless2;
 			productReference = 8A9CC1732CAB3DEA007C2AA9 /* Fearless2.app */;
@@ -699,6 +702,7 @@
 				8ABE9AE82CB2768600483CFD /* XCRemoteSwiftPackageReference "WrappingHStack" */,
 				8A8ED7402CF5656100780384 /* XCRemoteSwiftPackageReference "Pow" */,
 				8A8B63EC2D1F068A00BA57D0 /* XCRemoteSwiftPackageReference "AIProxySwift" */,
+				8A5881B12D3456E60019C785 /* XCRemoteSwiftPackageReference "mixpanel-swift" */,
 			);
 			productRefGroup = 8A9CC1742CAB3DEA007C2AA9 /* Products */;
 			projectDirPath = "";
@@ -972,7 +976,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Fearless2/Fearless2.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_ASSET_PATHS = "\"Fearless2/Preview Content\"";
 				DEVELOPMENT_TEAM = 79TB36U8AD;
 				ENABLE_PREVIEWS = YES;
@@ -1008,7 +1012,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Fearless2/Fearless2.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_ASSET_PATHS = "\"Fearless2/Preview Content\"";
 				DEVELOPMENT_TEAM = 79TB36U8AD;
 				ENABLE_PREVIEWS = YES;
@@ -1060,6 +1064,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		8A5881B12D3456E60019C785 /* XCRemoteSwiftPackageReference "mixpanel-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/mixpanel/mixpanel-swift";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
 		8A8B63EC2D1F068A00BA57D0 /* XCRemoteSwiftPackageReference "AIProxySwift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/lzell/AIProxySwift";
@@ -1103,6 +1115,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		8A5881B22D3456E60019C785 /* Mixpanel */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8A5881B12D3456E60019C785 /* XCRemoteSwiftPackageReference "mixpanel-swift" */;
+			productName = Mixpanel;
+		};
 		8A8B63ED2D1F068A00BA57D0 /* AIProxy */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 8A8B63EC2D1F068A00BA57D0 /* XCRemoteSwiftPackageReference "AIProxySwift" */;

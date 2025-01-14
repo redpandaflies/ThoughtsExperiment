@@ -5,6 +5,7 @@
 //  Created by Yue Deng-Wu on 10/30/24.
 //
 import CoreData
+import Mixpanel
 import Pow
 import SwiftUI
 
@@ -178,20 +179,20 @@ struct FocusAreaRecapView: View {
         switch selectedTab {
         
             case 0:
-            guard let currentFocusArea = focusArea else { return AnyView(EmptyView())}
-            
-            return AnyView(FocusAreaLoadingView(topicViewModel: topicViewModel, recapReady: $recapReady, animationValue: $animationValue, focusArea: currentFocusArea))
+                guard let currentFocusArea = focusArea else { return AnyView(EmptyView())}
+                
+                return AnyView(FocusAreaLoadingView(topicViewModel: topicViewModel, recapReady: $recapReady, animationValue: $animationValue, focusArea: currentFocusArea))
             
             case 1:
-            return AnyView(feedbackView(focusArea?.summary?.summaryFeedback ?? ""))
+                return AnyView(feedbackView(focusArea?.summary?.summaryFeedback ?? ""))
             
             case 2:
                return AnyView(insightsView())
             
             default:
-            return AnyView(FocusAreaSuggestionsList(topicViewModel: topicViewModel, suggestions: getSuggestions(), action: {
-                        closeView()
-            }, topic: focusArea?.topic, useCase: .recap))
+                return AnyView(FocusAreaSuggestionsList(topicViewModel: topicViewModel, suggestions: getSuggestions(), action: {
+                            closeView()
+                }, topic: focusArea?.topic, useCase: .recap))
         }
     }
     
@@ -307,11 +308,16 @@ struct FocusAreaRecapView: View {
             
             selectedTab = 0
             
+            let topicId = focusArea?.topic?.topicId
+            
             Task {
-                let topicId = focusArea?.topic?.topicId
-                
+
                 await topicViewModel.manageRun(selectedAssistant: .focusAreaSummary, topicId: topicId, focusArea: focusArea)
                 await topicViewModel.manageRun(selectedAssistant: .focusAreaSuggestions, topicId: topicId)
+
+                DispatchQueue.global(qos: .background).async {
+                    Mixpanel.mainInstance().track(event: "Generated recap")
+                }
             }
         }
     }

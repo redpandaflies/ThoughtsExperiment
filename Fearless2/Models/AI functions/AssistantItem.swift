@@ -11,6 +11,7 @@ import Foundation
 enum AssistantItem: Int, CaseIterable {
     
     case topic
+    case topicOverview
     case sectionSummary
     case focusArea
     case focusAreaSuggestions
@@ -22,6 +23,8 @@ enum AssistantItem: Int, CaseIterable {
         switch self {
         case .topic:
             return Constants.openAIAssistantIdTopic
+        case .topicOverview:
+            return Constants.openAIAssistantIdTopicOverview
         case .sectionSummary:
             return Constants.openAIAssistantIdSectionSummary
         case .focusArea:

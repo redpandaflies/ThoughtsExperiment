@@ -11,6 +11,7 @@ import OSLog
 final class TopicViewModel: ObservableObject {
     
     @Published var topicUpdated: Bool = false
+    @Published var generatingTopicOverview: Bool = false
     @Published var showPlaceholder: Bool = false
     @Published var generatingImage: Bool = false
     @Published var updatedEntry: Entry? = nil
@@ -27,6 +28,15 @@ final class TopicViewModel: ObservableObject {
     
     private var cancellables = Set<AnyCancellable>()
     
+    private var overviewGenerated: Bool {
+       get {
+           UserDefaults.standard.bool(forKey: "overviewGenerated")
+       }
+       set {
+           UserDefaults.standard.set(newValue, forKey: "overviewGenerated")
+       }
+   }
+    
     var threadId: String? = nil //needed for cancelling runs
     
     let loggerOpenAI = Logger.openAIEvents
@@ -41,6 +51,10 @@ final class TopicViewModel: ObservableObject {
         Task { @MainActor in
             self.setupTranscriptionReadySubscription()
         }
+    }
+    
+    enum OpenAIError: Error {
+        case retrievalFailed
     }
     
     @MainActor
@@ -75,6 +89,9 @@ final class TopicViewModel: ObservableObject {
             } else {
                 self.creatingFocusAreaSuggestions = false
             }
+            if selectedAssistant == .topicOverview {
+                self.generatingTopicOverview = true
+            }
             self.sectionSummaryCreated = false
             self.updatedEntry = nil
            
@@ -94,115 +111,132 @@ final class TopicViewModel: ObservableObject {
         
         
         do {
-            try await openAISwiftService.createRunAndStreamMessage(threadId: threadId, selectedAssistant: selectedAssistant)
+            guard let messageText =  try await openAISwiftService.createRunAndStreamMessage(threadId: threadId, selectedAssistant: selectedAssistant) else {
+                loggerOpenAI.error("No content received from OpenAI.")
                 
-            if !openAISwiftService.messageText.isEmpty {
+                return
+            }
                 
-                switch selectedAssistant {
-                    
-                case .topic:
-                    
-                    await MainActor.run {
-                        self.generatingImage = true
-                    }
-                    
-                    guard let currentTopicId = topicId else {
-                        loggerCoreData.error("Failed to get new topic ID")
-                        return
-                    }
-                    
-                    let currentTopic = await openAISwiftService.processNewTopic(topicId: currentTopicId)
-                    
-                    loggerOpenAI.log("Added new sections to topic")
-                    
-                    await MainActor.run {
-                        self.topicUpdated = true
-                    }
-                    
-                    if let topic = currentTopic {
-                       await self.getTopicImage(topic: topic)
-                    } else {
-                        loggerOpenAI.log("Unable to get image; no topic found")
-                        await MainActor.run {
-                            self.showPlaceholder = true
-                            self.generatingImage = false
-                        }
-                    }
-                    
-                case .focusAreaSuggestions:
-                    guard let currentTopic = topicId else {
-                        loggerCoreData.error("Failed to get topic ID")
-                        return
-                    }
-                    
-                   await openAISwiftService.processSectionSuggestions(topicId: currentTopic)
-                    
-                    await MainActor.run {
-                        self.creatingFocusAreaSuggestions = false
-                    }
-                    
+            switch selectedAssistant {
                 
-                case .focusArea:
-                    
-                    guard let currentFocusArea = focusArea else {
-                        loggerCoreData.error("Failed to get new focus area")
-                        return
-                    }
-                    
-                    await openAISwiftService.processFocusArea(focusArea: currentFocusArea)
-                    
-                    loggerOpenAI.log("Added new focus area to topic")
-                    
+            case .topic:
+                
+                await MainActor.run {
+                    self.generatingImage = true
+                }
+                
+                guard let currentTopicId = topicId else {
+                    loggerCoreData.error("Failed to get new topic ID")
+                    return
+                }
+                
+                let currentTopic = await openAISwiftService.processNewTopic(messageText: messageText, topicId: currentTopicId)
+                
+                loggerOpenAI.log("Added new sections to topic")
+                
+                await MainActor.run {
+                    self.topicUpdated = true
+                }
+                
+                if let topic = currentTopic {
+                   await self.getTopicImage(topic: topic)
+                } else {
+                    loggerOpenAI.log("Unable to get image; no topic found")
                     await MainActor.run {
-                        self.focusAreaUpdated = true
+                        self.showPlaceholder = true
+                        self.generatingImage = false
                     }
-               
-                case .focusAreaSummary:
-                    
-                    guard let currentFocusArea = focusArea else {
-                        loggerCoreData.error("Failed to get focus area")
-                        return
-                    }
-                    
-                    await openAISwiftService.processFocusAreaSummary(focusArea: currentFocusArea)
-                    
-                    await MainActor.run {
-                        self.focusAreaSummaryCreated = true
-                    }
-                    
+                }
+            
+            case .topicOverview:
+                
+                guard let currentTopicId = topicId else {
+                    loggerCoreData.error("Failed to get new topic ID")
+                    return
+                }
+                
+                await openAISwiftService.processTopicOverview(messageText: messageText, topicId: currentTopicId)
+                
+                await MainActor.run {
+                    self.generatingTopicOverview = false
+                    self.overviewGenerated = true
+                }
+                
+                
+            case .focusAreaSuggestions:
+                guard let currentTopic = topicId else {
+                    loggerCoreData.error("Failed to get topic ID")
+                    return
+                }
+                
+               await openAISwiftService.processSectionSuggestions(messageText: messageText, topicId: currentTopic)
+                
+                await MainActor.run {
+                    self.creatingFocusAreaSuggestions = false
+                }
+                
+            
+            case .focusArea:
+                
+                guard let currentFocusArea = focusArea else {
+                    loggerCoreData.error("Failed to get new focus area")
+                    return
+                }
+                
+                await openAISwiftService.processFocusArea(messageText: messageText, focusArea: currentFocusArea)
+                
+                loggerOpenAI.log("Added new focus area to topic")
+                
+                await MainActor.run {
+                    self.focusAreaUpdated = true
+                }
+           
+            case .focusAreaSummary:
+                
+                guard let currentFocusArea = focusArea else {
+                    loggerCoreData.error("Failed to get focus area")
+                    return
+                }
+                
+                await openAISwiftService.processFocusAreaSummary(messageText: messageText, focusArea: currentFocusArea)
+                
+                await MainActor.run {
+                    self.focusAreaSummaryCreated = true
+                }
+                
 //                case .entry:
-//                
+//
 //                    guard let currentEntryId = entryId else {
 //                        loggerCoreData.error("Failed to get new topic ID")
 //                        return
 //                    }
-//                
+//
 //                    if let updatedEntry = await openAISwiftService.processEntry(entryId: currentEntryId) {
 //                        loggerOpenAI.log("Updated new entry with insights and summary")
 //                        await MainActor.run {
 //                            self.updatedEntry = updatedEntry
 //                        }
 //                    }
-//                    
+//
 //                case .sectionSummary:
 //                    guard let currentSection = section else {
 //                            loggerCoreData.error("No current section found")
 //                            return
 //                        }
 //                    await openAISwiftService.processSectionSummary(section: currentSection)
-//                        
+//
 //                    loggerOpenAI.log("Updated section with summary")
-//                    
+//
 //                    await MainActor.run {
 //                        self.sectionSummaryCreated = true
 //                    }
-                    
                 
-                default:
-                    break
-                }
             
+            default:
+                break
             }
+            
+            
                 
                 
          
@@ -258,7 +292,20 @@ final class TopicViewModel: ObservableObject {
                     return
                 }
                 userContext += gatheredContext
-                    
+            
+            case .topicOverview:
+                guard let currentTopic = topicId else {
+                    loggerCoreData.error("Failed to get new topic ID")
+                    return
+                }
+                
+                guard let gatheredContext = await ContextGatherer.gatherContextTopicOverview(dataController: dataController, loggerCoreData: loggerCoreData, topicId: currentTopic) else {
+                    loggerCoreData.error("Failed to get user context")
+                    return
+                }
+                
+                userContext += gatheredContext
+        
             case .focusArea, .focusAreaSummary:
                 guard let currentTopic = topicId else {
                     loggerCoreData.error("Failed to get topic ID")

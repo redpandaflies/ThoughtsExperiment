@@ -96,13 +96,12 @@ struct SectionListView: View {
             .onChange(of: firstIncompleteSectionIndex) {
                 if let index = firstIncompleteSectionIndex {
                     proxy.scrollTo(index, anchor: .center)
+                    
                 } else {
                     proxy.scrollTo(sections.count, anchor: .center)
                     
-                    let focusAreaTitle = focusArea.focusAreaTitle
-                    
                     DispatchQueue.global(qos: .background).async {
-                        Mixpanel.mainInstance().track(event: "Finished path: \(focusAreaTitle)")
+                        Mixpanel.mainInstance().track(event: "Finished path")
                     }
                 }
             }

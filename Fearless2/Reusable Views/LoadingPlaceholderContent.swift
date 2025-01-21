@@ -29,7 +29,6 @@ struct LoadingPlaceholderContent: View {
                 }
             }
         }
-        .padding(.horizontal)
         .scrollIndicators(.hidden)
         .scrollClipDisabled(true)
     }

@@ -97,8 +97,14 @@
         <relationship name="focusAreas" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="FocusArea" inverseName="topic" inverseEntity="FocusArea"/>
         <relationship name="insights" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Insight" inverseName="topic" inverseEntity="Insight"/>
         <relationship name="questions" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Question" inverseName="topic" inverseEntity="Question"/>
+        <relationship name="review" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="TopicReview" inverseName="topic" inverseEntity="TopicReview"/>
         <relationship name="sections" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Section" inverseName="topic" inverseEntity="Section"/>
         <relationship name="suggestions" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="FocusAreaSuggestion" inverseName="topic" inverseEntity="FocusAreaSuggestion"/>
+    </entity>
+    <entity name="TopicReview" representedClassName="TopicReview" syncable="YES" codeGenerationType="class">
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="overview" optional="YES" attributeType="String"/>
+        <relationship name="topic" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Topic" inverseName="review" inverseEntity="Topic"/>
     </entity>
     <entity name="Understand" representedClassName="Understand" syncable="YES" codeGenerationType="class">
         <attribute name="answer" optional="YES" attributeType="String"/>

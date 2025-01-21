@@ -43,7 +43,7 @@ struct InsightsListView: View {
             }
             
             if insights.isEmpty {
-                InsightsEmptyState()
+                TopicReviewEmptyState(text: "Explore this topic’s paths to uncover insights. Collect the ones that resonate with you during the path recap.")
                 
             } else {
                 VStack (alignment: .leading) {

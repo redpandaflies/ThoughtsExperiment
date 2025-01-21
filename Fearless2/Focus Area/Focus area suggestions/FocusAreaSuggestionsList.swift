@@ -98,10 +98,8 @@ struct FocusAreaSuggestionsList: View {
             //API call to create new focus area
             await topicViewModel.manageRun(selectedAssistant: .focusArea, topicId: topic?.topicId, focusArea: focusArea)
             
-            let focusAreaTitle = focusArea.focusAreaTitle
-            
             DispatchQueue.global(qos: .background).async {
-                Mixpanel.mainInstance().track(event: "Chose new focus area: \(focusAreaTitle)")
+                Mixpanel.mainInstance().track(event: "Chose new focus area")
             }
         }
     }

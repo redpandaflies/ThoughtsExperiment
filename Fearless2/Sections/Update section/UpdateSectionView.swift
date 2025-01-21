@@ -178,21 +178,26 @@ struct UpdateSectionView: View {
             }
         }
         
-        //move to next question
-        if selectedQuestion + 1 < numberOfQuestions {
-            selectedQuestion += 1
-            if dataController.allSectionsComplete {
-                dataController.allSectionsComplete = false
-            }
-        }
-        
-        //add fill to progress bar
-        currentQuestionIndex += 1
-        
+        DispatchQueue.main.async {
         //reset the value of @State vars managing answers
         topicText = ""
         singleSelectAnswer = ""
         multiSelectAnswers = []
+        
+        //move to next question
+       
+            if selectedQuestion + 1 < numberOfQuestions {
+                selectedQuestion += 1
+                if dataController.allSectionsComplete {
+                    dataController.allSectionsComplete = false
+                }
+            }
+        
+        
+        //add fill to progress bar
+        currentQuestionIndex += 1
+        
+        }
         
         //save answers
         Task {

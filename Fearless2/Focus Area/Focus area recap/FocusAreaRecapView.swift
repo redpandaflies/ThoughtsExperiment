@@ -42,13 +42,17 @@ struct FocusAreaRecapView: View {
                         .padding(.horizontal, (selectedTab == 3) ? 0 : 16)
                     
                 }
-              
+                .padding(.top, 90)
                 
             }
             .scrollIndicators(.hidden)
             .scrollClipDisabled()
             .scrollDisabled((selectedTab == 1) ? false : true)
-            .padding(.top, 90)
+            .safeAreaInset(edge: .bottom, content: {
+                Rectangle()
+                    .fill(Color.clear)
+                    .frame(height: 120)
+            })
             
             VStack {
                 

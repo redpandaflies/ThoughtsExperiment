@@ -16,7 +16,8 @@ struct FocusAreaRecapPreviewBox: View {
         VStack (spacing: 5) {
            
             Text("Recap")
-                .font(.system(size: 17, weight: .regular))
+                .font(.system(size: 17, weight: .light))
+                .fontWidth(.condensed)
                 .foregroundStyle(focusAreaCompleted ? AppColors.whiteDefault : (available ? Color.black : AppColors.whiteDefault))
             
             Spacer()

@@ -48,23 +48,26 @@ final class UnderstandViewModel: ObservableObject {
         
         
         do {
-            try await openAISwiftService.createRunAndStreamMessage(threadId: threadId, selectedAssistant: selectedAssistant)
+            guard let messageText = try await openAISwiftService.createRunAndStreamMessage(threadId: threadId, selectedAssistant: selectedAssistant) else {
+                loggerOpenAI.error("No content received from OpenAI.")
+                return
+            }
                 
-            if !openAISwiftService.messageText.isEmpty {
+           
                 
-                switch selectedAssistant {
+            switch selectedAssistant {
+                
+                default:
+                let newAnswer = await openAISwiftService.processUnderstandAnswer(messageText: messageText, question: question)
                     
-                    default:
-                        let newAnswer = await openAISwiftService.processUnderstandAnswer(question: question)
-                        
-                        loggerOpenAI.log("Received response for question")
-                    
-                        await MainActor.run {
-                            self.updatedAnswer = newAnswer
-                          
-                        }
+                    loggerOpenAI.log("Received response for question")
+                
+                    await MainActor.run {
+                        self.updatedAnswer = newAnswer
+                      
                     }
                 }
+                
          
         } catch {
             loggerOpenAI.error("Failed to get OpenAI streamed response: \(error.localizedDescription)")

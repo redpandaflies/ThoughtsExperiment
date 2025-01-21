@@ -30,11 +30,24 @@ enum Constants {
 
         guard let infoDict = infoDictionary,
               let openAIId = infoDict["OPENAI_ASSISTANT_ID_TOPIC"] as? String else {
-            logger.error("OpenAI topic creator assistant ID not available, using placeholder")
+            logger.error("OpenAI topic assistant ID not available, using placeholder")
             return ""
         }
        
-        logger.info("Retrieved OpenAI section creator assistant ID: \(openAIId)")
+        logger.info("Retrieved OpenAI topic assistant ID: \(openAIId)")
+       
+        return openAIId
+    }()
+    
+    static let openAIAssistantIdTopicOverview: String = {
+
+        guard let infoDict = infoDictionary,
+              let openAIId = infoDict["OPENAI_ASSISTANT_ID_TOPIC_OVERVIEW"] as? String else {
+            logger.error("OpenAI topic overview assistant ID not available, using placeholder")
+            return ""
+        }
+       
+        logger.info("Retrieved OpenAI topic overview assistant ID: \(openAIId)")
        
         return openAIId
     }()

@@ -45,10 +45,7 @@ struct ContextGatherer {
         """
         
         //get user's response to "What would resolve this topic?"
-        let resolveQuestion = topic.topicQuestions.filter { $0.content == QuestionsNewTopic.questions[1].content }
-        
-            
-        context += "This is what the user believes will resolve the topic: \(String(describing: resolveQuestion.first?.questionAnswerOpen))\n\n"
+        context += getResolveQuestion(topic: topic)
         
 //        if let currentTranscript = transcript {
 //            context += "This is the transcript for the new entry. Please use this when creating the new entry title, summary, insights, and feedback:\n\(currentTranscript)\n"
@@ -168,6 +165,90 @@ struct ContextGatherer {
                 }
             } else {
                 context += "Answer not found for this question\n"
+            }
+        }
+        
+        return context
+    }
+    
+    //for topic overview
+    static func gatherContextTopicOverview(dataController: DataController, loggerCoreData: Logger, topicId: UUID) async -> String? {
+        
+        guard let topic = await dataController.fetchTopic(id: topicId) else {
+               loggerCoreData.error("Failed to fetch topic with ID: \(topicId.uuidString)")
+               return nil
+        }
+        
+        var context = "Here is what we know so far about the topic: \n\n"
+        
+        context += """
+        - topic title: \(topic.topicTitle)\n\n
+        """
+        
+        //get user's response to "What would resolve this topic?"
+        context += getResolveQuestion(topic: topic)
+        
+        //get current review
+        if let review = topic.review {
+            context += "The current topic review is:\n\n \(review.reviewOverview).\n\n"
+        }
+        
+        //get the last three paths/focus areas
+        let focusAreas = topic.topicFocusAreas
+            .sorted { $0.focusAreaCreatedAt < $1.focusAreaCreatedAt }
+        
+        var totalFocusAreas: Int {
+            return focusAreas.count
+        }
+        
+        context += "The level of this topic is \(totalFocusAreas).\n\n"
+        
+        let lastThreeFocusAreas = focusAreas.suffix(3)
+        
+        context += "Here are the last three paths completed: \n\n"
+        
+        for focusArea in lastThreeFocusAreas {
+            let focusAreaSections = focusArea.focusAreaSections.sorted { $0.sectionNumber < $1.sectionNumber }
+            
+            context += """
+                Title: \(focusArea.focusAreaTitle).
+                Reasoning: \(focusArea.focusAreaReasoning)
+                There are \(focusAreaSections.count) sections in this focus area. \n\n
+            """
+            
+            for section in focusAreaSections {
+                
+                context += "\n\nSection number: \(section.sectionNumber).\n Section title: \(section.sectionTitle)\nHere are the questions in this section and the user's answers. :\n"
+                context += getQuestions(section.sectionQuestions)
+                
+            }
+        }
+        
+        //get saved insights
+        context += getSavedInsights(topic: topic) ?? ""
+
+        return context
+    }
+    
+    static func getResolveQuestion(topic: Topic) -> String {
+        let resolveQuestion = topic.topicQuestions.filter { $0.content == QuestionsNewTopic.questions[1].content }
+        
+            
+        return "This is what the user believes will resolve the topic: \(String(describing: resolveQuestion.first?.questionAnswerOpen))\n\n"
+    }
+    
+    static func getSavedInsights(topic: Topic) -> String? {
+        let topicInsights = topic.topicInsights.filter {
+            $0.markedSaved
+        }
+        
+        var context: String = ""
+        
+        if !topicInsights.isEmpty {
+            context += "\n\nHere are the insights the user saved for this topic. Saved insights are ideas/key points that the user especially cared about.\n"
+            
+            for insight in topicInsights {
+                context += "\(insight.insightContent)\n"
             }
         }
         

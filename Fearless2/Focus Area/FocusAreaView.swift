@@ -94,6 +94,7 @@ struct FocusAreasView: View {
     }
     
     private func getNextFocusAreaTitle(scrollPosition: Int) -> String {
+     
         let totalFocusAreas = focusAreas.count
         if scrollPosition < totalFocusAreas - 1 {
             let nextFocusAreaIndex = scrollPosition + 1
@@ -102,6 +103,7 @@ struct FocusAreasView: View {
         } else {
             return ""
         }
+        
     }
     
 }
@@ -150,14 +152,22 @@ struct FocusAreaList: View {
         .onChange(of: dataController.newFocusArea) {
             focusAreaScrollPosition = dataController.newFocusArea
         }
+        .onChange(of: focusAreaScrollPosition) {
+            print("Scroll position updated to: \(focusAreaScrollPosition ?? -1)")
+        }
         .onAppear {
             let totalFocusArea = focusAreas.count
+            print("total focus area for this topic: \(totalFocusArea)")
             let scrollPosition = totalFocusArea - 1
             if scrollPosition >= 0 {
                 focusAreaScrollPosition = scrollPosition
+                print("set focus area scroll position: \(scrollPosition)")
             } else {
                 focusAreaScrollPosition = 0
             }
+        }
+        .onDisappear {
+            focusAreaScrollPosition = nil
         }
     }
 }

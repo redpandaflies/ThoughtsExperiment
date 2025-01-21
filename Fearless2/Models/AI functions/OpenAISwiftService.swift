@@ -15,7 +15,6 @@ import SwiftOpenAI
 
 final class OpenAISwiftService: ObservableObject {
     
-    @Published var messageText: String = ""
     var functionContent: String = ""
     var runId: String = ""
     var toolCallId: String = ""
@@ -117,17 +116,18 @@ final class OpenAISwiftService: ObservableObject {
         
     }
     
-    func createRunAndStreamMessage(threadId: String, selectedAssistant: AssistantItem) async throws {
+    func createRunAndStreamMessage(threadId: String, selectedAssistant: AssistantItem) async throws -> String? {
         await MainActor.run {
             self.functionContent = ""
             self.toolCallId = ""
-            self.messageText = ""
             
         }
+        
+        var messageText: String = ""
        
         guard let selectedAssistantId = selectedAssistant.getAssistantId() else {
             loggerOpenAI.error("Assistant ID missing.")
-            return
+            return nil
         }
         
         do {
@@ -150,12 +150,12 @@ final class OpenAISwiftService: ObservableObject {
                         case .imageFile, nil:
                             break
                         case .text(let textContent):
-                            await MainActor.run {
-                                if !textContent.text.value.isEmpty {
-                                    self.messageText += textContent.text.value
-                                    loggerOpenAI.log("messageText: \(self.messageText)")
-                                }
+                          
+                            if !textContent.text.value.isEmpty {
+                               messageText += textContent.text.value
+                                loggerOpenAI.log("messageText: \(messageText)")
                             }
+                            
                             break
                         }
                         
@@ -184,7 +184,10 @@ final class OpenAISwiftService: ObservableObject {
                     default:
                         continue
                 }
-            }
+            }//for try await
+            
+            return messageText
+            
         }  catch {
             loggerOpenAI.error("Error when streaming run: \(error.localizedDescription)")
             throw OpenAIError.runIncomplete // End the loop in the event of an error
@@ -215,8 +218,8 @@ extension OpenAISwiftService {
     }
     
     @MainActor
-    func processNewTopic(topicId: UUID) async -> Topic? {
-        let arguments = self.messageText
+    func processNewTopic(messageText: String, topicId: UUID) async -> Topic? {
+        let arguments = messageText
         let context = self.dataController.container.viewContext
         var fetchedTopic: Topic? = nil
         
@@ -269,8 +272,48 @@ extension OpenAISwiftService {
     }
     
     @MainActor
-    func processFocusArea(focusArea: FocusArea) async {
-        let arguments = self.messageText
+    func processTopicOverview(messageText: String, topicId: UUID) async {
+        let arguments = messageText
+        let context = self.dataController.container.viewContext
+        
+        await context.perform {
+            // Fetch the topic with the provided topicId
+            let request = NSFetchRequest<Topic>(entityName: "Topic")
+            request.predicate = NSPredicate(format: "id == %@", topicId as CVarArg)
+
+            do {
+                guard let topic = try context.fetch(request).first else {
+                    self.loggerCoreData.error("No topic found with topicId: \(topicId)")
+                    return
+                }
+                
+                // Decode the arguments to get the new section data
+                guard let newReview = self.decodeArguments(arguments: arguments, as: NewTopicOverview.self) else {
+                    self.loggerOpenAI.error("Couldn't decode arguments for sections.")
+                    return
+                }
+                
+                let review = TopicReview(context: context)
+                review.reviewId = UUID()
+                review.reviewOverview = newReview.overview
+                topic.assignReview(review)
+              
+            } catch {
+                self.loggerCoreData.error("Error fetching topic: \(error.localizedDescription)")
+            }
+            
+            // Save the context after processing each section and its questions
+            do {
+                try context.save()
+            } catch {
+                self.loggerCoreData.error("Error saving section: \(error.localizedDescription)")
+            }
+        }
+    }
+    
+    @MainActor
+    func processFocusArea(messageText: String, focusArea: FocusArea) async {
+        let arguments = messageText
         let context = self.dataController.container.viewContext
 
         await context.perform {
@@ -338,8 +381,8 @@ extension OpenAISwiftService {
     
     
     @MainActor
-    func processFocusAreaSummary(focusArea: FocusArea) async {
-        let arguments = self.messageText
+    func processFocusAreaSummary(messageText: String, focusArea: FocusArea) async {
+        let arguments = messageText
         let context = self.dataController.container.viewContext
 
         await context.perform {
@@ -386,8 +429,8 @@ extension OpenAISwiftService {
     }
     
     @MainActor
-    func processSectionSummary(section: Section) async {
-        let arguments = self.messageText
+    func processSectionSummary(messageText: String, section: Section) async {
+        let arguments = messageText
         let context = self.dataController.container.viewContext
 
         await context.perform {
@@ -430,8 +473,8 @@ extension OpenAISwiftService {
     }
     
     @MainActor
-    func processEntry(entryId: UUID) async -> Entry? {
-        let arguments = self.messageText
+    func processEntry(messageText: String, entryId: UUID) async -> Entry? {
+        let arguments = messageText
         let context = self.dataController.container.viewContext
         
         var currentEntry: Entry? = nil
@@ -492,8 +535,8 @@ extension OpenAISwiftService {
     }
     
     @MainActor
-    func processSectionSuggestions(topicId: UUID) async {
-        let arguments = self.messageText
+    func processSectionSuggestions(messageText: String, topicId: UUID) async {
+        let arguments = messageText
         let context = self.dataController.container.viewContext
        
         //delete all existing suggestions
@@ -530,8 +573,8 @@ extension OpenAISwiftService {
     }
     
     @MainActor
-    func processUnderstandAnswer(question: String) async -> Understand? {
-        let arguments = self.messageText
+    func processUnderstandAnswer(messageText: String, question: String) async -> Understand? {
+        let arguments = messageText
         let context = self.dataController.container.viewContext
         
         var newUnderstand: Understand? = nil
@@ -587,6 +630,11 @@ struct NewTopic: Codable, Hashable {
     let title: String
     let definition: String
     let suggestions: [NewSuggestion]
+}
+
+//Create topic overview
+struct NewTopicOverview: Codable, Hashable {
+    let overview: String
 }
 
 struct NewFocusArea: Codable, Hashable {

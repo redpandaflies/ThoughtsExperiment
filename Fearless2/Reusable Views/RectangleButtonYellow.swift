@@ -14,6 +14,7 @@ struct RectangleButtonYellow: View {
     let showBackButton: Bool
     let backAction: () -> Void
     let disableMainButton: Bool
+    let sizeSmall: Bool
     
     init(
         buttonText: String,
@@ -21,7 +22,8 @@ struct RectangleButtonYellow: View {
         showChevron: Bool = false,
         showBackButton: Bool = false,
         backAction: @escaping () -> Void = {},
-        disableMainButton: Bool = false
+        disableMainButton: Bool = false,
+        sizeSmall: Bool = false
     ) {
         self.buttonText = buttonText
         self.action = action
@@ -29,6 +31,7 @@ struct RectangleButtonYellow: View {
         self.showBackButton = showBackButton
         self.backAction = backAction
         self.disableMainButton = disableMainButton
+        self.sizeSmall = sizeSmall
     }
     
     var body: some View {
@@ -51,44 +54,40 @@ struct RectangleButtonYellow: View {
                     .onTapGesture {
                         backAction()
                     }
-                
             }
             
           
-                HStack {
-                    
-                    Spacer()
-                    
-                    Text(buttonText)
+            HStack {
+                
+                Spacer()
+                
+                Text(buttonText)
+                    .font(.system(size: sizeSmall ? 13 : 15))
+                    .foregroundStyle(Color.black)
+                
+                if showChevron {
+                    Image(systemName: "chevron.right")
                         .font(.system(size: 15))
                         .foregroundStyle(Color.black)
-                    
-                    if showChevron {
-                        Image(systemName: "chevron.right")
-                            .font(.system(size: 15))
-                            .foregroundStyle(Color.black)
-                    }
-                    
-                    Spacer()
-                    
-                }//HStack
-                .padding(.horizontal, 20)
-                .frame(height: 55)
-                .contentShape(RoundedRectangle(cornerRadius: 15))
-                .background {
-                    RoundedRectangle(cornerRadius: 15)
-                        .fill(disableMainButton ?  AppColors.darkGrey1 : AppColors.yellow1)
-                        .shadow(color: disableMainButton ? AppColors.darkGrey2 : AppColors.lightBrown2, radius: 0, x: 0, y: 3)
-                }
-                .onTapGesture {
-                    if !disableMainButton {
-                        action()
-                    }
                 }
                 
-            
+                Spacer()
+                
+            }//HStack
+            .padding(.horizontal, 20)
+            .frame(height: 55)
+            .contentShape(RoundedRectangle(cornerRadius: 15))
+            .background {
+                RoundedRectangle(cornerRadius: 15)
+                    .fill(disableMainButton ?  AppColors.darkGrey1 : AppColors.yellow1)
+                    .shadow(color: disableMainButton ? AppColors.darkGrey2 : AppColors.lightBrown2, radius: 0, x: 0, y: 3)
+            }
+            .onTapGesture {
+                if !disableMainButton {
+                    action()
+                }
+            }
         }
-        
     }
 }
 

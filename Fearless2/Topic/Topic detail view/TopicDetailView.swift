@@ -44,7 +44,7 @@ struct TopicDetailView: View {
                         FocusAreasView(topicViewModel: topicViewModel, showFocusAreaRecapView: $showFocusAreaRecapView, selectedSection: $selectedSection, selectedSectionSummary: $selectedSectionSummary, selectedFocusArea: $selectedFocusArea, focusAreaScrollPosition: $focusAreaScrollPosition, topicId: topic.topicId)
                         
                     case .review:
-                        TopicReviewView(topicId: topic.topicId)
+                        TopicReviewView(topicViewModel: topicViewModel, topicId: topic.topicId, focusAreasCompleted: getFocusAreasCompleted() ?? 0)
                             .padding(.horizontal)
                             
                     }
@@ -58,6 +58,7 @@ struct TopicDetailView: View {
                     headerBackground2()
                     headerBackground()
                 }
+                
                 VStack {
                     TopicDetailViewHeader(title: topic.topicTitle)
                         .background {
@@ -161,13 +162,6 @@ struct TopicDetailView: View {
         .ignoresSafeArea(.all)
     }
     
-    private func getNewScrollPosition() {
-        if let currentScrollPosition = focusAreaScrollPosition {
-            let newScrollPosition = currentScrollPosition + 1
-            focusAreaScrollPosition = newScrollPosition
-        }
-    }
-    
     private func headerBackground() -> some View {
         VStack {
             
@@ -213,6 +207,11 @@ struct TopicDetailView: View {
         } else {
             return true
         }
+    }
+    
+    private func getFocusAreasCompleted() -> Int? {
+        let focusAreas = topic.topicFocusAreas
+        return focusAreas.filter { $0.completed }.count
     }
     
 }

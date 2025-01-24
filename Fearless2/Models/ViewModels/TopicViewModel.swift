@@ -28,15 +28,6 @@ final class TopicViewModel: ObservableObject {
     
     private var cancellables = Set<AnyCancellable>()
     
-    private var overviewGenerated: Bool {
-       get {
-           UserDefaults.standard.bool(forKey: "overviewGenerated")
-       }
-       set {
-           UserDefaults.standard.set(newValue, forKey: "overviewGenerated")
-       }
-   }
-    
     var threadId: String? = nil //needed for cancelling runs
     
     let loggerOpenAI = Logger.openAIEvents
@@ -74,7 +65,7 @@ final class TopicViewModel: ObservableObject {
     //MARK: create new topic
     //note: send the full name of category to GPT as context, save the short name to CoreData
     //note: kept the optionals for userInput and question for now, in case we want to add back in the follow-up questions and summary
-    func manageRun(selectedAssistant: AssistantItem, userInput: [String]? = nil, topicId: UUID? = nil, entryId: UUID? = nil, transcript: String? = nil, focusArea: FocusArea? = nil, section: Section? = nil, question: String? = nil) async {
+    func manageRun(selectedAssistant: AssistantItem, userInput: [String]? = nil, topicId: UUID? = nil, entryId: UUID? = nil, transcript: String? = nil, focusArea: FocusArea? = nil, section: Section? = nil, question: String? = nil, review: TopicReview? = nil) async {
     
         //reset published vars
         await MainActor.run {
@@ -97,11 +88,11 @@ final class TopicViewModel: ObservableObject {
            
         }
 
-        await manageRunWithStreaming(selectedAssistant: selectedAssistant, userInput: userInput, topicId: topicId, entryId: entryId, transcript: transcript, focusArea: focusArea, section: section, question: question, retryCount: 1)
+        await manageRunWithStreaming(selectedAssistant: selectedAssistant, userInput: userInput, topicId: topicId, entryId: entryId, transcript: transcript, focusArea: focusArea, section: section, question: question, review: review, retryCount: 1)
         
     }
     
-    func manageRunWithStreaming(selectedAssistant: AssistantItem, userInput: [String]? = nil, topicId: UUID? = nil, entryId: UUID? = nil, transcript: String? = nil, focusArea: FocusArea? = nil, section: Section? = nil, question: String? = nil, retryCount: Int) async {
+    func manageRunWithStreaming(selectedAssistant: AssistantItem, userInput: [String]? = nil, topicId: UUID? = nil, entryId: UUID? = nil, transcript: String? = nil, focusArea: FocusArea? = nil, section: Section? = nil, question: String? = nil, review: TopicReview? = nil, retryCount: Int) async {
         
         guard let threadId = await createThread(selectedAssistant: selectedAssistant) else {
             return
@@ -140,7 +131,9 @@ final class TopicViewModel: ObservableObject {
                 
                 if let topic = currentTopic {
                    await self.getTopicImage(topic: topic)
+                    
                 } else {
+                    
                     loggerOpenAI.log("Unable to get image; no topic found")
                     await MainActor.run {
                         self.showPlaceholder = true
@@ -159,11 +152,10 @@ final class TopicViewModel: ObservableObject {
                 
                 await MainActor.run {
                     self.generatingTopicOverview = false
-                    self.overviewGenerated = true
                 }
                 
-                
             case .focusAreaSuggestions:
+                
                 guard let currentTopic = topicId else {
                     loggerCoreData.error("Failed to get topic ID")
                     return

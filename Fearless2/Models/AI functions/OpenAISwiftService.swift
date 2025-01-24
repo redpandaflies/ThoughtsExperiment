@@ -292,10 +292,12 @@ extension OpenAISwiftService {
                     self.loggerOpenAI.error("Couldn't decode arguments for sections.")
                     return
                 }
-                
+
                 let review = TopicReview(context: context)
                 review.reviewId = UUID()
+                review.reviewCreatedAt = getCurrentTimeString()
                 review.reviewOverview = newReview.overview
+                review.overviewGenerated = true
                 topic.assignReview(review)
               
             } catch {
@@ -306,8 +308,9 @@ extension OpenAISwiftService {
             do {
                 try context.save()
             } catch {
-                self.loggerCoreData.error("Error saving section: \(error.localizedDescription)")
+                self.loggerCoreData.error("Error saving new topic overview: \(error.localizedDescription)")
             }
+            
         }
     }
     

@@ -67,6 +67,7 @@ final class DataController: ObservableObject {
                 let topic = Topic(context: self.context)
                 topic.topicId = UUID()
                 topic.topicCreatedAt = getCurrentTimeString()
+                topic.topicStatus = TopicStatusItem.active.rawValue
                 
                 self.newTopic = topic
                 self.logger.log("Updated newTopic published variable")
@@ -74,6 +75,35 @@ final class DataController: ObservableObject {
            
         }
        
+    }
+    
+    @MainActor
+    func updateTopicStatus(id: UUID, item: TopicStatusItem) async {
+        let request = NSFetchRequest<Topic>(entityName: "Topic")
+        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        
+        await context.perform {
+            do {
+                let fetchedTopic = try self.context.fetch(request)
+                
+                if let topic = fetchedTopic.first {
+                    topic.topicStatus = item.rawValue
+                    
+                    Task {
+                        await self.save()
+                    }
+                   
+                    //reset newTopic so that new topic creation flow functions properly
+                    if let _ = self.newTopic {
+                        self.newTopic = nil
+                    }
+                }
+                    
+            } catch {
+                self.logger.error("Failed to update topic status: \(error.localizedDescription)")
+            }
+
+        }
     }
     
     //create new topic
@@ -366,6 +396,18 @@ final class DataController: ObservableObject {
            
         }
         return topic
+    }
+    
+    @MainActor
+    func updateOverviewStatus(review: TopicReview) async {
+        await context.perform {
+            review.overviewGenerated.toggle()
+            
+            Task {
+                await self.save()
+            }
+        }
+        
     }
     
 //    @MainActor

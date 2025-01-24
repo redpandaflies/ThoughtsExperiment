@@ -122,7 +122,7 @@ struct FocusAreaRecapView: View {
         }//ZStack
        
         .onAppear {
-            createSummary()
+            getRecap()
         }
         .onChange(of: topicViewModel.focusAreaSummaryCreated) {
             if topicViewModel.focusAreaSummaryCreated {
@@ -298,13 +298,14 @@ struct FocusAreaRecapView: View {
         .opacity(0.5)
     }
     
-    //create focus area summary
-    private func createSummary() {
-        if let currentFocusArea = focusArea, currentFocusArea.completed {
+    //create or show focus area summary
+    private func getRecap() {
+        
+        if let currentFocusArea = focusArea, let topic = currentFocusArea.topic, currentFocusArea.completed {
             
             print("This is the last focus area: \(lastFocusArea)")
             
-            if lastFocusArea {
+            if lastFocusArea && (topic.topicStatus != TopicStatusItem.archived.rawValue) {
                 showSuggestions = true
             }
             
@@ -317,6 +318,7 @@ struct FocusAreaRecapView: View {
             Task {
 
                 await topicViewModel.manageRun(selectedAssistant: .focusAreaSummary, topicId: topicId, focusArea: focusArea)
+                
                 await topicViewModel.manageRun(selectedAssistant: .focusAreaSuggestions, topicId: topicId)
 
                 DispatchQueue.global(qos: .background).async {

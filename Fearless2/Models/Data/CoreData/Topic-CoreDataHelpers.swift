@@ -24,6 +24,11 @@ extension Topic {
         set { category = newValue }
     }
     
+    var topicStatus: String {
+        get { status ?? "" }
+        set { status = newValue }
+    }
+    
     var topicTitle: String {
         get { title ?? "" }
         set { title = newValue }

@@ -181,16 +181,18 @@ struct NewTopicView: View {
        print("Before reset: topicText = \(topicText), answer1 = \(answer1), answer2 = \(answer2)")
        
        // Reset the value of @State vars managing answers
-        DispatchQueue.main.async {
+       
            topicText = answer2.isEmpty ? "" : answer2
            singleSelectAnswer = ""
            multiSelectAnswers = []
            
            print("After reset: topicText = \(topicText)")
         
+        DispatchQueue.main.async {
         //move to next question
             if selectedQuestion + 1 < totalQuestions {
                 selectedQuestion += 1
+                print("Moved to next question")
             } else {
                 submitForm()
             }

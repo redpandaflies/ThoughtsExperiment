@@ -9,9 +9,8 @@ import Mixpanel
 import SwiftUI
 
 struct TopicOverviewBox: View {
+    @EnvironmentObject var dataController: DataController
     @ObservedObject var topicViewModel: TopicViewModel
-    
-    @AppStorage("overviewGenerated") var overviewGenerated: Bool = false
     
     let topicId: UUID
     let focusAreasCompleted: Int
@@ -21,7 +20,11 @@ struct TopicOverviewBox: View {
         let remainder = focusAreasCompleted % 3
         return remainder
     }
-
+    
+    var overviewGenerated: Bool {
+        return reviews.first?.overviewGenerated ?? false
+    }
+    
     init(topicViewModel: TopicViewModel,
          topicId: UUID,
          focusAreasCompleted: Int)
@@ -87,7 +90,11 @@ struct TopicOverviewBox: View {
         }
         .onAppear {
             if focusAreasUntilReview > 0 && overviewGenerated {
-                overviewGenerated = false
+                if let review = reviews.first {
+                    Task {
+                        await dataController.updateOverviewStatus(review: review)
+                    }
+                }
             }
         }
     }
@@ -118,14 +125,11 @@ struct TopicOverviewBox: View {
     }
     
     private func buttonAction() {
+        
         Task {
+            
             //generate review
             await topicViewModel.manageRun(selectedAssistant: .topicOverview, topicId: topicId)
-            
-            //change the var to get rid of blur
-            await MainActor.run {
-                overviewGenerated = true
-            }
             
             DispatchQueue.global(qos: .background).async {
                 Mixpanel.mainInstance().track(event: "Updated topic overview")

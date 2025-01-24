@@ -91,6 +91,7 @@
         <attribute name="definition" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="mainImage" optional="YES" attributeType="String"/>
+        <attribute name="status" optional="YES" attributeType="String"/>
         <attribute name="summary" optional="YES" attributeType="String"/>
         <attribute name="title" optional="YES" attributeType="String"/>
         <relationship name="entries" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Entry" inverseName="topic" inverseEntity="Entry"/>
@@ -102,8 +103,10 @@
         <relationship name="suggestions" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="FocusAreaSuggestion" inverseName="topic" inverseEntity="FocusAreaSuggestion"/>
     </entity>
     <entity name="TopicReview" representedClassName="TopicReview" syncable="YES" codeGenerationType="class">
+        <attribute name="createdAt" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="overview" optional="YES" attributeType="String"/>
+        <attribute name="overviewGenerated" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <relationship name="topic" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Topic" inverseName="review" inverseEntity="Topic"/>
     </entity>
     <entity name="Understand" representedClassName="Understand" syncable="YES" codeGenerationType="class">

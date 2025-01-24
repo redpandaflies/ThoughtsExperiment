@@ -40,18 +40,22 @@ struct TopicDetailViewFooter: View {
             Spacer()
             
             Menu {
+                
                 Button (role: .destructive) {
-                    Task {
-                        if let currentTopicId = topicId {
-                            await dataController.deleteTopic(id: currentTopicId)
-                        }
-                    }
-                    dismissView()
+                    deleteTopic()
                     
                 } label: {
                 
                     Label("Delete", systemImage: "trash")
                 }
+                
+                Button {
+                    archiveTopic()
+                    
+                } label: {
+                    Label("Archive", systemImage: "archivebox")
+                }
+                
                 
             } label: {
                 Group {
@@ -75,4 +79,24 @@ struct TopicDetailViewFooter: View {
             selectedTabTopic = .explore
         }
     }
+    
+    private func deleteTopic() {
+        Task {
+            if let currentTopicId = topicId {
+                await dataController.deleteTopic(id: currentTopicId)
+            }
+        }
+        dismissView()
+    }
+    
+    private func archiveTopic() {
+        Task {
+            if let currentTopicId = topicId {
+                await dataController.updateTopicStatus(id: currentTopicId, item: .archived)
+            }
+        }
+        
+        dismissView()
+    }
+
 }

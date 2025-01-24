@@ -14,6 +14,11 @@ extension TopicReview {
         set { id = newValue}
     }
     
+    var reviewCreatedAt: String {
+        get { createdAt ?? "" }
+        set { createdAt = newValue }
+    }
+    
     var reviewOverview: String {
         get { overview ?? "" }
         set { overview = newValue }

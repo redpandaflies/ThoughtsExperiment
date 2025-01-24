@@ -178,14 +178,14 @@ struct UpdateSectionView: View {
             }
         }
         
-        DispatchQueue.main.async {
+        
         //reset the value of @State vars managing answers
         topicText = ""
         singleSelectAnswer = ""
         multiSelectAnswers = []
         
         //move to next question
-       
+        DispatchQueue.main.async {
             if selectedQuestion + 1 < numberOfQuestions {
                 selectedQuestion += 1
                 if dataController.allSectionsComplete {

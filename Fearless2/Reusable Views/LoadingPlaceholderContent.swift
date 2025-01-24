@@ -29,6 +29,7 @@ struct LoadingPlaceholderContent: View {
                 }
             }
         }
+        .padding(.horizontal, contentType == .focusArea ? 16 : 0)
         .scrollIndicators(.hidden)
         .scrollClipDisabled(true)
     }

@@ -24,7 +24,7 @@ struct FocusAreaRecapHeader: View {
         
         HStack (spacing: 30) {
             switch selectedTab {
-            case 0:
+            case 0, 4:
                 showTopicTitle()
             default:
                 progressBar()

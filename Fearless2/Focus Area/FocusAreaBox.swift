@@ -4,6 +4,7 @@
 //
 //  Created by Yue Deng-Wu on 11/8/24.
 //
+import OSLog
 import Pow
 import SwiftUI
 
@@ -18,6 +19,8 @@ struct FocusAreaBox: View {
     @Binding var selectedFocusArea: FocusArea?
     @ObservedObject var focusArea: FocusArea
     let index: Int
+    
+    let logger = Logger.openAIEvents
     
     var body: some View {
        
@@ -55,30 +58,63 @@ struct FocusAreaBox: View {
                 case 0:
                     LoadingPlaceholderContent(contentType: .focusArea)
                 
-                default:
+                case 1:
                     SectionListView(showFocusAreaRecapView: $showFocusAreaRecapView, selectedSection: $selectedSection, selectedSectionSummary: $selectedSectionSummary, selectedFocusArea: $selectedFocusArea, focusArea: focusArea, focusAreaCompleted: focusArea.completed)
                 
+                default:
+                    FocusAreaRetryView(action: {
+                        retry()
+                    })
+                
             }
-
-
-         
             
             Spacer()
             
         }//VStack
         .onAppear {
-            if !focusArea.focusAreaSections.isEmpty {
+            if focusArea.focusAreaSections.isEmpty && !topicViewModel.updatingfocusArea {
+                selectedTab = 2
+            } else if topicViewModel.updatingfocusArea {
+                selectedTab = 0
+            } else {
                 selectedTab = 1
             }
         }
         .onChange(of: topicViewModel.focusAreaUpdated) {
-            if topicViewModel.focusAreaUpdated {
+            //focusArea.completed needed so that only the completed ones aren't affected
+            if topicViewModel.focusAreaUpdated && !focusArea.completed {
                 selectedTab += 1
             }
         }
+        .onChange(of: topicViewModel.focusAreaCreationFailed) {
+            //focusArea.completed needed so that only the completed ones aren't affected
+            if topicViewModel.focusAreaCreationFailed && !focusArea.completed {
+                selectedTab = 2
+            }
+        }
+                
         
     }
+    
+    private func retry() {
+        selectedTab = 0
+        
+        Task {
+            do {
+                //API call to create new focus area
+               try await topicViewModel.manageRun(selectedAssistant: .focusArea, topicId: focusArea.topic?.topicId, focusArea: focusArea)
+                
+            } catch {
+                logger.error("Failed to complete OpenAI run, showing option to retry")
+                await MainActor.run {
+                    selectedTab = 2
+                }
+            }
+        }
+    }
 }
+
+
 
 //#Preview {
 //    FocusAreaBox()

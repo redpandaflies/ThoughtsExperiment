@@ -14,6 +14,7 @@ struct FocusAreaRecapView: View {
     @EnvironmentObject var dataController: DataController
     @ObservedObject var topicViewModel: TopicViewModel
     @State private var selectedTab: Int = 1 // [0] loader, [1] feedback, [2] insights, [3] suggestions
+    @State private var selectedTabSuggestionsList: Int = 1 //manages whether suggestions, loading view or retry is shown on suggestions list
     @State private var showSuggestions: Bool = false
     @State private var recapReady: Bool = false //manage the UI changes when recap is ready
     @State private var animationValue: Bool = false//manages animation of the ellipsis animation on loading view
@@ -98,7 +99,7 @@ struct FocusAreaRecapView: View {
                 Spacer()
                 
                 
-                if selectedTab < 3 {
+                if selectedTab != 3 {
                     RectangleButtonYellow(
                         buttonText: getButtonText(),
                         action: {
@@ -141,8 +142,10 @@ struct FocusAreaRecapView: View {
                     Text("")
                 case 1, 2:
                     Text("Recap")
-                default:
+                case 3:
                     Text("Next up")
+                default:
+                    Text("")
                 }
             }
             .multilineTextAlignment(.leading)
@@ -169,8 +172,10 @@ struct FocusAreaRecapView: View {
             case 2:
                 Text("Save insights")
             
-            default:
+            case 3:
                 Text("Choose the next path to keep exploring this topic")
+            default:
+                Text("")
             }
         }
         .multilineTextAlignment(.leading)
@@ -193,10 +198,15 @@ struct FocusAreaRecapView: View {
             case 2:
                return AnyView(insightsView())
             
-            default:
-                return AnyView(FocusAreaSuggestionsList(topicViewModel: topicViewModel, suggestions: getSuggestions(), action: {
+            case 3:
+            return AnyView(FocusAreaSuggestionsList(topicViewModel: topicViewModel, selectedTabSuggestionsList: $selectedTabSuggestionsList, suggestions: getSuggestions(), action: {
                             closeView()
                 }, topic: focusArea?.topic, useCase: .recap))
+            
+            default:
+                return AnyView(FocusAreaRetryView(action: {
+                    generateNewRecap()
+                }))
         }
     }
     
@@ -243,13 +253,16 @@ struct FocusAreaRecapView: View {
                 return "End recap review"
             }
             
-        default:
+        case 3:
            return ""
+        default:
+            return "Retry"
         }
     }
     
     private func buttonAction() {
         switch selectedTab {
+       
         case 2:
             if showSuggestions {
                 selectedTab += 1
@@ -259,6 +272,8 @@ struct FocusAreaRecapView: View {
             
         case 3:
             break
+        case 4:
+            generateNewRecap()
         default:
             selectedTab += 1
         }
@@ -311,20 +326,7 @@ struct FocusAreaRecapView: View {
             
         } else {
             
-            selectedTab = 0
-            
-            let topicId = focusArea?.topic?.topicId
-            
-            Task {
-
-                await topicViewModel.manageRun(selectedAssistant: .focusAreaSummary, topicId: topicId, focusArea: focusArea)
-                
-                await topicViewModel.manageRun(selectedAssistant: .focusAreaSuggestions, topicId: topicId)
-
-                DispatchQueue.global(qos: .background).async {
-                    Mixpanel.mainInstance().track(event: "Generated recap")
-                }
-            }
+            generateNewRecap()
         }
     }
     
@@ -352,6 +354,35 @@ struct FocusAreaRecapView: View {
                
         }
         .frame(width: screenWidth, height: height)
+    }
+    
+    private func generateNewRecap() {
+        selectedTab = 0
+        
+        let topicId = focusArea?.topic?.topicId
+        
+        Task {
+            do {
+                try await topicViewModel.manageRun(selectedAssistant: .focusAreaSummary, topicId: topicId, focusArea: focusArea)
+            } catch {
+                await MainActor.run {
+                    selectedTab = 4
+                }
+            }
+            
+            do {
+                try await topicViewModel.manageRun(selectedAssistant: .focusAreaSuggestions, topicId: topicId)
+            } catch {
+                await MainActor.run {
+                    topicViewModel.createFocusAreaSuggestions = .retry
+                }
+            }
+            
+
+            DispatchQueue.global(qos: .background).async {
+                Mixpanel.mainInstance().track(event: "Generated recap")
+            }
+        }
     }
 }
 

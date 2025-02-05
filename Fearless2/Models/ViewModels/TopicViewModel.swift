@@ -11,15 +11,17 @@ import OSLog
 final class TopicViewModel: ObservableObject {
     
     @Published var topicUpdated: Bool = false
-    @Published var generatingTopicOverview: Bool = false
+    @Published var createTopicOverview: TopicOverviewState = .ready
     @Published var showPlaceholder: Bool = false
     @Published var generatingImage: Bool = false
     @Published var updatedEntry: Entry? = nil
+    @Published var updatingfocusArea: Bool = false
     @Published var focusAreaUpdated: Bool = false
+    @Published var focusAreaCreationFailed: Bool = false
     @Published var focusAreaSummaryCreated: Bool = false
-    @Published var creatingFocusAreaSuggestions: Bool = false
+    @Published var createFocusAreaSuggestions: FocusAreaSuggestionsState = .ready
     @Published var sectionSummaryCreated: Bool = false
-   
+    
     
     private var openAISwiftService: OpenAISwiftService
     private var dataController: DataController
@@ -44,8 +46,16 @@ final class TopicViewModel: ObservableObject {
         }
     }
     
-    enum OpenAIError: Error {
-        case retrievalFailed
+    enum TopicOverviewState {
+        case ready
+        case loading
+        case retry
+    }
+    
+    enum FocusAreaSuggestionsState {
+        case ready
+        case loading
+        case retry
     }
     
     @MainActor
@@ -54,9 +64,9 @@ final class TopicViewModel: ObservableObject {
             .receive(on: DispatchQueue.main) // Ensure Combine pipeline runs on the main thread
             .sink { [weak self] (currentTopicId, entryId, receivedTranscript) in
                 guard let self = self else { return } // Prevent retain cycles
-
+                
                 Task { @MainActor in // Ensure this runs on the main actor
-                    await self.manageRun(selectedAssistant: .entry, topicId: currentTopicId, entryId: entryId, transcript: receivedTranscript)
+                    try await self.manageRun(selectedAssistant: .entry, topicId: currentTopicId, entryId: entryId, transcript: receivedTranscript)
                 }
             }
             .store(in: &cancellables)
@@ -65,49 +75,88 @@ final class TopicViewModel: ObservableObject {
     //MARK: create new topic
     //note: send the full name of category to GPT as context, save the short name to CoreData
     //note: kept the optionals for userInput and question for now, in case we want to add back in the follow-up questions and summary
-    func manageRun(selectedAssistant: AssistantItem, userInput: [String]? = nil, topicId: UUID? = nil, entryId: UUID? = nil, transcript: String? = nil, focusArea: FocusArea? = nil, section: Section? = nil, question: String? = nil, review: TopicReview? = nil) async {
-    
-        //reset published vars
-        await MainActor.run {
-            self.threadId = nil
-            self.topicUpdated = false
-            self.showPlaceholder = false
-            self.generatingImage = false
-            self.focusAreaUpdated = false
-            self.focusAreaSummaryCreated = false
-            if selectedAssistant == .focusAreaSuggestions {
-                self.creatingFocusAreaSuggestions = true
-            } else {
-                self.creatingFocusAreaSuggestions = false
+    func manageRun(selectedAssistant: AssistantItem, userInput: [String]? = nil, topicId: UUID? = nil, entryId: UUID? = nil, transcript: String? = nil, focusArea: FocusArea? = nil, section: Section? = nil, question: String? = nil, review: TopicReview? = nil) async throws {
+        
+        do {
+            //reset published vars
+            await MainActor.run {
+                self.threadId = nil
+                self.topicUpdated = false
+                self.showPlaceholder = false
+                self.generatingImage = false
+                if selectedAssistant != .focusArea {
+                    self.updatingfocusArea = false
+                }
+                self.focusAreaUpdated = false
+                self.focusAreaCreationFailed = false
+                self.focusAreaSummaryCreated = false
+                if selectedAssistant == .focusAreaSuggestions {
+                    self.createFocusAreaSuggestions = .loading
+                } else {
+                    self.createFocusAreaSuggestions = .ready
+                }
+                if selectedAssistant == .topicOverview {
+                    self.createTopicOverview = .ready
+                }
+                self.sectionSummaryCreated = false
+                self.updatedEntry = nil
+                
             }
-            if selectedAssistant == .topicOverview {
-                self.generatingTopicOverview = true
+            
+            try await manageRunWithStreaming(selectedAssistant: selectedAssistant, userInput: userInput, topicId: topicId, entryId: entryId, transcript: transcript, focusArea: focusArea, section: section, question: question, review: review)
+            
+        } catch {
+            loggerOpenAI.error("Failed to complete OpenAI run: \(error.localizedDescription), \(error)")
+            await MainActor.run {
+                self.updatingfocusArea = false
             }
-            self.sectionSummaryCreated = false
-            self.updatedEntry = nil
-           
+            throw OpenAIError.runIncomplete(error)
+            
         }
-
-        await manageRunWithStreaming(selectedAssistant: selectedAssistant, userInput: userInput, topicId: topicId, entryId: entryId, transcript: transcript, focusArea: focusArea, section: section, question: question, review: review, retryCount: 1)
         
     }
     
-    func manageRunWithStreaming(selectedAssistant: AssistantItem, userInput: [String]? = nil, topicId: UUID? = nil, entryId: UUID? = nil, transcript: String? = nil, focusArea: FocusArea? = nil, section: Section? = nil, question: String? = nil, review: TopicReview? = nil, retryCount: Int) async {
+    func manageRunWithStreaming(selectedAssistant: AssistantItem, userInput: [String]? = nil, topicId: UUID? = nil, entryId: UUID? = nil, transcript: String? = nil, focusArea: FocusArea? = nil, section: Section? = nil, question: String? = nil, review: TopicReview? = nil) async throws {
         
-        guard let threadId = await createThread(selectedAssistant: selectedAssistant) else {
-            return
+        let threadId: String
+                
+        do {
+            guard let newThreadId = try await createThread(selectedAssistant: selectedAssistant) else {
+                throw OpenAIError.missingRequiredField("Thread ID not created")
+            }
+            threadId = newThreadId
+        } catch {
+            throw OpenAIError.requestFailed(error, "Failed to create thread")
         }
         
-        await sendFirstMessage(selectedAssistant: selectedAssistant, threadId: threadId, topicId: topicId, transcript: transcript, focusArea: focusArea, section: section, userInput: userInput)
+        try await sendFirstMessage(selectedAssistant: selectedAssistant, threadId: threadId, topicId: topicId, transcript: transcript, focusArea: focusArea)
+        
+        
+        var messageText: String?
+        
+        do {
+            // Fetch the streamed message
+            messageText = try await openAISwiftService.createRunAndStreamMessage(threadId: threadId, selectedAssistant: selectedAssistant)
+            
+            guard let unwrappedMessageText = messageText else {
+                loggerOpenAI.error("No content received from OpenAI.")
+                throw OpenAIError.missingRequiredField("Response JSON from OpenAI")
+            }
+            
+            messageText = unwrappedMessageText
+        } catch {
+            loggerOpenAI.error("Failed to get OpenAI streamed response: \(error.localizedDescription), \(error)")
+            throw OpenAIError.runIncomplete(error)
+        }
         
         
         do {
-            guard let messageText =  try await openAISwiftService.createRunAndStreamMessage(threadId: threadId, selectedAssistant: selectedAssistant) else {
-                loggerOpenAI.error("No content received from OpenAI.")
-                
-                return
+            guard let messageText = messageText else {
+                loggerOpenAI.error("Message text is nil despite successful API call.")
+                throw OpenAIError.missingRequiredField("Response JSON from OpenAI")
             }
-                
+            
+            
             switch selectedAssistant {
                 
             case .topic:
@@ -118,10 +167,10 @@ final class TopicViewModel: ObservableObject {
                 
                 guard let currentTopicId = topicId else {
                     loggerCoreData.error("Failed to get new topic ID")
-                    return
+                    throw OpenAIError.missingRequiredField("Topic ID")
                 }
                 
-                let currentTopic = await openAISwiftService.processNewTopic(messageText: messageText, topicId: currentTopicId)
+                let currentTopic = try await openAISwiftService.processNewTopic(messageText: messageText, topicId: currentTopicId)
                 
                 loggerOpenAI.log("Added new sections to topic")
                 
@@ -130,7 +179,7 @@ final class TopicViewModel: ObservableObject {
                 }
                 
                 if let topic = currentTopic {
-                   await self.getTopicImage(topic: topic)
+                    await self.getTopicImage(topic: topic)
                     
                 } else {
                     
@@ -140,108 +189,107 @@ final class TopicViewModel: ObservableObject {
                         self.generatingImage = false
                     }
                 }
-            
+                
             case .topicOverview:
                 
                 guard let currentTopicId = topicId else {
                     loggerCoreData.error("Failed to get new topic ID")
-                    return
+                    throw OpenAIError.missingRequiredField("Topic ID")
                 }
                 
-                await openAISwiftService.processTopicOverview(messageText: messageText, topicId: currentTopicId)
+                try await openAISwiftService.processTopicOverview(messageText: messageText, topicId: currentTopicId)
                 
                 await MainActor.run {
-                    self.generatingTopicOverview = false
+                    self.createTopicOverview = .ready
                 }
                 
             case .focusAreaSuggestions:
                 
                 guard let currentTopic = topicId else {
                     loggerCoreData.error("Failed to get topic ID")
-                    return
+                    throw OpenAIError.missingRequiredField("Topic ID")
                 }
                 
-               await openAISwiftService.processSectionSuggestions(messageText: messageText, topicId: currentTopic)
+                try await openAISwiftService.processFocusAreaSuggestions(messageText: messageText, topicId: currentTopic)
                 
                 await MainActor.run {
-                    self.creatingFocusAreaSuggestions = false
+                    self.createFocusAreaSuggestions = .ready
                 }
                 
-            
+                
             case .focusArea:
                 
                 guard let currentFocusArea = focusArea else {
                     loggerCoreData.error("Failed to get new focus area")
-                    return
+                    throw OpenAIError.missingRequiredField("Focus area")
                 }
                 
-                await openAISwiftService.processFocusArea(messageText: messageText, focusArea: currentFocusArea)
+                try await openAISwiftService.processFocusArea(messageText: messageText, focusArea: currentFocusArea)
                 
                 loggerOpenAI.log("Added new focus area to topic")
                 
                 await MainActor.run {
+                    self.updatingfocusArea = false
                     self.focusAreaUpdated = true
                 }
-           
+                
             case .focusAreaSummary:
                 
                 guard let currentFocusArea = focusArea else {
                     loggerCoreData.error("Failed to get focus area")
-                    return
+                    throw OpenAIError.missingRequiredField("Focus area")
                 }
                 
-                await openAISwiftService.processFocusAreaSummary(messageText: messageText, focusArea: currentFocusArea)
+                try await openAISwiftService.processFocusAreaSummary(messageText: messageText, focusArea: currentFocusArea)
                 
                 await MainActor.run {
                     self.focusAreaSummaryCreated = true
                 }
                 
-//                case .entry:
-//
-//                    guard let currentEntryId = entryId else {
-//                        loggerCoreData.error("Failed to get new topic ID")
-//                        return
-//                    }
-//
-//                    if let updatedEntry = await openAISwiftService.processEntry(entryId: currentEntryId) {
-//                        loggerOpenAI.log("Updated new entry with insights and summary")
-//                        await MainActor.run {
-//                            self.updatedEntry = updatedEntry
-//                        }
-//                    }
-//
-//                case .sectionSummary:
-//                    guard let currentSection = section else {
-//                            loggerCoreData.error("No current section found")
-//                            return
-//                        }
-//                    await openAISwiftService.processSectionSummary(section: currentSection)
-//
-//                    loggerOpenAI.log("Updated section with summary")
-//
-//                    await MainActor.run {
-//                        self.sectionSummaryCreated = true
-//                    }
+                //                case .entry:
+                //
+                //                    guard let currentEntryId = entryId else {
+                //                        loggerCoreData.error("Failed to get new topic ID")
+                //                        return
+                //                    }
+                //
+                //                    if let updatedEntry = await openAISwiftService.processEntry(entryId: currentEntryId) {
+                //                        loggerOpenAI.log("Updated new entry with insights and summary")
+                //                        await MainActor.run {
+                //                            self.updatedEntry = updatedEntry
+                //                        }
+                //                    }
+                //
+                //                case .sectionSummary:
+                //                    guard let currentSection = section else {
+                //                            loggerCoreData.error("No current section found")
+                //                            return
+                //                        }
+                //                    await openAISwiftService.processSectionSummary(section: currentSection)
+                //
+                //                    loggerOpenAI.log("Updated section with summary")
+                //
+                //                    await MainActor.run {
+                //                        self.sectionSummaryCreated = true
+                //                    }
                 
-            
+                
             default:
                 break
             }
             
-            
-                
-                
-         
         } catch {
-            loggerOpenAI.error("Failed to get OpenAI streamed response: \(error.localizedDescription)")
-           
+            loggerOpenAI.error("Failed to decode OpenAI streamed response: \(error.localizedDescription), \(error)")
+            
+            throw ProcessingError.processingFailed(error)
+            
         }
-           
+        
     }
     
     
     
-    private func createThread(selectedAssistant: AssistantItem) async -> String? {
+    private func createThread(selectedAssistant: AssistantItem) async throws -> String? {
         do {
             
             let newthreadId = try await openAISwiftService.createThread()
@@ -261,113 +309,113 @@ final class TopicViewModel: ObservableObject {
             
         } catch {
             loggerOpenAI.error("Failed to create thread: \(error.localizedDescription)")
-            return nil
+            throw OpenAIError.requestFailed(error, "Failed to create thread")
         }
         
     }
     
     //for creating a set of questions to gather context on a topic
-    private func sendFirstMessage(selectedAssistant: AssistantItem, threadId: String, topicId: UUID? = nil, transcript: String? = nil, focusArea: FocusArea? = nil, section: Section? = nil, userInput: [String]? = nil) async {
-            
-        do {
-            var userContext: String = ""
-            
-            switch selectedAssistant {
-            case .topic:
-                guard let currentTopic = topicId else {
-                    loggerCoreData.error("Failed to get new topic ID")
-                    return
-                }
-                
-                guard let gatheredContext = await ContextGatherer.gatherContextNewTopic(dataController: dataController, loggerCoreData: loggerCoreData, topicId: currentTopic) else {
-                    loggerCoreData.error("Failed to get user context")
-                    return
-                }
-                userContext += gatheredContext
-            
-            case .topicOverview:
-                guard let currentTopic = topicId else {
-                    loggerCoreData.error("Failed to get new topic ID")
-                    return
-                }
-                
-                guard let gatheredContext = await ContextGatherer.gatherContextTopicOverview(dataController: dataController, loggerCoreData: loggerCoreData, topicId: currentTopic) else {
-                    loggerCoreData.error("Failed to get user context")
-                    return
-                }
-                
-                userContext += gatheredContext
+    private func sendFirstMessage(selectedAssistant: AssistantItem, threadId: String, topicId: UUID? = nil, transcript: String? = nil, focusArea: FocusArea? = nil) async throws {
         
-            case .focusArea, .focusAreaSummary:
-                guard let currentTopic = topicId else {
-                    loggerCoreData.error("Failed to get topic ID")
-                    return
-                }
-                
-                guard let gatheredContext = await ContextGatherer.gatherContextGeneral(dataController: dataController, loggerCoreData: loggerCoreData, selectedAssistant: selectedAssistant, topicId: currentTopic, focusArea: focusArea) else {
-                    loggerCoreData.error("Failed to get user context")
-                    return
-                }
-                userContext += gatheredContext
-                
-            case .focusAreaSuggestions:
-                guard let currentTopic = topicId else {
-                    loggerCoreData.error("Failed to get topic ID")
-                    return
-                }
-                
-                guard let gatheredContext = await ContextGatherer.gatherContextGeneral(dataController: dataController, loggerCoreData: loggerCoreData, selectedAssistant: selectedAssistant, topicId: currentTopic) else {
-                    loggerCoreData.error("Failed to get user context")
-                    return
-                }
-                userContext += gatheredContext
-              
-            case .entry:
-                guard let currentTopic = topicId else {
-                   loggerCoreData.error("Failed to get new topic ID")
-                   return
-               }
-
-               guard let newTranscript = transcript else {
-                   loggerCoreData.error("Failed to get transcript")
-                   return
-               }
-                
-                guard let gatheredContext = await ContextGatherer.gatherContextGeneral(dataController: dataController, loggerCoreData: loggerCoreData, topicId: currentTopic, transcript: newTranscript) else {
-                    loggerCoreData.error("Failed to get user context")
-                    return
-                }
-                userContext += gatheredContext
-                
-                
-//                case .sectionSummary:
-//                    guard let currentSection = section else {
-//                        loggerCoreData.error("No current section found")
-//                        return
-//                    }
-//
-//                    guard let gatheredContext = await ContextGatherer.gatherContextUpdateTopic(dataController: dataController, loggerCoreData: loggerCoreData, section: currentSection) else {
-//                        loggerCoreData.error("Failed to get user context")
-//                        return
-//                    }
-//                    userContext += gatheredContext
-           
-                
-                default:
-                    break
-
+        let userContext = try await gatherUserContext(selectedAssistant: selectedAssistant, topicId: topicId, transcript: transcript, focusArea: focusArea)
+        
+        try await sendMessageWithContext(threadId: threadId, userContext: userContext)
+    }
+    
+    private func gatherUserContext(selectedAssistant: AssistantItem, topicId: UUID? = nil, transcript: String? = nil, focusArea: FocusArea? = nil) async throws -> String {
+        
+        guard let currentTopic = topicId else {
+            loggerCoreData.error("Failed to get new topic ID")
+            throw ContextError.missingRequiredField("Topic ID")
+        }
+        
+        
+        var userContext: String = ""
+        
+        switch selectedAssistant {
+        case .topic:
+            
+            guard let gatheredContext = await ContextGatherer.gatherContextNewTopic(dataController: dataController, loggerCoreData: loggerCoreData, topicId: currentTopic) else {
+                loggerCoreData.error("Failed to get user context")
+                throw ContextError.noContextFound("create new topic")
             }
             
-            if let newMessage = try await openAISwiftService.createMessage(threadId: threadId, content: userContext) {
-               
-                loggerOpenAI.info("First message sent: \(newMessage.content)")
-                
+            userContext += gatheredContext
+            
+        case .topicOverview:
+            
+            guard let gatheredContext = await ContextGatherer.gatherContextTopicOverview(dataController: dataController, loggerCoreData: loggerCoreData, topicId: currentTopic) else {
+                loggerCoreData.error("Failed to get user context")
+                throw ContextError.noContextFound("create topic review")
             }
-                
-            } catch {
-                loggerOpenAI.error("Error sending user message to OpenAI: \(error.localizedDescription)")
+            
+            userContext += gatheredContext
+            
+        case .focusArea, .focusAreaSummary:
+            
+            guard let gatheredContext = await ContextGatherer.gatherContextGeneral(dataController: dataController, loggerCoreData: loggerCoreData, selectedAssistant: selectedAssistant, topicId: currentTopic, focusArea: focusArea) else {
+                loggerCoreData.error("Failed to get user context")
+                throw ContextError.noContextFound("create focus area")
             }
+            
+            userContext += gatheredContext
+            
+        case .focusAreaSuggestions:
+            
+            guard let gatheredContext = await ContextGatherer.gatherContextGeneral(dataController: dataController, loggerCoreData: loggerCoreData, selectedAssistant: selectedAssistant, topicId: currentTopic) else {
+                loggerCoreData.error("Failed to get user context")
+                throw ContextError.noContextFound("get focus area suggestions")
+            }
+            userContext += gatheredContext
+            
+        case .entry:
+            
+            guard let newTranscript = transcript else {
+                loggerCoreData.error("Failed to get transcript")
+                throw ContextError.missingRequiredField("Transcript")
+            }
+            
+            guard let gatheredContext = await ContextGatherer.gatherContextGeneral(dataController: dataController, loggerCoreData: loggerCoreData, topicId: currentTopic, transcript: newTranscript) else {
+                loggerCoreData.error("Failed to get user context")
+                throw ContextError.noContextFound("create new entry")
+            }
+            
+            userContext += gatheredContext
+            
+            
+            //                case .sectionSummary:
+            //                    guard let currentSection = section else {
+            //                        loggerCoreData.error("No current section found")
+            //                        return
+            //                    }
+            //
+            //                    guard let gatheredContext = await ContextGatherer.gatherContextUpdateTopic(dataController: dataController, loggerCoreData: loggerCoreData, section: currentSection) else {
+            //                        loggerCoreData.error("Failed to get user context")
+            //                        return
+            //                    }
+            //                    userContext += gatheredContext
+            
+            
+        default:
+            break
+            
         }
+        
+        return userContext
+        
+    }
+    
+    private func sendMessageWithContext(threadId: String, userContext: String) async throws {
+        do {
+            if let newMessage = try await openAISwiftService.createMessage(threadId: threadId, content: userContext) {
+                loggerOpenAI.info("First message sent: \(newMessage.content)")
+            }
+        } catch {
+            loggerOpenAI.error("Error sending user message to OpenAI: \(error.localizedDescription), \(error)")
+            throw OpenAIError.requestFailed(error, "Failed to send first message")
+        }
+    }
+    
 }
 
 //MARK: generate topic image
@@ -402,5 +450,5 @@ extension TopicViewModel {
         }
         
     }
-
+    
 }

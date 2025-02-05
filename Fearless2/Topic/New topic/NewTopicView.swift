@@ -40,9 +40,12 @@ struct NewTopicView: View {
         
                 case 1:
                     NewTopicLoadingView(activeIndex: $activeIndex, animationValue: $animationValue)
-                    
-                default:
+                
+                case 2:
                     NewTopicReadyView()
+                
+                default:
+                    NewTopicRetryView()
                 
             }
            
@@ -66,6 +69,7 @@ struct NewTopicView: View {
         .environment(\.colorScheme, .dark)
         .onChange(of: topicViewModel.topicUpdated) {
             if topicViewModel.topicUpdated {
+                //activeIndex tracks the automatic animation on loading view
                 if activeIndex == 1 {
                     activeIndex = 2
                     
@@ -112,8 +116,10 @@ struct NewTopicView: View {
             }
         case 1:
             return "Working on it..."
-        default:
+        case 2:
             return "Choose a starting path"
+        default:
+            return "Retry"
             
         }
         
@@ -125,8 +131,10 @@ struct NewTopicView: View {
             saveAnswer()
         case 1:
             break
-        default:
+        case 2:
             startNewTopic()
+        default:
+            retry()
         }
     }
     
@@ -225,10 +233,7 @@ struct NewTopicView: View {
             if answeredQuestionIndex + 1 == totalQuestions {
                 await dataController.save()
                 
-                if let topicId = dataController.newTopic?.topicId {
-                    print("Creating new topic, sending to context assistant")
-                    await topicViewModel.manageRun(selectedAssistant: .topic, topicId: topicId)
-                }
+                await createTopic()
             }
         }
         
@@ -240,6 +245,28 @@ struct NewTopicView: View {
         }
         selectedTab = 1
     }
+    
+    private func createTopic() async {
+        if let topicId = dataController.newTopic?.topicId {
+            print("Creating new topic, sending to context assistant")
+            do {
+                try await topicViewModel.manageRun(selectedAssistant: .topic, topicId: topicId)
+            } catch {
+                selectedTab = 3
+            }
+        }
+    }
+    
+    private func retry() {
+        activeIndex = nil
+        selectedTab = 1
+        
+        Task {
+            await createTopic()
+        }
+        
+    }
+    
 }
 
 
@@ -261,6 +288,20 @@ struct NewTopicReadyView: View {
                 .multilineTextAlignment(.leading)
                 .font(.system(size: 18, weight: .light))
                 .foregroundStyle(AppColors.whiteDefault)
+            
+            Spacer()
+        }
+        .padding(.bottom, 40)
+    }
+}
+
+struct NewTopicRetryView: View {
+    
+    var body: some View {
+        VStack (alignment: .leading, spacing: 15){
+            Spacer()
+            
+            RetryButton(action: {})
             
             Spacer()
         }

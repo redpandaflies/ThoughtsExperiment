@@ -53,7 +53,7 @@ struct AppViewsManager: View {
                 }
                 
                 
-                TabBar(transcriptionViewModel: transcriptionViewModel, currentTabBar: $currentTabBar, selectedTabHome: $selectedTabHome, selectedTabTopic: $selectedTabTopic, navigateToTopicDetailView: $navigateToTopicDetailView, topicId: selectedTopic?.topicId)
+                TabBar(transcriptionViewModel: transcriptionViewModel, currentTabBar: $currentTabBar, selectedTabHome: $selectedTabHome, selectedTabTopic: $selectedTabTopic, navigateToTopicDetailView: $navigateToTopicDetailView, topic: selectedTopic)
                     .transition(.move(edge: .bottom))
                 
                 

@@ -365,14 +365,14 @@ final class DataController: ObservableObject {
     
     //delete all suggestions
     @MainActor
-    func deleteTopicSuggestions(topicId: UUID) async -> Topic? {
+    func deleteTopicSuggestions(topicId: UUID) async throws -> Topic? {
         
         let request = NSFetchRequest<Topic>(entityName: "Topic")
         request.predicate = NSPredicate(format: "id == %@", topicId as CVarArg)
        
         var topic: Topic? = nil
         
-       await context.perform {
+        try await context.perform {
             do {
                 
                 guard let fetchedTopic = try self.context.fetch(request).first else { return }
@@ -390,8 +390,8 @@ final class DataController: ObservableObject {
                 topic = fetchedTopic
                 
             } catch {
-                self.logger.error("Failed to batch delete suggestions: \(error.localizedDescription)")
-                return
+                self.logger.error("Failed to batch delete suggestions: \(error.localizedDescription), \(error)")
+                throw CoreDataError.coreDataError(error)
             }
            
         }

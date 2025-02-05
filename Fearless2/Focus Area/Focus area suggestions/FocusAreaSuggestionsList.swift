@@ -16,7 +16,7 @@ struct FocusAreaSuggestionsList: View {
     
     @EnvironmentObject var dataController: DataController
     @ObservedObject var topicViewModel: TopicViewModel
-    @State private var selectedTab: Int = 1
+    @Binding var selectedTabSuggestionsList: Int
     
     let suggestions: [any SuggestionProtocol]
     private let screenWidth = UIScreen.current.bounds.width
@@ -28,12 +28,16 @@ struct FocusAreaSuggestionsList: View {
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack (alignment: .top, spacing: 15) {
-                switch selectedTab {
+                switch selectedTabSuggestionsList {
                 case 0:
                     placeholder()
-                    
-                default:
+                case 1:
                     suggestionsList()
+                default:
+                    FocusAreaRetryView(action: {
+                        retryCreateSuggestions()
+                    })
+                    .frame(width: screenWidth * 0.80)
                 }
                
             }//Hstack
@@ -48,22 +52,19 @@ struct FocusAreaSuggestionsList: View {
             case .newTopic:
                 break
             case .recap:
-                if topicViewModel.creatingFocusAreaSuggestions {
-                    selectedTab = 0
-                }
+                getViewTab()
             }
            
         }
-        .onChange(of: topicViewModel.creatingFocusAreaSuggestions) {
-            if !topicViewModel.creatingFocusAreaSuggestions {
-                selectedTab = 1
-            }
+        .onChange(of: topicViewModel.createFocusAreaSuggestions) {
+            getViewTab()
         }
     }
     
     private func suggestionsList() -> some View {
         ForEach(suggestions, id: \.title) { suggestion in
             FocusAreaSuggestionBox(suggestion: suggestion, action: {
+                topicViewModel.updatingfocusArea = true
                 action()
                 createFocusArea(suggestion: suggestion, topic: topic)
             })
@@ -94,14 +95,42 @@ struct FocusAreaSuggestionsList: View {
             guard let focusArea = await dataController.createFocusArea(suggestion: suggestion, topic: topic) else {
                 return
             }
-            
             //API call to create new focus area
-            await topicViewModel.manageRun(selectedAssistant: .focusArea, topicId: topic?.topicId, focusArea: focusArea)
+            do {
+                try await topicViewModel.manageRun(selectedAssistant: .focusArea, topicId: topic?.topicId, focusArea: focusArea)
+            } catch {
+                topicViewModel.focusAreaCreationFailed = true
+            }
+            
+          
             
             DispatchQueue.global(qos: .background).async {
                 Mixpanel.mainInstance().track(event: "Chose new focus area")
             }
         }
+    }
+    
+    private func getViewTab() {
+        if topicViewModel.createFocusAreaSuggestions == .loading {
+            selectedTabSuggestionsList = 0
+        } else if topicViewModel.createFocusAreaSuggestions == .retry {
+            selectedTabSuggestionsList = 2
+        } else {
+            selectedTabSuggestionsList = 1
+        }
+    }
+    
+    private func retryCreateSuggestions() {
+        
+        Task {
+            do {
+                try await topicViewModel.manageRun(selectedAssistant: .focusAreaSuggestions, topicId: topic?.topicId)
+            } catch {
+                selectedTabSuggestionsList = 2
+            }
+            
+        }
+        
     }
 }
 

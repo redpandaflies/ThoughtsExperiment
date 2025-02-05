@@ -11,6 +11,7 @@ import SwiftUI
 struct FocusAreaEmptyState: View {
     
     @ObservedObject var topicViewModel: TopicViewModel
+    @State private var selectedTabSuggestionsList: Int = 1 //manages whether suggestions, loading view or retry is shown on suggestions list
     @Binding var selectedTab: Int
     let topicId: UUID
     
@@ -43,7 +44,7 @@ struct FocusAreaEmptyState: View {
                 .opacity(0.8)
                 .padding(.bottom)
             
-            FocusAreaSuggestionsList(topicViewModel: topicViewModel, suggestions: suggestions.map { $0 as any SuggestionProtocol }, action: {
+            FocusAreaSuggestionsList(topicViewModel: topicViewModel, selectedTabSuggestionsList: $selectedTabSuggestionsList, suggestions: suggestions.map { $0 as any SuggestionProtocol }, action: {
                 selectedTab += 1
             }, topic: suggestions.first?.topic, useCase: .newTopic)
         }

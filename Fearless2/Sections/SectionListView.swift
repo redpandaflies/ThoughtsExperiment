@@ -66,7 +66,12 @@ struct SectionListView: View {
                         SectionBox(section: section, isNextSection: section == firstIncompleteSection)
                             .id(index)
                             .onTapGesture {
-                                if section == firstIncompleteSection {
+                                guard let topic = section.topic else {
+                                    print("Topic not found for selected section")
+                                    return
+                                }
+                                
+                                if section == firstIncompleteSection && topic.topicStatus != TopicStatusItem.archived.rawValue {
                                     selectedSection = section
                                 }
                             }

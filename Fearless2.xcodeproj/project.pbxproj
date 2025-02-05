@@ -45,6 +45,9 @@
 		8A63325E2CDEAC1C00EF34FA /* FocusAreaBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A63325D2CDEAC1C00EF34FA /* FocusAreaBox.swift */; };
 		8A6332602CDEB0B100EF34FA /* FocusAreaHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A63325F2CDEB0B100EF34FA /* FocusAreaHeader.swift */; };
 		8A6332622CDFE33600EF34FA /* QuestionsProgressBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A6332612CDFE33600EF34FA /* QuestionsProgressBar.swift */; };
+		8A63A1BE2D486DBF00712B27 /* RetryButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A63A1BD2D486DBF00712B27 /* RetryButton.swift */; };
+		8A63A1C12D4BF96500712B27 /* CustomErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A63A1C02D4BF96500712B27 /* CustomErrors.swift */; };
+		8A63A1C32D51F6C500712B27 /* FocusAreaRetryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A63A1C22D51F6C500712B27 /* FocusAreaRetryView.swift */; };
 		8A74F4992CE58ACB008A33B0 /* RecordingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A74F4982CE58AC7008A33B0 /* RecordingView.swift */; };
 		8A74F49B2CE593FD008A33B0 /* TopicPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A74F49A2CE593F8008A33B0 /* TopicPickerView.swift */; };
 		8A74F49D2CE59420008A33B0 /* TopicDetailViewFooter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A74F49C2CE5941E008A33B0 /* TopicDetailViewFooter.swift */; };
@@ -172,6 +175,9 @@
 		8A63325D2CDEAC1C00EF34FA /* FocusAreaBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusAreaBox.swift; sourceTree = "<group>"; };
 		8A63325F2CDEB0B100EF34FA /* FocusAreaHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusAreaHeader.swift; sourceTree = "<group>"; };
 		8A6332612CDFE33600EF34FA /* QuestionsProgressBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionsProgressBar.swift; sourceTree = "<group>"; };
+		8A63A1BD2D486DBF00712B27 /* RetryButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RetryButton.swift; sourceTree = "<group>"; };
+		8A63A1C02D4BF96500712B27 /* CustomErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomErrors.swift; sourceTree = "<group>"; };
+		8A63A1C22D51F6C500712B27 /* FocusAreaRetryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusAreaRetryView.swift; sourceTree = "<group>"; };
 		8A74F4982CE58AC7008A33B0 /* RecordingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingView.swift; sourceTree = "<group>"; };
 		8A74F49A2CE593F8008A33B0 /* TopicPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicPickerView.swift; sourceTree = "<group>"; };
 		8A74F49C2CE5941E008A33B0 /* TopicDetailViewFooter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicDetailViewFooter.swift; sourceTree = "<group>"; };
@@ -336,6 +342,7 @@
 				8A63325D2CDEAC1C00EF34FA /* FocusAreaBox.swift */,
 				8A8ED7302CF2798600780384 /* FocusAreaEmptyState.swift */,
 				8A63325F2CDEB0B100EF34FA /* FocusAreaHeader.swift */,
+				8A63A1C22D51F6C500712B27 /* FocusAreaRetryView.swift */,
 				8ACE0DE12CD1EE6A00718B9E /* Focus area recap */,
 			);
 			path = "Focus Area";
@@ -361,6 +368,14 @@
 				8A827B9A2D412AD400D0204E /* TopicsGridView.swift */,
 			);
 			path = "Topics list view";
+			sourceTree = "<group>";
+		};
+		8A63A1BF2D4BF46800712B27 /* Error handling */ = {
+			isa = PBXGroup;
+			children = (
+				8A63A1C02D4BF96500712B27 /* CustomErrors.swift */,
+			);
+			path = "Error handling";
 			sourceTree = "<group>";
 		};
 		8A74F4972CE587FF008A33B0 /* Recording View */ = {
@@ -527,6 +542,7 @@
 		8A9CC1842CAB449F007C2AA9 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				8A63A1BF2D4BF46800712B27 /* Error handling */,
 				8A8B63E02D1EFC0C00BA57D0 /* AI functions */,
 				8A79EAAE2CE3F038000A966B /* Audio */,
 				8A9CC1CF2CAE42BF007C2AA9 /* ViewModels */,
@@ -581,6 +597,7 @@
 				8ACE0DDF2CD1E48500718B9E /* SliderView.swift */,
 				8A2C36FB2D22CA2100C37315 /* RectangleButtonYellow.swift */,
 				8A2C37102D2D36BC00C37315 /* WhyBox.swift */,
+				8A63A1BD2D486DBF00712B27 /* RetryButton.swift */,
 				8A2C37122D2FF05900C37315 /* LoadingPlaceholderContent.swift */,
 			);
 			path = "Reusable Views";
@@ -831,6 +848,7 @@
 				8A26DFE42CF0181A002C4F60 /* UnderstandQuestionAnswer.swift in Sources */,
 				8ABE9AE22CB2597700483CFD /* NextButton.swift in Sources */,
 				8A9CC1882CAB44C5007C2AA9 /* OpenAISwiftService.swift in Sources */,
+				8A63A1C12D4BF96500712B27 /* CustomErrors.swift in Sources */,
 				8A9CC1A32CAB7C94007C2AA9 /* ProfileToolbarItem.swift in Sources */,
 				8A63324F2CDAB85A00EF34FA /* TabBar.swift in Sources */,
 				8A9CC1C92CAE0F9F007C2AA9 /* DataController.swift in Sources */,
@@ -839,6 +857,7 @@
 				8A9CC1C72CAE0B8D007C2AA9 /* Logger+Extension.swift in Sources */,
 				8A9191F32CB494FD007E17A0 /* QuestionOpenView.swift in Sources */,
 				8A9191FE2CBDDCCE007E17A0 /* SectionBox.swift in Sources */,
+				8A63A1C32D51F6C500712B27 /* FocusAreaRetryView.swift in Sources */,
 				8A74F49B2CE593FD008A33B0 /* TopicPickerView.swift in Sources */,
 				8ACE0DD12CCF308700718B9E /* ModelTopics.xcdatamodeld in Sources */,
 				8A9CC1772CAB3DEA007C2AA9 /* Fearless2App.swift in Sources */,
@@ -853,6 +872,7 @@
 				8A9CC1A62CAB8342007C2AA9 /* BubblesCategory.swift in Sources */,
 				8A2C37062D286BA400C37315 /* FocusAreaLoadingView.swift in Sources */,
 				8A2C36FA2D21A8B100C37315 /* QuestionSingleSelectView.swift in Sources */,
+				8A63A1BE2D486DBF00712B27 /* RetryButton.swift in Sources */,
 				8A8ED72F2CF26EAB00780384 /* FocusAreaSuggestion-CoreDataHelpers.swift in Sources */,
 				8ACE0DDA2CD0C54800718B9E /* SummaryInsightBox.swift in Sources */,
 				8ACE0DD32CD03A0000718B9E /* Entry-CoreDataHelpers.swift in Sources */,
@@ -1000,7 +1020,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Fearless2/Fearless2.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 8;
 				DEVELOPMENT_ASSET_PATHS = "\"Fearless2/Preview Content\"";
 				DEVELOPMENT_TEAM = 79TB36U8AD;
 				ENABLE_PREVIEWS = YES;
@@ -1036,7 +1056,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Fearless2/Fearless2.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 8;
 				DEVELOPMENT_ASSET_PATHS = "\"Fearless2/Preview Content\"";
 				DEVELOPMENT_TEAM = 79TB36U8AD;
 				ENABLE_PREVIEWS = YES;

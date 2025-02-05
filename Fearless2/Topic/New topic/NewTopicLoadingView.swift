@@ -57,6 +57,7 @@ struct NewTopicLoadingView: View {
             startAnimating()
         }
         .onDisappear {
+            activeIndex = nil
             animationValue = false
         }
 

@@ -4,7 +4,7 @@
 //
 //  Created by Yue Deng-Wu on 11/13/24.
 //
-import OSLog
+import Mixpanel
 import SwiftUI
 
 struct TopicDetailViewFooter: View {
@@ -12,13 +12,14 @@ struct TopicDetailViewFooter: View {
     @EnvironmentObject var dataController: DataController
     @ObservedObject var transcriptionViewModel: TranscriptionViewModel
     
+    @State private var showDeleteTopicAlert: Bool = false
+    
     @Binding var selectedTabTopic: TopicPickerItem
     @Binding var currentTabBar: TabBarType
     @Binding var navigateToTopicDetailView: Bool
     
-    let topicId: UUID?
+    let topic: Topic?
     let screenWidth = UIScreen.current.bounds.width
-    let logger = Logger.audioEvents
     
     var body: some View {
            
@@ -42,18 +43,27 @@ struct TopicDetailViewFooter: View {
             Menu {
                 
                 Button (role: .destructive) {
-                    deleteTopic()
+                    showDeleteTopicAlert = true
                     
                 } label: {
                 
                     Label("Delete", systemImage: "trash")
                 }
                 
-                Button {
-                    archiveTopic()
+                if let currentTopic = topic, currentTopic.topicStatus == TopicStatusItem.archived.rawValue {
                     
-                } label: {
-                    Label("Archive", systemImage: "archivebox")
+                    Button {
+                        updateTopicStatus(newStatus: .active)
+                    } label: {
+                        Label("Unarchive", systemImage: "arrow.up.bin")
+                    }
+                } else {
+                    Button {
+                        updateTopicStatus(newStatus: .archived)
+                        
+                    } label: {
+                        Label("Archive", systemImage: "archivebox")
+                    }
                 }
                 
                 
@@ -70,6 +80,14 @@ struct TopicDetailViewFooter: View {
         }//HStack
         .padding(.horizontal)
         .frame(height: 40)
+        .alert("Are you sure you want to delete this topic?", isPresented: $showDeleteTopicAlert) {
+            Button("Cancel", role: .cancel) {}
+            Button("Yes", role: .destructive) {
+                deleteTopic()
+            }
+        } message: {
+            Text("This will erase all data for the topic.")
+        }
     }
     
     private func dismissView() {
@@ -82,18 +100,31 @@ struct TopicDetailViewFooter: View {
     
     private func deleteTopic() {
         Task {
-            if let currentTopicId = topicId {
+            if let currentTopicId = topic?.topicId {
                 await dataController.deleteTopic(id: currentTopicId)
+            }
+            
+            DispatchQueue.global(qos: .background).async {
+                Mixpanel.mainInstance().track(event: "Deleted topic")
             }
         }
         dismissView()
     }
     
-    private func archiveTopic() {
+    private func updateTopicStatus(newStatus: TopicStatusItem) {
         Task {
-            if let currentTopicId = topicId {
-                await dataController.updateTopicStatus(id: currentTopicId, item: .archived)
+            if let currentTopicId = topic?.topicId {
+                await dataController.updateTopicStatus(id: currentTopicId, item: newStatus)
             }
+            
+            var mixpanelEvent: String {
+                return newStatus == .active ? "Unarchived topic" : "Archived topic"
+            }
+            
+            DispatchQueue.global(qos: .background).async {
+                Mixpanel.mainInstance().track(event: mixpanelEvent)
+            }
+
         }
         
         dismissView()

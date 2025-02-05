@@ -18,7 +18,7 @@ struct TabBar: View {
     @Binding var selectedTabTopic: TopicPickerItem
     @Binding var navigateToTopicDetailView: Bool
     
-    let topicId: UUID?
+    let topic: Topic?
     let screenWidth = UIScreen.current.bounds.width
     var body: some View {
         
@@ -49,7 +49,7 @@ struct TabBar: View {
 //                        HomeTabBar(selectedTabHome: $selectedTabHome)
                         //                            .transition(.opacity.combined(with: .scale(0.8)))
                     case .topic:
-                        TopicDetailViewFooter(transcriptionViewModel: transcriptionViewModel, selectedTabTopic: $selectedTabTopic, currentTabBar: $currentTabBar, navigateToTopicDetailView: $navigateToTopicDetailView, topicId: topicId)
+                        TopicDetailViewFooter(transcriptionViewModel: transcriptionViewModel, selectedTabTopic: $selectedTabTopic, currentTabBar: $currentTabBar, navigateToTopicDetailView: $navigateToTopicDetailView, topic: topic)
                             .transition(.opacity.combined(with: .scale(0.8)))
                     }
                     

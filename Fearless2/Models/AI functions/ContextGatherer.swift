@@ -24,7 +24,7 @@ struct ContextGatherer {
            
          case .focusArea:
             context += "The user would like new sections for this focus area: \(focusArea?.focusAreaTitle ?? ""). The focus area is related to the topic below.\n\n"
-       case .focusAreaSummary:
+        case .focusAreaSummary:
             context += "The user is wrapping up this focus area: \(focusArea?.focusAreaTitle ?? ""). The focus area is related to the topic below.\n\n"
            default:
                break
@@ -315,7 +315,7 @@ struct ContextGatherer {
                 if let questionType = QuestionType(rawValue: question.questionType) {
                     switch questionType {
                     case .singleSelect:
-                        result += "Answer: on a scale of 0 to 10, this is a \(question.questionAnswerSingleSelect)\n"
+                        result += "Answer: \(question.questionAnswerSingleSelect)\n"
                     case .multiSelect:
                         result += "Answer: \(question.questionAnswerMultiSelect)\n"
                     case .open:

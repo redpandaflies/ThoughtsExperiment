@@ -117,11 +117,20 @@ struct TopicOverviewBox: View {
     }
     
     private func buttonText() -> String {
-        return topicViewModel.generatingTopicOverview ? "Working on it..." : "Update topic overview"
+        
+        switch topicViewModel.createTopicOverview {
+        case .ready:
+            return "Update topic overview"
+        case .loading:
+            return "Working on it..."
+        case .retry:
+            return "Retry"
+        }
+
     }
     
     private func disableButton() -> Bool {
-        return topicViewModel.generatingTopicOverview ? true : false
+        return topicViewModel.createTopicOverview == .loading
     }
     
     private func buttonAction() {
@@ -129,7 +138,11 @@ struct TopicOverviewBox: View {
         Task {
             
             //generate review
-            await topicViewModel.manageRun(selectedAssistant: .topicOverview, topicId: topicId)
+            do {
+                try await topicViewModel.manageRun(selectedAssistant: .topicOverview, topicId: topicId)
+            } catch {
+                topicViewModel.createTopicOverview = .retry
+            }
             
             DispatchQueue.global(qos: .background).async {
                 Mixpanel.mainInstance().track(event: "Updated topic overview")

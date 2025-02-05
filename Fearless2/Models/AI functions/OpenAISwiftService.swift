@@ -16,6 +16,7 @@ import SwiftOpenAI
 final class OpenAISwiftService: ObservableObject {
     
     var functionContent: String = ""
+    var threadId: String = ""
     var runId: String = ""
     var toolCallId: String = ""
     
@@ -25,11 +26,6 @@ final class OpenAISwiftService: ObservableObject {
     private let openAIPartialKey = Constants.openAIPartialKey
     private var service: SwiftOpenAI.OpenAIService
     private var dataController: DataController
-    
-    enum OpenAIError: Error {
-        case retrievalFailed
-        case runIncomplete
-    }
     
     init(dataController: DataController) {
         self.dataController = dataController
@@ -86,10 +82,12 @@ final class OpenAISwiftService: ObservableObject {
            
             loggerOpenAI.info("New thread created")
             
-            return thread.id
+            self.threadId = thread.id
+            
+            return self.threadId
         } catch {
-            loggerOpenAI.error("Failed to create thread: \(error.localizedDescription)")
-            return nil
+            loggerOpenAI.error("Failed to create thread: \(error.localizedDescription), \(error)")
+            throw OpenAIError.requestFailed(error, "Failed to create thread")
         }
         
     }
@@ -110,8 +108,8 @@ final class OpenAISwiftService: ObservableObject {
             )
             
         } catch {
-            loggerOpenAI.error("Error when creating the message: \(error.localizedDescription)")
-            return nil
+            loggerOpenAI.error("Error when creating the message: \(error.localizedDescription). \(error)")
+            throw OpenAIError.requestFailed(error, "Failed to send message to OpenAI")
         }
         
     }
@@ -120,28 +118,33 @@ final class OpenAISwiftService: ObservableObject {
         await MainActor.run {
             self.functionContent = ""
             self.toolCallId = ""
+        }
+        
+        let timeoutSeconds: Double = 10
+        
+        return try await withTimeout(seconds: timeoutSeconds) { [weak self] in
+            guard let self = self else { throw OpenAIError.runIncomplete() }
             
-        }
-        
-        var messageText: String = ""
-       
-        guard let selectedAssistantId = selectedAssistant.getAssistantId() else {
-            loggerOpenAI.error("Assistant ID missing.")
-            return nil
-        }
-        
-        do {
-            let stream = try await service.createRunStream(threadID: threadId, parameters: .init(assistantID: selectedAssistantId))
-      
-            for try await result in stream {
+            
+            var messageText: String = ""
+            
+            guard let selectedAssistantId = selectedAssistant.getAssistantId() else {
+                loggerOpenAI.error("Assistant ID missing.")
+                throw OpenAIError.missingRequiredField("Assistant ID missing")
+            }
+            
+            do {
+                let stream = try await service.createRunStream(threadID: threadId, parameters: .init(assistantID: selectedAssistantId))
                 
-                switch result {
+                for try await result in stream {
                     
+                    switch result {
+                        
                     case .threadRunQueued(let data):
-                    //need runID to cancel run
+                        //need runID to cancel run
                         self.runId = data.id
                         loggerOpenAI.log("Got run ID: \(self.runId)")
-                   
+                        
                         continue
                         
                     case .threadMessageDelta(let messageDelta):
@@ -150,9 +153,9 @@ final class OpenAISwiftService: ObservableObject {
                         case .imageFile, nil:
                             break
                         case .text(let textContent):
-                          
+                            
                             if !textContent.text.value.isEmpty {
-                               messageText += textContent.text.value
+                                messageText += textContent.text.value
                                 loggerOpenAI.log("messageText: \(messageText)")
                             }
                             
@@ -167,8 +170,8 @@ final class OpenAISwiftService: ObservableObject {
                         
                         switch toolCall {
                         case .functionToolCall(let toolCall):
-                                self.functionContent += toolCall.arguments
-                                loggerOpenAI.log("Toolcall arguments from OpenAI: \(self.functionContent)")
+                            self.functionContent += toolCall.arguments
+                            loggerOpenAI.log("Toolcall arguments from OpenAI: \(self.functionContent)")
                             
                         default:
                             loggerOpenAI.log("Tool call case isn't functionToolCall")
@@ -176,23 +179,60 @@ final class OpenAISwiftService: ObservableObject {
                         }
                         
                         
-                    case .done, .error:
-                    
-                        loggerOpenAI.log("Stream complete or ran into error")
+                    case .done:
+                        loggerOpenAI.log("Stream complete")
                         break
-                    
+                    case .error, .threadRunStepFailed, .threadMessageIncomplete:
+                        loggerOpenAI.log("Error ocurred while streaming")
+                        throw OpenAIError.runIncomplete()
+                    case .threadRunFailed(let error) :
+                        loggerOpenAI.log("Error ocurred while streaming: \(error.status); \(error.lastError.debugDescription)")
+                        throw OpenAIError.runIncomplete(nil, error.lastError.debugDescription)
+                        
                     default:
                         continue
-                }
-            }//for try await
-            
-            return messageText
-            
-        }  catch {
-            loggerOpenAI.error("Error when streaming run: \(error.localizedDescription)")
-            throw OpenAIError.runIncomplete // End the loop in the event of an error
+                    }
+                }//for try await
+                
+                return messageText
+                
+            }  catch {
+                loggerOpenAI.error("Error when streaming run: \(error.localizedDescription), \(error)")
+                throw OpenAIError.runIncomplete(error) // End the loop in the event of an error
+            }
         }
         
+    }
+    
+   private func withTimeout<T>(seconds: Double, operation: @escaping () async throws -> T) async throws -> T {
+        return try await withThrowingTaskGroup(of: T.self) { group in
+            // Add the main operation
+            group.addTask {
+                try await operation()
+            }
+            
+            // Add the timeout task
+            group.addTask {
+                try await Task.sleep(nanoseconds: UInt64(seconds * 1_500_000_000))
+                self.loggerOpenAI.warning("Streamed run timed out after \(seconds) seconds")
+                
+                do {
+                    try await self.cancelRun(threadId: self.threadId)
+                } catch {
+                    self.loggerOpenAI.error("Failed to cancel OpenAI run: \(error.localizedDescription)")
+                }
+                
+                throw OpenAIError.streamingTimeout
+            }
+
+            guard let result = try await group.next() else {
+                group.cancelAll()
+                throw OpenAIError.runIncomplete(nil, "Unexpected error: No task completed.")
+            }
+
+            group.cancelAll() // Cancel the remaining task
+            return result
+        }
     }
     
     //cancel run
@@ -202,7 +242,8 @@ final class OpenAISwiftService: ObservableObject {
             loggerOpenAI.info("Successfully cancelled run: \(run.id)")
             
         } catch {
-            loggerOpenAI.error("Failed to cancel run: \(error.localizedDescription)")
+            loggerOpenAI.error("Failed to cancel run: \(error.localizedDescription), \(error)")
+            throw OpenAIError.requestFailed(error, "failed to cancel run")
         }
         
     }
@@ -217,188 +258,188 @@ extension OpenAISwiftService {
         return try? JSONDecoder().decode(T.self, from: data)
     }
     
+    private func saveCoreDataChanges(context: NSManagedObjectContext, errorDescription: String) throws {
+        do {
+            try context.save()
+        } catch {
+            self.loggerCoreData.error("Failed to save changes for \(errorDescription): \(error.localizedDescription), \(error)")
+            throw CoreDataError.saveFailed(error, errorDescription)
+        }
+    }
+    
     @MainActor
-    func processNewTopic(messageText: String, topicId: UUID) async -> Topic? {
+    func processNewTopic(messageText: String, topicId: UUID) async throws -> Topic? {
         let arguments = messageText
         let context = self.dataController.container.viewContext
         var fetchedTopic: Topic? = nil
         
-        await context.perform {
+        try await context.perform {
             // Fetch the topic with the provided topicId
             let request = NSFetchRequest<Topic>(entityName: "Topic")
             request.predicate = NSPredicate(format: "id == %@", topicId as CVarArg)
 
-            do {
-                guard let topic = try context.fetch(request).first else {
-                    self.loggerCoreData.error("No topic found with topicId: \(topicId)")
-                    return
-                }
-                
-                // Decode the arguments to get the new section data
-                guard let newTopic = self.decodeArguments(arguments: arguments, as: NewTopic.self) else {
-                    self.loggerOpenAI.error("Couldn't decode arguments for sections.")
-                    return
-                }
-                
-                
-                topic.topicTitle = newTopic.title
-                topic.topicDefinition = newTopic.definition
-                
-                for newSuggestion in newTopic.suggestions {
-                    let suggestion = FocusAreaSuggestion(context: context)
-                    suggestion.suggestionId = UUID()
-                    suggestion.suggestionContent = newSuggestion.content
-                    suggestion.suggestionReasoning = newSuggestion.reasoning
-                    suggestion.suggestionEmoji = newSuggestion.emoji
-                    topic.addToSuggestions(suggestion)
-                }
-                
-                //update fetchedTopic
-                fetchedTopic = topic
-              
-            } catch {
-                self.loggerCoreData.error("Error fetching topic: \(error.localizedDescription)")
+            
+            guard let topic = try context.fetch(request).first else {
+                self.loggerCoreData.error("No topic found with topicId: \(topicId)")
+                throw ProcessingError.missingRequiredField("Existing topic not found")
             }
             
-            // Save the context after processing each section and its questions
-            do {
-                try context.save()
-            } catch {
-                self.loggerCoreData.error("Error saving section: \(error.localizedDescription)")
+            // Decode the arguments to get the new section data
+            guard let newTopic = self.decodeArguments(arguments: arguments, as: NewTopic.self) else {
+                self.loggerOpenAI.error("Couldn't decode arguments for new topic: \(topic.topicTitle).")
+                throw ProcessingError.decodingError("new topic")
             }
+            
+            
+            topic.topicTitle = newTopic.title
+            topic.topicDefinition = newTopic.definition
+            
+            for newSuggestion in newTopic.suggestions {
+                let suggestion = FocusAreaSuggestion(context: context)
+                suggestion.suggestionId = UUID()
+                suggestion.suggestionContent = newSuggestion.content
+                suggestion.suggestionReasoning = newSuggestion.reasoning
+                suggestion.suggestionEmoji = newSuggestion.emoji
+                topic.addToSuggestions(suggestion)
+            }
+            
+            //update fetchedTopic
+            fetchedTopic = topic
+
+            // Save the context after processing each section and its questions
+            try self.saveCoreDataChanges(context: context, errorDescription: "new topic")
         }
         
         return fetchedTopic
     }
     
     @MainActor
-    func processTopicOverview(messageText: String, topicId: UUID) async {
+    func processTopicOverview(messageText: String, topicId: UUID) async throws {
         let arguments = messageText
         let context = self.dataController.container.viewContext
         
-        await context.perform {
+       try await context.perform {
             // Fetch the topic with the provided topicId
             let request = NSFetchRequest<Topic>(entityName: "Topic")
             request.predicate = NSPredicate(format: "id == %@", topicId as CVarArg)
 
-            do {
-                guard let topic = try context.fetch(request).first else {
-                    self.loggerCoreData.error("No topic found with topicId: \(topicId)")
-                    return
-                }
-                
-                // Decode the arguments to get the new section data
-                guard let newReview = self.decodeArguments(arguments: arguments, as: NewTopicOverview.self) else {
-                    self.loggerOpenAI.error("Couldn't decode arguments for sections.")
-                    return
-                }
-
-                let review = TopicReview(context: context)
-                review.reviewId = UUID()
-                review.reviewCreatedAt = getCurrentTimeString()
-                review.reviewOverview = newReview.overview
-                review.overviewGenerated = true
-                topic.assignReview(review)
-              
-            } catch {
-                self.loggerCoreData.error("Error fetching topic: \(error.localizedDescription)")
+   
+            guard let topic = try context.fetch(request).first else {
+                self.loggerCoreData.error("No topic found with topicId: \(topicId)")
+                throw ProcessingError.missingRequiredField("Topic not found")
             }
             
-            // Save the context after processing each section and its questions
-            do {
-                try context.save()
-            } catch {
-                self.loggerCoreData.error("Error saving new topic overview: \(error.localizedDescription)")
+            // Decode the arguments to get the new section data
+            guard let newReview = self.decodeArguments(arguments: arguments, as: NewTopicOverview.self) else {
+                self.loggerOpenAI.error("Couldn't decode arguments for topic review.")
+                throw ProcessingError.decodingError("topic review")
             }
+
+            let review = TopicReview(context: context)
+            review.reviewId = UUID()
+            review.reviewCreatedAt = getCurrentTimeString()
+            review.reviewOverview = newReview.overview
+            review.overviewGenerated = true
+            topic.assignReview(review)
+              
+          
+            // Save the context after processing each section and its questions
+           try self.saveCoreDataChanges(context: context, errorDescription: "new topic review")
             
         }
     }
     
     @MainActor
-    func processFocusArea(messageText: String, focusArea: FocusArea) async {
+    func processFocusArea(messageText: String, focusArea: FocusArea) async throws {
         let arguments = messageText
         let context = self.dataController.container.viewContext
 
-        await context.perform {
+        try await context.perform {
             
             guard let topic = focusArea.topic else {
-                self.loggerOpenAI.error("Couldn't find the topic for the focus area.")
-                return
+                self.loggerOpenAI.log("No topic found for focus area: \(focusArea.focusAreaTitle)")
+                throw ProcessingError.missingRequiredField("Related topic not found")
             }
             
             // Decode the arguments to get the new section data
             guard let newFocusArea = self.decodeArguments(arguments: arguments, as: NewFocusArea.self) else {
-                self.loggerOpenAI.error("Couldn't decode arguments for sections.")
-                return
+                self.loggerOpenAI.log("Failed to decode new sections for focus area: \(focusArea.focusAreaTitle)")
+                throw ProcessingError.decodingError("new focus area sections")
             }
             
+            self.processSections(newFocusArea: newFocusArea, focusArea: focusArea, topic: topic, context: context)
             
-            // Loop through the new sections and save them to CoreData, attaching them to the topic
-            for newSection in newFocusArea.sections {
-                //check if the section number already exists, if not, add the section (AI sometimes hallucinates)
-                
-                if focusArea.focusAreaSections.contains(where: { $0.sectionNumber == newSection.sectionNumber }) {
-                    continue
-                }
-                
-                // Create a new section
-                let section = Section(context: context)
-                section.sectionId = UUID()
-                section.sectionTitle = newSection.title
-                section.sectionNumber = Int16(newSection.sectionNumber)
-               
-                
-                // Add new questions to the section
-                for newQuestion in newSection.questions {
-                    let question = Question(context: context)
-                    question.questionId = UUID()
-                    question.questionContent = newQuestion.content
-                    question.questionNumber = Int16(newQuestion.questionNumber)
-                    question.questionType = newQuestion.questionType.rawValue
-                    
-                    if newQuestion.questionType == .singleSelect {
-                        question.questionSingleSelectOptions = newQuestion.options.map {$0.text}.joined(separator: ";")
-                       
-                    } else if newQuestion.questionType == .multiSelect {
-                        question.questionMultiSelectOptions = newQuestion.options.map {$0.text}.joined(separator: ";")
-                        
-                    }
-
-                    // Add the question to the section
-                    section.addToQuestions(question)
-                }
-
-                // Add the section to the topic & focus area
-                topic.addToSections(section)
-                focusArea.addToSections(section)
-            }
-
-            // Save the context after processing each section and its questions
-            do {
-                try context.save()
-            } catch {
-                self.loggerCoreData.error("Error saving section: \(error.localizedDescription)")
-            }
+            
+            try self.saveCoreDataChanges(context: context, errorDescription: "new focus area sections")
+            
         }
     }
     
+    private func processSections(newFocusArea: NewFocusArea, focusArea: FocusArea, topic: Topic, context: NSManagedObjectContext) {
+        for newSection in newFocusArea.sections {
+            // Skip if section already exists (AI sometimes hallucinates)
+            if focusArea.focusAreaSections.contains(where: { $0.sectionNumber == newSection.sectionNumber }) {
+                self.loggerOpenAI.log("Skipping duplicate section: \(newSection.sectionNumber)")
+                continue
+            }
+            
+            // Create a new section
+            let section = createSection(from: newSection, in: context)
+            
+            // Add new questions to the section
+            processQuestions(newSection.questions, for: section, in: context)
+            
+            // Add relationships
+            topic.addToSections(section)
+            focusArea.addToSections(section)
+        }
+    }
+    
+    private func createSection(from newSection: NewSection, in context: NSManagedObjectContext) -> Section {
+        let section = Section(context: context)
+        section.sectionId = UUID()
+        section.sectionTitle = newSection.title
+        section.sectionNumber = Int16(newSection.sectionNumber)
+        return section
+    }
+    
+    private func processQuestions(_ newQuestions: [SectionQuestion], for section: Section, in context: NSManagedObjectContext) {
+           for newQuestion in newQuestions {
+               let question = Question(context: context)
+               question.questionId = UUID()
+               question.questionContent = newQuestion.content
+               question.questionNumber = Int16(newQuestion.questionNumber)
+               question.questionType = newQuestion.questionType.rawValue
+               
+               if newQuestion.questionType == .singleSelect {
+                   question.questionSingleSelectOptions = newQuestion.options.map {$0.text}.joined(separator: ";")
+                  
+               } else if newQuestion.questionType == .multiSelect {
+                   question.questionMultiSelectOptions = newQuestion.options.map {$0.text}.joined(separator: ";")
+                   
+               }
+               
+               // Add the question to the section
+               section.addToQuestions(question)
+           }
+       }
     
     @MainActor
-    func processFocusAreaSummary(messageText: String, focusArea: FocusArea) async {
+    func processFocusAreaSummary(messageText: String, focusArea: FocusArea) async throws {
         let arguments = messageText
         let context = self.dataController.container.viewContext
 
-        await context.perform {
+        try await context.perform {
             // Decode the arguments to get the new topic data
             guard let newSummary = self.decodeArguments(arguments: arguments, as: NewFocusAreaSummary.self) else {
-                self.loggerOpenAI.error("Couldn't decode arguments for section summary.")
-                return
+                self.loggerOpenAI.error("Couldn't decode arguments for focus area recap.")
+                throw ProcessingError.decodingError("new focus area recap")
             }
             
             //focus area topic
             guard let topic = focusArea.topic else {
                 self.loggerOpenAI.error("Couldn't create summary for focus area without topic.")
-                return
+                throw ProcessingError.missingRequiredField("Related topic not found")
             }
             
             //create entry
@@ -423,11 +464,7 @@ extension OpenAISwiftService {
             focusArea.completed = true
             
             //Save the context
-            do {
-                try context.save()
-            } catch {
-                self.loggerCoreData.error("Error saving summary: \(error.localizedDescription)")
-            }
+            try self.saveCoreDataChanges(context: context, errorDescription: "new focus area recap")
         }
     }
     
@@ -538,19 +575,19 @@ extension OpenAISwiftService {
     }
     
     @MainActor
-    func processSectionSuggestions(messageText: String, topicId: UUID) async {
+    func processFocusAreaSuggestions(messageText: String, topicId: UUID) async throws {
         let arguments = messageText
         let context = self.dataController.container.viewContext
        
         //delete all existing suggestions
-        let topic = await self.dataController.deleteTopicSuggestions(topicId: topicId)
+        let topic = try await self.dataController.deleteTopicSuggestions(topicId: topicId)
         
         //decode new suggestions
-        await context.perform {
+        try await context.perform {
             
             guard let newSuggestions = self.decodeArguments(arguments: arguments, as: NewFocusAreaSuggestions.self) else {
-                self.loggerOpenAI.error("Couldn't decode arguments for section suggestions.")
-                return
+                self.loggerOpenAI.error("Couldn't decode arguments for focus area suggestions.")
+                throw ProcessingError.decodingError("focus area suggestions")
             }
             
             for item in newSuggestions.suggestions {
@@ -565,12 +602,7 @@ extension OpenAISwiftService {
             }
             
             //save new suggestions
-            do {
-                try context.save()
-                
-            } catch {
-                self.loggerCoreData.error("Error saving topic: \(error.localizedDescription)")
-            }
+            try self.saveCoreDataChanges(context: context, errorDescription: "focus area suggestions")
             
         }
     }

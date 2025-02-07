@@ -23,9 +23,6 @@ struct TopicDetailView: View {
     @Binding var selectedTabTopic: TopicPickerItem
     
     let topic: Topic
-    var topicCategory: TopicCategoryItem {
-        return TopicCategoryItem.fromFullName(topic.topicCategory) ?? .work
-    }
   
     let screenWidth = UIScreen.current.bounds.width
     

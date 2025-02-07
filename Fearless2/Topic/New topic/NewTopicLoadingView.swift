@@ -12,7 +12,9 @@ struct NewTopicLoadingView: View {
     @Binding var activeIndex: Int?
     @Binding var animationValue: Bool
     
-    let loadingText: [String] = ["Creating the topic", "Understanding the context"]
+    let action: () -> Void
+    
+    let loadingText: [String] = ["Creating topic suggestions", "Understanding the context"]
     
     var body: some View {
         VStack (alignment: .leading, spacing: 10) {
@@ -45,7 +47,7 @@ struct NewTopicLoadingView: View {
                         .symbolEffect(.variableColor.cumulative.dimInactiveLayers.nonReversing, options: animationValue ? .repeating : .nonRepeating, value: animationValue)
                 }
                 
-                getText(index: 2, text: "Figuring out possible paths")
+                getText(index: 2, text: "Finalizing suggestions")
                 
                 Spacer()
                 
@@ -55,6 +57,7 @@ struct NewTopicLoadingView: View {
         }//VStack
         .onAppear {
             startAnimating()
+            action()
         }
         .onDisappear {
             activeIndex = nil
@@ -81,6 +84,8 @@ struct NewTopicLoadingView: View {
         }
         
     }
+    
+    
     
     private func getIcon(index: Int, icon: String) -> some View {
        

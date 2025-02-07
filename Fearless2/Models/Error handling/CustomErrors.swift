@@ -46,7 +46,7 @@ enum CoreDataError: LocalizedError {
         case .coreDataError(let error):
             return "CoreData error: \(error.localizedDescription)"
         case .saveFailed(let error, let context):
-            return "Failed to save changes: \(error.localizedDescription)"
+            return "Failed to save changes: \(error.localizedDescription). \(context)"
         case .objectNotFound(let context):
             return "Could not find: \(context)"
        
@@ -59,7 +59,7 @@ enum CoreDataError: LocalizedError {
 enum ProcessingError: LocalizedError {
     case missingRequiredField(String)
     case decodingError(String)
-    case processingFailed(Error)
+    case processingFailed(Error? = nil)
     case focusAreaProcessingFailed(Error)
     case topicProcessingFailed(Error)
     
@@ -69,8 +69,12 @@ enum ProcessingError: LocalizedError {
             return "Required field not found: \(context)"
         case .decodingError(let context):
             return "Failed to decode response for \(context)" //failed to decode JSON
-        case .processingFailed(let error):
-            return "Failed to process JSON: \(error.localizedDescription)" //used in view model
+        case .processingFailed(let error): //used in view model
+            if let error = error {
+                return "Failed to process JSON: \(error.localizedDescription)"
+            } else {
+                return "Failed to process JSON"
+            }
         case .focusAreaProcessingFailed(let error):
             return "Failed to process focus area: \(error.localizedDescription)"
         case .topicProcessingFailed(let error):

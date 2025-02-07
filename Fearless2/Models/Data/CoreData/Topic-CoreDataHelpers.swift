@@ -19,11 +19,6 @@ extension Topic {
         set { createdAt = newValue }
     }
     
-    var topicCategory: String {
-        get { category ?? "" }
-        set { category = newValue }
-    }
-    
     var topicStatus: String {
         get { status ?? "" }
         set { status = newValue }
@@ -37,11 +32,6 @@ extension Topic {
     var topicDefinition: String {
         get { definition ?? "" }
         set { definition = newValue }
-    }
-    
-    var topicSummary: String {
-        get { summary ?? "" }
-        set { summary = newValue }
     }
     
     var topicMainImage: String {

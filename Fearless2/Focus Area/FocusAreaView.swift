@@ -9,7 +9,7 @@ import SwiftUI
 
 struct FocusAreasView: View {
     @ObservedObject var topicViewModel: TopicViewModel
-    @State private var selectedTab: Int = 0
+    @State private var selectedTab: Int = 1
     
     @Binding var showFocusAreaRecapView: Bool
     @Binding var selectedSection: Section?
@@ -58,7 +58,7 @@ struct FocusAreasView: View {
             
         }
         .onAppear {
-            if !focusAreas.isEmpty {
+            if !focusAreas.isEmpty && selectedTab != 1 {
                 selectedTab = 1
             }
         }

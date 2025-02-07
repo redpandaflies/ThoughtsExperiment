@@ -11,6 +11,7 @@ import OSLog
 final class TopicViewModel: ObservableObject {
     
     @Published var topicUpdated: Bool = false
+    @Published var topicSuggestions: [NewTopicSuggestion]  = []
     @Published var createTopicOverview: TopicOverviewState = .ready
     @Published var showPlaceholder: Bool = false
     @Published var generatingImage: Bool = false
@@ -82,6 +83,7 @@ final class TopicViewModel: ObservableObject {
             await MainActor.run {
                 self.threadId = nil
                 self.topicUpdated = false
+                self.topicSuggestions = []
                 self.showPlaceholder = false
                 self.generatingImage = false
                 if selectedAssistant != .focusArea {
@@ -125,6 +127,7 @@ final class TopicViewModel: ObservableObject {
                 throw OpenAIError.missingRequiredField("Thread ID not created")
             }
             threadId = newThreadId
+            
         } catch {
             throw OpenAIError.requestFailed(error, "Failed to create thread")
         }
@@ -188,6 +191,15 @@ final class TopicViewModel: ObservableObject {
                         self.showPlaceholder = true
                         self.generatingImage = false
                     }
+                }
+            case .topicSuggestions:
+                guard let newSuggestions = try await openAISwiftService.processTopicSuggestions(messageText: messageText) else {
+                    loggerOpenAI.error("Failed to process topic suggestions")
+                    throw ProcessingError.processingFailed()
+                }
+                
+                await MainActor.run {
+                    self.topicSuggestions = newSuggestions.suggestions
                 }
                 
             case .topicOverview:
@@ -324,13 +336,22 @@ final class TopicViewModel: ObservableObject {
     
     private func gatherUserContext(selectedAssistant: AssistantItem, topicId: UUID? = nil, transcript: String? = nil, focusArea: FocusArea? = nil) async throws -> String {
         
+        //topic suggestion assistant only
+        if selectedAssistant == .topicSuggestions {
+            guard let gatheredContext = await ContextGatherer.gatherContextTopicSuggestions(dataController: dataController, loggerCoreData: loggerCoreData) else {
+                loggerCoreData.error("Failed to get topic suggestions")
+                throw ContextError.noContextFound("topic suggestions")
+            }
+            return gatheredContext
+        }
+        
+        //for all other assistants
+        var userContext: String = ""
+        
         guard let currentTopic = topicId else {
             loggerCoreData.error("Failed to get new topic ID")
             throw ContextError.missingRequiredField("Topic ID")
         }
-        
-        
-        var userContext: String = ""
         
         switch selectedAssistant {
         case .topic:
@@ -413,6 +434,15 @@ final class TopicViewModel: ObservableObject {
         } catch {
             loggerOpenAI.error("Error sending user message to OpenAI: \(error.localizedDescription), \(error)")
             throw OpenAIError.requestFailed(error, "Failed to send first message")
+        }
+    }
+    
+    func cancelCurrentRun() async throws {
+        let threadId = openAISwiftService.threadId
+        if !threadId.isEmpty {
+                try await openAISwiftService.cancelRun(threadId: threadId)
+        } else {
+            throw OpenAIError.missingRequiredField("No thread ID found")
         }
     }
     

@@ -114,7 +114,7 @@ struct ContextGatherer {
                 
                 for section in focusAreaSections {
                     
-                    context += "\n\nSection number: \(section.sectionNumber).\n Section title: \(section.sectionTitle)\nHere are the questions in this section and the user's answers. :\n"
+                    context += "\n\nSection number: \(section.sectionNumber).\n Section title: \(section.sectionTitle)\n Here are the questions in this section and the user's answers. :\n"
                     context += getQuestions(section.sectionQuestions)
                 }
                 
@@ -135,6 +135,32 @@ struct ContextGatherer {
         
         return context
     }
+    
+    //for topic suggestions
+    static func gatherContextTopicSuggestions(dataController: DataController, loggerCoreData: Logger) async -> String? {
+        var context = "Here are all the topics the user has created, ordered from earliest to latest:\n\n"
+        
+        // Get all topics
+        let topics = await dataController.fetchAllTopics()
+        
+        if !topics.isEmpty {
+            // Sort topics by creation date string, earliest first
+            let sortedTopics = topics.sorted { ($0.createdAt ?? "") < ($1.createdAt ?? "") }
+            
+            for topic in sortedTopics {
+                context += """
+                - topic title: \(topic.title ?? "No title available")
+                - created at: \(topic.createdAt ?? "Date not available")\n\n
+                """
+            }
+        } else {
+            context += "No topics found.\n"
+        }
+
+        return context
+    }
+
+    
     
     //for create new topic
     static func gatherContextNewTopic(dataController: DataController, loggerCoreData: Logger, topicId: UUID) async -> String? {
@@ -267,7 +293,7 @@ struct ContextGatherer {
             context += """
             The user is adding thoughts to this topic:
             - name: \(topic.topicTitle)
-            - topic relates to this part of the user's life: \(topic.topicCategory)\n\n
+            - topic relates to this part of the user's life: \(topic.category?.categoryLifeArea ?? "none, no category found")\n\n
             
             The user is working on a section from this focus area:
             - focus area title: \(focusArea.focusAreaTitle)\n
@@ -341,7 +367,7 @@ struct ContextGatherer {
             for topic in topics {
                 context += """
                 - topic title: \(topic.title ?? "No title available")\n
-                - topic relates to this part of the user's life: \(topic.topicCategory)\n\n
+                - topic relates to this part of the user's life: \(topic.category?.categoryLifeArea ?? "none, no category found")\n\n
                 """
                 
                 //all saved insights

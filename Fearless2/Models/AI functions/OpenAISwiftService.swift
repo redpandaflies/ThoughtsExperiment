@@ -182,9 +182,11 @@ final class OpenAISwiftService: ObservableObject {
                     case .done:
                         loggerOpenAI.log("Stream complete")
                         break
+                        
                     case .error, .threadRunStepFailed, .threadMessageIncomplete:
                         loggerOpenAI.log("Error ocurred while streaming")
                         throw OpenAIError.runIncomplete()
+                        
                     case .threadRunFailed(let error) :
                         loggerOpenAI.log("Error ocurred while streaming: \(error.status); \(error.lastError.debugDescription)")
                         throw OpenAIError.runIncomplete(nil, error.lastError.debugDescription)
@@ -312,6 +314,19 @@ extension OpenAISwiftService {
         
         return fetchedTopic
     }
+    
+    func processTopicSuggestions(messageText: String) async throws -> NewTopicSuggestions? {
+        let arguments = messageText
+        
+        // Decode the arguments to get the new topic suggestions
+        guard let newSuggestions = self.decodeArguments(arguments: arguments, as: NewTopicSuggestions.self) else {
+            loggerOpenAI.error("Couldn't decode arguments for topic suggestions.")
+            throw ProcessingError.decodingError("topic suggestions")
+        }
+        
+        return newSuggestions
+    }
+
     
     @MainActor
     func processTopicOverview(messageText: String, topicId: UUID) async throws {
@@ -670,6 +685,26 @@ struct NewTopic: Codable, Hashable {
 //Create topic overview
 struct NewTopicOverview: Codable, Hashable {
     let overview: String
+}
+
+//Create topic suggestions
+struct NewTopicSuggestions: Codable, Hashable {
+    let suggestions: [NewTopicSuggestion]
+}
+
+struct NewTopicSuggestion: Codable, Hashable {
+    let content: String
+    let reasoning: String
+    let emoji: String
+    let focusArea: NewSuggestion
+    
+    enum CodingKeys: String, CodingKey {
+        case content
+        case reasoning
+        case emoji
+        case focusArea = "focus_area"
+    }
+    
 }
 
 struct NewFocusArea: Codable, Hashable {

@@ -5,13 +5,14 @@
 //  Created by Yue Deng-Wu on 10/1/24.
 //
 import Mixpanel
+import OSLog
 import SwiftUI
 
 struct NewTopicView: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var dataController: DataController
     @ObservedObject var topicViewModel: TopicViewModel
-    @State private var selectedTab: Int = 0
+    
     @State private var selectedQuestion: Int = 0
     @State private var topicText: String = ""//user's definition of the new topic
     @State private var answer1: String = ""//user's answer to the first question
@@ -26,246 +27,39 @@ struct NewTopicView: View {
     @Binding var navigateToTopicDetailView: Bool
     @Binding var currentTabBar: TabBarType
     
+    let logger = Logger.openAIEvents
+    
     var body: some View {
         VStack {
             
             NewTopicHeader(xmarkAction: {
-                cancelEntry()
+                cancelRun()
             })
+            .padding(.horizontal)
            
-            switch selectedTab {
-                case 0:
-                    NewTopicBox(selectedQuestion: $selectedQuestion, topicText: $topicText, singleSelectAnswer: $singleSelectAnswer, multiSelectAnswers: $multiSelectAnswers, isFocused: $isFocused)
-                        .padding(.top)
-        
-                case 1:
-                    NewTopicLoadingView(activeIndex: $activeIndex, animationValue: $animationValue)
-                
-                case 2:
-                    NewTopicReadyView()
-                
-                default:
-                    NewTopicRetryView()
-                
-            }
-           
-            
-            RectangleButtonYellow(
-                buttonText: getButtonText(),
-                action: {
-                    getMainButtonAction()
-                },
-                showChevron: (selectedTab == 2),
-                showBackButton: (selectedTab == 0 && selectedQuestion == 1),
-                backAction: {
-                    backButtonAction()
-                },
-                disableMainButton: (selectedTab == 1)
-            )
-            .padding(.bottom)
-            
-        }
-        .padding(.horizontal)
-        .environment(\.colorScheme, .dark)
-        .onChange(of: topicViewModel.topicUpdated) {
-            if topicViewModel.topicUpdated {
-                //activeIndex tracks the automatic animation on loading view
-                if activeIndex == 1 {
-                    activeIndex = 2
-                    
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                        withAnimation(.snappy(duration: 0.2)) {
-                            selectedTab += 1
-                        }
-                    }
-                } else {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                        activeIndex = 2
-                        animationValue = false
+          
+            TopicSuggestionsList(topicViewModel: topicViewModel, selectedTopic: $selectedTopic, navigateToTopicDetailView: $navigateToTopicDetailView, currentTabBar: $currentTabBar)
+            .padding(.top)
                         
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                            withAnimation(.snappy(duration: 0.2)) {
-                                selectedTab += 1
-                            }
-                        }
-                    }
-                }
-                
-                
-            }
         }
+      
+        .environment(\.colorScheme, .dark)
         
     }
     
-    private func cancelEntry() {
-        Task {
-            if let topicId = dataController.newTopic?.topicId {
-                await self.dataController.deleteTopic(id: topicId)
-            }
-        }
+    private func cancelRun() {
         dismiss()
-    }
-    
-    private func getButtonText() -> String {
-        switch selectedTab {
-        case 0:
-            if selectedQuestion == 0 {
-                return "Continue"
-            } else {
-                return "Start new topic"
-            }
-        case 1:
-            return "Working on it..."
-        case 2:
-            return "Choose a starting path"
-        default:
-            return "Retry"
-            
-        }
         
-    }
-    
-    private func getMainButtonAction() {
-        switch selectedTab {
-        case 0:
-            saveAnswer()
-        case 1:
-            break
-        case 2:
-            startNewTopic()
-        default:
-            retry()
-        }
-    }
-    
-    private func startNewTopic() {
-        dismiss()
-        selectedTopic = dataController.newTopic
-        dataController.newTopic = nil
-        navigateToTopicDetailView = true
-        withAnimation(.snappy(duration: 0.2)) {
-            currentTabBar = .topic
-        }
-        
-        guard let newTopicTitle = selectedTopic?.topicTitle else { return }
-        
-        DispatchQueue.global(qos: .background).async {
-            Mixpanel.mainInstance().track(event: "Created new topic")
-            Mixpanel.mainInstance().track(event: "Created new topic: \(newTopicTitle)")
-        }
-       
-    }
-    
-    private func backButtonAction() {
-        answer2 = topicText
-        topicText = answer1
-        selectedQuestion -= 1
-        
-    }
-    
-    private func saveAnswer() {
-        //capture current state
-        let answeredQuestionIndex = selectedQuestion
-        let totalQuestions = QuestionsNewTopic.questions.count
-        let answeredQuestion = QuestionsNewTopic.questions[answeredQuestionIndex]
-        
-        var answeredQuestionTopicText: String?
-        var answeredQuestionSingleSelect: String?
-        var answeredQuestionMultiSelect: [String]?
-        
-        switch answeredQuestion.questionType {
-            case .open:
-                answeredQuestionTopicText = topicText
-                if answeredQuestionIndex == 0 {
-                    answer1 = topicText
-                }
-            case .singleSelect:
-                answeredQuestionSingleSelect = singleSelectAnswer
-            case .multiSelect:
-                answeredQuestionMultiSelect = multiSelectAnswers
-        }
-        
-       
-       print("Before reset: topicText = \(topicText), answer1 = \(answer1), answer2 = \(answer2)")
-       
-       // Reset the value of @State vars managing answers
-       
-           topicText = answer2.isEmpty ? "" : answer2
-           singleSelectAnswer = ""
-           multiSelectAnswers = []
-           
-           print("After reset: topicText = \(topicText)")
-        
-        DispatchQueue.main.async {
-        //move to next question
-            if selectedQuestion + 1 < totalQuestions {
-                selectedQuestion += 1
-                print("Moved to next question")
-            } else {
-                submitForm()
-            }
-        }//needed to ensure that next question appears after topicText has been reset to ""
-        
-        //save answers
         Task {
-            switch answeredQuestion.questionType {
-            case .open:
-                if let newTopicText = answeredQuestionTopicText {
-                    if answeredQuestionIndex == 0 {
-                        await dataController.createTopic()
-                    }
-                    
-                    await dataController.saveAnswer(questionType: .open, questionContent: answeredQuestion.content, userAnswer: newTopicText)
-                }
-            case .singleSelect:
-                if let newSelectedValue = answeredQuestionSingleSelect {
-                    
-                    await dataController.saveAnswer(questionType: .singleSelect, questionContent: answeredQuestion.content, userAnswer: newSelectedValue)
-                }
-            case .multiSelect:
-                if let newSelectedOptions = answeredQuestionMultiSelect {
-                    await dataController.saveAnswer(questionType: .multiSelect, questionContent: answeredQuestion.content, userAnswer: newSelectedOptions)
-                }
-            }
-            
-            print("SelectedQuestion: \(selectedQuestion)")
-            
-            if answeredQuestionIndex + 1 == totalQuestions {
-                await dataController.save()
-                
-                await createTopic()
-            }
-        }
-        
-    }
-    
-    private func submitForm() {
-        if isFocused {
-            isFocused = false
-        }
-        selectedTab = 1
-    }
-    
-    private func createTopic() async {
-        if let topicId = dataController.newTopic?.topicId {
-            print("Creating new topic, sending to context assistant")
             do {
-                try await topicViewModel.manageRun(selectedAssistant: .topic, topicId: topicId)
+                try await topicViewModel.cancelCurrentRun()
             } catch {
-                selectedTab = 3
+                logger.error("Failed to cancel current run: \(error.localizedDescription)")
             }
         }
+       
     }
     
-    private func retry() {
-        activeIndex = nil
-        selectedTab = 1
-        
-        Task {
-            await createTopic()
-        }
-        
-    }
     
 }
 
@@ -297,11 +91,15 @@ struct NewTopicReadyView: View {
 
 struct NewTopicRetryView: View {
     
+    let retryAction: () -> Void
+    
     var body: some View {
         VStack (alignment: .leading, spacing: 15){
             Spacer()
             
-            RetryButton(action: {})
+            RetryButton(action: {
+                retryAction()
+            })
             
             Spacer()
         }

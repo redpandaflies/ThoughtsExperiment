@@ -56,139 +56,10 @@ final class DataController: ObservableObject {
             }
         }
     }
-    
-    //create new topic
-    func createTopic() async {
-        await context.perform {
-            if let _ = self.newTopic {
-                self.logger.log("Topic already exists")
-            } else {
-                
-                let topic = Topic(context: self.context)
-                topic.topicId = UUID()
-                topic.topicCreatedAt = getCurrentTimeString()
-                topic.topicStatus = TopicStatusItem.active.rawValue
-                
-                self.newTopic = topic
-                self.logger.log("Updated newTopic published variable")
-            }
-           
-        }
-       
-    }
-    
-    @MainActor
-    func updateTopicStatus(id: UUID, item: TopicStatusItem) async {
-        let request = NSFetchRequest<Topic>(entityName: "Topic")
-        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
-        
-        await context.perform {
-            do {
-                let fetchedTopic = try self.context.fetch(request)
-                
-                if let topic = fetchedTopic.first {
-                    topic.topicStatus = item.rawValue
-                    
-                    Task {
-                        await self.save()
-                    }
-                   
-                    //reset newTopic so that new topic creation flow functions properly
-                    if let _ = self.newTopic {
-                        self.newTopic = nil
-                    }
-                }
-                    
-            } catch {
-                self.logger.error("Failed to update topic status: \(error.localizedDescription)")
-            }
 
-        }
-    }
+   
     
-    //create new topic
-    func createFocusArea(suggestion: any SuggestionProtocol, topic: Topic?) async -> FocusArea? {
-        
-        var focusArea: FocusArea?
-        var totalFocusAreas: Int?
-
-        await context.perform {
-            let newFocusArea = FocusArea(context: self.context)
-            newFocusArea.focusAreaId = UUID()
-            newFocusArea.focusAreaCreatedAt = getCurrentTimeString()
-            newFocusArea.focusAreaTitle = suggestion.title
-            newFocusArea.focusAreaEmoji = suggestion.symbol
-            newFocusArea.focusAreaReasoning = suggestion.suggestionDescription
-            
-            guard let currentTopic = topic else {
-                self.logger.log("Topic not found, unable to create new focus area")
-                return
-            }
-            
-            currentTopic.addToFocusAreas(newFocusArea)
-          
-
-            self.logger.log("Created new focus area")
-            focusArea = newFocusArea
-            
-            //get total number of focus areas
-            totalFocusAreas = currentTopic.focusAreas?.count
-        
-        }
-        
-        await self.save()
-        
-        if let focusAreasCount = totalFocusAreas {
-            await MainActor.run {
-                newFocusArea = focusAreasCount - 1
-            }
-        }
-        
-        
-        return focusArea
-    }
-    
-    //fetch a topic
-    func fetchTopic(id: UUID) async -> Topic? {
-        let request = NSFetchRequest<Topic>(entityName: "Topic")
-        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
-        
-        var fetchedTopic: Topic? = nil
-        
-        await context.perform {
-            do {
-                let results = try self.context.fetch(request)
-                if let topic = results.first {
-                    
-                    fetchedTopic = topic
-                }
-            } catch {
-                self.logger.error("Error fetching entry with ID \(id): \(error.localizedDescription)")
-               
-            }
-        }
-        
-        return fetchedTopic
-        
-    }
-    
-    //fetch all topics
-    func fetchAllTopics() async -> [Topic] {
-        let request = NSFetchRequest<Topic>(entityName: "Topic")
-        
-        var fetchedTopics: [Topic] = []
-        
-        await context.perform {
-            do {
-                fetchedTopics = try self.context.fetch(request)
-            } catch {
-                self.logger.error("Error fetching all topics: \(error.localizedDescription)")
-            }
-        }
-        
-        return fetchedTopics
-    }
-    
+    //MARK: other
     //fetch a section
     func fetchSection(id: UUID) async -> Section? {
         let request = NSFetchRequest<Section>(entityName: "Section")
@@ -280,49 +151,7 @@ final class DataController: ObservableObject {
 //        await self.save()
     }
     
-    //delete topic
-    @MainActor
-    func deleteTopic(id: UUID) async {
-        
-        let request = NSFetchRequest<Topic>(entityName: "Topic")
-        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
-        
-        await context.perform {
-            do {
-                let fetchedTopic = try self.context.fetch(request)
-                
-                if let topic = fetchedTopic.first {
-                    self.context.delete(topic)
-                    
-                    Task {
-                        await self.save()
-                        
-                        //don't use topic.topicId because topic has been deleted already
-                        let topicId = id.uuidString
-                        
-                        await self.deleteTopicImage(topicId: topicId)
-                    }
-                   
-                    //reset newTopic so that new topic creation flow functions properly
-                    if let _ = self.newTopic {
-                        self.newTopic = nil
-                    }
-                }
-                    
-            } catch {
-                self.logger.error("Failed to delete topic from Core Data: \(error.localizedDescription)")
-            }
-
-        }
- 
-    }
-    
-    private func deleteTopicImage(topicId: String) async {
-        let folderName = "topic_images"
-      
-        imageCacheManager.deleteImage(key: topicId)
-        fileManager.deleteImage(imageId: topicId, folderName: folderName)
-    }
+   
     
     func deleteEntry(id: UUID) async {
         
@@ -347,21 +176,7 @@ final class DataController: ObservableObject {
         }
     }
     
-    //save topic image
-    @MainActor
-    func saveTopicImage(topic: Topic, imageURL: String) async {
-       
-        context.performAndWait {
-           
-            topic.topicMainImage = imageURL
-            
-            Task {
-               await self.save()
-            }
-            
-        }
-        
-    }
+    
     
     //delete all suggestions
     @MainActor
@@ -429,4 +244,211 @@ final class DataController: ObservableObject {
     
 }
 
+//MARK: Topic related functions
+extension DataController {
+   
+    //create new topic
+    func createTopic(suggestion: NewTopicSuggestion) async -> (topicId: UUID?, focusArea: FocusArea?) {
+        var topicId: UUID? = nil
+        var createdFocusArea: FocusArea? = nil
+        
+        await context.perform {
+                
+            let topic = Topic(context: self.context)
+            topic.topicId = UUID()
+            topic.topicCreatedAt = getCurrentTimeString()
+            topic.topicStatus = TopicStatusItem.active.rawValue
+            topic.topicTitle = suggestion.content
+            
+            
+            let focusArea = FocusArea(context: self.context)
+            focusArea.focusAreaId = UUID()
+            focusArea.focusAreaCreatedAt = getCurrentTimeString()
+            focusArea.focusAreaTitle = suggestion.focusArea.content
+            focusArea.focusAreaReasoning = suggestion.focusArea.reasoning
+            focusArea.focusAreaEmoji = suggestion.focusArea.emoji
+            topic.addToFocusAreas(focusArea)
+            
+            topicId = topic.topicId
+            createdFocusArea = focusArea
+            self.newTopic = topic
+            self.logger.log("Updated newTopic published variable")
+        }
+        
+        await self.save()
+       
+        return (topicId, createdFocusArea)
+    }
+    
+    @MainActor
+    func updateTopicStatus(id: UUID, item: TopicStatusItem) async {
+        let request = NSFetchRequest<Topic>(entityName: "Topic")
+        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        
+        await context.perform {
+            do {
+                let fetchedTopic = try self.context.fetch(request)
+                
+                if let topic = fetchedTopic.first {
+                    topic.topicStatus = item.rawValue
+                    
+                    Task {
+                        await self.save()
+                    }
+                   
+                    //reset newTopic so that new topic creation flow functions properly
+                    if let _ = self.newTopic {
+                        self.newTopic = nil
+                    }
+                }
+                    
+            } catch {
+                self.logger.error("Failed to update topic status: \(error.localizedDescription)")
+            }
 
+        }
+    }
+    
+    //fetch a topic
+    func fetchTopic(id: UUID) async -> Topic? {
+        let request = NSFetchRequest<Topic>(entityName: "Topic")
+        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        
+        var fetchedTopic: Topic? = nil
+        
+        await context.perform {
+            do {
+                let results = try self.context.fetch(request)
+                if let topic = results.first {
+                    
+                    fetchedTopic = topic
+                }
+            } catch {
+                self.logger.error("Error fetching entry with ID \(id): \(error.localizedDescription)")
+               
+            }
+        }
+        
+        return fetchedTopic
+        
+    }
+    
+    //fetch all topics
+    func fetchAllTopics() async -> [Topic] {
+        let request = NSFetchRequest<Topic>(entityName: "Topic")
+        
+        var fetchedTopics: [Topic] = []
+        
+        await context.perform {
+            do {
+                fetchedTopics = try self.context.fetch(request)
+            } catch {
+                self.logger.error("Error fetching all topics: \(error.localizedDescription)")
+            }
+        }
+        
+        return fetchedTopics
+    }
+    
+    //create new topic
+    func createFocusArea(suggestion: any SuggestionProtocol, topic: Topic?) async -> FocusArea? {
+        
+        var focusArea: FocusArea?
+        var totalFocusAreas: Int?
+
+        await context.perform {
+            let newFocusArea = FocusArea(context: self.context)
+            newFocusArea.focusAreaId = UUID()
+            newFocusArea.focusAreaCreatedAt = getCurrentTimeString()
+            newFocusArea.focusAreaTitle = suggestion.title
+            newFocusArea.focusAreaEmoji = suggestion.symbol
+            newFocusArea.focusAreaReasoning = suggestion.suggestionDescription
+            
+            guard let currentTopic = topic else {
+                self.logger.log("Topic not found, unable to create new focus area")
+                return
+            }
+            
+            currentTopic.addToFocusAreas(newFocusArea)
+          
+
+            self.logger.log("Created new focus area")
+            focusArea = newFocusArea
+            
+            //get total number of focus areas
+            totalFocusAreas = currentTopic.focusAreas?.count
+        
+        }
+        
+        await self.save()
+        
+        if let focusAreasCount = totalFocusAreas {
+            await MainActor.run {
+                newFocusArea = focusAreasCount - 1
+            }
+        }
+        
+        
+        return focusArea
+    }
+    
+    //delete topic
+    @MainActor
+    func deleteTopic(id: UUID) async {
+        
+        let request = NSFetchRequest<Topic>(entityName: "Topic")
+        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        
+        await context.perform {
+            do {
+                let fetchedTopic = try self.context.fetch(request)
+                
+                if let topic = fetchedTopic.first {
+                    self.context.delete(topic)
+                    
+                    Task {
+                        await self.save()
+                        
+                        //don't use topic.topicId because topic has been deleted already
+                        let topicId = id.uuidString
+                        
+                        await self.deleteTopicImage(topicId: topicId)
+                    }
+                   
+                    //reset newTopic so that new topic creation flow functions properly
+                    if let _ = self.newTopic {
+                        self.newTopic = nil
+                    }
+                }
+                    
+            } catch {
+                self.logger.error("Failed to delete topic from Core Data: \(error.localizedDescription)")
+            }
+
+        }
+ 
+    }
+    
+    private func deleteTopicImage(topicId: String) async {
+        let folderName = "topic_images"
+      
+        imageCacheManager.deleteImage(key: topicId)
+        fileManager.deleteImage(imageId: topicId, folderName: folderName)
+    }
+    
+    //save topic image
+    @MainActor
+    func saveTopicImage(topic: Topic, imageURL: String) async {
+       
+        context.performAndWait {
+           
+            topic.topicMainImage = imageURL
+            
+            Task {
+               await self.save()
+            }
+            
+        }
+        
+    }
+}

@@ -29,5 +29,7 @@
 	</array>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>OPENAI_ASSISTANT_ID_TOPIC_SUGGESTIONS</key>
+	<string>$(OPENAI_ASSISTANT_ID_TOPIC_SUGGESTIONS)</string>
 </dict>
 </plist>

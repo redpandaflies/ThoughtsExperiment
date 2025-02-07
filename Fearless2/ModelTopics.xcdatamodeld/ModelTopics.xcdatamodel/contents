@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23231" systemVersion="24A335" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithCloudKit="YES" userDefinedModelVersionIdentifier="">
+    <entity name="Category" representedClassName="Category" syncable="YES" codeGenerationType="class">
+        <attribute name="createdAt" optional="YES" attributeType="String"/>
+        <attribute name="discovered" optional="YES" attributeType="String"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="lifeArea" optional="YES" attributeType="String"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="undiscovered" optional="YES" attributeType="String"/>
+        <relationship name="topics" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Topic" inverseName="category" inverseEntity="Topic"/>
+    </entity>
     <entity name="Entry" representedClassName="Entry" syncable="YES" codeGenerationType="class">
         <attribute name="createdAt" optional="YES" attributeType="String"/>
         <attribute name="feedback" optional="YES" attributeType="String"/>
@@ -86,14 +95,13 @@
         <relationship name="section" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="Section" inverseName="summary" inverseEntity="Section"/>
     </entity>
     <entity name="Topic" representedClassName="Topic" syncable="YES" codeGenerationType="class">
-        <attribute name="category" optional="YES" attributeType="String"/>
         <attribute name="createdAt" optional="YES" attributeType="String"/>
         <attribute name="definition" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="mainImage" optional="YES" attributeType="String"/>
         <attribute name="status" optional="YES" attributeType="String"/>
-        <attribute name="summary" optional="YES" attributeType="String"/>
         <attribute name="title" optional="YES" attributeType="String"/>
+        <relationship name="category" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Category" inverseName="topics" inverseEntity="Category"/>
         <relationship name="entries" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Entry" inverseName="topic" inverseEntity="Entry"/>
         <relationship name="focusAreas" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="FocusArea" inverseName="topic" inverseEntity="FocusArea"/>
         <relationship name="insights" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Insight" inverseName="topic" inverseEntity="Insight"/>

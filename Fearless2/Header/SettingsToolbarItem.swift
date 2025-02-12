@@ -8,21 +8,24 @@
 import SwiftUI
 
 struct SettingsToolbarItem: View {
+    
+    let action: () -> Void
+    
     var body: some View {
-        VStack {
-            Button {
-               //tbd
-            } label: {
-                Image(systemName: "gearshape")
-                    .font(.headline)
-                    .fontWeight(.light)
-                    .foregroundStyle(AppColors.blackDefault)
-            }
-            
+       
+        Button {
+           action()
+        } label: {
+            Image(systemName: "gearshape.fill")
+                .font(.headline)
+                .fontWeight(.light)
+                .foregroundStyle(AppColors.textPrimary)
         }
+            
+        
     }
 }
 
-#Preview {
-    SettingsToolbarItem()
-}
+//#Preview {
+//    SettingsToolbarItem()
+//}

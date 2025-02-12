@@ -41,7 +41,8 @@ struct ContextGatherer {
 
         
         context += """
-        - topic title: \(topic.topicTitle)\n\n
+        - topic title: \(topic.topicTitle)
+        - topic is related to this area of the user's life: \(topic.category?.categoryLifeArea ?? "")\n\n
         """
         
         //get user's response to "What would resolve this topic?"
@@ -137,8 +138,8 @@ struct ContextGatherer {
     }
     
     //for topic suggestions
-    static func gatherContextTopicSuggestions(dataController: DataController, loggerCoreData: Logger) async -> String? {
-        var context = "Here are all the topics the user has created, ordered from earliest to latest:\n\n"
+    static func gatherContextTopicSuggestions(dataController: DataController, loggerCoreData: Logger, category: Category) async -> String? {
+        var context = "The user is looking for topic suggestions for this area of their life: \(category.categoryLifeArea). The purpose of exploring this area is: \(category.categoryDiscovered) \n\n"
         
         // Get all topics
         let topics = await dataController.fetchAllTopics()
@@ -146,11 +147,13 @@ struct ContextGatherer {
         if !topics.isEmpty {
             // Sort topics by creation date string, earliest first
             let sortedTopics = topics.sorted { ($0.createdAt ?? "") < ($1.createdAt ?? "") }
+            context += "Here are all the topics the user has created, ordered from earliest to latest:\n\n"
             
             for topic in sortedTopics {
                 context += """
                 - topic title: \(topic.title ?? "No title available")
-                - created at: \(topic.createdAt ?? "Date not available")\n\n
+                - created at: \(topic.createdAt ?? "Date not available")
+                - topic is related to this area of the user's life: \(topic.category?.categoryLifeArea ?? "")\n\n
                 """
             }
         } else {
@@ -208,7 +211,8 @@ struct ContextGatherer {
         var context = "Here is what we know so far about the topic: \n\n"
         
         context += """
-        - topic title: \(topic.topicTitle)\n\n
+        - topic title: \(topic.topicTitle)
+        - topic is related to this area of the user's life: \(topic.category?.categoryLifeArea ?? "")\n\n
         """
         
         //get user's response to "What would resolve this topic?"

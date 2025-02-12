@@ -22,12 +22,13 @@ struct AppColors {
     static let darkGrey2 = Color(#colorLiteral(red: 0.161, green: 0.161, blue: 0.161, alpha: 1)) // #292929
     static let darkGrey3 = Color(#colorLiteral(red: 0.129, green: 0.129, blue: 0.129, alpha: 1)) // #212121
     static let darkGrey4 = Color(#colorLiteral(red: 0.176, green: 0.176, blue: 0.176, alpha: 1)) // #2d2d2d
+    static let darkGrey5 = Color(#colorLiteral(red: 0.251, green: 0.251, blue: 0.251, alpha: 1)) // #404040
     static let yellow1 = Color(#colorLiteral(red: 1, green: 0.722, blue: 0, alpha: 1)) // #ffb800
     static let green1 = Color(#colorLiteral(red: 0.541, green: 1, blue: 0.624, alpha: 1)) // #8aff9f
     static let green2 = Color(#colorLiteral(red: 0.188, green: 0.435, blue: 0, alpha: 1)) // #306f00
     static let green3 = Color(#colorLiteral(red: 0.094, green: 0.243, blue: 0.075, alpha: 1)) // #183e13
     static let ellipsisMenuColor = Color(#colorLiteral(red: 0.733, green: 0.733, blue: 0.706, alpha: 1)) // #bbbbb4
-    static let whiteDefault = Color(#colorLiteral(red: 0.89, green: 0.89, blue: 0.89, alpha: 1)) // #e3e3e3
+    static let whiteDefault = Color.white.opacity(0.9)
     static let white2 = Color(#colorLiteral(red: 0.859, green: 0.859, blue: 0.859, alpha: 1)) // #dbdbdb
     static let darkBrown = Color(#colorLiteral(red: 0.11, green: 0.09, blue: 0.059, alpha: 1)) // #1c170f
     static let lightBrown = Color(#colorLiteral(red: 0.608, green: 0.475, blue: 0.235, alpha: 1)) // #9b793c
@@ -69,4 +70,24 @@ struct AppColors {
     //understand
     static let understandYellow = Color(#colorLiteral(red: 0.973, green: 0.69, blue: 0.435, alpha: 1)) // #f8b06f
     static let understandWhite = Color(#colorLiteral(red: 0.631, green: 0.584, blue: 0.545, alpha: 1)) // #a1958b
+    
+    //MARK: - New
+    
+    //text
+    static let textPrimary = Color.white.opacity(0.9)
+    static let textSecondary = Color(#colorLiteral(red: 0.914, green: 0.922, blue: 0.949, alpha: 1)) // #e9ebf2
+    
+    //divider
+    static let dividerPrimary = Color(#colorLiteral(red: 0.125, green: 0.141, blue: 0.204, alpha: 1)) // #202434
+    static let dividerShadow = Color(#colorLiteral(red: 0.914, green: 0.922, blue: 0.949, alpha: 1)) // #e9ebf2
+    
+    //button color
+    static let buttonPrimary = Color(#colorLiteral(red: 0.914, green: 0.922, blue: 0.949, alpha: 1)) // #e9ebf2
+    
+    //box color
+    static let boxPrimary = Color(#colorLiteral(red: 0.914, green: 0.922, blue: 0.949, alpha: 1)) // #e9ebf2
+    
+    //background
+    static let backgroundPrimary = Color(#colorLiteral(red: 0.914, green: 0.922, blue: 0.949, alpha: 1)) // #e9ebf2
+    static let backgroundCareer = Color(#colorLiteral(red: 0.059, green: 0.141, blue: 0.239, alpha: 1)) // #0f243d
 }

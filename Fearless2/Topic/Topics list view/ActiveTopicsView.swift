@@ -10,63 +10,73 @@ import SwiftUI
 struct ActiveTopicsView: View {
     @ObservedObject var topicViewModel: TopicViewModel
     @ObservedObject var transcriptionViewModel: TranscriptionViewModel
-    
+
     @Binding var showCreateNewTopicView: Bool
     @Binding var selectedTopic: Topic?
     @Binding var currentTabBar: TabBarType
     @Binding var selectedTabTopic: TopicPickerItem
     @Binding var navigateToTopicDetailView: Bool
+    @Binding var topicScrollPosition: Int?
+    @Binding var categoriesScrollPosition: Int?
     
-    let columns = [GridItem(.adaptive(minimum:150), spacing: 15)]
+    let topics: [Topic]
     
-    @FetchRequest(
-        sortDescriptors: [
-            NSSortDescriptor(key: "createdAt", ascending: false)
-        ],
-        predicate: NSPredicate(format: "status == %@ OR status == nil", TopicStatusItem.active.rawValue)
-    ) var topics: FetchedResults<Topic>
+    let frameWidth: CGFloat = 270
+    var safeAreaPadding: CGFloat {
+        return (UIScreen.main.bounds.width - frameWidth)/2
+    }
+    
+    @AppStorage("currentCategory") var currentCategory: Int = 0
     
     var body: some View {
-            ScrollView {
-                TopicsGridView(
-                    topicViewModel: topicViewModel,
-                    topics: topics,
-                    onTopicTap: { topic in
-                        onTopicTap(topic: topic)
-                    },
-                    showAddButton: true,
-                    onAddButtonTap: {
-                        showCreateNewTopicView = true
-                    }
-                )
-                .navigationDestination(isPresented: $navigateToTopicDetailView) {
-                    if let topic = selectedTopic {
-                        TopicDetailView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, selectedTabTopic: $selectedTabTopic, topic: topic)
-                    }
+        ScrollView (.horizontal) {
+            TopicsListContent(
+                topicViewModel: topicViewModel,
+                topics: topics,
+                onTopicTap: { topic in
+                    onTopicTap(topic: topic)
+                },
+                showAddButton: true,
+                onAddButtonTap: {
+                    createNewTopic()
+                }, frameWidth: frameWidth
+            )
+            .scrollTargetLayout()
+            .navigationDestination(isPresented: $navigateToTopicDetailView) {
+                if let topic = selectedTopic {
+                    TopicDetailView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, selectedTabTopic: $selectedTabTopic, topic: topic)
                 }
             }
-            .scrollClipDisabled(true)
-            .scrollIndicators(.hidden)
-            .padding()
-            .safeAreaInset(edge: .bottom, content: {
-                Rectangle()
-                    .fill(Color.clear)
-                    .frame(height: 50)
-            })
-          
-        }
+        }//Scrollview
+        .scrollPosition(id: $topicScrollPosition, anchor: .center)
+        .contentMargins(.horizontal, safeAreaPadding, for: .scrollContent)
+        .scrollClipDisabled(true)
+        .scrollTargetBehavior(.viewAligned)
+        .scrollIndicators(.hidden)
+        
+    }
+
     
     
     private func onTopicTap(topic: Topic) {
         //set selected topic ID so that delete topic works
         selectedTopic = topic
-        
+        if let scrollPosition = categoriesScrollPosition {
+            currentCategory = scrollPosition
+        }
         navigateToTopicDetailView = true
         
         //change footer
         withAnimation(.snappy(duration: 0.2)) {
             currentTabBar = .topic
         }
+    }
+    
+    private func createNewTopic() {
+        if let scrollPosition = categoriesScrollPosition {
+            currentCategory = scrollPosition
+        }
+        showCreateNewTopicView = true
     }
 }
 

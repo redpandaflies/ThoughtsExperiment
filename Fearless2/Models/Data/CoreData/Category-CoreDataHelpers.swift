@@ -12,6 +12,11 @@ extension Category {
         set { id = newValue }
     }
     
+    var categoryEmoji: String {
+        get { emoji ?? "" }
+        set { emoji = newValue }
+    }
+    
     var categoryName: String {
         get { name ?? "" }
         set { name = newValue }

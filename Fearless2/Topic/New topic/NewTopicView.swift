@@ -27,7 +27,10 @@ struct NewTopicView: View {
     @Binding var navigateToTopicDetailView: Bool
     @Binding var currentTabBar: TabBarType
     
+    let category: Category
+    
     let logger = Logger.openAIEvents
+    
     
     var body: some View {
         VStack {
@@ -38,7 +41,7 @@ struct NewTopicView: View {
             .padding(.horizontal)
            
           
-            TopicSuggestionsList(topicViewModel: topicViewModel, selectedTopic: $selectedTopic, navigateToTopicDetailView: $navigateToTopicDetailView, currentTabBar: $currentTabBar)
+            TopicSuggestionsList(topicViewModel: topicViewModel, selectedTopic: $selectedTopic, navigateToTopicDetailView: $navigateToTopicDetailView, currentTabBar: $currentTabBar, category: category)
             .padding(.top)
                         
         }

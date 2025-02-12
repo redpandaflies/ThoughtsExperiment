@@ -72,17 +72,7 @@ struct HomeGradient: View {
       
         Group {
             Rectangle()
-                .fill(
-                    LinearGradient(
-                        stops: [
-                            Gradient.Stop(color: AppColors.black4, location: 0.2),
-                            Gradient.Stop(color: AppColors.black4.opacity(0.76), location: 0.43),
-                            Gradient.Stop(color: AppColors.black4.opacity(0), location: 1.00)
-                        ],
-                        startPoint: .bottom,
-                        endPoint: .top
-                    )
-                )
+                .fill(Color.clear)
             
         }//App was crashing when Group was removed
     }

@@ -76,7 +76,7 @@ final class TopicViewModel: ObservableObject {
     //MARK: create new topic
     //note: send the full name of category to GPT as context, save the short name to CoreData
     //note: kept the optionals for userInput and question for now, in case we want to add back in the follow-up questions and summary
-    func manageRun(selectedAssistant: AssistantItem, userInput: [String]? = nil, topicId: UUID? = nil, entryId: UUID? = nil, transcript: String? = nil, focusArea: FocusArea? = nil, section: Section? = nil, question: String? = nil, review: TopicReview? = nil) async throws {
+    func manageRun(selectedAssistant: AssistantItem, userInput: [String]? = nil, topicId: UUID? = nil, entryId: UUID? = nil, transcript: String? = nil, focusArea: FocusArea? = nil, section: Section? = nil, question: String? = nil, review: TopicReview? = nil, category: Category? = nil) async throws {
         
         do {
             //reset published vars
@@ -105,7 +105,7 @@ final class TopicViewModel: ObservableObject {
                 
             }
             
-            try await manageRunWithStreaming(selectedAssistant: selectedAssistant, userInput: userInput, topicId: topicId, entryId: entryId, transcript: transcript, focusArea: focusArea, section: section, question: question, review: review)
+            try await manageRunWithStreaming(selectedAssistant: selectedAssistant, userInput: userInput, topicId: topicId, entryId: entryId, transcript: transcript, focusArea: focusArea, section: section, question: question, review: review,  category: category)
             
         } catch {
             loggerOpenAI.error("Failed to complete OpenAI run: \(error.localizedDescription), \(error)")
@@ -118,7 +118,7 @@ final class TopicViewModel: ObservableObject {
         
     }
     
-    func manageRunWithStreaming(selectedAssistant: AssistantItem, userInput: [String]? = nil, topicId: UUID? = nil, entryId: UUID? = nil, transcript: String? = nil, focusArea: FocusArea? = nil, section: Section? = nil, question: String? = nil, review: TopicReview? = nil) async throws {
+    func manageRunWithStreaming(selectedAssistant: AssistantItem, userInput: [String]? = nil, topicId: UUID? = nil, entryId: UUID? = nil, transcript: String? = nil, focusArea: FocusArea? = nil, section: Section? = nil, question: String? = nil, review: TopicReview? = nil, category: Category? = nil) async throws {
         
         let threadId: String
                 
@@ -132,7 +132,7 @@ final class TopicViewModel: ObservableObject {
             throw OpenAIError.requestFailed(error, "Failed to create thread")
         }
         
-        try await sendFirstMessage(selectedAssistant: selectedAssistant, threadId: threadId, topicId: topicId, transcript: transcript, focusArea: focusArea)
+        try await sendFirstMessage(selectedAssistant: selectedAssistant, threadId: threadId, topicId: topicId, transcript: transcript, focusArea: focusArea, category: category)
         
         
         var messageText: String?
@@ -327,18 +327,23 @@ final class TopicViewModel: ObservableObject {
     }
     
     //for creating a set of questions to gather context on a topic
-    private func sendFirstMessage(selectedAssistant: AssistantItem, threadId: String, topicId: UUID? = nil, transcript: String? = nil, focusArea: FocusArea? = nil) async throws {
+    private func sendFirstMessage(selectedAssistant: AssistantItem, threadId: String, topicId: UUID? = nil, transcript: String? = nil, focusArea: FocusArea? = nil, category: Category? = nil) async throws {
         
-        let userContext = try await gatherUserContext(selectedAssistant: selectedAssistant, topicId: topicId, transcript: transcript, focusArea: focusArea)
+        let userContext = try await gatherUserContext(selectedAssistant: selectedAssistant, topicId: topicId, transcript: transcript, focusArea: focusArea, category: category)
         
         try await sendMessageWithContext(threadId: threadId, userContext: userContext)
     }
     
-    private func gatherUserContext(selectedAssistant: AssistantItem, topicId: UUID? = nil, transcript: String? = nil, focusArea: FocusArea? = nil) async throws -> String {
+    private func gatherUserContext(selectedAssistant: AssistantItem, topicId: UUID? = nil, transcript: String? = nil, focusArea: FocusArea? = nil, category: Category? = nil) async throws -> String {
         
         //topic suggestion assistant only
         if selectedAssistant == .topicSuggestions {
-            guard let gatheredContext = await ContextGatherer.gatherContextTopicSuggestions(dataController: dataController, loggerCoreData: loggerCoreData) else {
+            guard let currentCategory = category else {
+                loggerCoreData.error("Failed to get current category")
+                throw ContextError.missingRequiredField("Category")
+            }
+            
+            guard let gatheredContext = await ContextGatherer.gatherContextTopicSuggestions(dataController: dataController, loggerCoreData: loggerCoreData, category: currentCategory) else {
                 loggerCoreData.error("Failed to get topic suggestions")
                 throw ContextError.noContextFound("topic suggestions")
             }

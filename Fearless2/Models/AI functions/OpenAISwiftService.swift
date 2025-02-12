@@ -120,7 +120,7 @@ final class OpenAISwiftService: ObservableObject {
             self.toolCallId = ""
         }
         
-        let timeoutSeconds: Double = 10
+        let timeoutSeconds: Double = 25
         
         return try await withTimeout(seconds: timeoutSeconds) { [weak self] in
             guard let self = self else { throw OpenAIError.runIncomplete() }
@@ -215,7 +215,7 @@ final class OpenAISwiftService: ObservableObject {
             
             // Add the timeout task
             group.addTask {
-                try await Task.sleep(nanoseconds: UInt64(seconds * 1_500_000_000))
+                try await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
                 self.loggerOpenAI.warning("Streamed run timed out after \(seconds) seconds")
                 
                 do {

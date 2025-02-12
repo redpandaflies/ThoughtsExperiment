@@ -248,7 +248,7 @@ final class DataController: ObservableObject {
 extension DataController {
    
     //create new topic
-    func createTopic(suggestion: NewTopicSuggestion) async -> (topicId: UUID?, focusArea: FocusArea?) {
+    func createTopic(suggestion: NewTopicSuggestion, category: Category) async -> (topicId: UUID?, focusArea: FocusArea?) {
         var topicId: UUID? = nil
         var createdFocusArea: FocusArea? = nil
         
@@ -259,6 +259,7 @@ extension DataController {
             topic.topicCreatedAt = getCurrentTimeString()
             topic.topicStatus = TopicStatusItem.active.rawValue
             topic.topicTitle = suggestion.content
+            category.addToTopics(topic)
             
             
             let focusArea = FocusArea(context: self.context)
@@ -452,3 +453,43 @@ extension DataController {
         
     }
 }
+
+//MARK: category (realms)
+
+extension DataController {
+    
+    @MainActor
+    func addCategoriesToCoreData() async {
+    
+        let request = NSFetchRequest<Category>(entityName: "Category")
+        await context.perform {
+            do {
+                let results = try self.context.fetch(request)
+                let count = results.count
+                guard count == 0 else {
+                    self.logger.info("Categories already exist in CoreData.")
+                    return
+                }
+                
+                // Populate CoreData with sample realms
+                for realm in Realm.realmsData {
+                    let category = Category(context: self.context)
+                    category.categoryId = UUID()
+                    category.orderIndex = Int16(realm.orderIndex)
+                    category.categoryEmoji = realm.emoji
+                    category.categoryName = realm.name
+                    category.categoryLifeArea = realm.lifeArea
+                    category.categoryUndiscovered = realm.undiscoveredDescription
+                    category.categoryDiscovered = realm.discoveredDescription
+                }
+                
+            } catch {
+                self.logger.error("Error checking/populating CoreData: \(error)")
+            }
+        }
+        
+        await self.save()
+    }
+    
+}
+

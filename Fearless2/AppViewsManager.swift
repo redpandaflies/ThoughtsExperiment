@@ -22,7 +22,6 @@ struct AppViewsManager: View {
     @State private var selectedTabTopic: TopicPickerItem = .explore
     @State private var navigateToTopicDetailView: Bool = false
    
-    @State private var selectedCategory: TopicCategoryItem = .personal
     @State private var selectedTopic: Topic? = nil
     @State private var showAskQuestionView: Bool = false
     @State private var askQuestionTab: Int = 0 //to control which view shows up when showAskQuestionView is true
@@ -47,18 +46,18 @@ struct AppViewsManager: View {
             ZStack {
                 switch selectedTabHome {
                 default:
-                    TopicsListView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, selectedTopic: $selectedTopic, currentTabBar: $currentTabBar, selectedTabTopic: $selectedTabTopic, navigateToTopicDetailView: $navigateToTopicDetailView)
-//                case .understand:
-//                    UnderstandView(understandViewModel: understandViewModel, showAskQuestionView: $showAskQuestionView, askQuestionTab: $askQuestionTab)
+                    CategoryView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, selectedTopic: $selectedTopic, currentTabBar: $currentTabBar, selectedTabTopic: $selectedTabTopic, navigateToTopicDetailView: $navigateToTopicDetailView)
+                    //                case .understand:
+                    //                    UnderstandView(understandViewModel: understandViewModel, showAskQuestionView: $showAskQuestionView, askQuestionTab: $askQuestionTab)
                 }
                 
                 
                 TabBar(transcriptionViewModel: transcriptionViewModel, currentTabBar: $currentTabBar, selectedTabHome: $selectedTabHome, selectedTabTopic: $selectedTabTopic, navigateToTopicDetailView: $navigateToTopicDetailView, topic: selectedTopic)
                     .transition(.move(edge: .bottom))
                 
-                
-            
-        }
+            } //ZStack
+            .ignoresSafeArea(.all)
+       
 //        .overlay  {
 //           if showAskQuestionView {
 //                UnderstandAskQuestionView(understandViewModel: understandViewModel, showAskQuestionView: $showAskQuestionView, askQuestionTab: $askQuestionTab)

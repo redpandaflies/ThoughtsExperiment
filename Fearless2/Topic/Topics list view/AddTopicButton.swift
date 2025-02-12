@@ -10,6 +10,8 @@ import SwiftUI
 
 struct AddTopicButton: View {
     
+    let frameWidth: CGFloat
+    
     var body: some View {
         VStack {
             Spacer()
@@ -18,23 +20,21 @@ struct AddTopicButton: View {
                 
                 Image(systemName: "plus")
                     .font(.system(size: 34, weight: .light))
-                    .foregroundStyle(AppColors.whiteDefault)
-                    .opacity(0.5)
+                    .foregroundStyle(AppColors.textSecondary.opacity(0.4))
                 
                 Spacer()
             }
             Spacer()
         }
-        .frame(minHeight: 230)
+        .frame(width: frameWidth, height: 295)
         .contentShape(RoundedRectangle(cornerRadius: 25))
         .background {
             RoundedRectangle(cornerRadius: 25)
-                .stroke(AppColors.whiteDefault.opacity(0.5))
+                .stroke(AppColors.boxPrimary.opacity(0.1), lineWidth: 0.5)
         }
-        .background(AppColors.black4)
     }
 }
 
-#Preview {
-    AddTopicButton()
-}
+//#Preview {
+//    AddTopicButton()
+//}

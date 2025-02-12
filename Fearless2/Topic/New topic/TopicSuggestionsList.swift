@@ -20,6 +20,8 @@ struct TopicSuggestionsList: View {
     @Binding var navigateToTopicDetailView: Bool
     @Binding var currentTabBar: TabBarType
     
+    let category: Category
+    
     var body: some View {
         VStack {
             
@@ -99,7 +101,7 @@ struct TopicSuggestionsList: View {
         Task {
   
             do {
-                try await topicViewModel.manageRun(selectedAssistant: .topicSuggestions)
+                try await topicViewModel.manageRun(selectedAssistant: .topicSuggestions, category: self.category)
             } catch {
                 selectedTabSuggestionsList = 2
             }
@@ -115,7 +117,9 @@ struct TopicSuggestionsList: View {
     //MARK: Create selected topic and its first focus area
     private func selectTopic(suggestion: NewTopicSuggestion) {
         Task {
-            let (topicId, focusArea) = await createTopic(suggestion: suggestion)
+           
+            
+            let (topicId, focusArea) = await createTopic(suggestion: suggestion, category: self.category)
             
             await MainActor.run {
                 topicViewModel.updatingfocusArea = true
@@ -126,10 +130,10 @@ struct TopicSuggestionsList: View {
         }
     }
     
-    private func createTopic(suggestion: NewTopicSuggestion) async -> (topicId: UUID?, focusArea: FocusArea?) {
+    private func createTopic(suggestion: NewTopicSuggestion, category: Category) async -> (topicId: UUID?, focusArea: FocusArea?) {
         
         //save selected topic to coredata
-        let (topicId, focusArea) = await dataController.createTopic(suggestion: suggestion)
+        let (topicId, focusArea) = await dataController.createTopic(suggestion: suggestion, category: category)
         
         return (topicId, focusArea)
     }

@@ -10,11 +10,17 @@ import SwiftUI
 struct ToolbarTitleItem: View {
     
     let title: String
+    let largerFont: Bool
+    
+    init(title: String, largerFont: Bool = false) {
+        self.title = title
+        self.largerFont = largerFont
+    }
     
     var body: some View {
         
         Text(title)
-            .font(.system(size: 17, design: .serif))
+            .font(.system(size: largerFont == true ? 35 : 17, design: .serif))
             .foregroundStyle(AppColors.textPrimary)
             .textCase(.uppercase)
        

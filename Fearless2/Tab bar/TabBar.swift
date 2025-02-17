@@ -33,13 +33,9 @@ struct TabBar: View {
                         case .topic:
                             Rectangle()
                                 .stroke(.white.opacity(0.1), lineWidth: 0.5)
-                                .fill(AppColors.black3.opacity(0.93))
+                                .fill(AppColors.backgroundPrimary.opacity(0.5))
                                 .shadow(color: .black.opacity(0.2), radius: 2.5, x: 0, y: -2)
-                                .background {
-                                    Rectangle()
-                                        .fill(Color.black.opacity(0.1))
-                                        .blur(radius: 5)
-                                }
+                                .blendMode(.softLight)
                     }
                     
                 Group {

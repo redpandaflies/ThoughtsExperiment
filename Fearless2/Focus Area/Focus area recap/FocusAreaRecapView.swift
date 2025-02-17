@@ -13,174 +13,132 @@ struct FocusAreaRecapView: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var dataController: DataController
     @ObservedObject var topicViewModel: TopicViewModel
-    @State private var selectedTab: Int = 1 // [0] loader, [1] feedback, [2] insights, [3] suggestions
+    @State private var selectedTab: Int = 1 // [0] celebration, [1] feedback, [2] suggestions
     @State private var selectedTabSuggestionsList: Int = 1 //manages whether suggestions, loading view or retry is shown on suggestions list
     @State private var showSuggestions: Bool = false
     @State private var recapReady: Bool = false //manage the UI changes when recap is ready
     @State private var animationValue: Bool = false//manages animation of the ellipsis animation on loading view
     
     @Binding var focusArea: FocusArea?
+    @Binding var focusAreaScrollPosition: Int?
     
-    let lastFocusArea: Bool
+    let totalFocusAreas: Int
+    
+    var lastFocusArea: Bool {
+        return focusAreaScrollPosition == totalFocusAreas - 1
+    }
     
     private let screenWidth = UIScreen.current.bounds.width
     
     var body: some View {
-        
-        ZStack {
+        NavigationStack {
             
-            ScrollView {
-                VStack (alignment: .leading, spacing: 5) {
-                    
-                    getHeading()
-                        .padding(.horizontal)
-                    
-                    getTitle()
-                        .padding(.bottom, (selectedTab == 3) ? 20 : 10)
-                        .padding(.horizontal)
-                    
-                    getContent()
-                        .padding(.horizontal, (selectedTab == 3) ? 0 : 16)
+            ZStack {
+                
+                ScrollView {
+                    VStack (alignment: (selectedTab == 0) ? .center : .leading, spacing: 5) {
+                        
+                        getTitle()
+                            .padding(.bottom, (selectedTab == 2) ? 15 : 10)
+                            .padding(.horizontal)
+                        
+                        getContent()
+                            .padding(.horizontal, (selectedTab == 2) ? 0 : 16)
+                        
+                    }
+                    .padding(.top, 30)
                     
                 }
-                .padding(.top, 90)
-                
-            }
-            .scrollIndicators(.hidden)
-            .scrollClipDisabled()
-            .scrollDisabled((selectedTab == 1) ? false : true)
-            .safeAreaInset(edge: .bottom, content: {
-                Rectangle()
-                    .fill(Color.clear)
-                    .frame(height: 120)
-            })
-            
-            VStack {
-                
-                gradientBackground(fill:
-                    LinearGradient(
-                    stops: [
-                        Gradient.Stop(color: AppColors.black4, location: 0.75),
-                        Gradient.Stop(color: AppColors.black4.opacity(0.1), location: 1.0)
-                    ],
-                    startPoint: .top,
-                    endPoint: .bottom
-                    ), height: 130, header: true)
-                
-                Spacer()
-                
-                gradientBackground(fill:
-                    LinearGradient(
-                    stops: [
-                        Gradient.Stop(color: AppColors.black4.opacity(0.05), location: 0.0),
-                        Gradient.Stop(color: AppColors.black4, location: 0.3)
-                    ],
-                    startPoint: .top,
-                    endPoint: .bottom
-                    ), height: 180, header: false)
-                
-            }
-            .ignoresSafeArea()
-            
-            
-            VStack {
-                //Header
-                FocusAreaRecapHeader(
-                    selectedTab: $selectedTab,
-                    topicTitle: focusArea?.topic?.topicTitle ?? "",
-                    xmarkAction: {
-                        closeView()
-                    },
-                    showSuggestions: showSuggestions
-                )
-                .padding(.bottom)
-                .padding(.horizontal)
-                
-                Spacer()
+                .scrollIndicators(.hidden)
+                .scrollDisabled(true)
+                .safeAreaInset(edge: .bottom, content: {
+                    Rectangle()
+                        .fill(Color.clear)
+                        .frame(height: 120)
+                })
                 
                 
-                if selectedTab != 3 {
-                    RectangleButtonYellow(
-                        buttonText: getButtonText(),
-                        action: {
-                            buttonAction()
-                        },
-                        showChevron: chevronStatus(),
-                        showBackButton: (selectedTab == 2),
-                        backAction: {
-                            selectedTab -= 1
-                        },
-                        disableMainButton: disableButton()
-                    )
-                    .padding(.bottom, 10)
-                    .padding(.horizontal)
+                VStack {
                     
-                    getFootnote()
-                        .padding(.bottom)
+                    Spacer()
+                    
+                    
+                    if selectedTab != 2 {
+                        RectangleButtonYellow(
+                            buttonText: getButtonText(),
+                            action: {
+                                buttonAction()
+                            },
+                            buttonColor: .white
+                        )
+                        .padding(.bottom, 10)
+                        .padding(.horizontal)
+                        
+                    }
+                    
+                }//VStack
+            }//ZStack
+            .background {
+                if let category = focusArea?.category {
+                    AppBackground(backgroundColor: Realm.getBackgroundColor(forName: category.categoryName))
+                } else {
+                    AppBackground(backgroundColor: AppColors.backgroundCareer)
+                }
+            }
+            .onAppear {
+                getRecap()
+            }
+            .onChange(of: topicViewModel.createFocusAreaSummary) {
+                if topicViewModel.createFocusAreaSummary == .ready {
+                    animationValue = false
+                    showSuggestions = true
+                    withAnimation (.snappy(duration: 0.2)) {
+                        recapReady = true
+                    }
+                }
+            }
+            .toolbar {
+               
+                ToolbarItem(placement: .principal) {
+                    ToolbarTitleItem2(emoji: focusArea?.category?.categoryEmoji ?? "", title: focusArea?.focusAreaTitle ?? "")
                 }
                 
-            }//VStack
-        }//ZStack
-       
-        .onAppear {
-            getRecap()
-        }
-        .onChange(of: topicViewModel.focusAreaSummaryCreated) {
-            if topicViewModel.focusAreaSummaryCreated {
-                animationValue = false
-                showSuggestions = true
-                recapReady = true
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    XmarkToolbarItem()
+                }
+                
             }
-        }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackgroundVisibility(.hidden)
+            
+            
+        }//NavigationStack
     }
-
-    private func getHeading() -> some View {
+ 
+    
+    private func getTitle() -> some View {
+        
         HStack {
             Group {
                 switch selectedTab {
                 case 0:
                     Text("")
-                case 1, 2:
-                    Text("Recap")
-                case 3:
-                    Text("Next up")
+                case 1:
+                    Text("Reflection")
+                    
+                case 2:
+                    Text("Where should I go next?")
+                    
                 default:
                     Text("")
                 }
             }
             .multilineTextAlignment(.leading)
-            .font(.system(size: 16, weight: .light).smallCaps())
-            .fontWidth(.condensed)
-            .foregroundStyle(AppColors.yellow1)
+            .font(.system(size: 25, design: .serif))
+            .foregroundStyle(AppColors.textPrimary)
             
             Spacer()
         }
-    }
-    
-    private func closeView() {
-        dismiss()
-    }
-    
-    private func getTitle() -> some View {
-        Group {
-            switch selectedTab {
-            case 0:
-                Text("")
-            case 1:
-                Text("Feedback")
-                
-            case 2:
-                Text("Save insights")
-            
-            case 3:
-                Text("Choose the next path to keep exploring this topic")
-            default:
-                Text("")
-            }
-        }
-        .multilineTextAlignment(.leading)
-        .font(.system(size: 25))
-        .foregroundStyle(AppColors.whiteDefault)
        
     }
     
@@ -188,20 +146,14 @@ struct FocusAreaRecapView: View {
         switch selectedTab {
         
             case 0:
-                guard let currentFocusArea = focusArea else { return AnyView(EmptyView())}
-                
-                return AnyView(FocusAreaLoadingView(topicViewModel: topicViewModel, recapReady: $recapReady, animationValue: $animationValue, focusArea: currentFocusArea))
+            guard let currentFocusArea = focusArea else { return AnyView(EmptyView())}
+            return AnyView(FocusAreaRecapCelebrationView(focusAreaTitle: currentFocusArea.focusAreaTitle))
             
             case 1:
-                return AnyView(feedbackView(focusArea?.summary?.summaryFeedback ?? ""))
+            return AnyView(FocusAreaRecapReflectionView(topicViewModel: topicViewModel, recapReady: $recapReady, feedback: focusArea?.summary?.summaryFeedback ?? ""))
             
             case 2:
-               return AnyView(insightsView())
-            
-            case 3:
-            return AnyView(FocusAreaSuggestionsList(topicViewModel: topicViewModel, selectedTabSuggestionsList: $selectedTabSuggestionsList, suggestions: getSuggestions(), action: {
-                            closeView()
-                }, topic: focusArea?.topic, useCase: .recap))
+            return AnyView(FocusAreaRecapSuggestionsView(topicViewModel: topicViewModel, selectedTabSuggestionsList: $selectedTabSuggestionsList, focusArea: $focusArea))
             
             default:
                 return AnyView(FocusAreaRetryView(action: {
@@ -210,25 +162,7 @@ struct FocusAreaRecapView: View {
         }
     }
     
-    private func getSuggestions()  -> [any SuggestionProtocol] {
-        if let topic = focusArea?.topic {
-            print("found topic")
-            let suggestions = topic.topicSuggestions
-            print("Topic suggestions: \(suggestions)")
-            return suggestions.map { $0 as (any SuggestionProtocol) }
-        } else {
-            print("failed to find topic")
-            return []
-        }
-      
-    }
-    
-    private func feedbackView(_ feedback: String) -> some View {
-        Text(feedback)
-            .font(.system(size: 17, weight: .light))
-            .foregroundStyle(AppColors.whiteDefault.opacity(0.9))
-            .lineSpacing(1.4)
-    }
+   
     
     private func insightsView() -> some View {
         ForEach(focusArea?.summary?.summaryInsights ?? [], id: \.insightId) { insight in
@@ -240,77 +174,41 @@ struct FocusAreaRecapView: View {
     
     private func getButtonText() -> String {
         switch selectedTab {
-        case 0:
-            return recapReady ? "Start recap" : "Working on it..."
-            
-        case 1:
-            return "Uncover insights"
-            
-        case 2:
-            if showSuggestions {
-                return "Choose next path"
-            } else {
-                return "End recap review"
-            }
-            
-        case 3:
-           return ""
-        default:
-            return "Retry"
+            case 0:
+                return "Next: A small reflection"
+                
+            case 1:
+                if showSuggestions {
+                    return "Next: Choose next path"
+                } else {
+                    return "End recap review"
+                }
+                
+            default:
+                return "Retry"
         }
     }
     
     private func buttonAction() {
         switch selectedTab {
        
-        case 2:
+        case 0:
+            updatePoints()
+            
+        case 1:
             if showSuggestions {
                 selectedTab += 1
             } else {
                 dismiss()
             }
             
-        case 3:
+        case 2:
             break
-        case 4:
+            
+        default:
             generateNewRecap()
-        default:
-            selectedTab += 1
+            
         }
-    }
-    
-    private func chevronStatus() -> Bool {
-        switch selectedTab {
-        case 0:
-            return recapReady
-        default:
-            return false
-        }
-    }
-    
-    private func disableButton() -> Bool {
-        switch selectedTab {
-        case 0:
-            return !recapReady
-        default:
-            return false
-        }
-    }
-    
-    private func getFootnote() -> some View {
-        Group {
-            switch selectedTab {
-                
-            case 2:
-                Text("Find your saved insights on the **Review** tab of each topic.")
-           
-            default:
-                Text("")
-            }
-        }
-        .font(.system(size: 12))
-        .foregroundStyle(AppColors.whiteDefault)
-        .opacity(0.5)
     }
     
     //create or show focus area summary
@@ -366,7 +264,7 @@ struct FocusAreaRecapView: View {
                 try await topicViewModel.manageRun(selectedAssistant: .focusAreaSummary, topicId: topicId, focusArea: focusArea)
             } catch {
                 await MainActor.run {
-                    selectedTab = 4
+                    selectedTab = 3
                 }
             }
             
@@ -384,10 +282,125 @@ struct FocusAreaRecapView: View {
             }
         }
     }
+    
+    private func updatePoints() {
+        selectedTab += 1
+        Task {
+            await dataController.updatePoints(newPoints: 1)
+        }
+    }
 }
 
 
+struct FocusAreaRecapCelebrationView: View {
+    
+    let focusAreaTitle: String?
+    
+    var body: some View {
 
+        VStack {
+            Spacer()
+            
+            LaurelItem(size: 50, points: "+1")
+                .padding(.bottom, 20)
+            
+            Text("For exploring")
+                .font(.system(size: 25, weight: .light).smallCaps())
+                .fontWidth(.condensed)
+                .foregroundStyle(AppColors.textPrimary.opacity(0.5))
+            
+            Text(focusAreaTitle ?? "")
+                .multilineTextAlignment(.center)
+                .font(.system(size: 25, design: .serif))
+                .foregroundStyle(AppColors.textPrimary)
+                .padding(.bottom, 20)
+            
+            Spacer()
+        }
+
+    }
+        
+}
+
+
+struct FocusAreaRecapReflectionView: View {
+    @ObservedObject var topicViewModel: TopicViewModel
+    @State private var animationValue: Bool = false
+    
+    @Binding var recapReady: Bool
+    
+    let feedback: String
+    
+    var body: some View {
+        
+        Group {
+            if recapReady {
+                Text(feedback)
+                    .font(.system(size: 19, design: .serif))
+                    .foregroundStyle(AppColors.textPrimary)
+                    .lineSpacing(1.3)
+                
+            } else {
+                HStack {
+                    Image(systemName: "ellipsis")
+                        .font(.system(size: 25, weight: .regular))
+                        .foregroundStyle(AppColors.textPrimary)
+                        .symbolEffect(.wiggle.byLayer, options: animationValue ? .repeating : .nonRepeating, value: animationValue)
+                    
+                    Spacer()
+                }
+                .transition(.asymmetric(insertion: .opacity, removal: .identity))
+                .onAppear {
+                    animationValue = true
+                }
+                .onDisappear {
+                    animationValue = false
+                }
+            }
+        }
+        .onAppear {
+            if topicViewModel.createFocusAreaSummary == .ready {
+                recapReady = true
+            } else {
+                recapReady = false
+            }
+        }
+    }
+}
+
+struct FocusAreaRecapSuggestionsView: View {
+    @Environment(\.dismiss) var dismiss
+    @ObservedObject var topicViewModel: TopicViewModel
+    
+    @Binding var selectedTabSuggestionsList: Int
+    
+    @Binding var focusArea: FocusArea?
+    
+    var body: some View {
+        VStack (spacing: 20) {
+            
+            FocusAreaRecapTimelineView(topic: focusArea?.topic)
+               
+            
+            FocusAreaSuggestionsList(topicViewModel: topicViewModel, selectedTabSuggestionsList: $selectedTabSuggestionsList, suggestions: getSuggestions(), action: {
+                    dismiss()
+                }, topic: focusArea?.topic, useCase: .recap)
+        }
+    }
+    
+    private func getSuggestions()  -> [any SuggestionProtocol] {
+        if let topic = focusArea?.topic {
+            print("found topic")
+            let suggestions = topic.topicSuggestions
+            print("Topic suggestions: \(suggestions)")
+            return suggestions.map { $0 as (any SuggestionProtocol) }
+        } else {
+            print("failed to find topic")
+            return []
+        }
+      
+    }
+}
 
 
 

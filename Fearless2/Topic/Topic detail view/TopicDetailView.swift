@@ -23,16 +23,22 @@ struct TopicDetailView: View {
     @Binding var selectedTabTopic: TopicPickerItem
     
     let topic: Topic
-  
+    @ObservedObject var points: Points
     let screenWidth = UIScreen.current.bounds.width
+    
+    init(topicViewModel: TopicViewModel, transcriptionViewModel: TranscriptionViewModel, selectedTabTopic: Binding<TopicPickerItem>, topic: Topic, points: Points) {
+        self.topicViewModel = topicViewModel
+        self.transcriptionViewModel = transcriptionViewModel
+        self._selectedTabTopic = selectedTabTopic
+        self.topic = topic
+        self.points = points
+        
+    }
     
     var body: some View {
         
         NavigationStack {
             ZStack {
-//                if selectedTabTopic == .explore {
-//                    backgroundImage()
-//                }
                 
                 VStack {
                     switch selectedTabTopic {
@@ -49,15 +55,11 @@ struct TopicDetailView: View {
                     Spacer()
                     
                 }
-                .padding(.top, (selectedTabTopic == .explore) ? headerHeight : (headerHeight - 20))
+                .padding(.top, headerHeight - 30)
                 
-                if selectedTabTopic == .review {
-                    headerBackground2()
-                    headerBackground()
-                }
                 
                 VStack {
-                    TopicDetailViewHeader(title: topic.topicTitle)
+                    TopicDetailViewHeader(title: topic.topicTitle, progress: topic.topicFocusAreas.count)
                         .background {
                             GeometryReader { geo in
                                 Color.clear
@@ -74,12 +76,22 @@ struct TopicDetailView: View {
                 .padding(.bottom)
                 
             }//ZStack
-            .background(AppColors.black4)
+            .background {
+                if let category = topic.category {
+                    AppBackground(backgroundColor: Realm.getBackgroundColor(forName: category.categoryName))
+                } else {
+                    AppBackground(backgroundColor: AppColors.backgroundCareer)
+                }
+            }
+            .onAppear {
+                withAnimation(.snappy(duration: 0.2)) {
+                    selectedTabTopic = .explore
+                }
+            }
             .fullScreenCover(item: $selectedSection, onDismiss: {
                 selectedSection = nil
             }) { section in
                 UpdateSectionView(topicViewModel: topicViewModel, selectedSectionSummary: $selectedSectionSummary, topicId: topic.topicId, focusArea: section.focusArea, section: section)
-                    .presentationBackground(AppColors.black4)
             }
 //            .sheet(isPresented: $showRecordingView, onDismiss: {
 //                showRecordingView = false
@@ -107,7 +119,7 @@ struct TopicDetailView: View {
             .fullScreenCover(isPresented: $showFocusAreaRecapView, onDismiss: {
                 showFocusAreaRecapView = false
             }) {
-                FocusAreaRecapView(topicViewModel: topicViewModel, focusArea: $selectedFocusArea, lastFocusArea: lastFocusArea())
+                FocusAreaRecapView(topicViewModel: topicViewModel, focusArea: $selectedFocusArea, focusAreaScrollPosition: $focusAreaScrollPosition, totalFocusAreas: topic.topicFocusAreas.count)
                     .presentationCornerRadius(20)
                     .presentationBackground(AppColors.black4)
             }
@@ -119,10 +131,22 @@ struct TopicDetailView: View {
                     selectedEntry = newEntry
                 }
             }
+            .toolbar {
+               
+                ToolbarItem(placement: .principal) {
+                    ToolbarTitleItem(title: topic.category?.categoryEmoji ?? "", largerFont: true)
+                }
+                
+                ToolbarItem(placement: .topBarTrailing) {
+                    LaurelItem(size: 15, points: "\(Int(points.total))")
+                }
+            }
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar(.hidden)
+            .toolbarBackgroundVisibility(.hidden)
+            .accentColor(AppColors.textPrimary)
         }//NavigationStack
-     
+        .tint(AppColors.textPrimary)
+
     }
     
     private func backgroundImage() -> some View {
@@ -157,53 +181,6 @@ struct TopicDetailView: View {
            
         }
         .ignoresSafeArea(.all)
-    }
-    
-    private func headerBackground() -> some View {
-        VStack {
-            
-            Rectangle()
-                .fill(
-                    LinearGradient(
-                        stops: [
-                            Gradient.Stop(color: AppColors.black4, location: 0.70),
-                            Gradient.Stop(color: AppColors.black4.opacity(0.1), location: 1.0)
-                        ],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
-                .blur(radius: 3)
-                .frame(width: screenWidth, height: headerHeight)
-            
-            Spacer()
-            
-        }
-        .ignoresSafeArea(edges: .top)
-    }
-    
-    private func headerBackground2() -> some View {
-        VStack {
-            
-            Rectangle()
-                .fill(AppColors.black4)
-                .frame(width: screenWidth, height: 20)
-            
-            Spacer()
-            
-        }
-        .ignoresSafeArea(edges: .top)
-    }
-    
-    private func lastFocusArea() -> Bool {
-        let totalFocusAreas = topic.topicFocusAreas.count
-        print("Current scroll position: \(String(describing: focusAreaScrollPosition))")
-        
-        if focusAreaScrollPosition != nil {
-            return focusAreaScrollPosition == totalFocusAreas - 1
-        } else {
-            return true
-        }
     }
     
     private func getFocusAreasCompleted() -> Int? {

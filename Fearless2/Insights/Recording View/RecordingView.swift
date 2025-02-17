@@ -101,7 +101,7 @@ struct RecordingStartView: View {
             Text("Talk freely about this topic.")
                 .multilineTextAlignment(.center)
                 .font(.system(size: 20))
-                .foregroundStyle(AppColors.categoryYellow)
+                .foregroundStyle(AppColors.yellow1)
             
             Spacer()
             
@@ -113,7 +113,7 @@ struct RecordingStartView: View {
                     .contentTransition(.symbolEffect(.replace.offUp.byLayer))
                     .background {
                         Circle()
-                            .fill(AppColors.categoryYellow)
+                            .fill(AppColors.yellow1)
                     }
             }
             .contentShape(Circle())

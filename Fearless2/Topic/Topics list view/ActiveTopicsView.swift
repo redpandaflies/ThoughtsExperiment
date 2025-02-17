@@ -21,6 +21,8 @@ struct ActiveTopicsView: View {
     
     let topics: [Topic]
     
+    @ObservedObject var points: Points
+    
     let frameWidth: CGFloat = 270
     var safeAreaPadding: CGFloat {
         return (UIScreen.main.bounds.width - frameWidth)/2
@@ -44,7 +46,9 @@ struct ActiveTopicsView: View {
             .scrollTargetLayout()
             .navigationDestination(isPresented: $navigateToTopicDetailView) {
                 if let topic = selectedTopic {
-                    TopicDetailView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, selectedTabTopic: $selectedTabTopic, topic: topic)
+                    TopicDetailView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, selectedTabTopic: $selectedTabTopic, topic: topic, points: points)
+                        .toolbarRole(.editor) //removes the word "back" in the back button
+                        
                 }
             }
         }//Scrollview
@@ -53,6 +57,20 @@ struct ActiveTopicsView: View {
         .scrollClipDisabled(true)
         .scrollTargetBehavior(.viewAligned)
         .scrollIndicators(.hidden)
+        .onAppear {
+            withAnimation(.snappy(duration: 0.2)) {
+                currentTabBar = .home
+            }
+        }
+        .onDisappear {
+            if navigateToTopicDetailView {
+                
+                withAnimation(.snappy(duration: 0.2)) {
+                    currentTabBar = .topic
+                }
+            }
+        }
+        
         
     }
 

@@ -50,7 +50,6 @@ struct UpdateSectionView: View {
             QuestionsProgressBar(currentQuestionIndex: $currentQuestionIndex, totalQuestions: section.sectionQuestions.count, xmarkAction: {
                 dismiss()
             })
-         
             
             //Question
             switch selectedTab {
@@ -66,18 +65,29 @@ struct UpdateSectionView: View {
             }//switch
             
             //Next button
-            RectangleButtonYellow(
+            RectangleButtonYellow (
                 buttonText: getButtonText(),
                 action: {
                     getMainButtonAction()
                 },
-                showChevron: displayChevron()
+                showSkipButton: showSkipButton(),
+                skipAction: {
+                    skipButtonAction()
+                },
+                disableMainButton: showSkipButton()
             )
             
                 
         }//VStack
         .padding(.horizontal)
         .padding(.bottom)
+        .background {
+            if let category = focusArea?.category {
+                AppBackground(backgroundColor: Realm.getBackgroundColor(forName: category.categoryName))
+            } else {
+                AppBackground(backgroundColor: AppColors.backgroundCareer)
+            }
+        }
         .environment(\.colorScheme, .dark)
         .sheet(isPresented: $showWarningSheet, onDismiss: {
             showWarningSheet = false
@@ -101,25 +111,7 @@ struct UpdateSectionView: View {
                 return "Complete section"
             }
         default:
-            guard let currentFocusArea = focusArea else { return "Next"}
-            
-            let completedSections = currentFocusArea.focusAreaSections.filter {
-                $0.completed == true
-                }.count
-            
-            let totalSections = currentFocusArea.focusAreaSections.count
-            
-            let sortedSections = currentFocusArea.focusAreaSections.sorted { $0.sectionNumber < $1.sectionNumber }
-            
-            if completedSections < totalSections {
-                //newly completed section will not have been marked complete when this view first appears
-                let sectionIndex = completedSections
-                return sortedSections[sectionIndex].sectionTitle
-            } else {
-                return "Recap"
-            }
-           
-            
+            return "Done"
         }
         
     }
@@ -133,18 +125,31 @@ struct UpdateSectionView: View {
         }
     }
     
-    private func displayChevron() -> Bool {
+    private func showSkipButton() -> Bool {
+        if selectedTab == 0 {
+            if let answeredQuestionType =  QuestionType(rawValue: questions[selectedQuestion].questionType) {
+                switch answeredQuestionType {
+                case .open:
+                    return topicText.isEmpty
+                case .singleSelect:
+                    return singleSelectAnswer.isEmpty
+                case .multiSelect:
+                    return multiSelectAnswers.isEmpty
+                }
+            }
+        }
+        
+        return false
+    }
+    
+    private func skipButtonAction() {
+        let answeredQuestionIndex = selectedQuestion
         let numberOfQuestions = questions.count
         
-        switch selectedTab {
-        case 0:
-            if selectedQuestion < numberOfQuestions - 1 {
-                return true
-            } else {
-                return false
-            }
-        default:
-            return true
+        goToNextquestion(totalQuestions: numberOfQuestions)
+        
+        Task {
+            await completeSection(totalQuestions: numberOfQuestions, answeredQuestionIndex: answeredQuestionIndex)
         }
     }
     
@@ -186,17 +191,7 @@ struct UpdateSectionView: View {
         
         //move to next question
         DispatchQueue.main.async {
-            if selectedQuestion + 1 < numberOfQuestions {
-                selectedQuestion += 1
-                if dataController.allSectionsComplete {
-                    dataController.allSectionsComplete = false
-                }
-            }
-        
-        
-        //add fill to progress bar
-        currentQuestionIndex += 1
-        
+            goToNextquestion(totalQuestions: numberOfQuestions)
         }
         
         //save answers
@@ -225,16 +220,36 @@ struct UpdateSectionView: View {
                 Mixpanel.mainInstance().track(event: "Answered question")
             }
             
-            if answeredQuestionIndex + 1 == numberOfQuestions {
-                section.completed = true
-                await dataController.save()
-                
-                print("Answered question index is \(answeredQuestionIndex), number of questions is \(numberOfQuestions)")
-                
-                submitForm()
-            }
+            await completeSection(totalQuestions: numberOfQuestions, answeredQuestionIndex: answeredQuestionIndex)
         }
             
+    }
+    
+    private func goToNextquestion(totalQuestions: Int) {
+        
+        if selectedQuestion + 1 < totalQuestions {
+            selectedQuestion += 1
+            if dataController.allSectionsComplete {
+                dataController.allSectionsComplete = false
+            }
+        }
+    
+        //add fill to progress bar
+        currentQuestionIndex += 1
+        
+    }
+    
+    private func completeSection(totalQuestions: Int, answeredQuestionIndex: Int) async {
+        
+        if answeredQuestionIndex + 1 == totalQuestions {
+            section.completed = true
+            await dataController.save()
+            
+            print("Answered question index is \(answeredQuestionIndex), number of questions is \(totalQuestions)")
+            
+            submitForm()
+        }
+        
     }
     
     private func submitForm() {

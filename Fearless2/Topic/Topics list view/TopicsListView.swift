@@ -31,13 +31,7 @@ struct TopicsListView: View {
     @Binding var categoriesScrollPosition: Int?
     
     @ObservedObject var category: Category
-    
-//    @FetchRequest(
-//        sortDescriptors: [
-//            NSSortDescriptor(key: "createdAt", ascending: false)
-//        ],
-//        predicate: NSPredicate(format: "status == %@ OR status == nil", TopicStatusItem.active.rawValue)
-//    ) var topics: FetchedResults<Topic>
+    @ObservedObject var points: Points
     
     var topics: [Topic] {
         return category.categoryTopics.sorted { $0.topicCreatedAt > $1.topicCreatedAt }
@@ -54,7 +48,8 @@ struct TopicsListView: View {
 //                case .active:
                     ActiveTopicsView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, showCreateNewTopicView: $showCreateNewTopicView, selectedTopic: $selectedTopic, currentTabBar: $currentTabBar, selectedTabTopic: $selectedTabTopic, navigateToTopicDetailView: $navigateToTopicDetailView,
                         topicScrollPosition: $topicScrollPosition, categoriesScrollPosition: $categoriesScrollPosition,
-                        topics: topics
+                        topics: topics,
+                        points: points
                     )
 //                case .archived:
 //                    ArchivedTopicsView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, selectedTopic: $selectedTopic, currentTabBar: $currentTabBar, selectedTabTopic: $selectedTabTopic, navigateToTopicDetailView: $navigateToTopicDetailView)
@@ -65,11 +60,14 @@ struct TopicsListView: View {
                 }
                 
             }//VStack
-            .fullScreenCover(isPresented: $showCreateNewTopicView, onDismiss: {
+            .sheet(isPresented: $showCreateNewTopicView, onDismiss: {
                 showCreateNewTopicView = false
             }) {
                 NewTopicView(topicViewModel: topicViewModel, selectedTopic: $selectedTopic, navigateToTopicDetailView: $navigateToTopicDetailView, currentTabBar: $currentTabBar, category: category)
-                    .presentationBackground(AppColors.black4)
+                    .presentationBackground(.thinMaterial)
+                    .presentationDetents([.fraction(0.6)])
+                    .presentationCornerRadius(30)
+                
             }
 
     }

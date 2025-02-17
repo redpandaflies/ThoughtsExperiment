@@ -27,7 +27,7 @@ struct UpdateSectionCompleteView: View {
         VStack (alignment: .leading, spacing: 10){
             
             HStack {
-                Text(focusArea.focusAreaEmoji)
+                Text(focusArea.category?.categoryEmoji ?? "")
                     .multilineTextAlignment(.leading)
                     .font(.system(size: 29))
                 
@@ -38,13 +38,13 @@ struct UpdateSectionCompleteView: View {
             
             Text(focusArea.focusAreaTitle)
                 .multilineTextAlignment(.leading)
-                .font(.system(size: 25, weight: .light))
-                .foregroundStyle(AppColors.whiteDefault)
+                .font(.system(size: 30, design: .serif))
+                .foregroundStyle(AppColors.textPrimary)
             
             Text(focusArea.focusAreaReasoning)
                 .multilineTextAlignment(.leading)
                 .font(.system(size: 16, weight: .light))
-                .foregroundStyle(AppColors.whiteDefault.opacity(0.7))
+                .foregroundStyle(AppColors.textPrimary.opacity(0.7))
                 .padding(.bottom, 15)
             
             ForEach(sortedSections.indices, id: \.self) { index in
@@ -73,26 +73,37 @@ struct UpdateSectionCompleteView: View {
             if lastCompleteSectionIndex == index {
                 Image(systemName: "checkmark.circle.fill")
                     .multilineTextAlignment(.leading)
-                    .font(.system(size: 17))
+                    .font(.system(size: 19))
                     .foregroundStyle(getColor(index: index))
                     .transition(
-                        .movingParts.pop(AppColors.green1)
+                        .movingParts.pop(AppColors.textPrimary)
                     )
                 
             } else {
                 
                 Image(systemName: getIcon(index: index))
                     .multilineTextAlignment(.leading)
-                    .font(.system(size: 17))
+                    .font(.system(size: 19))
                     .foregroundStyle(getColor(index: index))
                     .contentTransition(.symbolEffect(.replace.offUp.byLayer))
             }
             
-            Text(text)
-                .multilineTextAlignment(.leading)
-                .font(.system(size: 17, weight: .light))
-                .fontWidth(.condensed)
-                .foregroundStyle(getColor(index: index))
+           
+            HStack (spacing: 3) {
+                Text(text)
+                    .multilineTextAlignment(.leading)
+                    .font(.system(size: 19, weight: .light))
+                    .fontWidth(.condensed)
+                    .foregroundStyle(getColor(index: index))
+                
+                if index == sortedSections.count {
+                    
+                    LaurelItem(size: 19, points: "+1")
+                        .opacity(index == nextSectionIndex ? 1 : 0.5)
+                    
+                }
+            }
+          
             
         }//HStack
        
@@ -115,13 +126,13 @@ struct UpdateSectionCompleteView: View {
     
     private func getColor(index: Int) -> Color {
         if index < sectionsComplete - 1 {
-            return AppColors.green1
+            return AppColors.textPrimary
         } else if lastCompleteSectionIndex == index {
-            return AppColors.green1
+            return AppColors.textPrimary
         } else if nextSectionIndex == index {
-            return AppColors.yellow1
+            return AppColors.textPrimary
         } else {
-            return AppColors.whiteDefault.opacity(0.5)
+            return AppColors.textPrimary.opacity(0.5)
         }
     }
     

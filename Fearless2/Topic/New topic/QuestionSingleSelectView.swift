@@ -18,8 +18,8 @@ struct QuestionSingleSelectView: View {
             
             Text(question)
                 .multilineTextAlignment(.leading)
-                .font(.system(size: 25, weight: .light))
-                .foregroundStyle(AppColors.whiteDefault)
+                .font(.system(size: 22, design: .serif))
+                .foregroundStyle(AppColors.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
             
             
@@ -52,8 +52,8 @@ struct SingleSelectQuestionBubble: View {
         HStack (spacing: 5) {
             Text(option)
                 .font(.system(size: 15, weight: .light))
-                .foregroundStyle(selected ? Color.black : AppColors.whiteDefault)
-                .fixedSize(horizontal: true, vertical: true)
+                .foregroundStyle(selected ? AppColors.textBlack : AppColors.textPrimary)
+                .fixedSize(horizontal: false, vertical: true)
             
             Spacer()
         }
@@ -61,8 +61,8 @@ struct SingleSelectQuestionBubble: View {
         .contentShape(Rectangle())
         .background {
             RoundedRectangle(cornerRadius: 15)
-                .stroke(AppColors.whiteDefault, lineWidth: 0.5)
-                .fill(selected ? AppColors.whiteDefault : Color.clear)
+                .stroke(selected ? Color.white.opacity(0.2) : Color.white.opacity(0.2), lineWidth: 0.5)
+                .fill(selected ? Color.white.opacity(0.8) : Color.white.opacity(0.05))
         }
     }
 }

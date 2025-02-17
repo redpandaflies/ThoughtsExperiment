@@ -17,8 +17,8 @@ struct SettingsToolbarItem: View {
            action()
         } label: {
             Image(systemName: "gearshape.fill")
-                .font(.headline)
-                .fontWeight(.light)
+                .font(.system(size: 19))
+                .fontWeight(.thin)
                 .foregroundStyle(AppColors.textPrimary)
         }
             

@@ -25,29 +25,26 @@ struct TopicSuggestionsList: View {
     var body: some View {
         VStack {
             
-            HStack {
-                Text("Choose a topic you want to explore")
-                    .multilineTextAlignment(.leading)
-                    .font(.system(size: 25))
-                    .foregroundStyle(AppColors.whiteDefault)
-                    .padding(.bottom, 20)
-                    .padding(.horizontal)
-                
-                Spacer()
-            }
+            Text("Choose your next topic")
+                .multilineTextAlignment(.leading)
+                .font(.system(size: 21, design: .serif))
+                .foregroundStyle(AppColors.textPrimary)
+                .padding(.bottom, 20)
+                .padding(.horizontal)
             
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack (alignment: .top, spacing: 15) {
+                HStack (alignment: .center, spacing: 15) {
                     switch selectedTabSuggestionsList {
                     case 0:
-                        placeholder()
+                        LoadingPlaceholderContent(contentType: .suggestions)
+                            .frame(width: 260)
                     case 1:
                         suggestionsList()
                     default:
                         FocusAreaRetryView(action: {
                             retryTopicSuggestions()
                         })
-                        .frame(width: screenWidth * 0.80)
+                        .frame(width: 260)
                     }
                     
                 }//Hstack
@@ -56,7 +53,7 @@ struct TopicSuggestionsList: View {
             }//Scrollview
             .scrollClipDisabled(true)
             .scrollTargetBehavior(.viewAligned)
-            .contentMargins(.horizontal, (screenWidth * 0.20)/2, for: .scrollContent)
+            .contentMargins(.horizontal, (screenWidth - 260)/2, for: .scrollContent)
             
             Spacer()
         }//VStack
@@ -77,23 +74,12 @@ struct TopicSuggestionsList: View {
             TopicSuggestionBox(suggestion: suggestion, action: {
                 selectTopic(suggestion: suggestion)
             })
-            .frame(width: screenWidth * 0.80)
+            .frame(width: 260)
             .scrollTransition { content, phase in
                 content
-                    .opacity(phase.isIdentity ? 1 : 0.7)
-                    .scaleEffect(y: phase.isIdentity ? 1 : 0.85)
+                    .opacity(phase.isIdentity ? 1 : 0.8)
+                    .scaleEffect(x: phase.isIdentity ? 1 : 0.95, y: phase.isIdentity ? 1 : 0.95)
             }
-        }
-    }
-    
-    private func placeholder() -> some View {
-        ForEach(0..<2, id: \.self) { _ in
-            LoadingPlaceholderContent(contentType: .suggestions)
-                .scrollTransition { content, phase in
-                    content
-                        .opacity(phase.isIdentity ? 1 : 0.7)
-                        .scaleEffect(y: phase.isIdentity ? 1 : 0.85)
-                }
         }
     }
     
@@ -173,8 +159,6 @@ struct TopicSuggestionsList: View {
    
 }
 
-
-
 struct TopicSuggestionBox: View {
    
     let suggestion: NewTopicSuggestion
@@ -182,39 +166,35 @@ struct TopicSuggestionBox: View {
     
     var body: some View {
         VStack (spacing: 10) {
-            
-            Text(suggestion.emoji)
-                .font(.system(size: 35))
-                .padding(.bottom, 10)
 
             Text(suggestion.content)
                 .multilineTextAlignment(.center)
-                .font(.system(size: 17))
-                .foregroundStyle(AppColors.whiteDefault)
+                .font(.system(size: 21, design: .serif))
+                .foregroundStyle(AppColors.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
 
             
             Text(suggestion.reasoning)
                 .multilineTextAlignment(.center)
-                .font(.system(size: 13))
-                .foregroundStyle(AppColors.whiteDefault.opacity(0.7))
+                .font(.system(size: 15, weight: .light))
+                .foregroundStyle(AppColors.textPrimary.opacity(0.8))
+                .lineSpacing(1.4)
                 .fixedSize(horizontal: false, vertical: true)
-                .padding(.bottom, 40)
+                .padding(.bottom, 30)
             
-            RectangleButtonYellow(
-                buttonText: "Choose",
-                action: {
-                    action()
-                })
+            SelectButtonRound(buttonAction: {
+                action()
+            })
         }
         .padding()
-        .padding(.top, 20)
+        .padding(.top, 10)
         .contentShape(Rectangle())
         .background {
-            RoundedRectangle(cornerRadius: 20)
+            RoundedRectangle(cornerRadius: 25)
                 .stroke(AppColors.whiteDefault.opacity(0.1), lineWidth: 0.5)
-                .fill(AppColors.black5)
-                .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 2)
+                .fill(AppColors.boxGrey1.opacity(0.3))
+                .shadow(color: .black.opacity(0.05), radius: 15, x: 0, y: 3)
+                .blendMode(.colorDodge)
         }
         
     }

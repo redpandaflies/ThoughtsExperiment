@@ -16,7 +16,7 @@ struct XmarkToolbarItem: View {
         } label: {
             Image(systemName: "xmark.circle.fill")
                 .font(.system(size: 20))
-                .foregroundStyle(AppColors.lightBrown)
+                .foregroundStyle(AppColors.textPrimary.opacity(0.7))
         }
     }
 }

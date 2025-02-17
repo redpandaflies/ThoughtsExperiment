@@ -20,35 +20,32 @@ struct LoadingPlaceholderContent: View {
     private let screenWidth = UIScreen.current.bounds.width
     
     var body: some View {
-        ScrollView (.horizontal) {
-            HStack (spacing: 12) {
-                ForEach(0..<4) { _ in
-                    
-                    loadingBox()
-                    
-                }
-            }
+        
+        HStack (spacing: 12) {
+            Spacer()
+                
+            loadingBox()
+                
+            Spacer()
         }
-        .padding(.horizontal, contentType == .focusArea ? 16 : 0)
-        .scrollIndicators(.hidden)
-        .scrollClipDisabled(true)
+        
     }
     
     private func loadingBox() -> some View {
         VStack {
             
-            Text("Generating")
+            Text(getLoadingText())
                 .font(.system(size: 11))
-                .foregroundStyle(AppColors.whiteDefault)
-                .opacity(0.6)
+                .foregroundStyle(AppColors.textPrimary)
+                .opacity(0.4)
                 .textCase(.uppercase)
             
         }
-        .frame(width: getWidth(), height: getHeight())
+        .frame(width: 150, height: 180)
         .background {
             RoundedRectangle(cornerRadius: 20)
-                .stroke(AppColors.whiteDefault.opacity(0.2), lineWidth: 1)
-                .fill(AppColors.black4)
+                .stroke(Color.white.opacity(0.2), lineWidth: 0.5)
+                .fill(Color.clear)
         }
         .animation(.default, value: animationEffect)
         .changeEffect (
@@ -75,21 +72,12 @@ struct LoadingPlaceholderContent: View {
         }
     }
     
-    private func getWidth() -> CGFloat {
+    private func getLoadingText() -> String {
         switch contentType {
         case .focusArea:
-            return 150
+            return "Uncovering path"
         case .suggestions:
-            return screenWidth * 0.80
-        }
-    }
-    
-    private func getHeight() -> CGFloat {
-        switch contentType {
-        case .focusArea:
-            return 180
-        case .suggestions:
-            return 330
+            return "Uncovering suggestions"
         }
     }
 }

@@ -25,12 +25,21 @@ struct UpdateSectionBox: View {
         VStack (alignment: .leading, spacing: 5) {
             
             HStack {
-                Text(section?.sectionTitle ?? "")
-                    .multilineTextAlignment(.leading)
-                    .font(.system(size: 16, weight: .light).smallCaps())
-                    .fontWidth(.condensed)
-                    .foregroundStyle(AppColors.yellow1)
                 
+                HStack (spacing: 0) {
+                    
+                    if let categoryEmoji = section?.category?.categoryEmoji {
+                        Text(categoryEmoji)
+                            .font(.system(size: 19))
+                            .padding(.trailing, 5)
+                    }
+                    
+                    Text(section?.sectionTitle ?? "")
+                        .multilineTextAlignment(.leading)
+                        .font(.system(size: 19, weight: .light).smallCaps())
+                        .fontWidth(.condensed)
+                        .foregroundStyle(AppColors.textPrimary.opacity(0.8))
+                }
                 Spacer()
             }
             

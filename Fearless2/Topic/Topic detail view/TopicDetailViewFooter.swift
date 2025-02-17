@@ -25,12 +25,11 @@ struct TopicDetailViewFooter: View {
            
         HStack {
             Button {
-                dismissView()
                 
             } label: {
                 Image(systemName: "arrow.backward")
                     .font(.system(size: 20))
-                    .foregroundStyle(AppColors.whiteDefault.opacity(0.7))
+                    .foregroundStyle(Color.clear)
                     .frame(width: 30, height: 30)
             }
             
@@ -68,12 +67,12 @@ struct TopicDetailViewFooter: View {
                 
                 
             } label: {
-                Group {
-                    Image(systemName: "ellipsis")
-                        .font(.system(size: 20))
-                        .foregroundStyle(AppColors.whiteDefault.opacity(0.7))
-                        .frame(width: 30, height: 30)
-                }
+                
+                Image(systemName: "ellipsis")
+                    .font(.system(size: 20))
+                    .foregroundStyle(AppColors.whiteDefault.opacity(0.7))
+                    .frame(width: 30, height: 30)
+                
             }
             
             

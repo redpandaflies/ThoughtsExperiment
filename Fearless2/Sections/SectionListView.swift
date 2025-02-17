@@ -6,12 +6,14 @@
 //
 import CoreData
 import Mixpanel
+import OSLog
 import SwiftUI
 
 struct SectionListView: View {
     @EnvironmentObject var dataController: DataController
     @State private var sectionsComplete: Bool = false
     @State private var sectionsScrollPosition: Int?
+    
     
     @Binding var showFocusAreaRecapView: Bool
     @Binding var selectedSection: Section?
@@ -21,6 +23,8 @@ struct SectionListView: View {
     let focusAreaCompleted: Bool
     
     @FetchRequest var sections: FetchedResults<Section>
+    
+    let logger = Logger.uiEvents
     
     var firstIncompleteSection: Section? {
             sections.first { !$0.completed }
@@ -34,6 +38,11 @@ struct SectionListView: View {
         let completedSections = sections.filter { $0.completed == true }
         
         return completedSections.count == sections.count
+    }
+    
+    let frameWidth: CGFloat = 150
+    var safeAreaPadding: CGFloat {
+        return (UIScreen.main.bounds.width - frameWidth)/2
     }
 
    init(showFocusAreaRecapView: Binding<Bool>,
@@ -57,61 +66,69 @@ struct SectionListView: View {
    }
     
     var body: some View {
-        ScrollViewReader { proxy in
+       
             
             ScrollView (.horizontal) {
                 
                 HStack(spacing: 12) {
                     ForEach(Array(sections.enumerated()), id: \.element.sectionId) { index, section in
-                        SectionBox(section: section, isNextSection: section == firstIncompleteSection)
-                            .id(index)
-                            .onTapGesture {
-                                guard let topic = section.topic else {
-                                    print("Topic not found for selected section")
-                                    return
-                                }
-                                
-                                if section == firstIncompleteSection && topic.topicStatus != TopicStatusItem.archived.rawValue {
-                                    selectedSection = section
-                                }
-                            }
+                        SectionBox(section: section, isNextSection: section == firstIncompleteSection, buttonAction: {
+                            startSection(section: section)
+                        })
+                        .scrollTransition { content, phase in
+                            content
+                                .scaleEffect(x: phase.isIdentity ? 1 : 0.9, y: phase.isIdentity ? 1 : 0.9)
+                        }
+                        .id(index)
+                        .onTapGesture {
+                            startSection(section: section)
+                        }
                     }
                     
-                    FocusAreaRecapPreviewBox(focusAreaCompleted: focusAreaCompleted, available: allSectionsCompleted)
+                    FocusAreaRecapPreviewBox(focusAreaCompleted: focusAreaCompleted, available: allSectionsCompleted, buttonAction: {
+                        startRecap()
+                    })
+                        .scrollTransition { content, phase in
+                            content
+                                .scaleEffect(x: phase.isIdentity ? 1 : 0.9, y: phase.isIdentity ? 1 : 0.9)
+                        }
                         .id(sections.count)
                         .onTapGesture {
-                            if allSectionsCompleted {
-                                selectedFocusArea = focusArea
-                                print("Selected focus area: \(String(describing: selectedFocusArea))")
-                                showFocusAreaRecapView = true
-                            }
+                            startRecap()
                         }
                 }//HStack
+                .scrollTargetLayout()
             }
-            .padding(.horizontal)
-            .scrollIndicators(.hidden)
+            .scrollPosition(id: $sectionsScrollPosition, anchor: .center)
+            .contentMargins(.horizontal, safeAreaPadding, for: .scrollContent)
             .scrollClipDisabled(true)
+            .scrollTargetBehavior(.viewAligned)
+            .scrollIndicators(.hidden)
             .onAppear {
-                if let index = firstIncompleteSectionIndex {
-                    proxy.scrollTo(index, anchor: .center)
-                } else {
-                    proxy.scrollTo(sections.count, anchor: .center)
-                }
+                sectionsScrollPosition = firstIncompleteSectionIndex ?? sections.count
             }
-            .onChange(of: firstIncompleteSectionIndex) {
+            .onChange(of: selectedSection) {
                 if let index = firstIncompleteSectionIndex {
-                    proxy.scrollTo(index, anchor: .center)
+                    
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        withAnimation(.smooth) {
+                            sectionsScrollPosition = index
+                        }
+                    }
                     
                 } else {
-                    proxy.scrollTo(sections.count, anchor: .center)
-                    
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        withAnimation(.smooth) {
+                            sectionsScrollPosition = sections.count
+                        }
+                    }
                     DispatchQueue.global(qos: .background).async {
                         Mixpanel.mainInstance().track(event: "Finished path")
                     }
                 }
             }
            
-        }//scrollview reader
+
 //        .onAppear {
 //            sectionsComplete = checkSectionsStatus()
 //        }
@@ -128,9 +145,24 @@ struct SectionListView: View {
         return completedSections.count == focusArea.focusAreaSections.count
     }
     
-//    private func getNextSection() -> Section? {
-//        return sortedSections.first { !$0.completed }
-//    }
+    private func startSection(section: Section) {
+        guard let topic = section.topic else {
+            logger.error("Topic not found for selected section")
+            return
+        }
+        
+        if section == firstIncompleteSection && topic.topicStatus != TopicStatusItem.archived.rawValue {
+            selectedSection = section
+        }
+    }
+    
+    private func startRecap() {
+        if allSectionsCompleted {
+            selectedFocusArea = focusArea
+            logger.log("Selected focus area: \(String(describing: selectedFocusArea))")
+            showFocusAreaRecapView = true
+        }
+    }
 }
 
 //#Preview {

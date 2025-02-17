@@ -18,9 +18,10 @@ struct Realm: Identifiable {
     let lifeArea: String
     let undiscoveredDescription: String
     let discoveredDescription: String
+    let background: Color
     
     init(orderIndex: Int, emoji: String, name: String, lifeArea: String,
-         undiscoveredDescription: String, discoveredDescription: String) {
+         undiscoveredDescription: String, discoveredDescription: String, background: Color) {
         self.id = UUID()
         self.orderIndex = orderIndex
         self.emoji = emoji
@@ -28,6 +29,7 @@ struct Realm: Identifiable {
         self.lifeArea = lifeArea
         self.undiscoveredDescription = undiscoveredDescription
         self.discoveredDescription = discoveredDescription
+        self.background = background
     }
 }
 
@@ -40,7 +42,8 @@ extension Realm {
             name: "Halls of Ambition",
             lifeArea: "Career",
             undiscoveredDescription: "A secret hall where whispers of achievement beckon you to unlock your potential.",
-            discoveredDescription: "Set clear goals and take bold actions to drive your career forward."
+            discoveredDescription: "Set clear goals and take bold actions to drive your career forward.",
+            background: AppColors.backgroundCareer
         ),
         Realm(
             orderIndex: 1,
@@ -48,7 +51,8 @@ extension Realm {
             name: "Valley of Connection",
             lifeArea: "Relationships",
             undiscoveredDescription: "A hidden valley where unexpected bonds await to redefine how you connect.",
-            discoveredDescription: "Forge deeper bonds with the people you care about."
+            discoveredDescription: "Forge deeper bonds with the people you care about.",
+            background: AppColors.backgroundRelationships
         ),
         Realm(
             orderIndex: 2,
@@ -56,7 +60,8 @@ extension Realm {
             name: "Vault of Prosperity",
             lifeArea: "Finances",
             undiscoveredDescription: "A mysterious vault filled with secrets about money's true role in your life.",
-            discoveredDescription: "Explore your relationship with money and make choices you feel good about."
+            discoveredDescription: "Explore your relationship with money and make choices you feel good about.",
+            background: AppColors.backgroundFinances
         ),
         Realm(
             orderIndex: 3,
@@ -64,7 +69,8 @@ extension Realm {
             name: "Garden of Well-Being",
             lifeArea: "Health & Wellness",
             undiscoveredDescription: "A secluded garden promising hidden paths to inner balance and rejuvenation.",
-            discoveredDescription: "Embrace self-care and mindful habits to cultivate lasting wellness."
+            discoveredDescription: "Embrace self-care and mindful habits to cultivate lasting wellness.",
+            background: AppColors.backgroundWellness
         ),
         Realm(
             orderIndex: 4,
@@ -72,7 +78,8 @@ extension Realm {
             name: "Temple of Fulfillment",
             lifeArea: "Passion & Creativity",
             undiscoveredDescription: "An enigmatic temple hinting at bursts of passion and creative spark waiting to be found.",
-            discoveredDescription: "Ignite your passions and break through creative blocks to fuel your inner drive."
+            discoveredDescription: "Ignite your passions and break through creative blocks to fuel your inner drive.",
+            background: AppColors.backgroundPassion
         ),
         Realm(
             orderIndex: 5,
@@ -80,7 +87,8 @@ extension Realm {
             name: "Cavern of Self-Discovery",
             lifeArea: "Identity & Purpose",
             undiscoveredDescription: "A shadowed cavern offering clues to your true self and purpose.",
-            discoveredDescription: "Engage in honest reflection and take steps to uncover your true identity."
+            discoveredDescription: "Engage in honest reflection and take steps to uncover your true identity.",
+            background: AppColors.backgroundPurpose
         ),
         Realm(
             orderIndex: 6,
@@ -88,7 +96,18 @@ extension Realm {
             name: "Palace of Possibility",
             lifeArea: "Uncharted Paths",
             undiscoveredDescription: "A cloaked palace where bold, uncharted ideas are poised to ignite your future.",
-            discoveredDescription: "Explore innovative ideas and dare to pursue uncharted paths that redefine your future."
+            discoveredDescription: "Explore innovative ideas and dare to pursue uncharted paths that redefine your future.",
+            background: AppColors.backgroundUncharted
         )
     ]
+}
+
+extension Realm {
+    static func getBackgroundColor(forName name: String) -> Color {
+        if let realm = realmsData.first(where: { $0.name == name }) {
+            return realm.background
+        }
+        // Default color if no match is found
+        return AppColors.backgroundCareer
+    }
 }

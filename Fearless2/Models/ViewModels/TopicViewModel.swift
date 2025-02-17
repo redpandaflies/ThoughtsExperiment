@@ -19,10 +19,9 @@ final class TopicViewModel: ObservableObject {
     @Published var updatingfocusArea: Bool = false
     @Published var focusAreaUpdated: Bool = false
     @Published var focusAreaCreationFailed: Bool = false
-    @Published var focusAreaSummaryCreated: Bool = false
+    @Published var createFocusAreaSummary: FocusAreaSummaryState = .ready
     @Published var createFocusAreaSuggestions: FocusAreaSuggestionsState = .ready
     @Published var sectionSummaryCreated: Bool = false
-    
     
     private var openAISwiftService: OpenAISwiftService
     private var dataController: DataController
@@ -48,6 +47,12 @@ final class TopicViewModel: ObservableObject {
     }
     
     enum TopicOverviewState {
+        case ready
+        case loading
+        case retry
+    }
+    
+    enum FocusAreaSummaryState {
         case ready
         case loading
         case retry
@@ -91,7 +96,11 @@ final class TopicViewModel: ObservableObject {
                 }
                 self.focusAreaUpdated = false
                 self.focusAreaCreationFailed = false
-                self.focusAreaSummaryCreated = false
+                if selectedAssistant == .focusAreaSummary {
+                    self.createFocusAreaSummary = .loading
+                } else {
+                    self.createFocusAreaSummary = .ready
+                }
                 if selectedAssistant == .focusAreaSuggestions {
                     self.createFocusAreaSuggestions = .loading
                 } else {
@@ -255,7 +264,7 @@ final class TopicViewModel: ObservableObject {
                 try await openAISwiftService.processFocusAreaSummary(messageText: messageText, focusArea: currentFocusArea)
                 
                 await MainActor.run {
-                    self.focusAreaSummaryCreated = true
+                    self.createFocusAreaSummary = .ready
                 }
                 
                 //                case .entry:

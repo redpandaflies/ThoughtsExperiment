@@ -11,6 +11,7 @@ struct SectionBox: View {
     
     @ObservedObject var section: Section
     let isNextSection: Bool
+    let buttonAction: () -> Void
     
     var archivedTopic: Bool {
         return section.topic?.topicStatus == TopicStatusItem.archived.rawValue
@@ -33,33 +34,47 @@ struct SectionBox: View {
             
             Text(section.sectionTitle)
                 .multilineTextAlignment(.center)
-                .font(.system(size: 17, weight: section.completed ? .regular : (archivedTopic ? .light : (isNextSection ? .regular : .light))))
+                .font(.system(size: 17, weight: section.completed ? .light : (archivedTopic ? .light : (isNextSection ? .regular : .light))))
                 .fontWidth(.condensed)
-                .foregroundStyle(section.completed ? AppColors.whiteDefault : (archivedTopic ? AppColors.whiteDefault : (isNextSection ? Color.black : AppColors.whiteDefault)))
+                .foregroundStyle(section.completed ? AppColors.textPrimary : (archivedTopic ? AppColors.textPrimary : (isNextSection ? Color.black : AppColors.textPrimary)))
                 .padding(.bottom, 5)
             
             
-            Text("\(section.sectionQuestions.count) prompts")
-                .font(.system(size: 11, weight: archivedTopic ? .light : (isNextSection ? .regular : .light)))
+            Text("\(section.sectionQuestions.count) steps")
+                .font(.system(size: 11, weight: .light))
                 .fontWidth(.condensed)
-                .foregroundStyle(section.completed ? AppColors.whiteDefault : (archivedTopic ? AppColors.whiteDefault : (isNextSection ? Color.black : AppColors.whiteDefault)))
-                .opacity(0.6)
+                .foregroundStyle(archivedTopic ? AppColors.textPrimary : (isNextSection ? Color.black : AppColors.textPrimary))
+                .opacity(archivedTopic ? 0.5 : (isNextSection ? 0.7 : 0.5))
                 .textCase(.uppercase)
-              
+            
             Spacer()
             
-            getImage(name: imageName)
+            if isNextSection {
+                NextButtonRound(buttonAction: {
+                    buttonAction()
+                })
+                
+            } else {
+                getImage(name: imageName)
+            }
             
                 
         }
-        .opacity(section.completed ? 0.6 : (archivedTopic ? 0.4 : (isNextSection ? 1 : 0.4)))
+        .opacity(section.completed ? 0.8 : (archivedTopic ? 0.4 : (isNextSection ? 1 : 0.4)))
         .padding()
         .frame(width: 150, height: 180)
         .contentShape(Rectangle())
         .background {
             RoundedRectangle(cornerRadius: 20)
-                .fill(section.completed ? AppColors.green2 : (archivedTopic ? AppColors.darkGrey4 : (isNextSection ? AppColors.yellow1 : AppColors.darkGrey4)))
-                .shadow(color: section.completed ? AppColors.green3 : (archivedTopic ? Color.clear : (isNextSection ? AppColors.lightBrown2 : Color.clear)), radius: 0, x: 0, y: 3)
+                .stroke(AppColors.strokePrimary.opacity(section.completed ? 0.10 : (archivedTopic ? 0.30 : (isNextSection ? 0.50 : 0.30))), lineWidth: 0.5)
+                .fill(AnyShapeStyle(backgroundColor()))
+               
+                .shadow(
+                    color: shadowProperties().color,
+                    radius: shadowProperties().radius,
+                    x: 0,
+                    y: shadowProperties().y
+                )
         }
     }
     
@@ -69,8 +84,44 @@ struct SectionBox: View {
             .foregroundStyle(section.completed ? AppColors.whiteDefault : (archivedTopic ? AppColors.whiteDefault : (isNextSection ? Color.black : AppColors.whiteDefault)))
             .padding(.bottom)
     }
+    
+    private func backgroundColor() -> any ShapeStyle {
+        switch (section.completed, archivedTopic, isNextSection) {
+        case (true, _, _):
+            return LinearGradient(
+                gradient: Gradient(colors: [Color.white.opacity(0.03), Color.white.opacity(0.06)]),
+                startPoint: .bottom,
+                endPoint: .top
+            )
+        case (_, true, _):
+            return Color.clear
+        case (_, _, true):
+            return LinearGradient(
+                gradient: Gradient(colors: [AppColors.boxYellow1, AppColors.boxYellow2]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        default:
+            return Color.clear
+        }
+    }
+    
+    private func shadowProperties() -> (color: Color, radius: CGFloat, y: CGFloat) {
+        switch (section.completed, archivedTopic, isNextSection) {
+        case (true, _, _):
+            return (Color.black.opacity(0.05), 5, 2)
+        case (_, true, _):
+            return (Color.clear, 0, 0)
+        case (_, _, true):
+            return (Color.black.opacity(0.30), 15, 3)
+        default:
+            return (Color.clear, 0, 0)
+        }
+    }
 }
 
 //#Preview {
 //    HomeSectionBox(title: "Identify all possible options")
 //}
+
+

@@ -51,13 +51,13 @@ struct QuestionsProgressBar: View {
         HStack (spacing: 30) {
             ZStack (alignment: .leading) {
                 RoundedRectangle(cornerRadius: 50)
-                    .fill(AppColors.black5)
-                    .frame(width: wholeBarWidth, height: 15)
+                    .fill(AppColors.progressBarPrimary.opacity(0.3))
+                    .frame(width: wholeBarWidth, height: 10)
                 
                 
                 RoundedRectangle(cornerRadius: 50)
-                    .fill(AppColors.yellow1)
-                    .frame(width: progressBarWidth, height: 15)
+                    .fill(AppColors.progressBarPrimary)
+                    .frame(width: progressBarWidth, height: 10)
                     .contentTransition(.interpolate)
                 
             }//ZStack
@@ -69,7 +69,7 @@ struct QuestionsProgressBar: View {
                 
                 Image(systemName: "xmark.circle.fill")
                     .font(.system(size: xmarkSize))
-                    .foregroundStyle(AppColors.whiteDefault.opacity(0.3))
+                    .foregroundStyle(AppColors.progressBarPrimary.opacity(0.3))
             }
     
         }//HStack

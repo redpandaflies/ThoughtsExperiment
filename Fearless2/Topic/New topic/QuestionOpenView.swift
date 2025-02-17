@@ -31,14 +31,14 @@ struct QuestionOpenView: View {
             
             Text(question)
                 .multilineTextAlignment(.leading)
-                .font(.system(size: 25, weight: .light))
-                .foregroundStyle(AppColors.whiteDefault)
+                .font(.system(size: 22, design: .serif))
+                .foregroundStyle(AppColors.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
             
             TextField(placeholderText, text: $topicText, axis: .vertical)
                 .font(.system(size: 16))
                 .fontWeight(.light)
-                .foregroundStyle(AppColors.whiteDefault)
+                .foregroundStyle(AppColors.textPrimary)
                 .lineSpacing(3)
                 .focused($isFocused)
                 .keyboardType(.alphabet)

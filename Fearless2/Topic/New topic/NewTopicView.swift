@@ -40,13 +40,16 @@ struct NewTopicView: View {
             })
             .padding(.horizontal)
            
-          
             TopicSuggestionsList(topicViewModel: topicViewModel, selectedTopic: $selectedTopic, navigateToTopicDetailView: $navigateToTopicDetailView, currentTabBar: $currentTabBar, category: category)
-            .padding(.top)
+            
                         
         }
-      
-        .environment(\.colorScheme, .dark)
+        .background {
+            AppColors.boxGrey1.opacity(0.3)
+                .blendMode(.colorDodge)
+                .ignoresSafeArea()
+        }
+        .environment(\.colorScheme, .light)
         
     }
     

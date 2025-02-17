@@ -25,6 +25,10 @@ struct CategoryView: View {
         ]
     ) var categories: FetchedResults<Category>
     
+    @FetchRequest(
+        sortDescriptors: []
+    ) var points: FetchedResults<Points>
+    
     @AppStorage("currentCategory") var currentCategory: Int = 0
     
     var body: some View {
@@ -46,21 +50,14 @@ struct CategoryView: View {
                     .padding(.bottom, 25)
                 
                 // MARK: - Topics list
-                if let scrollPosition = categoriesScrollPosition {
-                    TopicsListView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, selectedTopic: $selectedTopic, currentTabBar: $currentTabBar, selectedTabTopic: $selectedTabTopic, navigateToTopicDetailView: $navigateToTopicDetailView, categoriesScrollPosition: $categoriesScrollPosition, category: categories[scrollPosition])
+                if let scrollPosition = categoriesScrollPosition, let currentPoints = points.first {
+                    TopicsListView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, selectedTopic: $selectedTopic, currentTabBar: $currentTabBar, selectedTabTopic: $selectedTabTopic, navigateToTopicDetailView: $navigateToTopicDetailView, categoriesScrollPosition: $categoriesScrollPosition, category: categories[scrollPosition], points: currentPoints)
                 }
                 Spacer()
             } //VStack
             .padding(.top, 30)
             .background {
-                Image("backgroundPrimary")
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .ignoresSafeArea()
-                    .background {
-                        AppColors.backgroundCareer
-                            .ignoresSafeArea()
-                    }
+                AppBackground(backgroundColor: getCategoryBackground())
             }
             .onAppear {
                 if categories.isEmpty {
@@ -69,6 +66,12 @@ struct CategoryView: View {
                     }
                 } else {
                     categoriesScrollPosition = currentCategory
+                }
+                
+                if points.isEmpty {
+                    Task {
+                        await dataController.updatePoints(newPoints: 5)
+                    }
                 }
             }
             .toolbar {
@@ -83,12 +86,20 @@ struct CategoryView: View {
                 }
                 
                 ToolbarItem(placement: .topBarTrailing) {
-                    ToolbarLaurelItem(points: "5")
+                    LaurelItem(size: 15, points: "\(Int(points.first?.total ?? 0))")
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
             
         }
         .environment(\.colorScheme, .dark)
+    }
+    
+    private func getCategoryBackground() -> Color {
+        if let scrollPosition = categoriesScrollPosition {
+            return Realm.getBackgroundColor(forName: categories[scrollPosition].categoryName)
+        }
+        
+        return AppColors.backgroundCareer
     }
 }

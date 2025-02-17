@@ -7,52 +7,67 @@
 
 import SwiftUI
 
+enum RectangleButtonColor {
+    case yellow
+    case white
+}
+
 struct RectangleButtonYellow: View {
     let buttonText: String
     let action: () -> Void
     let showChevron: Bool
-    let showBackButton: Bool
-    let backAction: () -> Void
+    let showSkipButton: Bool
+    let skipAction: () -> Void
     let disableMainButton: Bool
     let sizeSmall: Bool
+    let buttonColor: RectangleButtonColor
     
     init(
         buttonText: String,
         action: @escaping () -> Void,
         showChevron: Bool = false,
-        showBackButton: Bool = false,
-        backAction: @escaping () -> Void = {},
+        showSkipButton: Bool = false,
+        skipAction: @escaping () -> Void = {},
         disableMainButton: Bool = false,
-        sizeSmall: Bool = false
+        sizeSmall: Bool = false,
+        buttonColor: RectangleButtonColor = .yellow
     ) {
         self.buttonText = buttonText
         self.action = action
         self.showChevron = showChevron
-        self.showBackButton = showBackButton
-        self.backAction = backAction
+        self.showSkipButton = showSkipButton
+        self.skipAction = skipAction
         self.disableMainButton = disableMainButton
         self.sizeSmall = sizeSmall
+        self.buttonColor = buttonColor
     }
     
     var body: some View {
         
         HStack {
             
-            if showBackButton {
+            if showSkipButton {
               
-                Image(systemName: "chevron.left")
-                    .font(.system(size: 15))
+                Text("Skip")
+                    .font(.system(size: 15, weight: .medium))
                     .foregroundStyle(Color.black)
                     .padding(.horizontal, 20)
                     .frame(height: 55)
                     .contentShape(RoundedRectangle(cornerRadius: 15))
                     .background {
                         RoundedRectangle(cornerRadius: 15)
-                            .fill(AppColors.lightGrey1)
-                            .shadow(color: AppColors.lightGrey2, radius: 0, x: 0, y: 3)
+                            .stroke(Color.white.opacity(0.9), lineWidth: 1)
+                            .fill(
+                                LinearGradient(
+                                    gradient: Gradient(colors: [Color.white, AppColors.buttonLightGrey1]),
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            )
+                            .shadow(color: Color.black.opacity(0.15), radius: 5, x: 0, y: 3)
                     }
                     .onTapGesture {
-                        backAction()
+                        skipAction()
                     }
             }
             
@@ -62,12 +77,12 @@ struct RectangleButtonYellow: View {
                 Spacer()
                 
                 Text(buttonText)
-                    .font(.system(size: sizeSmall ? 13 : 15))
+                    .font(.system(size: sizeSmall ? 13 : 15, weight: .medium))
                     .foregroundStyle(Color.black)
                 
                 if showChevron {
                     Image(systemName: "chevron.right")
-                        .font(.system(size: 15))
+                        .font(.system(size: 15, weight: .medium))
                         .foregroundStyle(Color.black)
                 }
                 
@@ -79,9 +94,16 @@ struct RectangleButtonYellow: View {
             .contentShape(RoundedRectangle(cornerRadius: 15))
             .background {
                 RoundedRectangle(cornerRadius: 15)
-                    .fill(disableMainButton ?  AppColors.darkGrey1 : AppColors.yellow1)
-                    .shadow(color: disableMainButton ? AppColors.darkGrey2 : AppColors.lightBrown2, radius: 0, x: 0, y: 3)
+                    .fill(
+                        LinearGradient(
+                            gradient: Gradient(colors: buttonColor == .yellow ? [AppColors.buttonYellow1, AppColors.buttonYellow2] : [Color.white, AppColors.buttonLightGrey1]),
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                    .shadow(color: Color.black.opacity(0.15), radius: 5, x: 0, y: 3)
             }
+            .opacity(disableMainButton ? 0.3 : 1)
             .onTapGesture {
                 if !disableMainButton {
                     action()
@@ -89,6 +111,8 @@ struct RectangleButtonYellow: View {
             }
         }
     }
+    
+    
 }
 
 //#Preview {

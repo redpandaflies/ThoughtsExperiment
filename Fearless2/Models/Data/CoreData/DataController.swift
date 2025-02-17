@@ -371,6 +371,11 @@ extension DataController {
             }
             
             currentTopic.addToFocusAreas(newFocusArea)
+            
+            if let currentCategory = currentTopic.category {
+                self.logger.log("Adding focus area to category")
+                currentCategory.addToFocusAreas(newFocusArea)
+            }
           
 
             self.logger.log("Created new focus area")
@@ -489,6 +494,29 @@ extension DataController {
         }
         
         await self.save()
+    }
+    
+    func updatePoints(newPoints: Int) async {
+        let request = NSFetchRequest<Points>(entityName: "Points")
+        
+        await context.perform {
+            do {
+                let results = try self.context.fetch(request)
+                if let existingPoints = results.first {
+                    existingPoints.total += Int64(newPoints)
+                } else {
+                    let points = Points(context: self.context)
+                    points.pointsId = UUID()
+                    points.total = Int64(newPoints)
+                }
+                
+            } catch {
+                self.logger.error("Error updating points CoreData: \(error)")
+            }
+        }
+        
+        await self.save()
+        
     }
     
 }

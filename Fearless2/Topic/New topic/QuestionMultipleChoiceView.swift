@@ -18,15 +18,15 @@ struct QuestionMultiSelectView: View {
             
             Text(question)
                 .multilineTextAlignment(.leading)
-                .font(.system(size: 25, weight: .light))
-                .foregroundStyle(AppColors.whiteDefault)
+                .font(.system(size: 22, design: .serif))
+                .foregroundStyle(AppColors.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.vertical, 10)
             
             Text("Choose all that apply")
                 .font(.system(size: 11))
                 .fontWeight(.light)
-                .foregroundStyle(AppColors.whiteDefault.opacity(0.7))
+                .foregroundStyle(AppColors.textPrimary.opacity(0.7))
                 .textCase(.uppercase)
             
             WrappingHStack(items, id: \.self, alignment: .leading, spacing: .constant(14), lineSpacing: 14) { pill in
@@ -58,15 +58,15 @@ struct MultiSelectQuestionBubble: View {
         HStack (spacing: 5) {
             Text(option)
                 .font(.system(size: 15, weight: .light))
-                .foregroundStyle(selected ? Color.black : AppColors.whiteDefault)
+                .foregroundStyle(selected ? AppColors.textBlack : AppColors.textPrimary)
                 .fixedSize(horizontal: true, vertical: true)
         }
         .padding(.horizontal, 18)
         .frame(height: 35)
         .background {
             RoundedRectangle(cornerRadius: 10)
-                .stroke(AppColors.whiteDefault, lineWidth: 0.5)
-                .fill(selected ? AppColors.whiteDefault : Color.clear)
+                .stroke(selected ? Color.white.opacity(0.2) : Color.white.opacity(0.2), lineWidth: 0.5)
+                .fill(selected ? Color.white.opacity(0.8) : Color.white.opacity(0.05))
         }
     }
 }

@@ -120,7 +120,7 @@ final class OpenAISwiftService: ObservableObject {
             self.toolCallId = ""
         }
         
-        let timeoutSeconds: Double = 25
+        let timeoutSeconds: Double = 30
         
         return try await withTimeout(seconds: timeoutSeconds) { [weak self] in
             guard let self = self else { throw OpenAIError.runIncomplete() }
@@ -376,13 +376,18 @@ extension OpenAISwiftService {
                 throw ProcessingError.missingRequiredField("Related topic not found")
             }
             
+            guard let category = topic.category else {
+                self.loggerOpenAI.log("No category found for focus area: \(focusArea.focusAreaTitle)")
+                throw ProcessingError.missingRequiredField("Related category not found")
+            }
+            
             // Decode the arguments to get the new section data
             guard let newFocusArea = self.decodeArguments(arguments: arguments, as: NewFocusArea.self) else {
                 self.loggerOpenAI.log("Failed to decode new sections for focus area: \(focusArea.focusAreaTitle)")
                 throw ProcessingError.decodingError("new focus area sections")
             }
             
-            self.processSections(newFocusArea: newFocusArea, focusArea: focusArea, topic: topic, context: context)
+            self.processSections(newFocusArea: newFocusArea, focusArea: focusArea, topic: topic, category: category, context: context)
             
             
             try self.saveCoreDataChanges(context: context, errorDescription: "new focus area sections")
@@ -390,7 +395,7 @@ extension OpenAISwiftService {
         }
     }
     
-    private func processSections(newFocusArea: NewFocusArea, focusArea: FocusArea, topic: Topic, context: NSManagedObjectContext) {
+    private func processSections(newFocusArea: NewFocusArea, focusArea: FocusArea, topic: Topic, category: Category, context: NSManagedObjectContext) {
         for newSection in newFocusArea.sections {
             // Skip if section already exists (AI sometimes hallucinates)
             if focusArea.focusAreaSections.contains(where: { $0.sectionNumber == newSection.sectionNumber }) {
@@ -407,6 +412,8 @@ extension OpenAISwiftService {
             // Add relationships
             topic.addToSections(section)
             focusArea.addToSections(section)
+            category.addToSections(section)
+           
         }
     }
     

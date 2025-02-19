@@ -53,6 +53,7 @@ struct CategoryView: View {
                 if let scrollPosition = categoriesScrollPosition, let currentPoints = points.first {
                     TopicsListView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, selectedTopic: $selectedTopic, currentTabBar: $currentTabBar, selectedTabTopic: $selectedTabTopic, navigateToTopicDetailView: $navigateToTopicDetailView, categoriesScrollPosition: $categoriesScrollPosition, category: categories[scrollPosition], points: currentPoints)
                 }
+                
                 Spacer()
             } //VStack
             .padding(.top, 30)

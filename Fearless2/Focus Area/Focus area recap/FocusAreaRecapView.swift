@@ -91,7 +91,6 @@ struct FocusAreaRecapView: View {
             .onChange(of: topicViewModel.createFocusAreaSummary) {
                 if topicViewModel.createFocusAreaSummary == .ready {
                     animationValue = false
-                    showSuggestions = true
                     withAnimation (.snappy(duration: 0.2)) {
                         recapReady = true
                     }
@@ -142,23 +141,30 @@ struct FocusAreaRecapView: View {
        
     }
     
+    @ViewBuilder
     private func getContent() -> some View {
         switch selectedTab {
-        
-            case 0:
-            guard let currentFocusArea = focusArea else { return AnyView(EmptyView())}
-            return AnyView(FocusAreaRecapCelebrationView(focusAreaTitle: currentFocusArea.focusAreaTitle))
+        case 0:
+            if let currentFocusArea = focusArea {
+                RecapCelebrationView(title: currentFocusArea.focusAreaTitle, text: "For exploring")
+            } 
             
-            case 1:
-            return AnyView(FocusAreaRecapReflectionView(topicViewModel: topicViewModel, recapReady: $recapReady, feedback: focusArea?.summary?.summaryFeedback ?? ""))
+        case 1:
+            FocusAreaRecapReflectionView(
+                topicViewModel: topicViewModel,
+                recapReady: $recapReady,
+                feedback: focusArea?.summary?.summaryFeedback ?? ""
+            )
             
-            case 2:
-            return AnyView(FocusAreaRecapSuggestionsView(topicViewModel: topicViewModel, selectedTabSuggestionsList: $selectedTabSuggestionsList, focusArea: $focusArea))
+        case 2:
+            FocusAreaRecapSuggestionsView(
+                topicViewModel: topicViewModel,
+                selectedTabSuggestionsList: $selectedTabSuggestionsList,
+                focusArea: $focusArea
+            )
             
-            default:
-                return AnyView(FocusAreaRetryView(action: {
-                    generateNewRecap()
-                }))
+        default:
+            FocusAreaRetryView(action: generateNewRecap)
         }
     }
     
@@ -256,6 +262,7 @@ struct FocusAreaRecapView: View {
     
     private func generateNewRecap() {
         selectedTab = 0
+        showSuggestions = true
         
         let topicId = focusArea?.topic?.topicId
         
@@ -289,37 +296,6 @@ struct FocusAreaRecapView: View {
             await dataController.updatePoints(newPoints: 1)
         }
     }
-}
-
-
-struct FocusAreaRecapCelebrationView: View {
-    
-    let focusAreaTitle: String?
-    
-    var body: some View {
-
-        VStack {
-            Spacer()
-            
-            LaurelItem(size: 50, points: "+1")
-                .padding(.bottom, 20)
-            
-            Text("For exploring")
-                .font(.system(size: 25, weight: .light).smallCaps())
-                .fontWidth(.condensed)
-                .foregroundStyle(AppColors.textPrimary.opacity(0.5))
-            
-            Text(focusAreaTitle ?? "")
-                .multilineTextAlignment(.center)
-                .font(.system(size: 25, design: .serif))
-                .foregroundStyle(AppColors.textPrimary)
-                .padding(.bottom, 20)
-            
-            Spacer()
-        }
-
-    }
-        
 }
 
 

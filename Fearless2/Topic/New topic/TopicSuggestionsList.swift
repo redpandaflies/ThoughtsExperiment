@@ -75,6 +75,9 @@ struct TopicSuggestionsList: View {
                 selectTopic(suggestion: suggestion)
             })
             .frame(width: 260)
+            .onTapGesture {
+                selectTopic(suggestion: suggestion)
+            }
             .scrollTransition { content, phase in
                 content
                     .opacity(phase.isIdentity ? 1 : 0.8)

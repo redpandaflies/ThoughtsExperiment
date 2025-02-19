@@ -14,7 +14,6 @@ final class DataController: ObservableObject {
     
     @Published var newTopic: Topic? = nil
     @Published var newFocusArea: Int = 0
-    @Published var allSectionsComplete: Bool = false //to manage when section recap gets unlocked
 
     let container: NSPersistentCloudKitContainer
     var context: NSManagedObjectContext
@@ -246,14 +245,14 @@ final class DataController: ObservableObject {
 
 //MARK: Topic related functions
 extension DataController {
-   
+    
     //create new topic
     func createTopic(suggestion: NewTopicSuggestion, category: Category) async -> (topicId: UUID?, focusArea: FocusArea?) {
         var topicId: UUID? = nil
         var createdFocusArea: FocusArea? = nil
         
         await context.perform {
-                
+            
             let topic = Topic(context: self.context)
             topic.topicId = UUID()
             topic.topicCreatedAt = getCurrentTimeString()
@@ -269,6 +268,7 @@ extension DataController {
             focusArea.focusAreaReasoning = suggestion.focusArea.reasoning
             focusArea.focusAreaEmoji = suggestion.focusArea.emoji
             topic.addToFocusAreas(focusArea)
+            category.addToFocusAreas(focusArea)
             
             topicId = topic.topicId
             createdFocusArea = focusArea
@@ -277,7 +277,7 @@ extension DataController {
         }
         
         await self.save()
-       
+        
         return (topicId, createdFocusArea)
     }
     
@@ -296,17 +296,17 @@ extension DataController {
                     Task {
                         await self.save()
                     }
-                   
+                    
                     //reset newTopic so that new topic creation flow functions properly
                     if let _ = self.newTopic {
                         self.newTopic = nil
                     }
                 }
-                    
+                
             } catch {
                 self.logger.error("Failed to update topic status: \(error.localizedDescription)")
             }
-
+            
         }
     }
     
@@ -326,7 +326,7 @@ extension DataController {
                 }
             } catch {
                 self.logger.error("Error fetching entry with ID \(id): \(error.localizedDescription)")
-               
+                
             }
         }
         
@@ -356,7 +356,7 @@ extension DataController {
         
         var focusArea: FocusArea?
         var totalFocusAreas: Int?
-
+        
         await context.perform {
             let newFocusArea = FocusArea(context: self.context)
             newFocusArea.focusAreaId = UUID()
@@ -376,14 +376,14 @@ extension DataController {
                 self.logger.log("Adding focus area to category")
                 currentCategory.addToFocusAreas(newFocusArea)
             }
-          
-
+            
+            
             self.logger.log("Created new focus area")
             focusArea = newFocusArea
             
             //get total number of focus areas
             totalFocusAreas = currentTopic.focusAreas?.count
-        
+            
         }
         
         await self.save()
@@ -420,24 +420,24 @@ extension DataController {
                         
                         await self.deleteTopicImage(topicId: topicId)
                     }
-                   
+                    
                     //reset newTopic so that new topic creation flow functions properly
                     if let _ = self.newTopic {
                         self.newTopic = nil
                     }
                 }
-                    
+                
             } catch {
                 self.logger.error("Failed to delete topic from Core Data: \(error.localizedDescription)")
             }
-
+            
         }
- 
+        
     }
     
     private func deleteTopicImage(topicId: String) async {
         let folderName = "topic_images"
-      
+        
         imageCacheManager.deleteImage(key: topicId)
         fileManager.deleteImage(imageId: topicId, folderName: folderName)
     }
@@ -445,17 +445,52 @@ extension DataController {
     //save topic image
     @MainActor
     func saveTopicImage(topic: Topic, imageURL: String) async {
-       
+        
         context.performAndWait {
-           
+            
             topic.topicMainImage = imageURL
             
             Task {
-               await self.save()
+                await self.save()
             }
             
         }
+    }
+    
+    @MainActor
+    func addEndOfTopicFocusArea(topic: Topic) async {
         
+        await context.perform {
+            let fetchEndOfTopic = topic.topicFocusAreas.filter {$0.endOfTopic == true}
+            guard let category = topic.category else {
+                self.logger.error("Failed to add end of topic focus area. Category not found")
+                return
+            }
+            
+            if fetchEndOfTopic.isEmpty {
+                let newFocusArea = FocusArea(context: self.context)
+                newFocusArea.focusAreaId = UUID()
+                newFocusArea.focusAreaCreatedAt = getCurrentTimeString()
+                newFocusArea.focusAreaTitle = EndOfTopic.sampleEndOfTopic.title
+                newFocusArea.focusAreaReasoning = EndOfTopic.sampleEndOfTopic.reasoning
+                newFocusArea.endOfTopic = true
+                topic.addToFocusAreas(newFocusArea)
+                category.addToFocusAreas(newFocusArea)
+                
+                for section in EndOfTopic.sampleEndOfTopic.sections {
+                    let newSection = Section(context: self.context)
+                    newSection.sectionId = UUID()
+                    newSection.sectionNumber = Int16(section.sectionNumber)
+                    newSection.sectionTitle = section.title
+                    topic.addToSections(newSection)
+                    newFocusArea.addToSections(newSection)
+                    category.addToFocusAreas(newFocusArea)
+                    
+                }
+            }
+        }
+        
+        await self.save()
     }
 }
 

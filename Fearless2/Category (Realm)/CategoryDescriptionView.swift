@@ -16,18 +16,18 @@ struct CategoryDescriptionView: View {
             
             Text(category.categoryName)
                 .font(.system(size: 25, design: .serif))
-                .foregroundStyle(AppColors.whiteDefault)
+                .foregroundStyle(AppColors.textPrimary)
             
             Text(category.categoryDiscovered)
                 .multilineTextAlignment(.center)
                 .font(.system(size: 16, weight: .light))
-                .foregroundStyle(AppColors.whiteDefault)
+                .foregroundStyle(AppColors.textPrimary)
                 .opacity(0.8)
                 .lineSpacing(1.5)
             
             Text("Discovered on January 31, 2025")
-                .font(.system(size: 13, weight: .thin))
-                .foregroundStyle(AppColors.whiteDefault)
+                .font(.system(size: 13, weight: .thin).smallCaps())
+                .foregroundStyle(AppColors.textPrimary)
                 .fontWidth(.condensed)
                 .opacity(0.6)
                 .textCase(.uppercase)

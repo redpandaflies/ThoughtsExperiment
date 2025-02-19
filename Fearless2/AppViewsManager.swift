@@ -19,7 +19,7 @@ struct AppViewsManager: View {
     
     @State private var currentTabBar: TabBarType = .home
     @State private var selectedTabHome: TabBarItemHome = .topics
-    @State private var selectedTabTopic: TopicPickerItem = .explore
+    @State private var selectedTabTopic: TopicPickerItem = .paths
     @State private var navigateToTopicDetailView: Bool = false
    
     @State private var selectedTopic: Topic? = nil

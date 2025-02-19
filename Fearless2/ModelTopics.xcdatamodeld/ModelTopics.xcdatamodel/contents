@@ -25,8 +25,10 @@
     </entity>
     <entity name="FocusArea" representedClassName="FocusArea" syncable="YES" codeGenerationType="class">
         <attribute name="completed" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="completedAt" optional="YES" attributeType="String"/>
         <attribute name="createdAt" optional="YES" attributeType="String"/>
         <attribute name="emoji" optional="YES" attributeType="String"/>
+        <attribute name="endOfTopic" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="reasoning" optional="YES" attributeType="String"/>
         <attribute name="title" optional="YES" attributeType="String"/>

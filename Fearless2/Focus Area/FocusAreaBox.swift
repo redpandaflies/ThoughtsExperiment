@@ -9,6 +9,8 @@ import Pow
 import SwiftUI
 
 
+
+
 struct FocusAreaBox: View {
     @ObservedObject var topicViewModel: TopicViewModel
     @State private var selectedTab: Int = 0
@@ -17,8 +19,10 @@ struct FocusAreaBox: View {
     @Binding var selectedSection: Section?
     @Binding var selectedSectionSummary: SectionSummary?
     @Binding var selectedFocusArea: FocusArea?
+    @Binding var selectedEndOfTopicSection: Section?
     @ObservedObject var focusArea: FocusArea
     let index: Int
+   
     
     let logger = Logger.openAIEvents
     
@@ -27,17 +31,21 @@ struct FocusAreaBox: View {
         VStack (spacing: 10){
             Group {
                 
-                Text("\(index + 1)")
-                    .multilineTextAlignment(.center)
-                    .font(.system(size: 40, weight: .thin))
-                    .fontWidth(.expanded)
-                    .foregroundStyle(AppColors.whiteDefault)
+                if focusArea.endOfTopic != true {
+                    Text("\(index + 1)")
+                        .multilineTextAlignment(.center)
+                        .font(.system(size: 40, weight: .thin))
+                        .fontWidth(.expanded)
+                        .foregroundStyle(AppColors.textPrimary)
+                } else {
+                    getLaurels()
+                }
                 
                 Text(focusArea.focusAreaTitle)
                     .multilineTextAlignment(.center)
                     .font(.system(size: 25, weight: .light))
                     .fontWeight(.regular)
-                    .foregroundStyle(AppColors.whiteDefault)
+                    .foregroundStyle(AppColors.textPrimary)
                     .fixedSize(horizontal: false, vertical: true)
                 
                 
@@ -46,7 +54,7 @@ struct FocusAreaBox: View {
                     .font(.system(size: 16, weight: .light))
                     .fontWidth(.condensed)
                     .fontWeight(.regular)
-                    .foregroundStyle(AppColors.whiteDefault)
+                    .foregroundStyle(AppColors.textPrimary)
                     .fixedSize(horizontal: false, vertical: true)
                     .opacity(0.5)
                     .padding(.bottom, 10)
@@ -59,7 +67,7 @@ struct FocusAreaBox: View {
                     LoadingPlaceholderContent(contentType: .focusArea)
                 
                 case 1:
-                    SectionListView(showFocusAreaRecapView: $showFocusAreaRecapView, selectedSection: $selectedSection, selectedSectionSummary: $selectedSectionSummary, selectedFocusArea: $selectedFocusArea, focusArea: focusArea, focusAreaCompleted: focusArea.completed)
+                SectionListView(showFocusAreaRecapView: $showFocusAreaRecapView, selectedSection: $selectedSection, selectedSectionSummary: $selectedSectionSummary, selectedFocusArea: $selectedFocusArea, selectedEndOfTopicSection: $selectedEndOfTopicSection, focusArea: focusArea, focusAreaCompleted: focusArea.completed)
                 
                 default:
                     FocusAreaRetryView(action: {
@@ -112,6 +120,20 @@ struct FocusAreaBox: View {
             }
         }
     }
+    
+    private func getLaurels() -> some View {
+        HStack (spacing: 5){
+            Image(systemName: "laurel.leading")
+                .font(.system(size: 40, weight: .thin))
+                .foregroundStyle(AppColors.textPrimary)
+            
+            
+            Image(systemName: "laurel.trailing")
+                .font(.system(size: 40, weight: .thin))
+                .foregroundStyle(AppColors.textPrimary)
+        }
+    }
+    
 }
 
 

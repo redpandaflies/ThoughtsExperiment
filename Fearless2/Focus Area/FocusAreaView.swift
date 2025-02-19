@@ -15,6 +15,7 @@ struct FocusAreasView: View {
     @Binding var selectedSection: Section?
     @Binding var selectedSectionSummary: SectionSummary?
     @Binding var selectedFocusArea: FocusArea?
+    @Binding var selectedEndOfTopicSection: Section?
     @Binding var focusAreaScrollPosition: Int?
     
     let topicId: UUID
@@ -23,12 +24,13 @@ struct FocusAreasView: View {
     
     @FetchRequest var focusAreas: FetchedResults<FocusArea>
     
-    init(topicViewModel: TopicViewModel, showFocusAreaRecapView: Binding<Bool>, selectedSection: Binding<Section?>, selectedSectionSummary: Binding<SectionSummary?>, selectedFocusArea: Binding<FocusArea?>, focusAreaScrollPosition: Binding<Int?>, topicId: UUID) {
+    init(topicViewModel: TopicViewModel, showFocusAreaRecapView: Binding<Bool>, selectedSection: Binding<Section?>, selectedSectionSummary: Binding<SectionSummary?>, selectedFocusArea: Binding<FocusArea?>, focusAreaScrollPosition: Binding<Int?>, selectedEndOfTopicSection: Binding<Section?>, topicId: UUID) {
         self.topicViewModel = topicViewModel
         self._showFocusAreaRecapView = showFocusAreaRecapView
         self._selectedSection = selectedSection
         self._selectedSectionSummary = selectedSectionSummary
         self._selectedFocusArea = selectedFocusArea
+        self._selectedEndOfTopicSection = selectedEndOfTopicSection
         self._focusAreaScrollPosition = focusAreaScrollPosition
         self.topicId = topicId
         
@@ -47,7 +49,7 @@ struct FocusAreasView: View {
                 case 0:
                     FocusAreaEmptyState(topicViewModel: topicViewModel, selectedTab: $selectedTab, topicId: topicId)
                 default:
-                    FocusAreaList(topicViewModel: topicViewModel, showFocusAreaRecapView: $showFocusAreaRecapView, selectedSection: $selectedSection, selectedSectionSummary: $selectedSectionSummary, selectedFocusArea: $selectedFocusArea, focusAreaScrollPosition: $focusAreaScrollPosition, focusAreas: focusAreas)
+                FocusAreaList(topicViewModel: topicViewModel, showFocusAreaRecapView: $showFocusAreaRecapView, selectedSection: $selectedSection, selectedSectionSummary: $selectedSectionSummary, selectedFocusArea: $selectedFocusArea, selectedEndOfTopicSection: $selectedEndOfTopicSection, focusAreaScrollPosition: $focusAreaScrollPosition, focusAreas: focusAreas)
             }
         }
         .ignoresSafeArea(.keyboard)
@@ -118,17 +120,25 @@ struct FocusAreaList: View {
    @Binding var selectedSection: Section?
     @Binding var selectedSectionSummary: SectionSummary?
     @Binding var selectedFocusArea: FocusArea?
+    @Binding var selectedEndOfTopicSection: Section?
     @Binding var focusAreaScrollPosition: Int?
        
     let focusAreas: FetchedResults<FocusArea>
     let screenHeight = UIScreen.current.bounds.height
+    var filteredFocusAreas: [FocusArea] {
+        return focusAreas.filter {$0.endOfTopic != true}
+    }
+    var endOfTopicFocusArea: FocusArea? {
+        let staticFocusArea = focusAreas.filter {$0.endOfTopic == true}
+        return staticFocusArea.first
+    }
     
     var body: some View {
         ScrollView (showsIndicators: false) {
             VStack (alignment: .leading) {
-                ForEach(Array(focusAreas.enumerated()), id: \.element.focusAreaId) { index, area in
+                ForEach(Array(filteredFocusAreas.enumerated()), id: \.element.focusAreaId) { index, area in
                     
-                    FocusAreaBox(topicViewModel: topicViewModel, showFocusAreaRecapView: $showFocusAreaRecapView, selectedSection: $selectedSection, selectedSectionSummary: $selectedSectionSummary, selectedFocusArea: $selectedFocusArea, focusArea: area, index: index)
+                    FocusAreaBox(topicViewModel: topicViewModel, showFocusAreaRecapView: $showFocusAreaRecapView, selectedSection: $selectedSection, selectedSectionSummary: $selectedSectionSummary, selectedFocusArea: $selectedFocusArea, selectedEndOfTopicSection: $selectedEndOfTopicSection, focusArea: area, index: index)
                         .id(index)
                         .containerRelativeFrame(.vertical, alignment: .top)
                         .scrollTransition { content, phase in
@@ -139,6 +149,21 @@ struct FocusAreaList: View {
                         }
                     
                 }//ForEach
+                
+                //end of topic
+                if let endOfTopic = endOfTopicFocusArea {
+                    FocusAreaBox(topicViewModel: topicViewModel, showFocusAreaRecapView: $showFocusAreaRecapView, selectedSection: $selectedSection, selectedSectionSummary: $selectedSectionSummary, selectedFocusArea: $selectedFocusArea, selectedEndOfTopicSection: $selectedEndOfTopicSection, focusArea: endOfTopic, index: filteredFocusAreas.count)
+                        .id(filteredFocusAreas.count)
+                        .containerRelativeFrame(.vertical, alignment: .top)
+                        .scrollTransition { content, phase in
+                            content
+                                .opacity(phase.isIdentity ? 1 : 0)
+                                .scaleEffect(phase.isIdentity ? 1 : 0.8)
+                                .blur(radius: phase.isIdentity ? 0 : 30)
+                        }
+                }
+                
+                
             }//VStack
             .scrollTargetLayout()
             

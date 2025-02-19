@@ -146,10 +146,15 @@ struct UpdateSectionView: View {
         let answeredQuestionIndex = selectedQuestion
         let numberOfQuestions = questions.count
         
+        if answeredQuestionIndex + 1 == numberOfQuestions {
+            submitForm()
+        }
+        
         goToNextquestion(totalQuestions: numberOfQuestions)
         
         Task {
             await completeSection(totalQuestions: numberOfQuestions, answeredQuestionIndex: answeredQuestionIndex)
+            
         }
     }
     
@@ -185,9 +190,11 @@ struct UpdateSectionView: View {
         
         
         //reset the value of @State vars managing answers
-        topicText = ""
-        singleSelectAnswer = ""
-        multiSelectAnswers = []
+        if answeredQuestionIndex + 1 < numberOfQuestions {
+            topicText = ""
+            singleSelectAnswer = ""
+            multiSelectAnswers = []
+        }
         
         //move to next question
         DispatchQueue.main.async {
@@ -229,9 +236,6 @@ struct UpdateSectionView: View {
         
         if selectedQuestion + 1 < totalQuestions {
             selectedQuestion += 1
-            if dataController.allSectionsComplete {
-                dataController.allSectionsComplete = false
-            }
         }
     
         //add fill to progress bar
@@ -257,10 +261,9 @@ struct UpdateSectionView: View {
             isFocused = false
         }
         
-        selectedTab += 1
-        
-        dataController.allSectionsComplete = true
-
+        if selectedTab < 1 {
+            selectedTab += 1
+        }
     }
     
     private func completeSection() {

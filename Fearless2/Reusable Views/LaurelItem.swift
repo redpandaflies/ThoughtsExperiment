@@ -11,6 +11,13 @@ struct LaurelItem: View {
     
     let size: CGFloat
     let points: String
+    let primaryColor: Color
+    
+    init(size: CGFloat, points: String, primaryColor: Color = AppColors.textPrimary) {
+        self.size = size
+        self.points = points
+        self.primaryColor = primaryColor
+    }
     
     var body: some View {
         
@@ -19,18 +26,18 @@ struct LaurelItem: View {
             Image(systemName: "laurel.leading")
                 .font(.system(size: size, weight: .light))
                 .fontWidth(.condensed)
-                .foregroundStyle(AppColors.textPrimary)
+                .foregroundStyle(primaryColor)
             
           
             Text(points)
                 .font(.system(size: size, weight: .light))
                 .fontWidth(.condensed)
-                .foregroundStyle(AppColors.textPrimary)
+                .foregroundStyle(primaryColor)
             
             Image(systemName: "laurel.trailing")
                 .font(.system(size: size, weight: .light))
                 .fontWidth(.condensed)
-                .foregroundStyle(AppColors.textPrimary)
+                .foregroundStyle(primaryColor)
                 
         }
 //        .background(.black)

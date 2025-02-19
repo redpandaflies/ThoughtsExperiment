@@ -10,6 +10,7 @@ import SwiftUI
 enum PlaceholderContent {
     case focusArea
     case suggestions
+    case topicReview
 }
 
 struct LoadingPlaceholderContent: View {
@@ -45,7 +46,8 @@ struct LoadingPlaceholderContent: View {
         .background {
             RoundedRectangle(cornerRadius: 20)
                 .stroke(Color.white.opacity(0.2), lineWidth: 0.5)
-                .fill(Color.clear)
+                .fill(Color.white.opacity(0.02))
+                .blendMode(.softLight)
         }
         .animation(.default, value: animationEffect)
         .changeEffect (
@@ -78,6 +80,8 @@ struct LoadingPlaceholderContent: View {
             return "Uncovering path"
         case .suggestions:
             return "Uncovering suggestions"
+        case .topicReview:
+            return "Restoring fragment"
         }
     }
 }

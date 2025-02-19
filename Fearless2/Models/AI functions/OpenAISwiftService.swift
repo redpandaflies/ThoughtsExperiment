@@ -484,6 +484,7 @@ extension OpenAISwiftService {
             
             //mark focus area as complete
             focusArea.completed = true
+            focusArea.completedAt = getCurrentTimeString()
             
             //Save the context
             try self.saveCoreDataChanges(context: context, errorDescription: "new focus area recap")

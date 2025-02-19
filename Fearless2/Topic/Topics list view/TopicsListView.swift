@@ -55,8 +55,8 @@ struct TopicsListView: View {
 //                    ArchivedTopicsView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, selectedTopic: $selectedTopic, currentTabBar: $currentTabBar, selectedTabTopic: $selectedTabTopic, navigateToTopicDetailView: $navigateToTopicDetailView)
 //                }
                 
-                if topics.count > 0 {
-                    PageIndicatorView(topicScrollPosition: $topicScrollPosition, pagesCount: pageCount)
+                if pageCount > 1 {
+                    PageIndicatorView(scrollPosition: $topicScrollPosition, pagesCount: pageCount)
                 }
                 
             }//VStack

@@ -9,7 +9,7 @@ import SwiftUI
 
 enum TopicPickerItem: String, CaseIterable {
    
-    case explore
-    case review
+    case paths
+    case chronicles
 
 }

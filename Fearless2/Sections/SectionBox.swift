@@ -12,6 +12,8 @@ struct SectionBox: View {
     @ObservedObject var section: Section
     let isNextSection: Bool
     let buttonAction: () -> Void
+    let isEndOfTopic: Bool
+    let sectionIndex: Int
     
     var archivedTopic: Bool {
         return section.topic?.topicStatus == TopicStatusItem.archived.rawValue
@@ -40,12 +42,20 @@ struct SectionBox: View {
                 .padding(.bottom, 5)
             
             
-            Text("\(section.sectionQuestions.count) steps")
-                .font(.system(size: 11, weight: .light))
-                .fontWidth(.condensed)
-                .foregroundStyle(archivedTopic ? AppColors.textPrimary : (isNextSection ? Color.black : AppColors.textPrimary))
-                .opacity(archivedTopic ? 0.5 : (isNextSection ? 0.7 : 0.5))
-                .textCase(.uppercase)
+            if !isEndOfTopic {
+                Text("\(section.sectionQuestions.count) steps")
+                    .font(.system(size: 11, weight: .light))
+                    .fontWidth(.condensed)
+                    .foregroundStyle(archivedTopic ? AppColors.textPrimary : (isNextSection ? Color.black : AppColors.textPrimary))
+                    .opacity(archivedTopic ? 0.5 : (isNextSection ? 0.7 : 0.5))
+                    .textCase(.uppercase)
+            }
+            
+            if isEndOfTopic && sectionIndex == 0 {
+                LaurelItem(size: 15, points: "+5", primaryColor: archivedTopic ? AppColors.textPrimary : (isNextSection ? Color.black : AppColors.textPrimary))
+                    .opacity(archivedTopic ? 0.5 : (isNextSection ? 0.7 : 0.5))
+            }
+            
             
             Spacer()
             

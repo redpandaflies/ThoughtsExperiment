@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct TopicDetailView: View {
+    @EnvironmentObject var dataController: DataController
     @ObservedObject var topicViewModel: TopicViewModel
     @ObservedObject var transcriptionViewModel: TranscriptionViewModel
   
@@ -17,6 +18,7 @@ struct TopicDetailView: View {
     @State private var selectedSection: Section? = nil
     @State private var selectedSectionSummary: SectionSummary? = nil
     @State private var selectedFocusArea: FocusArea? = nil
+    @State private var selectedEndOfTopicSection: Section? = nil
     @State private var headerHeight: CGFloat = 0
     @State private var focusAreaScrollPosition: Int?
     
@@ -43,12 +45,12 @@ struct TopicDetailView: View {
                 VStack {
                     switch selectedTabTopic {
                         
-                    case .explore:
-                        FocusAreasView(topicViewModel: topicViewModel, showFocusAreaRecapView: $showFocusAreaRecapView, selectedSection: $selectedSection, selectedSectionSummary: $selectedSectionSummary, selectedFocusArea: $selectedFocusArea, focusAreaScrollPosition: $focusAreaScrollPosition, topicId: topic.topicId)
+                    case .paths:
+                        FocusAreasView(topicViewModel: topicViewModel, showFocusAreaRecapView: $showFocusAreaRecapView, selectedSection: $selectedSection, selectedSectionSummary: $selectedSectionSummary, selectedFocusArea: $selectedFocusArea, focusAreaScrollPosition: $focusAreaScrollPosition, selectedEndOfTopicSection: $selectedEndOfTopicSection, topicId: topic.topicId)
                         
-                    case .review:
-                        TopicReviewView(topicViewModel: topicViewModel, topicId: topic.topicId, focusAreasCompleted: getFocusAreasCompleted() ?? 0)
-                            .padding(.horizontal)
+                    case .chronicles:
+                        TopicChroniclesView(focusAreas: topic.topicFocusAreas)
+                            .padding(.top)
                             
                     }
                     
@@ -85,7 +87,10 @@ struct TopicDetailView: View {
             }
             .onAppear {
                 withAnimation(.snappy(duration: 0.2)) {
-                    selectedTabTopic = .explore
+                    selectedTabTopic = .paths
+                }
+                Task {
+                    await dataController.addEndOfTopicFocusArea(topic: topic)
                 }
             }
             .fullScreenCover(item: $selectedSection, onDismiss: {
@@ -93,29 +98,11 @@ struct TopicDetailView: View {
             }) { section in
                 UpdateSectionView(topicViewModel: topicViewModel, selectedSectionSummary: $selectedSectionSummary, topicId: topic.topicId, focusArea: section.focusArea, section: section)
             }
-//            .sheet(isPresented: $showRecordingView, onDismiss: {
-//                showRecordingView = false
-//            }){
-//                RecordingView(transcriptionViewModel: transcriptionViewModel, categoryEmoji: topicCategory.getCategoryEmoji(), topic: topic)
-//                    .presentationCornerRadius(20)
-//                    .presentationDetents([.fraction(0.75)])
-//                    .presentationBackground(AppColors.black3)
-//                
-//            }
-//            .sheet(item: $selectedEntry, onDismiss: {
-//                selectedEntry = nil
-//            }) { entry in
-//                EntryDetailView(entry: entry)
-//                    .presentationCornerRadius(20)
-//                    .presentationBackground(Color.black)
-//            }
-//            .sheet(item: $selectedSectionSummary, onDismiss: {
-//                selectedSectionSummary = nil
-//            }) { summary in
-//                SectionSummaryView(summary: summary)
-//                    .presentationCornerRadius(20)
-//                    .presentationBackground(Color.black)
-//            }
+            .fullScreenCover(item: $selectedEndOfTopicSection, onDismiss: {
+                selectedEndOfTopicSection = nil
+            }) { section in
+                EndTopicView(topicViewModel: topicViewModel, section: $selectedEndOfTopicSection, topic: topic)
+            }
             .fullScreenCover(isPresented: $showFocusAreaRecapView, onDismiss: {
                 showFocusAreaRecapView = false
             }) {

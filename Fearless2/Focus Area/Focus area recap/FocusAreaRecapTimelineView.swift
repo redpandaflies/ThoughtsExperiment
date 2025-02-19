@@ -20,12 +20,11 @@ struct FocusAreaRecapTimelineView: View {
             if let focusAreas = topic?.topicFocusAreas {
                 ForEach(Array(focusAreas.enumerated()), id: \.element.focusAreaId) { index, focusArea in
                     timelineItem(number: index, text: focusArea.focusAreaTitle)
-                    if index < totalFocusAreas - 1 {
-                        connectingLine()
-                    }
+                    connectingLine()
                 }
             }
             
+            timelineItem(number: totalFocusAreas, text: "Choose next path")
             
         }
         .mask(
@@ -55,7 +54,7 @@ struct FocusAreaRecapTimelineView: View {
                        .fontWidth(.condensed)
                        .foregroundStyle(AppColors.textPrimary)
                    
-                   if number == totalFocusAreas - 1 {
+                   if number == totalFocusAreas {
                    Image(systemName: "arrow.turn.right.down")
                        .font(.system(size: 19, weight: .light))
                        .fontWidth(.condensed)

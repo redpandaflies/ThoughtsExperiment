@@ -18,6 +18,11 @@ extension FocusArea {
         set { createdAt = newValue }
     }
     
+    var focusAreaCompletedAt: String {
+        get { completedAt ?? "" }
+        set { completedAt = newValue }
+    }
+    
     var focusAreaTitle: String {
         get { title ?? "" }
         set { title = newValue }

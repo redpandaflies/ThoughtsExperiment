@@ -9,7 +9,7 @@ import SwiftUI
 
 struct PageIndicatorView: View {
     
-    @Binding var topicScrollPosition: Int?
+    @Binding var scrollPosition: Int?
     
     let pagesCount: Int
     
@@ -29,6 +29,6 @@ struct PageIndicatorView: View {
     }
     
     private func getDotColor(index: Int) -> Color {
-        (index == topicScrollPosition ?? 0) ? AppColors.textSecondary : Color.clear
+        (index == scrollPosition ?? 0) ? AppColors.textSecondary : Color.clear
        }
 }

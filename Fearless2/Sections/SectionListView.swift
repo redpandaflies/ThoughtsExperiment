@@ -10,6 +10,7 @@ import OSLog
 import SwiftUI
 
 struct SectionListView: View {
+    @Environment(\.dismiss) var dismiss
     @EnvironmentObject var dataController: DataController
     @State private var sectionsComplete: Bool = false
     @State private var sectionsScrollPosition: Int?
@@ -19,6 +20,7 @@ struct SectionListView: View {
     @Binding var selectedSection: Section?
     @Binding var selectedSectionSummary: SectionSummary?
     @Binding var selectedFocusArea: FocusArea?
+    @Binding var selectedEndOfTopicSection: Section?
     @ObservedObject var focusArea: FocusArea
     let focusAreaCompleted: Bool
     
@@ -49,12 +51,14 @@ struct SectionListView: View {
         selectedSection: Binding<Section?>,
         selectedSectionSummary: Binding<SectionSummary?>,
         selectedFocusArea: Binding<FocusArea?>,
+        selectedEndOfTopicSection: Binding<Section?>,
         focusArea: FocusArea,
         focusAreaCompleted: Bool) {
        self._showFocusAreaRecapView = showFocusAreaRecapView
        self._selectedSection = selectedSection
        self._selectedSectionSummary = selectedSectionSummary
        self._selectedFocusArea = selectedFocusArea
+       self._selectedEndOfTopicSection = selectedEndOfTopicSection
        self.focusArea = focusArea
        self.focusAreaCompleted = focusAreaCompleted
 
@@ -73,21 +77,22 @@ struct SectionListView: View {
                 HStack(spacing: 12) {
                     ForEach(Array(sections.enumerated()), id: \.element.sectionId) { index, section in
                         SectionBox(section: section, isNextSection: section == firstIncompleteSection, buttonAction: {
-                            startSection(section: section)
-                        })
+                            startSection(section: section, index: index)
+                        }, isEndOfTopic: (focusArea.endOfTopic == true), sectionIndex: index)
                         .scrollTransition { content, phase in
                             content
                                 .scaleEffect(x: phase.isIdentity ? 1 : 0.9, y: phase.isIdentity ? 1 : 0.9)
                         }
                         .id(index)
                         .onTapGesture {
-                            startSection(section: section)
+                            startSection(section: section, index: index)
                         }
                     }
                     
-                    FocusAreaRecapPreviewBox(focusAreaCompleted: focusAreaCompleted, available: allSectionsCompleted, buttonAction: {
-                        startRecap()
-                    })
+                    if focusArea.endOfTopic != true {
+                        FocusAreaRecapPreviewBox(focusAreaCompleted: focusAreaCompleted, available: allSectionsCompleted, buttonAction: {
+                            startRecap()
+                        })
                         .scrollTransition { content, phase in
                             content
                                 .scaleEffect(x: phase.isIdentity ? 1 : 0.9, y: phase.isIdentity ? 1 : 0.9)
@@ -96,47 +101,24 @@ struct SectionListView: View {
                         .onTapGesture {
                             startRecap()
                         }
+                    }
                 }//HStack
                 .scrollTargetLayout()
             }
             .scrollPosition(id: $sectionsScrollPosition, anchor: .center)
             .contentMargins(.horizontal, safeAreaPadding, for: .scrollContent)
             .scrollClipDisabled(true)
-            .scrollTargetBehavior(.viewAligned)
+            .scrollTargetBehavior(.viewAligned(limitBehavior: .alwaysByOne))
             .scrollIndicators(.hidden)
             .onAppear {
                 sectionsScrollPosition = firstIncompleteSectionIndex ?? sections.count
             }
             .onChange(of: selectedSection) {
-                if let index = firstIncompleteSectionIndex {
-                    
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        withAnimation(.smooth) {
-                            sectionsScrollPosition = index
-                        }
-                    }
-                    
-                } else {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        withAnimation(.smooth) {
-                            sectionsScrollPosition = sections.count
-                        }
-                    }
-                    DispatchQueue.global(qos: .background).async {
-                        Mixpanel.mainInstance().track(event: "Finished path")
-                    }
-                }
+                manageSectionScroll(mixpanelEvent: "Finished path")
             }
-           
-
-//        .onAppear {
-//            sectionsComplete = checkSectionsStatus()
-//        }
-//        .onChange(of: dataController.allSectionsComplete) {
-//            if dataController.allSectionsComplete {
-//                sectionsComplete = checkSectionsStatus()
-//            }
-//        }
+            .onChange(of: selectedEndOfTopicSection) {
+                manageSectionScroll(mixpanelEvent: "Finished topic")
+            }
     }
     
     private func checkSectionsStatus() -> Bool {
@@ -145,15 +127,24 @@ struct SectionListView: View {
         return completedSections.count == focusArea.focusAreaSections.count
     }
     
-    private func startSection(section: Section) {
+    private func startSection(section: Section, index: Int) {
         guard let topic = section.topic else {
             logger.error("Topic not found for selected section")
             return
         }
         
-        if section == firstIncompleteSection && topic.topicStatus != TopicStatusItem.archived.rawValue {
+        if section == firstIncompleteSection && topic.topicStatus != TopicStatusItem.archived.rawValue && focusArea.endOfTopic != true {
             selectedSection = section
         }
+        
+        if section == firstIncompleteSection && focusArea.endOfTopic == true {
+            if index == 0 {
+                selectedEndOfTopicSection = section
+            } else {
+                finishTopic(section: section)
+            }
+        }
+        
     }
     
     private func startRecap() {
@@ -161,6 +152,37 @@ struct SectionListView: View {
             selectedFocusArea = focusArea
             logger.log("Selected focus area: \(String(describing: selectedFocusArea))")
             showFocusAreaRecapView = true
+        }
+    }
+    
+    private func manageSectionScroll(mixpanelEvent: String) {
+        if let index = firstIncompleteSectionIndex {
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                withAnimation(.smooth) {
+                    sectionsScrollPosition = index
+                }
+            }
+            
+        } else {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                withAnimation(.smooth) {
+                    sectionsScrollPosition = sections.count
+                }
+            }
+            DispatchQueue.global(qos: .background).async {
+                Mixpanel.mainInstance().track(event: mixpanelEvent)
+            }
+        }
+    }
+    
+    private func finishTopic(section: Section) {
+        Task {
+            //mark section as complete
+            section.completed = true
+            await dataController.save()
+            //return to home view
+            dismiss()
         }
     }
 }

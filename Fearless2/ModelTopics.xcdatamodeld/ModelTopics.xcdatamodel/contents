@@ -107,6 +107,7 @@
         <relationship name="section" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="Section" inverseName="summary" inverseEntity="Section"/>
     </entity>
     <entity name="Topic" representedClassName="Topic" syncable="YES" codeGenerationType="class">
+        <attribute name="completed" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="createdAt" optional="YES" attributeType="String"/>
         <attribute name="definition" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>

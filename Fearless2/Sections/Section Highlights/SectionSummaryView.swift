@@ -76,10 +76,10 @@ struct SectionSummaryView: View {
         dismiss()
         
         if let section = summary.section {
-            Task {
-                if !section.completed {
-                    section.completed = true
-                    await dataController.save()
+            
+            if !section.completed {
+                Task {
+                await dataController.completeSection(section: section)
                 }
             }
         }

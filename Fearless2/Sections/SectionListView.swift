@@ -12,9 +12,9 @@ import SwiftUI
 struct SectionListView: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var dataController: DataController
+    @ObservedObject var topicViewModel: TopicViewModel
     @State private var sectionsComplete: Bool = false
     @State private var sectionsScrollPosition: Int?
-    
     
     @Binding var showFocusAreaRecapView: Bool
     @Binding var selectedSection: Section?
@@ -47,13 +47,15 @@ struct SectionListView: View {
         return (UIScreen.main.bounds.width - frameWidth)/2
     }
 
-   init(showFocusAreaRecapView: Binding<Bool>,
+    init(topicViewModel: TopicViewModel,
+        showFocusAreaRecapView: Binding<Bool>,
         selectedSection: Binding<Section?>,
         selectedSectionSummary: Binding<SectionSummary?>,
         selectedFocusArea: Binding<FocusArea?>,
         selectedEndOfTopicSection: Binding<Section?>,
         focusArea: FocusArea,
         focusAreaCompleted: Bool) {
+        self.topicViewModel = topicViewModel
        self._showFocusAreaRecapView = showFocusAreaRecapView
        self._selectedSection = selectedSection
        self._selectedSectionSummary = selectedSectionSummary
@@ -137,11 +139,13 @@ struct SectionListView: View {
             selectedSection = section
         }
         
-        if section == firstIncompleteSection && focusArea.endOfTopic == true {
+        if focusArea.endOfTopic == true {
             if index == 0 {
                 selectedEndOfTopicSection = section
             } else {
-                finishTopic(section: section)
+                if section == firstIncompleteSection {
+                    finishTopic(section: section)
+                }
             }
         }
         
@@ -177,12 +181,17 @@ struct SectionListView: View {
     }
     
     private func finishTopic(section: Section) {
-        Task {
-            //mark section as complete
-            section.completed = true
-            await dataController.save()
-            //return to home view
-            dismiss()
+        
+        if let topic = section.topic {
+            Task {
+                //mark section as complete
+                await dataController.completeTopic(topic: topic, section: section)
+                //return to home view
+                await MainActor.run {
+                    topicViewModel.scrollToAddTopic = true
+                    dismiss()
+                }
+            }
         }
     }
 }

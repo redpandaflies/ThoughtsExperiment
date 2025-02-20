@@ -97,8 +97,6 @@ struct FocusAreaSuggestionsList: View {
                 topicViewModel.focusAreaCreationFailed = true
             }
             
-          
-            
             DispatchQueue.global(qos: .background).async {
                 Mixpanel.mainInstance().track(event: "Chose new focus area")
             }

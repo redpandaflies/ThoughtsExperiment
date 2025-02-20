@@ -246,12 +246,14 @@ struct UpdateSectionView: View {
     private func completeSection(totalQuestions: Int, answeredQuestionIndex: Int) async {
         
         if answeredQuestionIndex + 1 == totalQuestions {
-            section.completed = true
-            await dataController.save()
+           
+            await dataController.completeSection(section: section)
             
             print("Answered question index is \(answeredQuestionIndex), number of questions is \(totalQuestions)")
             
-            submitForm()
+            await MainActor.run {
+                submitForm()
+            }
         }
         
     }

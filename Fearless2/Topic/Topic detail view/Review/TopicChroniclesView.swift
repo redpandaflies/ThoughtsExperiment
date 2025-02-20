@@ -12,11 +12,12 @@ struct TopicChroniclesView: View {
     let focusAreas: [FocusArea]
     
     var sortedFocusAreas: [FocusArea] {
-        return focusAreas.sorted { $0.focusAreaCreatedAt < $1.focusAreaCreatedAt }
+        let orderedList = focusAreas.sorted { $0.focusAreaCreatedAt < $1.focusAreaCreatedAt }
+        return orderedList.filter { $0.endOfTopic != true }
     }
     
     var pageCount: Int {
-        return focusAreas.count
+        return sortedFocusAreas.count
     }
     
     let screenWidth = UIScreen.current.bounds.width
@@ -68,7 +69,9 @@ struct TopicPathSummaryBox: View {
                 .font(.system(size: 21, weight: .light))
                 .foregroundStyle(AppColors.textPrimary)
             
-            Text("Path completed on " + DateFormatter.displayString2(from: DateFormatter.incomingFormat.date(from: focusArea.focusAreaCompletedAt) ?? Date()))
+            
+            Text(getSubtitle())
+            
                 .font(.system(size: 13, weight: .thin).smallCaps())
                 .foregroundStyle(AppColors.textPrimary)
                 .fontWidth(.condensed)
@@ -113,6 +116,14 @@ struct TopicPathSummaryBox: View {
         }
         
         
+    }
+    
+    private func getSubtitle() -> String {
+        if let _ = focusArea.summary?.summarySummary {
+            return "Path completed on " + DateFormatter.displayString2(from: DateFormatter.incomingFormat.date(from: focusArea.focusAreaCompletedAt) ?? Date())
+        } else {
+            return "In progress"
+        }
     }
     
 }

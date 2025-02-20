@@ -22,6 +22,7 @@ final class TopicViewModel: ObservableObject {
     @Published var createFocusAreaSummary: FocusAreaSummaryState = .ready
     @Published var createFocusAreaSuggestions: FocusAreaSuggestionsState = .ready
     @Published var sectionSummaryCreated: Bool = false
+    @Published var scrollToAddTopic: Bool = false
     
     private var openAISwiftService: OpenAISwiftService
     private var dataController: DataController

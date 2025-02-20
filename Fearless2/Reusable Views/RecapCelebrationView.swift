@@ -20,7 +20,6 @@ struct RecapCelebrationView: View {
             
             LaurelItem(size: 50, points: "+1")
                 .padding(.bottom, 20)
-                .padding(.top, 30)
             
             Text(text)
                 .font(.system(size: 25, weight: .light).smallCaps())

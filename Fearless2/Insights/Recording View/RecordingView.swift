@@ -24,7 +24,7 @@ struct RecordingView: View {
 
             switch selectedTab {
                 case 0:
-                RecordingStartView(transcriptionViewModel: transcriptionViewModel, selectedTab: $selectedTab, topic: topic)
+                    RecordingStartView(transcriptionViewModel: transcriptionViewModel, selectedTab: $selectedTab, topic: topic)
                     
                 default:
                     RecordingLoadingAnimation()
@@ -75,8 +75,10 @@ struct RecordingView: View {
     }
     
     private func cancelRecording() {
+        dismiss()
+        
         Task {
-            dismiss()
+            
           let cancelledRecording = await transcriptionViewModel.cancelRecording()
             
            if cancelledRecording {

@@ -35,8 +35,9 @@ struct StartRecordingButton: View {
                     logger.error("Failed to start recording")
                     return
                 }
-                
-                showRecordingView = true
+                await MainActor.run {
+                    showRecordingView = true
+                }
             }
         }
     }

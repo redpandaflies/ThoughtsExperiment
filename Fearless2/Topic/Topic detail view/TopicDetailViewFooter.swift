@@ -98,35 +98,47 @@ struct TopicDetailViewFooter: View {
     }
     
     private func deleteTopic() {
-        Task {
-            if let currentTopicId = topic?.topicId {
+        
+        if let currentTopicId = topic?.topicId {
+           
+            Task {
                 await dataController.deleteTopic(id: currentTopicId)
+                
+                // Ensure dismiss happens after deletion
+                await MainActor.run {
+                    dismissView()
+                }
+                
+                DispatchQueue.global(qos: .background).async {
+                    Mixpanel.mainInstance().track(event: "Deleted topic")
+                }
             }
             
-            DispatchQueue.global(qos: .background).async {
-                Mixpanel.mainInstance().track(event: "Deleted topic")
-            }
         }
-        dismissView()
+       
+        
     }
     
     private func updateTopicStatus(newStatus: TopicStatusItem) {
-        Task {
-            if let currentTopicId = topic?.topicId {
-                await dataController.updateTopicStatus(id: currentTopicId, item: newStatus)
+       
+        if let currentTopicId = topic?.topicId {
+            Task {
+            await dataController.updateTopicStatus(id: currentTopicId, item: newStatus)
+                
+                await MainActor.run {
+                    dismissView()
+                }
+                
+                var mixpanelEvent: String {
+                    return newStatus == .active ? "Unarchived topic" : "Archived topic"
+                }
+                
+                DispatchQueue.global(qos: .background).async {
+                    Mixpanel.mainInstance().track(event: mixpanelEvent)
+                }
             }
-            
-            var mixpanelEvent: String {
-                return newStatus == .active ? "Unarchived topic" : "Archived topic"
-            }
-            
-            DispatchQueue.global(qos: .background).async {
-                Mixpanel.mainInstance().track(event: mixpanelEvent)
-            }
-
         }
-        
-        dismissView()
+       
     }
 
 }

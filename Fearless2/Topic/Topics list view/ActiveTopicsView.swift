@@ -61,7 +61,16 @@ struct ActiveTopicsView: View {
             withAnimation(.snappy(duration: 0.2)) {
                 currentTabBar = .home
             }
+            if topicViewModel.scrollToAddTopic {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    withAnimation(.smooth) {
+                        topicScrollPosition = topics.count
+                    }
+                    topicViewModel.scrollToAddTopic = false
+                }
+            }
         }
+        
         .onDisappear {
             if navigateToTopicDetailView {
                 

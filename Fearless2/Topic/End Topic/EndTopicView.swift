@@ -19,26 +19,29 @@ struct EndTopicView: View {
     var body: some View {
         NavigationStack {
             VStack {
-
-                switch selectedTab {
-                case 0:
-                    
-                    RecapCelebrationView(title: section?.topic?.topicTitle ?? "", text: "For completing")
-                        .padding(.horizontal)
-
-                default:
-                    topicRecapView()
-                        .padding(.top, 30)
-                    
-                    Spacer()
+                
+                Group {
+                    switch selectedTab {
+                    case 0:
+                        
+                        RecapCelebrationView(title: section?.topic?.topicTitle ?? "", text: "For completing")
+                            .padding(.horizontal)
+                            .padding(.bottom, 30)
+                        
+                    default:
+                        topicRecapView()
+                        
+                        
+                    }
                 }
-      
+                .padding(.bottom, 90)
                 
                 RectangleButtonYellow(
                     buttonText: getButtonText(),
                     action: {
                         buttonAction()
                     },
+                    disableMainButton: disableButton(),
                     buttonColor: .white
                 )
                 .padding(.bottom, 10)
@@ -75,49 +78,93 @@ struct EndTopicView: View {
     
     
     private func getButtonText() -> String {
-        return (selectedTab == 0 ) ? "Next: restore lost fragment" : "Done"
+        if selectedTab == 0 {
+            return "Next: restore lost fragment"
+        } else {
+            return getButtonTextFragmentView()
+        }
     }
+    
+    private func getButtonTextFragmentView() -> String {
+        switch topicViewModel.createTopicOverview {
+        case .ready:
+            return "Done"
+        case .loading:
+           return "Restoring . . ."
+        case .retry:
+            return "Retry"
+        }
+    }
+    
     
     private func buttonAction() {
         if selectedTab == 0 {
             selectedTab += 1
         } else {
-            Task {
-                //mark section as complete
-                section?.completed = true
-                await dataController.save()
-                
-                //close view
-                dismiss()
+            
+            if let currentSection = section {
+                Task {
+                    //mark topic as complete
+                    await dataController.completeSection(section: currentSection)
+                    
+                    //close view
+                    await MainActor.run {
+                        dismiss()
+                    }
+                }
             }
+        }
+    }
+    
+    private func disableButton() -> Bool {
+        switch selectedTab {
+        case 0:
+            return false
+        default:
+            return topicViewModel.createTopicOverview != .ready
         }
     }
     
     @ViewBuilder private func topicRecapView() -> some View {
-        switch topicViewModel.createTopicOverview {
-        case .ready:
-            TopicRecapFragmentBox(fragmentText: topic.review?.reviewOverview ?? "")
-        case .loading:
-            LoadingPlaceholderContent(contentType: .topicReview)
-        case .retry:
-            RetryButton(action: {
-                getTopicReview()
-            })
+        
+        VStack {
+            
+            Spacer()
+                
+            switch topicViewModel.createTopicOverview {
+            case .ready:
+                TopicRecapFragmentBox(fragmentText: topic.review?.reviewOverview ?? "")
+            case .loading:
+                LoadingPlaceholderContent(contentType: .topicReview)
+            case .retry:
+                RetryButton(action: {
+                    getTopicReview()
+                })
+            }
+            
+            
+            Spacer()
         }
     }
     
     private func getTopicReview() {
-        Task {
+        
+        if let _ = topic.review?.reviewOverview {
+            selectedTab = 1
+        } else {
             
-            //generate review
-            do {
-                try await topicViewModel.manageRun(selectedAssistant: .topicOverview, topicId: topic.topicId)
-            } catch {
-                topicViewModel.createTopicOverview = .retry
-            }
-            
-            DispatchQueue.global(qos: .background).async {
-                Mixpanel.mainInstance().track(event: "Updated topic overview")
+            Task {
+                
+                //generate review
+                do {
+                    try await topicViewModel.manageRun(selectedAssistant: .topicOverview, topicId: topic.topicId)
+                } catch {
+                    topicViewModel.createTopicOverview = .retry
+                }
+                
+                DispatchQueue.global(qos: .background).async {
+                    Mixpanel.mainInstance().track(event: "Updated topic overview")
+                }
             }
         }
     }
@@ -147,13 +194,15 @@ struct TopicRecapFragmentBox: View {
             
             
             Text(fragmentText)
-                .font(.system(size: 25, design: .serif))
+                .multilineTextAlignment(.center)
+                .font(.system(size: 20, design: .serif))
                 .foregroundStyle(AppColors.textBlack)
                 .lineSpacing(1.3)
             
         }
-        .padding(.horizontal, 30)
-        .padding(.vertical, 40)
+        .padding(.horizontal, 35)
+        .padding(.vertical, 50)
+        .padding(.bottom)
         .frame(width: 310)
         .background {
             RoundedRectangle(cornerRadius: 25)

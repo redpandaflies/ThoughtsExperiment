@@ -147,7 +147,8 @@ struct FocusAreaRecapView: View {
         case 0:
             if let currentFocusArea = focusArea {
                 RecapCelebrationView(title: currentFocusArea.focusAreaTitle, text: "For exploring")
-            } 
+                    .padding(.top, 30)
+            }
             
         case 1:
             FocusAreaRecapReflectionView(
@@ -282,7 +283,6 @@ struct FocusAreaRecapView: View {
                     topicViewModel.createFocusAreaSuggestions = .retry
                 }
             }
-            
 
             DispatchQueue.global(qos: .background).async {
                 Mixpanel.mainInstance().track(event: "Generated recap")

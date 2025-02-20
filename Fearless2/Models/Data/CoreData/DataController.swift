@@ -83,6 +83,15 @@ final class DataController: ObservableObject {
         
     }
     
+    //mark section as complete
+    func completeSection(section: Section) async {
+        await context.perform {
+            section.completed = true
+        }
+        
+        await self.save()
+    }
+    
     //save user answer for an question
     //note: questionContent needed when creating new topic, questionId needed when updating topic
     func saveAnswer(questionType: QuestionType, questionContent: String? = nil, questionId: UUID? = nil, userAnswer: Any) async {
@@ -178,7 +187,6 @@ final class DataController: ObservableObject {
     
     
     //delete all suggestions
-    @MainActor
     func deleteTopicSuggestions(topicId: UUID) async throws -> Topic? {
         
         let request = NSFetchRequest<Topic>(entityName: "Topic")
@@ -212,7 +220,6 @@ final class DataController: ObservableObject {
         return topic
     }
     
-    @MainActor
     func updateOverviewStatus(review: TopicReview) async {
         await context.perform {
             review.overviewGenerated.toggle()
@@ -223,23 +230,6 @@ final class DataController: ObservableObject {
         }
         
     }
-    
-//    @MainActor
-//    func fetchAllSuggestions() async -> [FocusAreaSuggestion] {
-//        let request = NSFetchRequest<FocusAreaSuggestion>(entityName: "FocusAreaSuggestion")
-//        
-//        var fetchedSuggestions: [FocusAreaSuggestion] = []
-//        
-//        await context.perform {
-//            do {
-//                fetchedSuggestions = try self.context.fetch(request)
-//            } catch {
-//                self.logger.error("Error fetching all suggestions: \(error.localizedDescription)")
-//            }
-//        }
-//        
-//        return fetchedSuggestions
-//    }
     
 }
 
@@ -281,7 +271,6 @@ extension DataController {
         return (topicId, createdFocusArea)
     }
     
-    @MainActor
     func updateTopicStatus(id: UUID, item: TopicStatusItem) async {
         let request = NSFetchRequest<Topic>(entityName: "Topic")
         request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
@@ -399,7 +388,7 @@ extension DataController {
     }
     
     //delete topic
-    @MainActor
+
     func deleteTopic(id: UUID) async {
         
         let request = NSFetchRequest<Topic>(entityName: "Topic")
@@ -443,7 +432,6 @@ extension DataController {
     }
     
     //save topic image
-    @MainActor
     func saveTopicImage(topic: Topic, imageURL: String) async {
         
         context.performAndWait {
@@ -457,7 +445,7 @@ extension DataController {
         }
     }
     
-    @MainActor
+
     func addEndOfTopicFocusArea(topic: Topic) async {
         
         await context.perform {
@@ -492,13 +480,23 @@ extension DataController {
         
         await self.save()
     }
+    
+    //mark topic and section as complete
+    func completeTopic(topic: Topic, section: Section) async {
+        await context.perform {
+            section.completed = true
+            topic.completed = true
+        }
+        
+        await self.save()
+    }
 }
 
 //MARK: category (realms)
 
 extension DataController {
     
-    @MainActor
+
     func addCategoriesToCoreData() async {
     
         let request = NSFetchRequest<Category>(entityName: "Category")

@@ -23,9 +23,10 @@ struct FocusAreaHeader: View {
                 
                 Menu {
                     Button (role: .destructive) {
-                        Task {
-                            if let currentTopicId = topicId {
-                                await dataController.deleteTopic(id: currentTopicId)
+                        
+                        if let currentTopicId = topicId {
+                            Task {
+                            await dataController.deleteTopic(id: currentTopicId)
                             }
                         }
                         

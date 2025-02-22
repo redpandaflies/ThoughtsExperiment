@@ -44,10 +44,12 @@ struct FocusAreaRecapTimelineView: View {
     private func timelineItem(number: Int, text: String) -> some View {
            HStack(spacing: 10) {
             
+               
                Image(systemName: "\(number + 1).circle.fill")
                    .font(.system(size: 19))
                    .foregroundStyle(AppColors.textPrimary)
-               
+                   
+                
                HStack (spacing: 3) {
                    Text(text)
                        .font(.system(size: 19, weight: .light))
@@ -72,7 +74,7 @@ struct FocusAreaRecapTimelineView: View {
            RoundedRectangle(cornerRadius: 30)
                .fill(Color.white.opacity(0.8))
                .frame(width: 1, height: 15)
-               .padding(.leading, 9.5)
+               .padding(.leading, 11.5)
                
        }
     

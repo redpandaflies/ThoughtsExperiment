@@ -36,9 +36,11 @@ struct SectionBox: View {
             
             Text(section.sectionTitle)
                 .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
                 .font(.system(size: 17, weight: section.completed ? .light : (archivedTopic ? .light : (isNextSection ? .regular : .light))))
                 .fontWidth(.condensed)
                 .foregroundStyle(section.completed ? AppColors.textPrimary : (archivedTopic ? AppColors.textPrimary : (isNextSection ? Color.black : AppColors.textPrimary)))
+                .lineLimit(3)
                 .padding(.bottom, 5)
             
             

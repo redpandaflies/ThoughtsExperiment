@@ -11,6 +11,7 @@ struct TopicDetailViewHeader: View {
     
     let title: String
     let progress: Int
+    let totalFocusAreas: Int
     let screenWidth = UIScreen.current.bounds.width
     
     var body: some View {
@@ -22,7 +23,7 @@ struct TopicDetailViewHeader: View {
                 .foregroundStyle(AppColors.whiteDefault)
                 .padding(.horizontal)
             
-            TopicDetailViewProgressBar(progress: progress)
+            TopicDetailViewProgressBar(progress: progress, totalFocusAreas: totalFocusAreas)
         }
         .padding(.top)
         .frame(width: screenWidth)
@@ -31,7 +32,15 @@ struct TopicDetailViewHeader: View {
 
 struct TopicDetailViewProgressBar: View {
     let progress: Int
+    let totalFocusAreas: Int
     let screenWidth = UIScreen.current.bounds.width
+    var frameWidth: CGFloat {
+        return screenWidth/CGFloat(totalFocusAreas + 2)
+    }
+    
+    var progressWidth: CGFloat {
+            return (frameWidth * CGFloat(progress))
+        }
     
     var body: some View {
         VStack (spacing: 10){
@@ -48,54 +57,37 @@ struct TopicDetailViewProgressBar: View {
                     .mask(
                         HStack(spacing: 0) {
                             Rectangle()
-                                .frame(width: calculateProgressWidth(totalWidth: screenWidth))
+                                .frame(width: progressWidth)
                             Rectangle()
-                                .frame(width: screenWidth - calculateProgressWidth(totalWidth: screenWidth))
+                                .frame(width: screenWidth - progressWidth)
                                 .opacity(0)
                         }
                     )
                     
             }
             
-            TopicDetailViewProgressBarLabels(progress: progress)
+            TopicDetailViewProgressBarLabels(progress: progress, totalFocusAreas: totalFocusAreas, frameWidth: frameWidth)
         }
     }
-    
-    private func calculateProgressWidth(totalWidth: CGFloat) -> CGFloat {
-            let segmentWidth = (totalWidth / 10)
-            return (segmentWidth * CGFloat(progress))
-        }
     
 }
 
 struct TopicDetailViewProgressBarLabels: View {
     
     let progress: Int
-    
-    let screenWidth = UIScreen.current.bounds.width
+    let totalFocusAreas: Int
+    var frameWidth: CGFloat
     
     var body: some View {
             
         HStack (spacing: 0) {
             
-            ForEach(1...4, id: \.self) { index in
+            ForEach(1...totalFocusAreas, id: \.self) { index in
                 
                 getNumber(index: index)
-                    .frame(width: screenWidth/10)
+                    .frame(width: frameWidth)
                     .opacity(index <= progress ? 1 : 0.4)
                 
-                
-            }
-            
-            getSymbol(symbolName: "arrow.triangle.branch")
-                .frame(width: screenWidth/10)
-                .opacity(progress >= 5 ? 1 : 0.4)
-            
-            ForEach(5...7, id: \.self) { index in
-                
-                getNumber(index: index)
-                    .frame(width: screenWidth/10)
-                    .opacity((index <= progress + 1) ? 1 : 0.4)
                 
             }
             
@@ -105,8 +97,8 @@ struct TopicDetailViewProgressBarLabels: View {
                 getSymbol(symbolName: "laurel.trailing")
                 
             }
-            .frame(width: screenWidth/10)
-            .opacity(progress >= 9 ? 1 : 0.4)
+            .frame(width: frameWidth)
+            .opacity(progress >= (totalFocusAreas + 1) ? 1 : 0.4)
             
         }//HStack
     }
@@ -126,6 +118,6 @@ struct TopicDetailViewProgressBarLabels: View {
     }
 }
 
-#Preview {
-    TopicDetailViewProgressBar(progress: 5)
-}
+//#Preview {
+//    TopicDetailViewProgressBar(progress: 5)
+//}

@@ -10,7 +10,6 @@ import SwiftUI
 struct ActiveTopicsView: View {
     @ObservedObject var topicViewModel: TopicViewModel
     @ObservedObject var transcriptionViewModel: TranscriptionViewModel
-
     @Binding var showCreateNewTopicView: Bool
     @Binding var selectedTopic: Topic?
     @Binding var currentTabBar: TabBarType
@@ -18,10 +17,12 @@ struct ActiveTopicsView: View {
     @Binding var navigateToTopicDetailView: Bool
     @Binding var topicScrollPosition: Int?
     @Binding var categoriesScrollPosition: Int?
+    @Binding var focusAreasLimit: Int
     
     let topics: [Topic]
     
     @ObservedObject var points: Points
+   
     
     let frameWidth: CGFloat = 270
     var safeAreaPadding: CGFloat {
@@ -35,8 +36,8 @@ struct ActiveTopicsView: View {
             TopicsListContent(
                 topicViewModel: topicViewModel,
                 topics: topics,
-                onTopicTap: { topic in
-                    onTopicTap(topic: topic)
+                onTopicTap: { index ,topic in
+                    onTopicTap(index: index, topic: topic)
                 },
                 showAddButton: true,
                 onAddButtonTap: {
@@ -46,7 +47,7 @@ struct ActiveTopicsView: View {
             .scrollTargetLayout()
             .navigationDestination(isPresented: $navigateToTopicDetailView) {
                 if let topic = selectedTopic {
-                    TopicDetailView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, selectedTabTopic: $selectedTabTopic, topic: topic, points: points)
+                    TopicDetailView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, selectedTabTopic: $selectedTabTopic, topic: topic, points: points, focusAreasLimit: focusAreasLimit)
                         .toolbarRole(.editor) //removes the word "back" in the back button
                         
                 }
@@ -63,7 +64,7 @@ struct ActiveTopicsView: View {
             }
             if topicViewModel.scrollToAddTopic {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    withAnimation(.smooth) {
+                    withAnimation(.smooth(duration: 0.2)) {
                         topicScrollPosition = topics.count
                     }
                     topicViewModel.scrollToAddTopic = false
@@ -82,12 +83,12 @@ struct ActiveTopicsView: View {
         
         
     }
-
     
-    
-    private func onTopicTap(topic: Topic) {
+    private func onTopicTap(index: Int, topic: Topic) {
         //set selected topic ID so that delete topic works
         selectedTopic = topic
+        
+        focusAreasLimit = FocusAreasLimitCalculator.calculatePaths(topicIndex: index, totalTopics: topics.count)
         if let scrollPosition = categoriesScrollPosition {
             currentCategory = scrollPosition
         }

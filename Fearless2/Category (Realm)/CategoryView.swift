@@ -13,6 +13,7 @@ struct CategoryView: View {
     @EnvironmentObject var dataController: DataController
     
     @State private var categoriesScrollPosition: Int?
+    @State private var showSettingsView: Bool = false
     
     @Binding var selectedTopic: Topic?
     @Binding var currentTabBar: TabBarType
@@ -61,29 +62,34 @@ struct CategoryView: View {
                 AppBackground(backgroundColor: getCategoryBackground())
             }
             .onAppear {
-                if categories.isEmpty {
-                    Task {
-                        await dataController.addCategoriesToCoreData()
-                    }
-                } else {
-                    categoriesScrollPosition = currentCategory
-                }
                 
-                if points.isEmpty {
-                    Task {
-                        await dataController.updatePoints(newPoints: 5)
+                Task {
+                    if categories.isEmpty {
+                       
+                            await dataController.addCategoriesToCoreData()
+                        
+                    } else {
+                        
+                        await MainActor.run {
+                            categoriesScrollPosition = currentCategory
+                        }
+                    }
+                    
+                    if points.isEmpty {
+                            await dataController.updatePoints(newPoints: 5)
+                        
                     }
                 }
             }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     SettingsToolbarItem(action: {
-                        
+                        showSettingsView = true
                     })
                 }
                 
                 ToolbarItem(placement: .principal) {
-                    ToolbarTitleItem(title: "The Seven Realms")
+                    ToolbarTitleItem(title: "Forgotten Realms")
                 }
                 
                 ToolbarItem(placement: .topBarTrailing) {
@@ -91,6 +97,17 @@ struct CategoryView: View {
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
+            .sheet(isPresented: $showSettingsView, onDismiss: {
+                showSettingsView = false
+            }, content: {
+                SettingsView()
+                    .presentationCornerRadius(20)
+                    .presentationBackground {
+                        Color.clear
+                            .background(.regularMaterial)
+                            .environment(\.colorScheme, .dark )
+                    }
+            })
             
         }
         .environment(\.colorScheme, .dark)

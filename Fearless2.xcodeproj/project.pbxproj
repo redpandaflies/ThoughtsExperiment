@@ -138,6 +138,8 @@
 		8AC1D5A52D655AD7000DD8E6 /* EndOfTopicItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AC1D5A42D655AD1000DD8E6 /* EndOfTopicItem.swift */; };
 		8AC1D5A82D6582F3000DD8E6 /* EndTopicView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AC1D5A72D6582F3000DD8E6 /* EndTopicView.swift */; };
 		8AC1D5AA2D65998B000DD8E6 /* RecapCelebrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AC1D5A92D659986000DD8E6 /* RecapCelebrationView.swift */; };
+		8AC1D5AC2D670557000DD8E6 /* FocusAreasCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AC1D5AB2D670538000DD8E6 /* FocusAreasCalculator.swift */; };
+		8AC1D5AF2D685524000DD8E6 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AC1D5AE2D685524000DD8E6 /* SettingsView.swift */; };
 		8ACE0DD12CCF308700718B9E /* ModelTopics.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 8A9CC1B92CAD1A4A007C2AA9 /* ModelTopics.xcdatamodeld */; };
 		8ACE0DD32CD03A0000718B9E /* Entry-CoreDataHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ACE0DD22CD03A0000718B9E /* Entry-CoreDataHelpers.swift */; };
 		8ACE0DD52CD03A1500718B9E /* Insight-CoreDataHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ACE0DD42CD03A1500718B9E /* Insight-CoreDataHelpers.swift */; };
@@ -281,6 +283,8 @@
 		8AC1D5A42D655AD1000DD8E6 /* EndOfTopicItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EndOfTopicItem.swift; sourceTree = "<group>"; };
 		8AC1D5A72D6582F3000DD8E6 /* EndTopicView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EndTopicView.swift; sourceTree = "<group>"; };
 		8AC1D5A92D659986000DD8E6 /* RecapCelebrationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecapCelebrationView.swift; sourceTree = "<group>"; };
+		8AC1D5AB2D670538000DD8E6 /* FocusAreasCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusAreasCalculator.swift; sourceTree = "<group>"; };
+		8AC1D5AE2D685524000DD8E6 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		8ACE0DD22CD03A0000718B9E /* Entry-CoreDataHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Entry-CoreDataHelpers.swift"; sourceTree = "<group>"; };
 		8ACE0DD42CD03A1500718B9E /* Insight-CoreDataHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Insight-CoreDataHelpers.swift"; sourceTree = "<group>"; };
 		8ACE0DD72CD0C4A700718B9E /* SectionSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionSummaryView.swift; sourceTree = "<group>"; };
@@ -547,6 +551,7 @@
 				8A9CC1AD2CAC681C007C2AA9 /* Topic */,
 				8A63324A2CD83E6800EF34FA /* Focus Area */,
 				8A9191F82CBDDC3F007E17A0 /* Sections */,
+				8AC1D5AD2D68550B000DD8E6 /* Settings */,
 				8A74F4A02CE692FE008A33B0 /* Entry */,
 				8A26DFC62CED431F002C4F60 /* Insights */,
 				8A26DFCB2CEEBF33002C4F60 /* Understand */,
@@ -584,6 +589,7 @@
 		8A9CC1962CAB66B3007C2AA9 /* Styling */ = {
 			isa = PBXGroup;
 			children = (
+				8AC1D5AB2D670538000DD8E6 /* FocusAreasCalculator.swift */,
 				8AC1D5A42D655AD1000DD8E6 /* EndOfTopicItem.swift */,
 				8A74F4AB2CE7F43D008A33B0 /* TextLimitMax.swift */,
 				8A74F4A52CE6A90F008A33B0 /* DateFormatter.swift */,
@@ -712,6 +718,14 @@
 				8AC1D5A72D6582F3000DD8E6 /* EndTopicView.swift */,
 			);
 			path = "End Topic";
+			sourceTree = "<group>";
+		};
+		8AC1D5AD2D68550B000DD8E6 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				8AC1D5AE2D685524000DD8E6 /* SettingsView.swift */,
+			);
+			path = Settings;
 			sourceTree = "<group>";
 		};
 		8ACE0DD62CD0C33700718B9E /* Section Highlights */ = {
@@ -906,6 +920,7 @@
 				8A8ED73B2CF42CD200780384 /* EntriesEmptyState.swift in Sources */,
 				8A9CC1B62CAC9B88007C2AA9 /* NewTopicView.swift in Sources */,
 				8AFCCCD62D5D4BFC0079732C /* NextButtonRound.swift in Sources */,
+				8AC1D5AF2D685524000DD8E6 /* SettingsView.swift in Sources */,
 				8A9191FC2CBDDC78007E17A0 /* SectionListView.swift in Sources */,
 				8A8B63E72D1F010D00BA57D0 /* ImageCacheManager.swift in Sources */,
 				8A26DFDB2CEFC4FF002C4F60 /* UnderstandLoadingView.swift in Sources */,
@@ -929,6 +944,7 @@
 				8A63A1C32D51F6C500712B27 /* FocusAreaRetryView.swift in Sources */,
 				8A74F49B2CE593FD008A33B0 /* TopicPickerView.swift in Sources */,
 				8ACE0DD12CCF308700718B9E /* ModelTopics.xcdatamodeld in Sources */,
+				8AC1D5AC2D670557000DD8E6 /* FocusAreasCalculator.swift in Sources */,
 				8A9CC1772CAB3DEA007C2AA9 /* Fearless2App.swift in Sources */,
 				8A9CC19E2CAB7855007C2AA9 /* CustomToolbarAppearance.swift in Sources */,
 				8A2C37022D26A17100C37315 /* UpdateSectionCompleteView.swift in Sources */,
@@ -1094,7 +1110,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Fearless2/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Burrow;
+				INFOPLIST_KEY_CFBundleDisplayName = "Forgotten Realms";
 				INFOPLIST_KEY_MetalCaptureEnabled = YES;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Audio is recorded for AI to transcribe and process.  ";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -1130,7 +1146,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Fearless2/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Burrow;
+				INFOPLIST_KEY_CFBundleDisplayName = "Forgotten Realms";
 				INFOPLIST_KEY_MetalCaptureEnabled = YES;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Audio is recorded for AI to transcribe and process.  ";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;

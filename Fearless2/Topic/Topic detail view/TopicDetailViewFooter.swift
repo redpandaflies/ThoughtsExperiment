@@ -24,15 +24,12 @@ struct TopicDetailViewFooter: View {
     var body: some View {
            
         HStack {
-            Button {
-                
-            } label: {
-                Image(systemName: "arrow.backward")
-                    .font(.system(size: 20))
-                    .foregroundStyle(Color.clear)
-                    .frame(width: 30, height: 30)
-            }
-            
+           
+            Image(systemName: "arrow.backward")
+                .font(.system(size: 20))
+                .foregroundStyle(Color.clear)
+                .frame(width: 30, height: 30)
+          
             Spacer()
             
             TopicPickerView(selectedTabTopic: $selectedTabTopic)

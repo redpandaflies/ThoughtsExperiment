@@ -340,6 +340,35 @@ extension DataController {
         return fetchedTopics
     }
     
+    //delete all
+    func deleteAll() async {
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Topic")
+        let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+        
+        // Configure batch to get object IDs for updating the context's state
+        batchDeleteRequest.resultType = .resultTypeObjectIDs
+        
+        await context.perform {
+            do {
+                // Execute the batch delete
+                let batchDelete = try self.context.execute(batchDeleteRequest) as? NSBatchDeleteResult
+                
+                // Use the deleted object IDs to update the context's state
+                if let deletedObjectIDs = batchDelete?.result as? [NSManagedObjectID] {
+                    let changes = [NSDeletedObjectsKey: deletedObjectIDs]
+                    NSManagedObjectContext.mergeChanges(fromRemoteContextSave: changes, into: [self.context])
+                }
+                
+                // Save context to ensure changes are persisted
+                try self.context.save()
+                
+                self.logger.info("Successfully deleted all topics")
+            } catch {
+                self.logger.error("Error batch deleting all topics: \(error.localizedDescription)")
+            }
+        }
+    }
+    
     //create new topic
     func createFocusArea(suggestion: any SuggestionProtocol, topic: Topic?) async -> FocusArea? {
         
@@ -371,7 +400,7 @@ extension DataController {
             focusArea = newFocusArea
             
             //get total number of focus areas
-            totalFocusAreas = currentTopic.focusAreas?.count
+            totalFocusAreas = currentTopic.topicFocusAreas.count
             
         }
         
@@ -379,7 +408,7 @@ extension DataController {
         
         if let focusAreasCount = totalFocusAreas {
             await MainActor.run {
-                newFocusArea = focusAreasCount - 1
+                self.newFocusArea = focusAreasCount - 1
             }
         }
         
@@ -388,7 +417,6 @@ extension DataController {
     }
     
     //delete topic
-
     func deleteTopic(id: UUID) async {
         
         let request = NSFetchRequest<Topic>(entityName: "Topic")
@@ -479,6 +507,10 @@ extension DataController {
         }
         
         await self.save()
+        
+        await MainActor.run {
+            self.newFocusArea = topic.topicFocusAreas.count - 1
+        }
     }
     
     //mark topic and section as complete
@@ -527,6 +559,52 @@ extension DataController {
         }
         
         await self.save()
+        
+    }
+    
+    func removeDuplicateCategories() async {
+        let request = NSFetchRequest<Category>(entityName: "Category")
+        
+        await context.perform {
+            do {
+                let categories = try self.context.fetch(request)
+                
+                // Create a dictionary to track unique category names
+                var uniqueCategories: [String: Category] = [:]
+                var duplicatesToDelete: [Category] = []
+                
+                // Identify duplicates - keeping the first occurrence of each name
+                for category in categories {
+                    let name = category.categoryName
+                    
+                    if uniqueCategories[name] == nil {
+                        // Keep the first instance
+                        uniqueCategories[name] = category
+                    } else {
+                        // Mark subsequent instances for deletion
+                        duplicatesToDelete.append(category)
+                    }
+                }
+                
+                // Log the duplicates found
+                self.logger.info("Found \(duplicatesToDelete.count) duplicate categories to remove")
+                
+                // Delete the duplicates
+                for duplicate in duplicatesToDelete {
+                    self.logger.debug("Removing duplicate category: \(duplicate.categoryName)")
+                    self.context.delete(duplicate)
+                }
+                
+                // Save if there were duplicates removed
+                if !duplicatesToDelete.isEmpty {
+                    try self.context.save()
+                    self.logger.info("Successfully removed duplicate categories")
+                }
+                
+            } catch {
+                self.logger.error("Error removing duplicate categories: \(error)")
+            }
+        }
     }
     
     func updatePoints(newPoints: Int) async {

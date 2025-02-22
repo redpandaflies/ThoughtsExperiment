@@ -11,7 +11,7 @@ struct TopicsListContent: View {
     @ObservedObject var topicViewModel: TopicViewModel
     
     let topics: [Topic]
-    var onTopicTap: (Topic) -> Void
+    var onTopicTap: (Int, Topic) -> Void
     var showAddButton: Bool
     var onAddButtonTap: (() -> Void)? = nil
     let frameWidth: CGFloat
@@ -23,7 +23,7 @@ struct TopicsListContent: View {
         HStack (alignment: .center, spacing: 20) {
             ForEach(Array(topics.enumerated()), id: \.element.topicId) { index, topic in
                 TopicBox(topicViewModel: topicViewModel, topic: topic, buttonAction: {
-                    onTopicTap(topic)
+                    onTopicTap(index, topic)
                 })
                     .frame(width: frameWidth)
                     .scrollTransition { content, phase in
@@ -33,7 +33,7 @@ struct TopicsListContent: View {
                     }
                     .id(index)
                     .onTapGesture {
-                        onTopicTap(topic)
+                        onTopicTap(index, topic)
                     }
             }
             

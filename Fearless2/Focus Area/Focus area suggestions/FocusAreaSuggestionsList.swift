@@ -20,6 +20,7 @@ struct FocusAreaSuggestionsList: View {
     
     let suggestions: [any SuggestionProtocol]
     private let screenWidth = UIScreen.current.bounds.width
+    let suggestionBoxWidth:CGFloat = 190
     
     let action: () -> Void
     let topic: Topic?
@@ -27,7 +28,7 @@ struct FocusAreaSuggestionsList: View {
     
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack (alignment: .top, spacing: 15) {
+            HStack (alignment: .top, spacing: 10) {
                 switch selectedTabSuggestionsList {
                 case 0:
                     LoadingPlaceholderContent(contentType: .suggestions)
@@ -37,7 +38,7 @@ struct FocusAreaSuggestionsList: View {
                     FocusAreaRetryView(action: {
                         retryCreateSuggestions()
                     })
-                    .frame(width: 190)
+                    .frame(width: suggestionBoxWidth)
                 }
                
             }//Hstack
@@ -46,7 +47,7 @@ struct FocusAreaSuggestionsList: View {
         }//Scrollview
         .scrollClipDisabled(true)
         .scrollTargetBehavior(.viewAligned)
-        .contentMargins(.horizontal, (screenWidth - 190)/2, for: .scrollContent)
+        .contentMargins(.horizontal, (screenWidth - suggestionBoxWidth)/2, for: .scrollContent)
         .onAppear {
             switch useCase {
             case .newTopic:
@@ -66,7 +67,7 @@ struct FocusAreaSuggestionsList: View {
             FocusAreaSuggestionBox(suggestion: suggestion, action: {
                 createFocusArea(suggestion: suggestion, topic: topic)
             })
-            .frame(width: 190)
+            .frame(width: suggestionBoxWidth)
             .onTapGesture {
                 createFocusArea(suggestion: suggestion, topic: topic)
             }
@@ -162,7 +163,7 @@ struct FocusAreaSuggestionBox: View {
                 .stroke(Color.white.opacity(0.1), lineWidth: 0.5)
                 .fill(AppColors.boxGrey1.opacity(0.3))
                 .shadow(color: .black.opacity(0.05), radius: 15, x: 0, y: 3)
-                .blendMode(.softLight)
+                .blendMode(.colorDodge)
         }
         
     }

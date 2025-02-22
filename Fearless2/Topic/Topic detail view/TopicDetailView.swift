@@ -26,14 +26,16 @@ struct TopicDetailView: View {
     
     let topic: Topic
     @ObservedObject var points: Points
+    let focusAreasLimit: Int
     let screenWidth = UIScreen.current.bounds.width
     
-    init(topicViewModel: TopicViewModel, transcriptionViewModel: TranscriptionViewModel, selectedTabTopic: Binding<TopicPickerItem>, topic: Topic, points: Points) {
+    init(topicViewModel: TopicViewModel, transcriptionViewModel: TranscriptionViewModel, selectedTabTopic: Binding<TopicPickerItem>, topic: Topic, points: Points, focusAreasLimit: Int) {
         self.topicViewModel = topicViewModel
         self.transcriptionViewModel = transcriptionViewModel
         self._selectedTabTopic = selectedTabTopic
         self.topic = topic
         self.points = points
+        self.focusAreasLimit = focusAreasLimit
         
     }
     
@@ -61,7 +63,7 @@ struct TopicDetailView: View {
                 
                 
                 VStack {
-                    TopicDetailViewHeader(title: topic.topicTitle, progress: topic.topicFocusAreas.count)
+                    TopicDetailViewHeader(title: topic.topicTitle, progress: topic.topicFocusAreas.count, totalFocusAreas: focusAreasLimit)
                         .background {
                             GeometryReader { geo in
                                 Color.clear
@@ -89,9 +91,7 @@ struct TopicDetailView: View {
                 withAnimation(.snappy(duration: 0.2)) {
                     selectedTabTopic = .paths
                 }
-                Task {
-                    await dataController.addEndOfTopicFocusArea(topic: topic)
-                }
+               
             }
             .fullScreenCover(item: $selectedSection, onDismiss: {
                 selectedSection = nil
@@ -106,7 +106,7 @@ struct TopicDetailView: View {
             .fullScreenCover(isPresented: $showFocusAreaRecapView, onDismiss: {
                 showFocusAreaRecapView = false
             }) {
-                FocusAreaRecapView(topicViewModel: topicViewModel, focusArea: $selectedFocusArea, focusAreaScrollPosition: $focusAreaScrollPosition, totalFocusAreas: topic.topicFocusAreas.count)
+                FocusAreaRecapView(topicViewModel: topicViewModel, focusArea: $selectedFocusArea, focusAreaScrollPosition: $focusAreaScrollPosition, totalFocusAreas: topic.topicFocusAreas.count, focusAreasLimit: focusAreasLimit)
                     .presentationCornerRadius(20)
                     .presentationBackground(AppColors.black4)
             }

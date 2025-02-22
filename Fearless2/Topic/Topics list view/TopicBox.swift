@@ -34,6 +34,7 @@ struct TopicBox: View {
             Divider()
                 .overlay(AppColors.dividerPrimary.opacity(0.4))
                 .shadow(color: AppColors.dividerShadow.opacity(0.05), radius: 0, x: 0, y: 1)
+                .blendMode(.overlay)
                 .padding(.vertical, 20)
             
             Text("Path \(totalFocusAreas)")
@@ -60,10 +61,9 @@ struct TopicBox: View {
         .background {
             RoundedRectangle(cornerRadius: 25)
                 .stroke(Color.white.opacity(0.1), lineWidth: 0.5)
-                .fill(AppColors.backgroundPrimary.opacity(0.3))
+                .fill(AppColors.boxGrey1.opacity(0.3))
                 .shadow(color: Color.black.opacity(0.05), radius: 15, x: 0, y: 3)
-                .blendMode(.softLight)
-                
+                .blendMode(.colorDodge)
         }
 
     }

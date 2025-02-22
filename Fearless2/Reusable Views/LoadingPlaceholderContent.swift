@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Pow
 
 enum PlaceholderContent {
     case focusArea
@@ -41,13 +42,12 @@ struct LoadingPlaceholderContent: View {
                 .opacity(0.4)
                 .textCase(.uppercase)
             
-        }
+        }//VStack
         .frame(width: 150, height: 180)
         .background {
             RoundedRectangle(cornerRadius: 20)
                 .stroke(Color.white.opacity(0.2), lineWidth: 0.5)
-                .fill(Color.white.opacity(0.02))
-                .blendMode(.softLight)
+                .fill(Color.white.opacity(0.2))
         }
         .animation(.default, value: animationEffect)
         .changeEffect (

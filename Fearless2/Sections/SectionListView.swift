@@ -163,14 +163,14 @@ struct SectionListView: View {
         if let index = firstIncompleteSectionIndex {
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                withAnimation(.smooth) {
+                withAnimation(.smooth(duration: 0.2)) {
                     sectionsScrollPosition = index
                 }
             }
             
         } else {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                withAnimation(.smooth) {
+                withAnimation(.smooth(duration: 0.2)) {
                     sectionsScrollPosition = sections.count
                 }
             }

@@ -19,6 +19,7 @@ struct TopicSuggestionsList: View {
     @Binding var selectedTopic: Topic?
     @Binding var navigateToTopicDetailView: Bool
     @Binding var currentTabBar: TabBarType
+    @Binding var focusAreasLimit: Int
     
     let category: Category
     
@@ -128,9 +129,16 @@ struct TopicSuggestionsList: View {
     }
     
     private func startNewTopic() {
+        //close sheet
         dismiss()
+        
+        //set focus areas limit for new topic
+        focusAreasLimit = FocusAreasLimitCalculator.calculatePaths(topicIndex: 0, totalTopics: category.categoryTopics.count)
+        
+        //navigate to new topic
         selectedTopic = dataController.newTopic
         dataController.newTopic = nil
+        
         navigateToTopicDetailView = true
         withAnimation(.snappy(duration: 0.2)) {
             currentTabBar = .topic

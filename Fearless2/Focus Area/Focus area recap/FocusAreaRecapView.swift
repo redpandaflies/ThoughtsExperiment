@@ -23,6 +23,7 @@ struct FocusAreaRecapView: View {
     @Binding var focusAreaScrollPosition: Int?
     
     let totalFocusAreas: Int
+    let focusAreasLimit: Int
     
     var lastFocusArea: Bool {
         return focusAreaScrollPosition == totalFocusAreas - 1
@@ -69,6 +70,7 @@ struct FocusAreaRecapView: View {
                             action: {
                                 buttonAction()
                             },
+                            disableMainButton: disableButton(),
                             buttonColor: .white
                         )
                         .padding(.bottom, 10)
@@ -165,7 +167,9 @@ struct FocusAreaRecapView: View {
             )
             
         default:
-            FocusAreaRetryView(action: generateNewRecap)
+            FocusAreaRetryView(action: {
+                generateNewRecap(isRetry: true)
+            })
         }
     }
     
@@ -185,8 +189,8 @@ struct FocusAreaRecapView: View {
                 return "Next: A small reflection"
                 
             case 1:
-                if showSuggestions {
-                    return "Next: Choose next path"
+                if showSuggestions && (totalFocusAreas < focusAreasLimit) {
+                    return topicViewModel.createFocusAreaSummary == .loading ? "Loading..." : "Next: Choose next path"
                 } else {
                     return "End recap review"
                 }
@@ -203,19 +207,36 @@ struct FocusAreaRecapView: View {
             updatePoints()
             
         case 1:
-            if showSuggestions {
+            if showSuggestions && (totalFocusAreas < focusAreasLimit){
                 selectedTab += 1
             } else {
-                dismiss()
+                createEndOfTopicFocsAreaIfNeeded()
             }
             
         case 2:
             break
             
         default:
-            generateNewRecap()
+            generateNewRecap(isRetry: true)
             
         }
+    }
+    
+    private func disableButton() -> Bool {
+        switch selectedTab {
+       
+       
+        case 1:
+            if topicViewModel.createFocusAreaSummary == .loading {
+                return true
+            } else {
+                return false
+            }
+        default:
+            return false
+            
+        }
+        
     }
     
     //create or show focus area summary
@@ -225,13 +246,13 @@ struct FocusAreaRecapView: View {
             
             print("This is the last focus area: \(lastFocusArea)")
             
-            if lastFocusArea && (topic.topicStatus != TopicStatusItem.archived.rawValue) {
+            if lastFocusArea && (topic.topicStatus != TopicStatusItem.archived.rawValue) && (totalFocusAreas < focusAreasLimit){
                 showSuggestions = true
             }
             
         } else {
             
-            generateNewRecap()
+            generateNewRecap(isRetry: false)
         }
     }
     
@@ -261,8 +282,8 @@ struct FocusAreaRecapView: View {
         .frame(width: screenWidth, height: height)
     }
     
-    private func generateNewRecap() {
-        selectedTab = 0
+    private func generateNewRecap(isRetry: Bool) {
+        selectedTab = isRetry ? 1 : 0
         showSuggestions = true
         
         let topicId = focusArea?.topic?.topicId
@@ -276,14 +297,15 @@ struct FocusAreaRecapView: View {
                 }
             }
             
-            do {
-                try await topicViewModel.manageRun(selectedAssistant: .focusAreaSuggestions, topicId: topicId)
-            } catch {
-                await MainActor.run {
-                    topicViewModel.createFocusAreaSuggestions = .retry
+            if totalFocusAreas < focusAreasLimit {
+                do {
+                    try await topicViewModel.manageRun(selectedAssistant: .focusAreaSuggestions, topicId: topicId)
+                } catch {
+                    await MainActor.run {
+                        topicViewModel.createFocusAreaSuggestions = .retry
+                    }
                 }
             }
-
             DispatchQueue.global(qos: .background).async {
                 Mixpanel.mainInstance().track(event: "Generated recap")
             }
@@ -294,6 +316,18 @@ struct FocusAreaRecapView: View {
         selectedTab += 1
         Task {
             await dataController.updatePoints(newPoints: 1)
+        }
+    }
+    
+    private func createEndOfTopicFocsAreaIfNeeded() {
+        dismiss()
+        
+        if totalFocusAreas == focusAreasLimit {
+            Task {
+                if let topic = focusArea?.topic {
+                    await dataController.addEndOfTopicFocusArea(topic: topic)
+                }
+            }
         }
     }
 }
@@ -313,14 +347,14 @@ struct FocusAreaRecapReflectionView: View {
             if recapReady {
                 Text(feedback)
                     .font(.system(size: 19, design: .serif))
-                    .foregroundStyle(AppColors.textPrimary)
-                    .lineSpacing(1.3)
+                    .foregroundStyle(AppColors.textPrimary.opacity(0.9))
+                    .lineSpacing(1.5)
                 
             } else {
                 HStack {
                     Image(systemName: "ellipsis")
                         .font(.system(size: 25, weight: .regular))
-                        .foregroundStyle(AppColors.textPrimary)
+                        .foregroundStyle(AppColors.textPrimary.opacity(0.9))
                         .symbolEffect(.wiggle.byLayer, options: animationValue ? .repeating : .nonRepeating, value: animationValue)
                     
                     Spacer()

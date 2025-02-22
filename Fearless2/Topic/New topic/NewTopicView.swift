@@ -26,11 +26,12 @@ struct NewTopicView: View {
     @Binding var selectedTopic: Topic?
     @Binding var navigateToTopicDetailView: Bool
     @Binding var currentTabBar: TabBarType
+    @Binding var focusAreasLimit: Int
     
     let category: Category
     
     let logger = Logger.openAIEvents
-    
+    let screenHeight = UIScreen.current.bounds.height
     
     var body: some View {
         VStack {
@@ -40,16 +41,21 @@ struct NewTopicView: View {
             })
             .padding(.horizontal)
            
-            TopicSuggestionsList(topicViewModel: topicViewModel, selectedTopic: $selectedTopic, navigateToTopicDetailView: $navigateToTopicDetailView, currentTabBar: $currentTabBar, category: category)
+            TopicSuggestionsList(topicViewModel: topicViewModel, selectedTopic: $selectedTopic, navigateToTopicDetailView: $navigateToTopicDetailView, currentTabBar: $currentTabBar, focusAreasLimit: $focusAreasLimit, category: category)
             
                         
         }
         .background {
-            AppColors.boxGrey1.opacity(0.3)
+            AppColors.boxGrey2.opacity(0.95)
                 .blendMode(.colorDodge)
+                .background {
+                    AppBackground(backgroundColor: Realm.getBackgroundColor(forName: category.categoryName))
+                        .frame(height: screenHeight * 0.6)
+                        .offset(y: -(screenHeight * 0.4))
+                }
                 .ignoresSafeArea()
         }
-        .environment(\.colorScheme, .light)
+
         
     }
     

@@ -10,6 +10,7 @@ import SwiftUI
 struct AppBackground: View {
     let backgroundColor: Color
     
+    
     var body: some View {
         
         GeometryReader { geo in

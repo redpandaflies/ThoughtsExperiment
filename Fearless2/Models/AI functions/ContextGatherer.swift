@@ -38,11 +38,25 @@ struct ContextGatherer {
                loggerCoreData.error("Failed to fetch topic with ID: \(topicId.uuidString)")
                return nil
         }
-
+        
+        guard let category = topic.category else {
+            loggerCoreData.error("Failed to get related cateogry")
+            return nil
+        }
+        
+        //get topic focus area limit
+        var topicFocusAreaLimit: Int = 3
+        let categoryTopics = category.categoryTopics.sorted { $0.topicCreatedAt > $1.topicCreatedAt }
+        if let topicIndex = categoryTopics.firstIndex(where: { $0.id == topic.topicId }) {
+            loggerCoreData.log("Found topic at index: \(topicIndex)")
+            topicFocusAreaLimit = FocusAreasLimitCalculator.calculatePaths(topicIndex: topicIndex, totalTopics: categoryTopics.count)
+        } else {
+            loggerCoreData.error("Topic not found in the list of category topics")
+        }
         
         context += """
         - topic title: \(topic.topicTitle)
-        - topic is related to this area of the user's life: \(topic.category?.categoryLifeArea ?? "")\n\n
+        - topic is related to this area of the user's life: \(category.categoryLifeArea)\n\n
         """
         
         //get user's response to "What would resolve this topic?"
@@ -66,7 +80,9 @@ struct ContextGatherer {
             
         }
         
-        context += "The level of this topic is \(totalFocusAreas).\n\n"
+       
+  
+        context += "The level of this topic is \(totalFocusAreas + 1). The topic will have no more than \(topicFocusAreaLimit) focus areas. Please keep this in mind as you create new focus areas. \n\n"
         
         if totalFocusAreas > 0 {
             context += "Here are all the paths for this topic: \n\n"

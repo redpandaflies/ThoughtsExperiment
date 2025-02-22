@@ -18,17 +18,19 @@ struct TopicsListView: View {
     @ObservedObject var transcriptionViewModel: TranscriptionViewModel
     
     @State private var showSectionRecapView: Bool = false
-    
-    @State private var selectedSection: Section? = nil
     @State private var showCreateNewTopicView: Bool = false
+    @State private var selectedSection: Section? = nil
+   
 //    @State private var topicsList: TopicsList = .active
     @State private var topicScrollPosition: Int?
+    @State private var focusAreasLimit: Int = 3
     
     @Binding var selectedTopic: Topic?
     @Binding var currentTabBar: TabBarType
     @Binding var selectedTabTopic: TopicPickerItem
     @Binding var navigateToTopicDetailView: Bool
     @Binding var categoriesScrollPosition: Int?
+    
     
     @ObservedObject var category: Category
     @ObservedObject var points: Points
@@ -47,7 +49,7 @@ struct TopicsListView: View {
 //                switch topicsList {
 //                case .active:
                     ActiveTopicsView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, showCreateNewTopicView: $showCreateNewTopicView, selectedTopic: $selectedTopic, currentTabBar: $currentTabBar, selectedTabTopic: $selectedTabTopic, navigateToTopicDetailView: $navigateToTopicDetailView,
-                        topicScrollPosition: $topicScrollPosition, categoriesScrollPosition: $categoriesScrollPosition,
+                                     topicScrollPosition: $topicScrollPosition, categoriesScrollPosition: $categoriesScrollPosition, focusAreasLimit: $focusAreasLimit,
                         topics: topics,
                         points: points
                     )
@@ -63,8 +65,7 @@ struct TopicsListView: View {
             .sheet(isPresented: $showCreateNewTopicView, onDismiss: {
                 showCreateNewTopicView = false
             }) {
-                NewTopicView(topicViewModel: topicViewModel, selectedTopic: $selectedTopic, navigateToTopicDetailView: $navigateToTopicDetailView, currentTabBar: $currentTabBar, category: category)
-                    .presentationBackground(.thinMaterial)
+                NewTopicView(topicViewModel: topicViewModel, selectedTopic: $selectedTopic, navigateToTopicDetailView: $navigateToTopicDetailView, currentTabBar: $currentTabBar, focusAreasLimit: $focusAreasLimit, category: category)
                     .presentationDetents([.fraction(0.6)])
                     .presentationCornerRadius(30)
                 

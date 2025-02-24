@@ -19,7 +19,7 @@ struct ActiveTopicsView: View {
     @Binding var categoriesScrollPosition: Int?
     @Binding var focusAreasLimit: Int
     
-    let topics: [Topic]
+    let topics: FetchedResults<Topic>
     
     @ObservedObject var points: Points
    

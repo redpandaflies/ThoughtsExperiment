@@ -138,6 +138,8 @@ struct UpdateSectionCompleteView: View {
     
     private func startAnimating() {
         
+        print("Sections complete: \(sectionsComplete)")
+        
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
             withAnimation(.snappy(duration: 0.5)) {
                 let currentIndex = sectionsComplete - 1

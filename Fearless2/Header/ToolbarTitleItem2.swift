@@ -26,7 +26,6 @@ struct ToolbarTitleItem2: View {
                 .font(.system(size: 19, weight: .light).smallCaps())
                 .fontWidth(.condensed)
                 .foregroundStyle(AppColors.textPrimary.opacity(0.7))
-                .textCase(.uppercase)
             
             Spacer()
         }

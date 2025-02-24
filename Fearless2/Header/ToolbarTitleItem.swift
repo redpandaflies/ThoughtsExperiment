@@ -20,9 +20,9 @@ struct ToolbarTitleItem: View {
     var body: some View {
         
         Text(title)
-            .font(.system(size: largerFont == true ? 35 : 17, design: .serif))
+            .font(.system(size: largerFont == true ? 35 : 19, design: .serif).smallCaps())
             .foregroundStyle(AppColors.textPrimary)
-            .textCase(.uppercase)
+            .tracking(0.3)
        
     }
 }

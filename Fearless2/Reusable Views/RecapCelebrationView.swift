@@ -12,13 +12,14 @@ struct RecapCelebrationView: View {
     
     let title: String
     let text: String
+    let points: String
     
     var body: some View {
 
         VStack {
             Spacer()
             
-            LaurelItem(size: 50, points: "+1")
+            LaurelItem(size: 50, points: points)
                 .padding(.bottom, 20)
             
             Text(text)

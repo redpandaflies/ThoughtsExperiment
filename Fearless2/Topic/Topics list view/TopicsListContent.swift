@@ -10,7 +10,7 @@ import SwiftUI
 struct TopicsListContent: View {
     @ObservedObject var topicViewModel: TopicViewModel
     
-    let topics: [Topic]
+    let topics: FetchedResults<Topic>
     var onTopicTap: (Int, Topic) -> Void
     var showAddButton: Bool
     var onAddButtonTap: (() -> Void)? = nil
@@ -25,7 +25,7 @@ struct TopicsListContent: View {
                 TopicBox(topicViewModel: topicViewModel, topic: topic, buttonAction: {
                     onTopicTap(index, topic)
                 })
-                    .frame(width: frameWidth)
+                    .frame(width: frameWidth, height: 300)
                     .scrollTransition { content, phase in
                         content
                             .opacity(phase.isIdentity ? 1 : 0.5)
@@ -38,7 +38,11 @@ struct TopicsListContent: View {
             }
             
             if showAddButton, let onAddButtonTap = onAddButtonTap {
-                AddTopicButton(frameWidth: frameWidth)
+                AddTopicButton(frameWidth: frameWidth,
+                               noTopics: topics.count == 0,
+                               buttonAction: {
+                                    onAddButtonTap()
+                                })
                     .scrollTransition { content, phase in
                         content
                             .opacity(phase.isIdentity ? 1 : 0.5)

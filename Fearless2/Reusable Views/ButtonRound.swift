@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct NextButtonRound: View {
+struct ButtonRound: View {
     let buttonAction: () -> Void
     
     var body: some View {

@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>OPENAI_ASSISTANT_ID_ENTRY</key>
 	<string>$(OPENAI_ASSISTANT_ID_ENTRY)</string>
 	<key>OPENAI_ASSISTANT_ID_FOCUS_AREA</key>
@@ -14,10 +16,12 @@
 	<string>$(OPENAI_ASSISTANT_ID_SECTION_SUMMARY)</string>
 	<key>OPENAI_ASSISTANT_ID_TOPIC</key>
 	<string>$(OPENAI_ASSISTANT_ID_TOPIC)</string>
-	<key>OPENAI_ASSISTANT_ID_UNDERSTAND</key>
-	<string>$(OPENAI_ASSISTANT_ID_UNDERSTAND)</string>
 	<key>OPENAI_ASSISTANT_ID_TOPIC_OVERVIEW</key>
 	<string>$(OPENAI_ASSISTANT_ID_TOPIC_OVERVIEW)</string>
+	<key>OPENAI_ASSISTANT_ID_TOPIC_SUGGESTIONS</key>
+	<string>$(OPENAI_ASSISTANT_ID_TOPIC_SUGGESTIONS)</string>
+	<key>OPENAI_ASSISTANT_ID_UNDERSTAND</key>
+	<string>$(OPENAI_ASSISTANT_ID_UNDERSTAND)</string>
 	<key>OPENAI_PARTIAL_KEY</key>
 	<string>$(OPENAI_PARTIAL_KEY)</string>
 	<key>STABILITY_PARTIAL_KEY</key>
@@ -27,9 +31,5 @@
 		<string>fetch</string>
 		<string>remote-notification</string>
 	</array>
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
-	<key>OPENAI_ASSISTANT_ID_TOPIC_SUGGESTIONS</key>
-	<string>$(OPENAI_ASSISTANT_ID_TOPIC_SUGGESTIONS)</string>
 </dict>
 </plist>

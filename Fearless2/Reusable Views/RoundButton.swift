@@ -1,5 +1,5 @@
 //
-//  SelectButtonRound.swift
+//  RoundButton.swift
 //  Fearless2
 //
 //  Created by Yue Deng-Wu on 2/12/25.
@@ -7,8 +7,17 @@
 
 import SwiftUI
 
-struct SelectButtonRound: View {
+struct RoundButton: View {
+    
+    let buttonImage: String
+    let size: CGFloat
     let buttonAction: () -> Void
+    
+    init(buttonImage: String, size: CGFloat = 15, buttonAction: @escaping () -> Void) {
+        self.buttonImage = buttonImage
+        self.size = size
+        self.buttonAction = buttonAction
+    }
     
     var body: some View {
         
@@ -16,10 +25,10 @@ struct SelectButtonRound: View {
             buttonAction()
             
         } label: {
-            Image(systemName: "checkmark")
-                .font(.system(size: 15, weight: .medium))
+            Image(systemName: buttonImage)
+                .font(.system(size: 19, weight: .medium))
                 .foregroundColor(Color.black)
-                .padding(15)
+                .frame(width: 50, height: 50)
                 .background {
                     Circle()
                         .stroke(Color.white.opacity(0.9))

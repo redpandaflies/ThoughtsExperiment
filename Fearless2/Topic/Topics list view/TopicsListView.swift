@@ -35,12 +35,40 @@ struct TopicsListView: View {
     @ObservedObject var category: Category
     @ObservedObject var points: Points
     
-    var topics: [Topic] {
-        return category.categoryTopics.sorted { $0.topicCreatedAt > $1.topicCreatedAt }
-    }
+    @FetchRequest var topics: FetchedResults<Topic>
+   
     
     var pageCount: Int {
         return topics.count + 1
+    }
+    
+    init(topicViewModel: TopicViewModel,
+         transcriptionViewModel: TranscriptionViewModel,
+         selectedTopic: Binding<Topic?>,
+         currentTabBar: Binding<TabBarType>,
+         selectedTabTopic: Binding<TopicPickerItem>,
+         navigateToTopicDetailView: Binding<Bool>,
+         categoriesScrollPosition: Binding<Int?>,
+         category: Category,
+         points: Points) {
+        
+        self.topicViewModel = topicViewModel
+        self.transcriptionViewModel = transcriptionViewModel
+        self._selectedTopic = selectedTopic
+        self._currentTabBar = currentTabBar
+        self._selectedTabTopic = selectedTabTopic
+        self._navigateToTopicDetailView = navigateToTopicDetailView
+        self._categoriesScrollPosition = categoriesScrollPosition
+        self.category = category
+        self.points = points
+        
+        let request: NSFetchRequest<Topic> = Topic.fetchRequest()
+        request.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: false)]
+        request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+            NSPredicate(format: "status == %@", TopicStatusItem.active.rawValue),
+            NSPredicate(format: "category == %@", category)
+        ])
+        self._topics = FetchRequest(fetchRequest: request)
     }
     
     var body: some View {
@@ -66,7 +94,7 @@ struct TopicsListView: View {
                 showCreateNewTopicView = false
             }) {
                 NewTopicView(topicViewModel: topicViewModel, selectedTopic: $selectedTopic, navigateToTopicDetailView: $navigateToTopicDetailView, currentTabBar: $currentTabBar, focusAreasLimit: $focusAreasLimit, category: category)
-                    .presentationDetents([.fraction(0.6)])
+                    .presentationDetents([.fraction(0.65)])
                     .presentationCornerRadius(30)
                 
             }

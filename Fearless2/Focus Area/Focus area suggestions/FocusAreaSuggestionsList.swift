@@ -20,7 +20,7 @@ struct FocusAreaSuggestionsList: View {
     
     let suggestions: [any SuggestionProtocol]
     private let screenWidth = UIScreen.current.bounds.width
-    let suggestionBoxWidth:CGFloat = 190
+    let suggestionBoxWidth:CGFloat = 220
     
     let action: () -> Void
     let topic: Topic?
@@ -64,10 +64,10 @@ struct FocusAreaSuggestionsList: View {
     
     private func suggestionsList() -> some View {
         ForEach(suggestions, id: \.title) { suggestion in
-            FocusAreaSuggestionBox(suggestion: suggestion, action: {
+            FocusAreaSuggestionBox(suggestion: suggestion, suggestionBoxWidth: suggestionBoxWidth, action: {
                 createFocusArea(suggestion: suggestion, topic: topic)
             })
-            .frame(width: suggestionBoxWidth)
+          
             .onTapGesture {
                 createFocusArea(suggestion: suggestion, topic: topic)
             }
@@ -131,6 +131,7 @@ struct FocusAreaSuggestionsList: View {
 struct FocusAreaSuggestionBox: View {
    
     let suggestion: any SuggestionProtocol
+    let suggestionBoxWidth: CGFloat
     let action: () -> Void
     
     var body: some View {
@@ -150,14 +151,16 @@ struct FocusAreaSuggestionBox: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.bottom, 20)
             
-            SelectButtonRound(buttonAction: {
+            Spacer()
+            
+            RoundButton(buttonImage: "checkmark", buttonAction: {
                 action()
             })
+           
         }
-        .padding(.horizontal)
-        .padding(.top, 30)
-        .padding(.bottom, 25)
+        .padding()
         .contentShape(Rectangle())
+        .frame(width: suggestionBoxWidth, height: 250)
         .background {
             RoundedRectangle(cornerRadius: 20)
                 .stroke(Color.white.opacity(0.1), lineWidth: 0.5)

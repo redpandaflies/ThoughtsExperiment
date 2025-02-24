@@ -22,30 +22,31 @@ struct TopicSuggestionsList: View {
     @Binding var focusAreasLimit: Int
     
     let category: Category
+    let frameWidth: CGFloat = 260
     
     var body: some View {
         VStack {
             
-            Text("Choose your next topic")
+            Text("Choose your next quest")
                 .multilineTextAlignment(.leading)
-                .font(.system(size: 21, design: .serif))
+                .font(.system(size: 21, weight: .light))
                 .foregroundStyle(AppColors.textPrimary)
                 .padding(.bottom, 20)
                 .padding(.horizontal)
             
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack (alignment: .center, spacing: 15) {
+                HStack (alignment: .center, spacing: 10) {
                     switch selectedTabSuggestionsList {
                     case 0:
                         LoadingPlaceholderContent(contentType: .suggestions)
-                            .frame(width: 260)
+                            .frame(width: frameWidth)
                     case 1:
                         suggestionsList()
                     default:
                         FocusAreaRetryView(action: {
                             retryTopicSuggestions()
                         })
-                        .frame(width: 260)
+                        .frame(width: frameWidth)
                     }
                     
                 }//Hstack
@@ -54,7 +55,7 @@ struct TopicSuggestionsList: View {
             }//Scrollview
             .scrollClipDisabled(true)
             .scrollTargetBehavior(.viewAligned)
-            .contentMargins(.horizontal, (screenWidth - 260)/2, for: .scrollContent)
+            .contentMargins(.horizontal, (screenWidth - frameWidth)/2, for: .scrollContent)
             
             Spacer()
         }//VStack
@@ -72,10 +73,9 @@ struct TopicSuggestionsList: View {
     private func suggestionsList() -> some View {
         ForEach(topicViewModel.topicSuggestions, id: \.self) { suggestion in
             
-            TopicSuggestionBox(suggestion: suggestion, action: {
+            TopicSuggestionBox(suggestion: suggestion, frameWidth: frameWidth, action: {
                 selectTopic(suggestion: suggestion)
             })
-            .frame(width: 260)
             .onTapGesture {
                 selectTopic(suggestion: suggestion)
             }
@@ -173,16 +173,20 @@ struct TopicSuggestionsList: View {
 struct TopicSuggestionBox: View {
    
     let suggestion: NewTopicSuggestion
+    let frameWidth: CGFloat
     let action: () -> Void
     
     var body: some View {
-        VStack (spacing: 10) {
+        VStack (spacing: 20) {
 
             Text(suggestion.content)
                 .multilineTextAlignment(.center)
                 .font(.system(size: 21, design: .serif))
                 .foregroundStyle(AppColors.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
+                .lineSpacing(1.3)
+                .padding(.top, 30)
+                .padding(.horizontal)
 
             
             Text(suggestion.reasoning)
@@ -191,14 +195,16 @@ struct TopicSuggestionBox: View {
                 .foregroundStyle(AppColors.textPrimary.opacity(0.8))
                 .lineSpacing(1.4)
                 .fixedSize(horizontal: false, vertical: true)
-                .padding(.bottom, 30)
+                .padding(.horizontal, 25)
             
-            SelectButtonRound(buttonAction: {
+            Spacer()
+            
+            RoundButton(buttonImage: "checkmark", buttonAction: {
                 action()
             })
+            .padding(.bottom, 30)
         }
-        .padding()
-        .padding(.top, 10)
+        .frame(width: frameWidth, height: 300)
         .contentShape(Rectangle())
         .background {
             RoundedRectangle(cornerRadius: 25)

@@ -46,9 +46,15 @@ struct CategoryView: View {
                 }
                 
                 // MARK: - To do
-                CategoryMissionBox()
+//                CategoryMissionBox()
+//                    .padding(.horizontal)
+//                    .padding(.bottom, 25)
+                
+                // MARK: - Quest header
+                CategoryQuestsHeading()
                     .padding(.horizontal)
                     .padding(.bottom, 25)
+                    .padding(.top, 20)
                 
                 // MARK: - Topics list
                 if let scrollPosition = categoriesScrollPosition, let currentPoints = points.first {

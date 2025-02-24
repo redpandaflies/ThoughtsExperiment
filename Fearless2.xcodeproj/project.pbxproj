@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		8A1DCD272CB1C44D00580DE6 /* QuestionScaleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A1DCD262CB1C44A00580DE6 /* QuestionScaleView.swift */; };
 		8A21B2C82D5EC4F4004AD75E /* AppBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A21B2C72D5EC4F4004AD75E /* AppBackground.swift */; };
-		8A21B2CA2D5F17CF004AD75E /* SelectButtonRound.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A21B2C92D5F17CF004AD75E /* SelectButtonRound.swift */; };
 		8A21B2CC2D5FF33D004AD75E /* ToolbarTitleItem2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A21B2CB2D5FF33D004AD75E /* ToolbarTitleItem2.swift */; };
 		8A26DFC82CED43DD002C4F60 /* InsightsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A26DFC72CED43D1002C4F60 /* InsightsListView.swift */; };
 		8A26DFCA2CED4575002C4F60 /* InsightBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A26DFC92CED456A002C4F60 /* InsightBoxView.swift */; };
@@ -35,6 +34,7 @@
 		8A2C370F2D2C5B5F00C37315 /* loadingAnimation.json in Resources */ = {isa = PBXBuildFile; fileRef = 8A2C370E2D2C5B5F00C37315 /* loadingAnimation.json */; };
 		8A2C37112D2D36BC00C37315 /* WhyBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A2C37102D2D36BC00C37315 /* WhyBox.swift */; };
 		8A2C37132D2FF05900C37315 /* LoadingPlaceholderContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A2C37122D2FF05900C37315 /* LoadingPlaceholderContent.swift */; };
+		8A4B27492D6A9B6900FEAC44 /* CategoryQuestsHeading.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4B27482D6A9B6900FEAC44 /* CategoryQuestsHeading.swift */; };
 		8A5881B32D3456E60019C785 /* Mixpanel in Frameworks */ = {isa = PBXBuildFile; productRef = 8A5881B22D3456E60019C785 /* Mixpanel */; };
 		8A6332492CD8257A00EF34FA /* FocusArea-CoreDataHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A6332482CD8257A00EF34FA /* FocusArea-CoreDataHelpers.swift */; };
 		8A63324C2CD8415600EF34FA /* FocusAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A63324B2CD8415600EF34FA /* FocusAreaView.swift */; };
@@ -149,13 +149,12 @@
 		8ACE0DE02CD1E48500718B9E /* SliderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ACE0DDF2CD1E48500718B9E /* SliderView.swift */; };
 		8ACE0DE52CD2B58F00718B9E /* FocusAreaRecapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ACE0DE42CD2B58F00718B9E /* FocusAreaRecapView.swift */; };
 		8AEFB6E62CF6F60B00942293 /* SuggestionProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AEFB6E52CF6F5E100942293 /* SuggestionProtocol.swift */; };
-		8AFCCCD62D5D4BFC0079732C /* NextButtonRound.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AFCCCD52D5D4BFC0079732C /* NextButtonRound.swift */; };
+		8AFCCCD62D5D4BFC0079732C /* RoundButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AFCCCD52D5D4BFC0079732C /* RoundButton.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		8A1DCD262CB1C44A00580DE6 /* QuestionScaleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionScaleView.swift; sourceTree = "<group>"; };
 		8A21B2C72D5EC4F4004AD75E /* AppBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppBackground.swift; sourceTree = "<group>"; };
-		8A21B2C92D5F17CF004AD75E /* SelectButtonRound.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectButtonRound.swift; sourceTree = "<group>"; };
 		8A21B2CB2D5FF33D004AD75E /* ToolbarTitleItem2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolbarTitleItem2.swift; sourceTree = "<group>"; };
 		8A26DFC72CED43D1002C4F60 /* InsightsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsListView.swift; sourceTree = "<group>"; };
 		8A26DFC92CED456A002C4F60 /* InsightBoxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightBoxView.swift; sourceTree = "<group>"; };
@@ -181,6 +180,7 @@
 		8A2C370E2D2C5B5F00C37315 /* loadingAnimation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = loadingAnimation.json; sourceTree = "<group>"; };
 		8A2C37102D2D36BC00C37315 /* WhyBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhyBox.swift; sourceTree = "<group>"; };
 		8A2C37122D2FF05900C37315 /* LoadingPlaceholderContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingPlaceholderContent.swift; sourceTree = "<group>"; };
+		8A4B27482D6A9B6900FEAC44 /* CategoryQuestsHeading.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryQuestsHeading.swift; sourceTree = "<group>"; };
 		8A6332482CD8257A00EF34FA /* FocusArea-CoreDataHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FocusArea-CoreDataHelpers.swift"; sourceTree = "<group>"; };
 		8A63324B2CD8415600EF34FA /* FocusAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusAreaView.swift; sourceTree = "<group>"; };
 		8A63324E2CDAB84000EF34FA /* TabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBar.swift; sourceTree = "<group>"; };
@@ -293,7 +293,7 @@
 		8ACE0DDF2CD1E48500718B9E /* SliderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderView.swift; sourceTree = "<group>"; };
 		8ACE0DE42CD2B58F00718B9E /* FocusAreaRecapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusAreaRecapView.swift; sourceTree = "<group>"; };
 		8AEFB6E52CF6F5E100942293 /* SuggestionProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestionProtocol.swift; sourceTree = "<group>"; };
-		8AFCCCD52D5D4BFC0079732C /* NextButtonRound.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextButtonRound.swift; sourceTree = "<group>"; };
+		8AFCCCD52D5D4BFC0079732C /* RoundButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundButton.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -635,8 +635,7 @@
 				8A63A1BD2D486DBF00712B27 /* RetryButton.swift */,
 				8A2C37122D2FF05900C37315 /* LoadingPlaceholderContent.swift */,
 				8AB2DF4F2D5AEFD00069E914 /* PageIndicatorView.swift */,
-				8AFCCCD52D5D4BFC0079732C /* NextButtonRound.swift */,
-				8A21B2C92D5F17CF004AD75E /* SelectButtonRound.swift */,
+				8AFCCCD52D5D4BFC0079732C /* RoundButton.swift */,
 				8A21B2C72D5EC4F4004AD75E /* AppBackground.swift */,
 				8AB2DF472D5701260069E914 /* LaurelItem.swift */,
 			);
@@ -708,6 +707,7 @@
 				8AB2DF492D570A510069E914 /* CategoriesScrollView.swift */,
 				8AB2DF4B2D57236B0069E914 /* CategoryDescriptionView.swift */,
 				8AB2DF4D2D573F770069E914 /* CategoryMissionBox.swift */,
+				8A4B27482D6A9B6900FEAC44 /* CategoryQuestsHeading.swift */,
 			);
 			path = "Category (Realm)";
 			sourceTree = "<group>";
@@ -877,7 +877,6 @@
 				8A79EAB72CE467C9000A966B /* TopicPickerItem.swift in Sources */,
 				8A8ED73F2CF43EC700780384 /* StartRecordingButton.swift in Sources */,
 				8A9CC19A2CAB69EA007C2AA9 /* GetScreenSize.swift in Sources */,
-				8A21B2CA2D5F17CF004AD75E /* SelectButtonRound.swift in Sources */,
 				8A74F4B02CE83A2A008A33B0 /* SectionSummary-CoreDataHelpers.swift in Sources */,
 				8A8B63E32D1EFCDA00BA57D0 /* LocalFileManager.swift in Sources */,
 				8ACE0DD52CD03A1500718B9E /* Insight-CoreDataHelpers.swift in Sources */,
@@ -903,6 +902,7 @@
 				8A26DFD72CEFAE58002C4F60 /* UnderstandAskQuestionView.swift in Sources */,
 				8A26DFDF2CF00B43002C4F60 /* XmarkToolbarItem.swift in Sources */,
 				8A9CC1E32CAF38D6007C2AA9 /* ContextGatherer.swift in Sources */,
+				8A4B27492D6A9B6900FEAC44 /* CategoryQuestsHeading.swift in Sources */,
 				8A26DFCF2CEEF3A0002C4F60 /* Understand-CoreDataHelpers.swift in Sources */,
 				8A9CC1CC2CAE1DCB007C2AA9 /* AssistantItem.swift in Sources */,
 				8A8ED7332CF2EE5D00780384 /* FocusAreaSummary-CoreDataHelpers.swift in Sources */,
@@ -919,7 +919,7 @@
 				8A827B972D38151500D0204E /* TopicReviewEmptyState.swift in Sources */,
 				8A8ED73B2CF42CD200780384 /* EntriesEmptyState.swift in Sources */,
 				8A9CC1B62CAC9B88007C2AA9 /* NewTopicView.swift in Sources */,
-				8AFCCCD62D5D4BFC0079732C /* NextButtonRound.swift in Sources */,
+				8AFCCCD62D5D4BFC0079732C /* RoundButton.swift in Sources */,
 				8AC1D5AF2D685524000DD8E6 /* SettingsView.swift in Sources */,
 				8A9191FC2CBDDC78007E17A0 /* SectionListView.swift in Sources */,
 				8A8B63E72D1F010D00BA57D0 /* ImageCacheManager.swift in Sources */,
@@ -1104,7 +1104,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Fearless2/Fearless2.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 9;
 				DEVELOPMENT_ASSET_PATHS = "\"Fearless2/Preview Content\"";
 				DEVELOPMENT_TEAM = 79TB36U8AD;
 				ENABLE_PREVIEWS = YES;
@@ -1140,7 +1140,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Fearless2/Fearless2.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 9;
 				DEVELOPMENT_ASSET_PATHS = "\"Fearless2/Preview Content\"";
 				DEVELOPMENT_TEAM = 79TB36U8AD;
 				ENABLE_PREVIEWS = YES;
@@ -1154,7 +1154,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIRequiresFullScreen = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

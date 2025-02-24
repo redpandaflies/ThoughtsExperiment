@@ -63,7 +63,7 @@ struct TopicDetailView: View {
                 
                 
                 VStack {
-                    TopicDetailViewHeader(title: topic.topicTitle, progress: topic.topicFocusAreas.count, totalFocusAreas: focusAreasLimit)
+                    TopicDetailViewHeader(title: topic.topicTitle, progress: topic.topicFocusAreas.count, focusAreasLimit: focusAreasLimit, topic: topic)
                         .background {
                             GeometryReader { geo in
                                 Color.clear

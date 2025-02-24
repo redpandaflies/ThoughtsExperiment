@@ -50,8 +50,8 @@ struct NewTopicView: View {
                 .blendMode(.colorDodge)
                 .background {
                     AppBackground(backgroundColor: Realm.getBackgroundColor(forName: category.categoryName))
-                        .frame(height: screenHeight * 0.6)
-                        .offset(y: -(screenHeight * 0.4))
+                        .frame(height: screenHeight * 0.65)//must match sheet height
+                        .offset(y: -(screenHeight * 0.35))//must match sheet height
                 }
                 .ignoresSafeArea()
         }

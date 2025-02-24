@@ -62,7 +62,7 @@ struct SectionBox: View {
             Spacer()
             
             if isNextSection {
-                NextButtonRound(buttonAction: {
+                RoundButton(buttonImage: "arrow.right", buttonAction: {
                     buttonAction()
                 })
                 
@@ -74,13 +74,13 @@ struct SectionBox: View {
         }
         .opacity(section.completed ? 0.8 : (archivedTopic ? 0.4 : (isNextSection ? 1 : 0.4)))
         .padding()
+        .padding(.bottom, 5)
         .frame(width: 150, height: 180)
         .contentShape(Rectangle())
         .background {
             RoundedRectangle(cornerRadius: 20)
                 .stroke(AppColors.strokePrimary.opacity(section.completed ? 0.10 : (archivedTopic ? 0.30 : (isNextSection ? 0.50 : 0.30))), lineWidth: 0.5)
                 .fill(AnyShapeStyle(backgroundColor()))
-               
                 .shadow(
                     color: shadowProperties().color,
                     radius: shadowProperties().radius,

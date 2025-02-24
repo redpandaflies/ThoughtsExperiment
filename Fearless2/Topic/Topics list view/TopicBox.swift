@@ -30,33 +30,47 @@ struct TopicBox: View {
                 .foregroundStyle(AppColors.whiteDefault)
                 .lineSpacing(0.5)
                 .fixedSize(horizontal: false, vertical: true)
+                .padding(.horizontal)
             
-            Divider()
-                .overlay(AppColors.dividerPrimary.opacity(0.4))
-                .shadow(color: AppColors.dividerShadow.opacity(0.05), radius: 0, x: 0, y: 1)
-                .blendMode(.overlay)
-                .padding(.vertical, 20)
+            Rectangle()
+                .fill(Color.white.opacity(0.03))
+                .frame(maxWidth: .infinity)
+                .frame(height: 1)
+                .padding(.vertical, (topic.completed != true) ? 15 : 30)
             
-            Text("Path \(totalFocusAreas)")
-                .font(.system(size: 17, weight: .light))
+            
+            Text((topic.completed != true) ? "Path \(totalFocusAreas)" : "Topic complete")
+                .font(.system(size: 17, weight: .light).smallCaps())
                 .fontWidth(.condensed)
                 .foregroundStyle(AppColors.textSecondary.opacity(0.5))
-                .textCase(.uppercase)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.top, (topic.completed != true) ? 0 : 20)
+         
             
-            Text(latestFocusArea?.focusAreaTitle ?? "")
-                .multilineTextAlignment(.center)
-                .font(.system(size: 15, weight: .light))
-                .foregroundStyle(AppColors.textPrimary)
-                .padding(.bottom)
+            if topic.completed != true {
+                Text(latestFocusArea?.focusAreaTitle ?? "")
+                    .multilineTextAlignment(.center)
+                    .font(.system(size: 15, weight: .light))
+                    .foregroundStyle(AppColors.textPrimary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
             
-            NextButtonRound(buttonAction: {
-                buttonAction()
-            })
+            Spacer()
+            
+            if topic.completed != true {
+                RoundButton(buttonImage: "arrow.right", buttonAction: {
+                    buttonAction()
+                })
+            } else {
+                Image(systemName: "checkmark")
+                    .font(.system(size: 21))
+                    .foregroundStyle(Color.white.opacity(0.7))
+            }
               
         
         }//VStack
         .padding()
-        .padding(.vertical, 10)
+        .padding(.vertical, (topic.completed != true) ? 10 : 20)
         .contentShape(Rectangle())
         .background {
             RoundedRectangle(cornerRadius: 25)

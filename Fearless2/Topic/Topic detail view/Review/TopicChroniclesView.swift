@@ -30,7 +30,7 @@ struct TopicChroniclesView: View {
         VStack (spacing: 20) {
             ScrollView (.horizontal) {
                 
-                HStack (spacing: 30) {
+                HStack (spacing: 35) {
                     
                     //Path summaries
                     ForEach(Array(sortedFocusAreas.enumerated()), id: \.element.focusAreaId) { index, focusArea in
@@ -49,7 +49,7 @@ struct TopicChroniclesView: View {
             .scrollTargetBehavior(.viewAligned(limitBehavior: .alwaysByOne))
             
             //Scroll indicators
-            if pageCount > 0 {
+            if pageCount > 1 {
                 PageIndicatorView(scrollPosition: $scrollPosition, pagesCount: pageCount)
             }
         }
@@ -62,8 +62,9 @@ struct TopicPathSummaryBox: View {
     
     var body: some View {
         
-        VStack (alignment: .leading, spacing: 10) {
+        VStack (alignment: .leading, spacing: 5) {
             
+          
             Text(focusArea.focusAreaTitle)
                 .multilineTextAlignment(.leading)
                 .font(.system(size: 21, weight: .light))
@@ -71,44 +72,45 @@ struct TopicPathSummaryBox: View {
             
             
             Text(getSubtitle())
-            
-                .font(.system(size: 13, weight: .thin).smallCaps())
+                .font(.system(size: 15, weight: .thin).smallCaps())
                 .foregroundStyle(AppColors.textPrimary)
                 .fontWidth(.condensed)
+                .tracking(0.3)
                 .opacity(0.6)
-                .textCase(.uppercase)
             
             Divider()
                 .overlay(AppColors.dividerPrimary.opacity(0.4))
                 .shadow(color: AppColors.dividerShadow.opacity(0.05), radius: 0, x: 0, y: 1)
-                .padding(.vertical, 5)
+                .padding(.vertical, 15)
+            
             
             if let summary = focusArea.summary?.summarySummary {
+              
                 Text(summary)
                     .multilineTextAlignment(.leading)
                     .font(.system(size: 17, weight: .light))
                     .foregroundStyle(AppColors.textPrimary)
-                    .lineSpacing(1.5)
+                    .lineSpacing(1.7)
+            
             } else {
-                HStack {
-                    Spacer()
-                    
-                    Image(systemName: "lock.fill")
-                        .font(.system(size: 30))
-                        .foregroundStyle(AppColors.textPrimary)
-                        .opacity(0.5)
-                    
-                    Spacer()
+                VStack (alignment: .center) {
+                        
+                        Image(systemName: "lock.fill")
+                            .multilineTextAlignment(.center)
+                            .font(.system(size: 30))
+                            .foregroundStyle(AppColors.textPrimary)
+                            .opacity(0.5)
+                            .padding(.bottom, 15)
+                        
                 }
-                .frame(height: 150)
-                    
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                
             }
             
-            Spacer()
+           
         }
         .padding(30)
-        .frame(width: 340, height: 400)
-    
+        .frame(width: 340, height: 400, alignment: .top)
         .background {
             RoundedRectangle(cornerRadius: 25)
                 .stroke(Color.white.opacity(0.2), lineWidth: 0.5)

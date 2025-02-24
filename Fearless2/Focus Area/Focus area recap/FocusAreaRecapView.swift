@@ -148,7 +148,7 @@ struct FocusAreaRecapView: View {
         switch selectedTab {
         case 0:
             if let currentFocusArea = focusArea {
-                RecapCelebrationView(title: currentFocusArea.focusAreaTitle, text: "For exploring")
+                RecapCelebrationView(title: currentFocusArea.focusAreaTitle, text: "For exploring", points: "+1")
                     .padding(.top, 30)
             }
             
@@ -192,7 +192,7 @@ struct FocusAreaRecapView: View {
                 if showSuggestions && (totalFocusAreas < focusAreasLimit) {
                     return topicViewModel.createFocusAreaSummary == .loading ? "Loading..." : "Next: Choose next path"
                 } else {
-                    return "End recap review"
+                    return topicViewModel.createFocusAreaSummary == .loading ? "Loading..." : "Next: Restore lost fragment"
                 }
                 
             default:

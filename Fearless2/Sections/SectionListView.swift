@@ -188,6 +188,7 @@ struct SectionListView: View {
                 await dataController.completeTopic(topic: topic, section: section)
                 //return to home view
                 await MainActor.run {
+                    
                     topicViewModel.scrollToAddTopic = true
                     dismiss()
                 }

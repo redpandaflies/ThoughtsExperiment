@@ -24,7 +24,7 @@ struct EndTopicView: View {
                     switch selectedTab {
                     case 0:
                         
-                        RecapCelebrationView(title: section?.topic?.topicTitle ?? "", text: "For completing")
+                        RecapCelebrationView(title: section?.topic?.topicTitle ?? "", text: "For completing", points: "+5")
                             .padding(.horizontal)
                             .padding(.bottom, 30)
                         
@@ -128,12 +128,14 @@ struct EndTopicView: View {
     @ViewBuilder private func topicRecapView() -> some View {
         
         VStack {
-            
-            Spacer()
                 
             switch topicViewModel.createTopicOverview {
             case .ready:
-                TopicRecapFragmentBox(fragmentText: topic.review?.reviewOverview ?? "")
+                if let review = topic.review?.reviewOverview {
+                    TopicRecapFragmentBox(fragmentText: review)
+                } else { //happens when user sees this view before API call has been made
+                    LoadingPlaceholderContent(contentType: .topicReview)
+                }
             case .loading:
                 LoadingPlaceholderContent(contentType: .topicReview)
             case .retry:
@@ -142,9 +144,8 @@ struct EndTopicView: View {
                 })
             }
             
-            
-            Spacer()
         }
+        .frame(maxHeight: .infinity, alignment: .center)
     }
     
     private func getTopicReview() {
@@ -173,9 +174,11 @@ struct EndTopicView: View {
 struct TopicRecapFragmentBox: View {
     
     let fragmentText: String
+    let boxBorder: CGFloat = 10
     
     var body: some View {
-        VStack (spacing: 30 ){
+       
+        VStack (spacing: 0){
             
             HStack {
                 shortLine()
@@ -184,25 +187,29 @@ struct TopicRecapFragmentBox: View {
                     .font(.system(size: 19, weight: .light).smallCaps())
                     .fontWidth(.condensed)
                     .foregroundStyle(AppColors.textBlack)
-                    .textCase(.uppercase)
+                    .tracking(0.3)
                     .opacity(0.8)
-                
-                
+                    .fixedSize()
+                    .padding(.horizontal, 10)
                 shortLine()
                 
             }
+            .frame(height: 70, alignment: .bottom)
+          
             
-            
-            Text(fragmentText)
-                .multilineTextAlignment(.center)
-                .font(.system(size: 20, design: .serif))
-                .foregroundStyle(AppColors.textBlack)
-                .lineSpacing(1.3)
+            HStack {
+                Text(fragmentText)
+                    .multilineTextAlignment(.center)
+                    .font(.system(size: 20, design: .serif))
+                    .foregroundStyle(AppColors.textBlack)
+                    .lineSpacing(1.3)
+                    .padding(.bottom, 40)
+            }
+            .frame(minHeight: 240)
+           
             
         }
         .padding(.horizontal, 35)
-        .padding(.vertical, 50)
-        .padding(.bottom)
         .frame(width: 310)
         .background {
             RoundedRectangle(cornerRadius: 25)
@@ -211,21 +218,29 @@ struct TopicRecapFragmentBox: View {
                     LinearGradient(colors: [Color.white, AppColors.boxSecondary], startPoint: .top, endPoint: .bottom)
                 )
                 .shadow(color: Color.white.opacity(0.25), radius: 30, x: 0, y: 0)
-                .padding(10)
+                .padding(boxBorder)
                 .background {
-                    RoundedRectangle(cornerRadius: 25)
+                    RoundedRectangle(cornerRadius: 30)
                         .stroke(Color.white.opacity(0.2), lineWidth: 0.5)
                         .fill(AppColors.boxGrey1.opacity(0.2))
                         .blendMode(.colorDodge)
                     
                 }
+                
         }
+
+        
     }
     
     private func shortLine() -> some View {
         Rectangle()
             .fill(Color.black.opacity(0.1))
             .shadow(color: Color.white.opacity(0.5), radius: 0, x: 0, y: 1)
-            .frame(width: 40, height: 1)
+            .frame(maxWidth: .infinity)
+            .frame(height: 1)
     }
+}
+
+#Preview {
+    TopicRecapFragmentBox(fragmentText: "You observe the moment, but do you let it transform you?")
 }

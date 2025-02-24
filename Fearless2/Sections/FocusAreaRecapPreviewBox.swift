@@ -28,7 +28,7 @@ struct FocusAreaRecapPreviewBox: View {
             } else if !available {
                 getImage(name: "lock.fill")
             } else {
-                NextButtonRound(buttonAction: {
+                RoundButton(buttonImage: "arrow.right", buttonAction: {
                     buttonAction()
                 })
             }

@@ -35,7 +35,6 @@ struct FocusAreaBox: View {
                     Text("\(index + 1)")
                         .multilineTextAlignment(.center)
                         .font(.system(size: 40, weight: .thin))
-                        .fontWidth(.expanded)
                         .foregroundStyle(AppColors.textPrimary)
                 } else {
                     getLaurels()
@@ -44,16 +43,13 @@ struct FocusAreaBox: View {
                 Text(focusArea.focusAreaTitle)
                     .multilineTextAlignment(.center)
                     .font(.system(size: 25, weight: .light))
-                    .fontWeight(.regular)
                     .foregroundStyle(AppColors.textPrimary)
                     .fixedSize(horizontal: false, vertical: true)
                 
                 
                 Text(focusArea.focusAreaReasoning)
                     .multilineTextAlignment(.center)
-                    .font(.system(size: 16, weight: .light))
-                    .fontWidth(.condensed)
-                    .fontWeight(.regular)
+                    .font(.system(size: 17, weight: .light))
                     .foregroundStyle(AppColors.textPrimary)
                     .fixedSize(horizontal: false, vertical: true)
                     .opacity(0.5)
@@ -67,7 +63,7 @@ struct FocusAreaBox: View {
                     LoadingPlaceholderContent(contentType: .focusArea)
                 
                 case 1:
-                SectionListView(topicViewModel: topicViewModel, showFocusAreaRecapView: $showFocusAreaRecapView, selectedSection: $selectedSection, selectedSectionSummary: $selectedSectionSummary, selectedFocusArea: $selectedFocusArea, selectedEndOfTopicSection: $selectedEndOfTopicSection, focusArea: focusArea, focusAreaCompleted: focusArea.completed)
+                    SectionListView(topicViewModel: topicViewModel, showFocusAreaRecapView: $showFocusAreaRecapView, selectedSection: $selectedSection, selectedSectionSummary: $selectedSectionSummary, selectedFocusArea: $selectedFocusArea, selectedEndOfTopicSection: $selectedEndOfTopicSection, focusArea: focusArea, focusAreaCompleted: focusArea.completed)
                 
                 default:
                     FocusAreaRetryView(action: {
@@ -122,7 +118,7 @@ struct FocusAreaBox: View {
     }
     
     private func getLaurels() -> some View {
-        HStack (spacing: 5){
+        HStack (spacing: 15){
             Image(systemName: "laurel.leading")
                 .font(.system(size: 40, weight: .thin))
                 .foregroundStyle(AppColors.textPrimary)

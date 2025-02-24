@@ -26,11 +26,10 @@ struct CategoryDescriptionView: View {
                 .lineSpacing(1.5)
             
             Text("Discovered on January 31, 2025")
-                .font(.system(size: 13, weight: .thin).smallCaps())
+                .font(.system(size: 17, weight: .thin).smallCaps())
                 .foregroundStyle(AppColors.textPrimary)
                 .fontWidth(.condensed)
                 .opacity(0.6)
-                .textCase(.uppercase)
         }
 //        .background(Color.black)
     }

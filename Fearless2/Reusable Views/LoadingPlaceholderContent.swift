@@ -15,21 +15,21 @@ enum PlaceholderContent {
 }
 
 struct LoadingPlaceholderContent: View {
-    @State private var enableAnimation: Bool = false
-    @State private var animationEffect: Int = 0
-    let timer = Timer.publish(every: 3, on: .main, in: .common).autoconnect()
+    @State private var isAnimating: Bool = false
+    @State private var animate: Bool = false
+    @State private var trimLight: Bool = false
+  
     let contentType: PlaceholderContent
     private let screenWidth = UIScreen.current.bounds.width
     
     var body: some View {
         
         HStack (spacing: 12) {
-            Spacer()
                 
             loadingBox()
-                
-            Spacer()
+           
         }
+        .frame(maxWidth: .infinity, alignment: .center)
         
     }
     
@@ -45,32 +45,18 @@ struct LoadingPlaceholderContent: View {
         }//VStack
         .frame(width: 150, height: 180)
         .background {
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.white.opacity(0.2), lineWidth: 0.5)
-                .fill(Color.white.opacity(0.2))
+           
+            getBackground()
+                
         }
-        .animation(.default, value: animationEffect)
-        .changeEffect (
-            .shine.delay(0.2),
-            value: animationEffect,
-            isEnabled: enableAnimation
-        )
+        
         .onAppear {
-            
-            withAnimation(.easeIn(duration: 0.5)) {
-                enableAnimation = true
-                animationEffect += 1
-            }
-            
+            isAnimating = true
+            manageAnimationSequence()
+
         }
         .onDisappear {
-            
-            timer.upstream.connect().cancel()
-                            
-        }
-        .onReceive(timer) { time in
-
-            animationEffect += 1
+            isAnimating = false
         }
     }
     
@@ -83,6 +69,58 @@ struct LoadingPlaceholderContent: View {
         case .topicReview:
             return "Restoring fragment"
         }
+    }
+    
+    private func getBackground() -> some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(Color.gray, lineWidth: 0.5)
+                .fill(Color.clear)
+            
+            if animate {
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(Color.white, lineWidth: 0.5)
+                    .fill(Color.clear)
+                    .transition(.movingParts.clock(blurRadius: 5))
+                    .mask {
+                        if trimLight {
+                            RoundedRectangle(cornerRadius: 20)
+                                .opacity(0)
+                        } else {
+                            RoundedRectangle(cornerRadius: 20)
+                               
+                        }
+                    }
+            }
+
+        }
+        
+    }
+    
+    private func manageAnimationSequence() {
+        guard isAnimating else { return }
+        
+        withAnimation(
+            .smooth(duration: 2)
+        ) {
+            animate = true
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            withAnimation(
+                .smooth(duration: 1.5)
+            ) {
+                trimLight.toggle()
+            }
+    
+                   
+// Reset and repeat
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+               animate = false
+               trimLight.toggle()
+               manageAnimationSequence()
+           }
+       }
     }
 }
 

@@ -60,7 +60,12 @@ struct ContextGatherer {
         """
         
         //get user's response to "What would resolve this topic?"
-        context += getResolveQuestion(topic: topic)
+//        context += getResolveQuestion(topic: topic)
+        
+        //get questions answered when creating category
+        let categoryQuestions = category.categoryQuestions.filter { $0.categoryStarter == true }
+        context += "These are the questions that the user answered about this area of life:\n\n"
+        context += getQuestions(categoryQuestions)
         
 //        if let currentTranscript = transcript {
 //            context += "This is the transcript for the new entry. Please use this when creating the new entry title, summary, insights, and feedback:\n\(currentTranscript)\n"
@@ -157,6 +162,11 @@ struct ContextGatherer {
     static func gatherContextTopicSuggestions(dataController: DataController, loggerCoreData: Logger, category: Category) async -> String? {
         var context = "The user is looking for topic suggestions for this area of their life: \(category.categoryLifeArea). The purpose of exploring this area is: \(category.categoryDiscovered) \n\n"
         
+        //get questions answered when creating category
+        let categoryQuestions = category.categoryQuestions.filter { $0.categoryStarter == true }
+        context += "These are the questions that the user answered about this area of life:\n\n"
+        context += getQuestions(categoryQuestions)
+        
         // Get all topics
         let topics = await dataController.fetchAllTopics()
         
@@ -169,7 +179,6 @@ struct ContextGatherer {
                 context += """
                 - topic title: \(topic.title ?? "No title available")
                 - created at: \(topic.createdAt ?? "Date not available")
-                - topic is related to this area of the user's life: \(topic.category?.categoryLifeArea ?? "")\n\n
                 """
             }
         } else {
@@ -189,29 +198,42 @@ struct ContextGatherer {
                return nil
         }
         
+        guard let category = topic.category else {
+            loggerCoreData.error("Failed to get related cateogry")
+            return nil
+        }
+        
+        var context = ""
+        
         //questions users answered when creating topic
         let starterQuestions = topic.topicQuestions.filter { $0.starterQuestion }
         
+        if !starterQuestions.isEmpty {
+           context += "The user wants to create a new topic. Here are the user's responses to questions about it: \n"
             
-        var context = "The user wants to create a new topic. Here are the user's responses to questions about it: \n"
-        
-        for question in starterQuestions {
-           
-            context += "Question: \(question.questionContent)\n"
-            
-            if let questionType = QuestionType(rawValue: question.questionType) {
-                switch questionType {
-                case .singleSelect:
-                    context += "Answer: \(question.questionAnswerSingleSelect)\n"
-                case .multiSelect:
-                    context += "Answer: \(question.questionAnswerMultiSelect)\n"
-                case .open:
-                    context += "Answer: \(question.questionAnswerOpen)\n"
+            for question in starterQuestions {
+                
+                context += "Question: \(question.questionContent)\n"
+                
+                if let questionType = QuestionType(rawValue: question.questionType) {
+                    switch questionType {
+                    case .singleSelect:
+                        context += "Answer: \(question.questionAnswerSingleSelect)\n"
+                    case .multiSelect:
+                        context += "Answer: \(question.questionAnswerMultiSelect)\n"
+                    case .open:
+                        context += "Answer: \(question.questionAnswerOpen)\n"
+                    }
+                } else {
+                    context += "Answer not found for this question\n"
                 }
-            } else {
-                context += "Answer not found for this question\n"
             }
         }
+        
+        //get questions answered when creating category
+        let categoryQuestions = category.categoryQuestions.filter { $0.categoryStarter == true }
+        context += "These are the questions that the user answered about this area of life:\n\n"
+        context += getQuestions(categoryQuestions)
         
         return context
     }

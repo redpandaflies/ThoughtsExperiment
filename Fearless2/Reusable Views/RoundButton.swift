@@ -11,11 +11,13 @@ struct RoundButton: View {
     
     let buttonImage: String
     let size: CGFloat
+    let frameSize: CGFloat
     let buttonAction: () -> Void
     
-    init(buttonImage: String, size: CGFloat = 15, buttonAction: @escaping () -> Void) {
+    init(buttonImage: String, size: CGFloat = 15, frameSize: CGFloat = 50, buttonAction: @escaping () -> Void) {
         self.buttonImage = buttonImage
         self.size = size
+        self.frameSize = frameSize
         self.buttonAction = buttonAction
     }
     
@@ -26,9 +28,9 @@ struct RoundButton: View {
             
         } label: {
             Image(systemName: buttonImage)
-                .font(.system(size: 19, weight: .medium))
+                .font(.system(size: size, weight: .medium))
                 .foregroundColor(Color.black)
-                .frame(width: 50, height: 50)
+                .frame(width: frameSize, height: frameSize)
                 .background {
                     Circle()
                         .stroke(Color.white.opacity(0.9))

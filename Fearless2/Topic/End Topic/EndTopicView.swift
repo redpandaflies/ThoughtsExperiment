@@ -36,7 +36,7 @@ struct EndTopicView: View {
                 }
                 .padding(.bottom, 90)
                 
-                RectangleButtonYellow(
+                RectangleButtonPrimary(
                     buttonText: getButtonText(),
                     action: {
                         buttonAction()
@@ -51,9 +51,9 @@ struct EndTopicView: View {
             }//VStack
             .background {
                 if let category = topic.category {
-                    AppBackground(backgroundColor: Realm.getBackgroundColor(forName: category.categoryName))
+                    BackgroundPrimary(backgroundColor: Realm.getBackgroundColor(forName: category.categoryName))
                 } else {
-                    AppBackground(backgroundColor: AppColors.backgroundCareer)
+                    BackgroundPrimary(backgroundColor: AppColors.backgroundCareer)
                 }
             }
             .onAppear {

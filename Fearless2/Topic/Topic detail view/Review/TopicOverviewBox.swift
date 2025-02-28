@@ -76,7 +76,7 @@ struct TopicOverviewBox: View {
             }
             .overlay {
                 if (focusAreasUntilReview == 0 && focusAreasCompleted != 0) && !overviewGenerated {
-                    RectangleButtonYellow(
+                    RectangleButtonPrimary(
                         buttonText: buttonText(),
                         action: {
                             buttonAction()

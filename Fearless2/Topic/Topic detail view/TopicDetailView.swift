@@ -82,9 +82,9 @@ struct TopicDetailView: View {
             }//ZStack
             .background {
                 if let category = topic.category {
-                    AppBackground(backgroundColor: Realm.getBackgroundColor(forName: category.categoryName))
+                    BackgroundPrimary(backgroundColor: Realm.getBackgroundColor(forName: category.categoryName))
                 } else {
-                    AppBackground(backgroundColor: AppColors.backgroundCareer)
+                    BackgroundPrimary(backgroundColor: AppColors.backgroundCareer)
                 }
             }
             .onAppear {

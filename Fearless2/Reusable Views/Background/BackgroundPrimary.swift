@@ -1,5 +1,5 @@
 //
-//  AppBackground.swift
+//  BackgroundPrimary.swift
 //  Fearless2
 //
 //  Created by Yue Deng-Wu on 2/13/25.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct AppBackground: View {
+struct BackgroundPrimary: View {
     let backgroundColor: Color
     
     

@@ -65,7 +65,7 @@ struct UpdateSectionView: View {
             }//switch
             
             //Next button
-            RectangleButtonYellow (
+            RectangleButtonPrimary (
                 buttonText: getButtonText(),
                 action: {
                     getMainButtonAction()
@@ -83,9 +83,9 @@ struct UpdateSectionView: View {
         .padding(.bottom)
         .background {
             if let category = focusArea?.category {
-                AppBackground(backgroundColor: Realm.getBackgroundColor(forName: category.categoryName))
+                BackgroundPrimary(backgroundColor: Realm.getBackgroundColor(forName: category.categoryName))
             } else {
-                AppBackground(backgroundColor: AppColors.backgroundCareer)
+                BackgroundPrimary(backgroundColor: AppColors.backgroundCareer)
             }
         }
         .environment(\.colorScheme, .dark)
@@ -165,7 +165,6 @@ struct UpdateSectionView: View {
         let answeredQuestion = questions[answeredQuestionIndex]
         let numberOfQuestions = questions.count
        
-        
         var answeredQuestionTopicText: String?
         var answeredQuestionSingleSelect: String?
         var answeredQuestionMultiSelect: [String]?

@@ -45,17 +45,7 @@ struct NewTopicView: View {
             
                         
         }
-        .background {
-            AppColors.boxGrey2.opacity(0.95)
-                .blendMode(.colorDodge)
-                .background {
-                    AppBackground(backgroundColor: Realm.getBackgroundColor(forName: category.categoryName))
-                        .frame(height: screenHeight * 0.65)//must match sheet height
-                        .offset(y: -(screenHeight * 0.35))//must match sheet height
-                }
-                .ignoresSafeArea()
-        }
-
+        .backgroundSecondary(forCategory: category.categoryName, height: screenHeight * 0.65, yOffset: -(screenHeight * 0.35))
         
     }
     

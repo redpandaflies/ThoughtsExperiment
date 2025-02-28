@@ -65,7 +65,7 @@ struct FocusAreaRecapView: View {
                     
                     
                     if selectedTab != 2 {
-                        RectangleButtonYellow(
+                        RectangleButtonPrimary(
                             buttonText: getButtonText(),
                             action: {
                                 buttonAction()
@@ -82,9 +82,9 @@ struct FocusAreaRecapView: View {
             }//ZStack
             .background {
                 if let category = focusArea?.category {
-                    AppBackground(backgroundColor: Realm.getBackgroundColor(forName: category.categoryName))
+                    BackgroundPrimary(backgroundColor: Realm.getBackgroundColor(forName: category.categoryName))
                 } else {
-                    AppBackground(backgroundColor: AppColors.backgroundCareer)
+                    BackgroundPrimary(backgroundColor: AppColors.backgroundCareer)
                 }
             }
             .onAppear {

@@ -65,7 +65,7 @@ struct CategoryView: View {
             } //VStack
             .padding(.top, 30)
             .background {
-                AppBackground(backgroundColor: getCategoryBackground())
+                BackgroundPrimary(backgroundColor: getCategoryBackground())
             }
             .onAppear {
                 

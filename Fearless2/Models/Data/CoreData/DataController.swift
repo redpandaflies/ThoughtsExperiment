@@ -14,7 +14,8 @@ final class DataController: ObservableObject {
     
     @Published var newTopic: Topic? = nil
     @Published var newFocusArea: Int = 0
-
+    @Published var onboardingCategory: Category? = nil
+    
     let container: NSPersistentCloudKitContainer
     var context: NSManagedObjectContext
     let logger = Logger.coreDataEvents
@@ -55,8 +56,8 @@ final class DataController: ObservableObject {
             }
         }
     }
-
-   
+    
+    
     
     //MARK: other
     //fetch a section
@@ -75,7 +76,7 @@ final class DataController: ObservableObject {
                 }
             } catch {
                 self.logger.error("Error fetching entry with ID \(id): \(error.localizedDescription)")
-               
+                
             }
         }
         
@@ -148,17 +149,76 @@ final class DataController: ObservableObject {
                     question.questionAnswerMultiSelect = arrayString
                 }
             }
-
+            
             // Mark the question as completed if it's not already
             if !question.completed {
                 question.completed = true
             }
         }
-
-//        // Save the context
-//        await self.save()
+        
+        //        // Save the context
+        //        await self.save()
     }
     
+    //save answer onboarding
+    func saveAnswerOnboarding(questionType: QuestionType, question: QuestionsOnboarding, userAnswer: Any, categoryLifeArea: String) async {
+        await context.perform {
+            // create a new question
+            let newQuestion = Question(context: self.context)
+            newQuestion.questionId = UUID()
+            newQuestion.createdAt = getCurrentTimeString()
+            newQuestion.questionType = questionType.rawValue
+            newQuestion.questionContent = question.content
+            newQuestion.categoryStarter = true
+            
+            // set the answer based on the question type
+            switch questionType {
+            case .open:
+                if let answer = userAnswer as? String {
+                    newQuestion.questionAnswerOpen = answer
+                }
+            case .singleSelect:
+                if let answer = userAnswer as? [String] {
+                    let arrayString = answer.joined(separator: ";")
+                    newQuestion.questionSingleSelectOptions = arrayString
+                }
+            case .multiSelect:
+                if let answer = userAnswer as? [String] {
+                    let arrayString = answer.joined(separator: ";")
+                    newQuestion.questionAnswerMultiSelect = arrayString
+                }
+            }
+            
+            // Mark the question as completed
+            newQuestion.completed = true
+            
+            // find the Category
+            
+            if let category = self.onboardingCategory {
+                category.addToQuestions(newQuestion)
+            } else {
+                let categoryRequest = NSFetchRequest<Category>(entityName: "Category")
+                categoryRequest.predicate = NSPredicate(format: "lifeArea == %@", categoryLifeArea)
+                
+                do {
+                    let categories = try self.context.fetch(categoryRequest)
+                    if let fetchedCategory = categories.first {
+                        
+                        // add question to the category
+                        fetchedCategory.addToQuestions(newQuestion)
+                        self.onboardingCategory = fetchedCategory
+                        
+                    } else {
+                        self.logger.error("No category found with lifeArea: \(categoryLifeArea)")
+                    }
+                } catch {
+                    self.logger.error("Error fetching category: \(error.localizedDescription)")
+                }
+            }
+        }
+        
+        await self.save()
+    }
    
     
     func deleteEntry(id: UUID) async {
@@ -342,7 +402,7 @@ extension DataController {
     
     //delete all
     func deleteAll() async {
-        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Topic")
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Category")
         let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
         
         // Configure batch to get object IDs for updating the context's state
@@ -362,9 +422,9 @@ extension DataController {
                 // Save context to ensure changes are persisted
                 try self.context.save()
                 
-                self.logger.info("Successfully deleted all topics")
+                self.logger.info("Successfully deleted all categories")
             } catch {
-                self.logger.error("Error batch deleting all topics: \(error.localizedDescription)")
+                self.logger.error("Error batch deleting all categories: \(error.localizedDescription)")
             }
         }
     }

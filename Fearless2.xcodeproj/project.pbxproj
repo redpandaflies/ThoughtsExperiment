@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		8A1DCD272CB1C44D00580DE6 /* QuestionScaleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A1DCD262CB1C44A00580DE6 /* QuestionScaleView.swift */; };
-		8A21B2C82D5EC4F4004AD75E /* AppBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A21B2C72D5EC4F4004AD75E /* AppBackground.swift */; };
+		8A21B2C82D5EC4F4004AD75E /* BackgroundPrimary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A21B2C72D5EC4F4004AD75E /* BackgroundPrimary.swift */; };
 		8A21B2CC2D5FF33D004AD75E /* ToolbarTitleItem2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A21B2CB2D5FF33D004AD75E /* ToolbarTitleItem2.swift */; };
 		8A26DFC82CED43DD002C4F60 /* InsightsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A26DFC72CED43D1002C4F60 /* InsightsListView.swift */; };
 		8A26DFCA2CED4575002C4F60 /* InsightBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A26DFC92CED456A002C4F60 /* InsightBoxView.swift */; };
@@ -24,7 +24,7 @@
 		8A26DFDF2CF00B43002C4F60 /* XmarkToolbarItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A26DFDE2CF00B43002C4F60 /* XmarkToolbarItem.swift */; };
 		8A26DFE42CF0181A002C4F60 /* UnderstandQuestionAnswer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A26DFE32CF0181A002C4F60 /* UnderstandQuestionAnswer.swift */; };
 		8A2C36FA2D21A8B100C37315 /* QuestionSingleSelectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A2C36F92D21A8B100C37315 /* QuestionSingleSelectView.swift */; };
-		8A2C36FC2D22CA2100C37315 /* RectangleButtonYellow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A2C36FB2D22CA2100C37315 /* RectangleButtonYellow.swift */; };
+		8A2C36FC2D22CA2100C37315 /* RectangleButtonPrimary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A2C36FB2D22CA2100C37315 /* RectangleButtonPrimary.swift */; };
 		8A2C36FE2D242B4A00C37315 /* NewTopicLoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A2C36FD2D242B3A00C37315 /* NewTopicLoadingView.swift */; };
 		8A2C37002D24341400C37315 /* NewTopicHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A2C36FF2D24340300C37315 /* NewTopicHeader.swift */; };
 		8A2C37022D26A17100C37315 /* UpdateSectionCompleteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A2C37012D26A15E00C37315 /* UpdateSectionCompleteView.swift */; };
@@ -148,13 +148,24 @@
 		8ACE0DDC2CD0C54F00718B9E /* EntryQuestionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ACE0DDB2CD0C54F00718B9E /* EntryQuestionView.swift */; };
 		8ACE0DE02CD1E48500718B9E /* SliderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ACE0DDF2CD1E48500718B9E /* SliderView.swift */; };
 		8ACE0DE52CD2B58F00718B9E /* FocusAreaRecapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ACE0DE42CD2B58F00718B9E /* FocusAreaRecapView.swift */; };
+		8AE398152D6D861A00F76AAC /* OnboardingMainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE398142D6D861A00F76AAC /* OnboardingMainView.swift */; };
+		8AE398172D6D90D800F76AAC /* OnboardingIntroContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE398162D6D90D800F76AAC /* OnboardingIntroContent.swift */; };
+		8AE398192D6EC41D00F76AAC /* OnboardingIntroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE398182D6EC41700F76AAC /* OnboardingIntroView.swift */; };
+		8AE3981B2D6EC70F00F76AAC /* OnboardingQuestionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE3981A2D6EC70800F76AAC /* OnboardingQuestionsView.swift */; };
+		8AE3981D2D6FA74300F76AAC /* QuestionsOnboarding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE3981C2D6FA74300F76AAC /* QuestionsOnboarding.swift */; };
+		8AE3981F2D7042A100F76AAC /* OnboardingFirstCategoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE3981E2D7042A100F76AAC /* OnboardingFirstCategoryView.swift */; };
+		8AE398222D70FC0300F76AAC /* TutorialFirstRealm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE398212D70FC0300F76AAC /* TutorialFirstRealm.swift */; };
+		8AE398242D71101E00F76AAC /* TutorialFirstFocusArea.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE398232D71101E00F76AAC /* TutorialFirstFocusArea.swift */; };
+		8AE3982A2D711FF700F76AAC /* BackgroundSecondary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE398292D711FF700F76AAC /* BackgroundSecondary.swift */; };
+		8AE3982E2D718F2200F76AAC /* CloudStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 8AE3982D2D718F2200F76AAC /* CloudStorage */; };
+		8AE398302D71908B00F76AAC /* MainAppManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE3982F2D71908B00F76AAC /* MainAppManager.swift */; };
 		8AEFB6E62CF6F60B00942293 /* SuggestionProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AEFB6E52CF6F5E100942293 /* SuggestionProtocol.swift */; };
 		8AFCCCD62D5D4BFC0079732C /* RoundButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AFCCCD52D5D4BFC0079732C /* RoundButton.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		8A1DCD262CB1C44A00580DE6 /* QuestionScaleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionScaleView.swift; sourceTree = "<group>"; };
-		8A21B2C72D5EC4F4004AD75E /* AppBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppBackground.swift; sourceTree = "<group>"; };
+		8A21B2C72D5EC4F4004AD75E /* BackgroundPrimary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundPrimary.swift; sourceTree = "<group>"; };
 		8A21B2CB2D5FF33D004AD75E /* ToolbarTitleItem2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolbarTitleItem2.swift; sourceTree = "<group>"; };
 		8A26DFC72CED43D1002C4F60 /* InsightsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsListView.swift; sourceTree = "<group>"; };
 		8A26DFC92CED456A002C4F60 /* InsightBoxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightBoxView.swift; sourceTree = "<group>"; };
@@ -170,7 +181,7 @@
 		8A26DFDE2CF00B43002C4F60 /* XmarkToolbarItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XmarkToolbarItem.swift; sourceTree = "<group>"; };
 		8A26DFE32CF0181A002C4F60 /* UnderstandQuestionAnswer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnderstandQuestionAnswer.swift; sourceTree = "<group>"; };
 		8A2C36F92D21A8B100C37315 /* QuestionSingleSelectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionSingleSelectView.swift; sourceTree = "<group>"; };
-		8A2C36FB2D22CA2100C37315 /* RectangleButtonYellow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RectangleButtonYellow.swift; sourceTree = "<group>"; };
+		8A2C36FB2D22CA2100C37315 /* RectangleButtonPrimary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RectangleButtonPrimary.swift; sourceTree = "<group>"; };
 		8A2C36FD2D242B3A00C37315 /* NewTopicLoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewTopicLoadingView.swift; sourceTree = "<group>"; };
 		8A2C36FF2D24340300C37315 /* NewTopicHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewTopicHeader.swift; sourceTree = "<group>"; };
 		8A2C37012D26A15E00C37315 /* UpdateSectionCompleteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateSectionCompleteView.swift; sourceTree = "<group>"; };
@@ -292,6 +303,16 @@
 		8ACE0DDB2CD0C54F00718B9E /* EntryQuestionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryQuestionView.swift; sourceTree = "<group>"; };
 		8ACE0DDF2CD1E48500718B9E /* SliderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderView.swift; sourceTree = "<group>"; };
 		8ACE0DE42CD2B58F00718B9E /* FocusAreaRecapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusAreaRecapView.swift; sourceTree = "<group>"; };
+		8AE398142D6D861A00F76AAC /* OnboardingMainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingMainView.swift; sourceTree = "<group>"; };
+		8AE398162D6D90D800F76AAC /* OnboardingIntroContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingIntroContent.swift; sourceTree = "<group>"; };
+		8AE398182D6EC41700F76AAC /* OnboardingIntroView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingIntroView.swift; sourceTree = "<group>"; };
+		8AE3981A2D6EC70800F76AAC /* OnboardingQuestionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingQuestionsView.swift; sourceTree = "<group>"; };
+		8AE3981C2D6FA74300F76AAC /* QuestionsOnboarding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionsOnboarding.swift; sourceTree = "<group>"; };
+		8AE3981E2D7042A100F76AAC /* OnboardingFirstCategoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingFirstCategoryView.swift; sourceTree = "<group>"; };
+		8AE398212D70FC0300F76AAC /* TutorialFirstRealm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TutorialFirstRealm.swift; sourceTree = "<group>"; };
+		8AE398232D71101E00F76AAC /* TutorialFirstFocusArea.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TutorialFirstFocusArea.swift; sourceTree = "<group>"; };
+		8AE398292D711FF700F76AAC /* BackgroundSecondary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundSecondary.swift; sourceTree = "<group>"; };
+		8AE3982F2D71908B00F76AAC /* MainAppManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainAppManager.swift; sourceTree = "<group>"; };
 		8AEFB6E52CF6F5E100942293 /* SuggestionProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestionProtocol.swift; sourceTree = "<group>"; };
 		8AFCCCD52D5D4BFC0079732C /* RoundButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundButton.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -304,6 +325,7 @@
 				8A5881B32D3456E60019C785 /* Mixpanel in Frameworks */,
 				8A9CC1C32CAD2A6E007C2AA9 /* SwiftOpenAI in Frameworks */,
 				8A8ED7422CF5656100780384 /* Pow in Frameworks */,
+				8AE3982E2D718F2200F76AAC /* CloudStorage in Frameworks */,
 				8A8B63EE2D1F068A00BA57D0 /* AIProxy in Frameworks */,
 				8ABE9AEA2CB2768600483CFD /* WrappingHStack in Frameworks */,
 				8A9CC1D62CAE7609007C2AA9 /* Lottie in Frameworks */,
@@ -544,9 +566,11 @@
 				8A9CC1B92CAD1A4A007C2AA9 /* ModelTopics.xcdatamodeld */,
 				8A9CC1762CAB3DEA007C2AA9 /* Fearless2App.swift */,
 				8A9CC18B2CAB5BF7007C2AA9 /* AppViewsManager.swift */,
+				8AE3982F2D71908B00F76AAC /* MainAppManager.swift */,
 				8A9CC1842CAB449F007C2AA9 /* Models */,
 				8A9CC19F2CAB7BD3007C2AA9 /* Header */,
 				8A63324D2CDAB82C00EF34FA /* Tab bar */,
+				8AE398132D6D85FF00F76AAC /* Onboarding */,
 				8AB2DF442D56EF850069E914 /* Category (Realm) */,
 				8A9CC1AD2CAC681C007C2AA9 /* Topic */,
 				8A63324A2CD83E6800EF34FA /* Focus Area */,
@@ -602,6 +626,8 @@
 				8A9CC1B32CAC6ABE007C2AA9 /* CategoryItem.swift */,
 				8A9CC1D92CAE7697007C2AA9 /* LottieView.swift */,
 				8A9191F42CB4A227007E17A0 /* QuestionsNewTopic.swift */,
+				8AE3981C2D6FA74300F76AAC /* QuestionsOnboarding.swift */,
+				8AE398162D6D90D800F76AAC /* OnboardingIntroContent.swift */,
 			);
 			path = Styling;
 			sourceTree = "<group>";
@@ -623,6 +649,7 @@
 		8A9CC1A42CAB8120007C2AA9 /* Reusable Views */ = {
 			isa = PBXGroup;
 			children = (
+				8AE3982B2D71257F00F76AAC /* Background */,
 				8AC1D5A92D659986000DD8E6 /* RecapCelebrationView.swift */,
 				8AA56BFA2CFA328C005D0119 /* WarningLostProgress.swift */,
 				8ACE0DD92CD0C54800718B9E /* SummaryInsightBox.swift */,
@@ -630,13 +657,12 @@
 				8A74F49E2CE5A70B008A33B0 /* RecordingLoadingAnimation.swift */,
 				8ABE9AE12CB2597300483CFD /* NextButton.swift */,
 				8ACE0DDF2CD1E48500718B9E /* SliderView.swift */,
-				8A2C36FB2D22CA2100C37315 /* RectangleButtonYellow.swift */,
+				8A2C36FB2D22CA2100C37315 /* RectangleButtonPrimary.swift */,
 				8A2C37102D2D36BC00C37315 /* WhyBox.swift */,
 				8A63A1BD2D486DBF00712B27 /* RetryButton.swift */,
 				8A2C37122D2FF05900C37315 /* LoadingPlaceholderContent.swift */,
 				8AB2DF4F2D5AEFD00069E914 /* PageIndicatorView.swift */,
 				8AFCCCD52D5D4BFC0079732C /* RoundButton.swift */,
-				8A21B2C72D5EC4F4004AD75E /* AppBackground.swift */,
 				8AB2DF472D5701260069E914 /* LaurelItem.swift */,
 			);
 			path = "Reusable Views";
@@ -748,6 +774,36 @@
 			path = "Focus area recap";
 			sourceTree = "<group>";
 		};
+		8AE398132D6D85FF00F76AAC /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				8AE398202D70FBD000F76AAC /* Tutorial sheets */,
+				8AE398142D6D861A00F76AAC /* OnboardingMainView.swift */,
+				8AE398182D6EC41700F76AAC /* OnboardingIntroView.swift */,
+				8AE3981A2D6EC70800F76AAC /* OnboardingQuestionsView.swift */,
+				8AE3981E2D7042A100F76AAC /* OnboardingFirstCategoryView.swift */,
+			);
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
+		8AE398202D70FBD000F76AAC /* Tutorial sheets */ = {
+			isa = PBXGroup;
+			children = (
+				8AE398212D70FC0300F76AAC /* TutorialFirstRealm.swift */,
+				8AE398232D71101E00F76AAC /* TutorialFirstFocusArea.swift */,
+			);
+			path = "Tutorial sheets";
+			sourceTree = "<group>";
+		};
+		8AE3982B2D71257F00F76AAC /* Background */ = {
+			isa = PBXGroup;
+			children = (
+				8AE398292D711FF700F76AAC /* BackgroundSecondary.swift */,
+				8A21B2C72D5EC4F4004AD75E /* BackgroundPrimary.swift */,
+			);
+			path = Background;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -771,6 +827,7 @@
 				8A8ED7412CF5656100780384 /* Pow */,
 				8A8B63ED2D1F068A00BA57D0 /* AIProxy */,
 				8A5881B22D3456E60019C785 /* Mixpanel */,
+				8AE3982D2D718F2200F76AAC /* CloudStorage */,
 			);
 			productName = Fearless2;
 			productReference = 8A9CC1732CAB3DEA007C2AA9 /* Fearless2.app */;
@@ -807,6 +864,7 @@
 				8A8ED7402CF5656100780384 /* XCRemoteSwiftPackageReference "Pow" */,
 				8A8B63EC2D1F068A00BA57D0 /* XCRemoteSwiftPackageReference "AIProxySwift" */,
 				8A5881B12D3456E60019C785 /* XCRemoteSwiftPackageReference "mixpanel-swift" */,
+				8AE3982C2D718F2200F76AAC /* XCRemoteSwiftPackageReference "CloudStorage" */,
 			);
 			productRefGroup = 8A9CC1742CAB3DEA007C2AA9 /* Products */;
 			projectDirPath = "";
@@ -851,6 +909,7 @@
 				8A63324C2CD8415600EF34FA /* FocusAreaView.swift in Sources */,
 				8AB2DF462D56F0CD0069E914 /* CategoryView.swift in Sources */,
 				8A26DFDD2CEFF2EB002C4F60 /* UnderstandToolbarItem.swift in Sources */,
+				8AE398302D71908B00F76AAC /* MainAppManager.swift in Sources */,
 				8A6332562CDD66D500EF34FA /* TopicBox.swift in Sources */,
 				8A9CC1A12CAB7C34007C2AA9 /* SettingsToolbarItem.swift in Sources */,
 				8AC1D5AA2D65998B000DD8E6 /* RecapCelebrationView.swift in Sources */,
@@ -861,11 +920,14 @@
 				8A63325C2CDDCA7E00EF34FA /* FocusAreaRecapPreviewBox.swift in Sources */,
 				8A827BA12D414A4C00D0204E /* TopicStatusItem.swift in Sources */,
 				8A26DFCD2CEEC076002C4F60 /* UnderstandView.swift in Sources */,
+				8AE398222D70FC0300F76AAC /* TutorialFirstRealm.swift in Sources */,
 				8ACE0DE52CD2B58F00718B9E /* FocusAreaRecapView.swift in Sources */,
 				8A63325E2CDEAC1C00EF34FA /* FocusAreaBox.swift in Sources */,
 				8A2C37092D29B93200C37315 /* TopicChroniclesView.swift in Sources */,
 				8AB2DF4E2D573F770069E914 /* CategoryMissionBox.swift in Sources */,
 				8A74F49F2CE5A71A008A33B0 /* RecordingLoadingAnimation.swift in Sources */,
+				8AE3982A2D711FF700F76AAC /* BackgroundSecondary.swift in Sources */,
+				8AE3981B2D6EC70F00F76AAC /* OnboardingQuestionsView.swift in Sources */,
 				8A74F4AE2CE802A1008A33B0 /* DetailViewToolBarItem.swift in Sources */,
 				8A2C37002D24341400C37315 /* NewTopicHeader.swift in Sources */,
 				8AB2DF502D5AEFD00069E914 /* PageIndicatorView.swift in Sources */,
@@ -901,6 +963,7 @@
 				8A8ED7312CF2799100780384 /* FocusAreaEmptyState.swift in Sources */,
 				8A26DFD72CEFAE58002C4F60 /* UnderstandAskQuestionView.swift in Sources */,
 				8A26DFDF2CF00B43002C4F60 /* XmarkToolbarItem.swift in Sources */,
+				8AE398172D6D90D800F76AAC /* OnboardingIntroContent.swift in Sources */,
 				8A9CC1E32CAF38D6007C2AA9 /* ContextGatherer.swift in Sources */,
 				8A4B27492D6A9B6900FEAC44 /* CategoryQuestsHeading.swift in Sources */,
 				8A26DFCF2CEEF3A0002C4F60 /* Understand-CoreDataHelpers.swift in Sources */,
@@ -910,12 +973,14 @@
 				8A79EAB02CE3F045000A966B /* AudioRecorder.swift in Sources */,
 				8A9CC1DA2CAE7697007C2AA9 /* LottieView.swift in Sources */,
 				8A2C37132D2FF05900C37315 /* LoadingPlaceholderContent.swift in Sources */,
-				8A21B2C82D5EC4F4004AD75E /* AppBackground.swift in Sources */,
+				8A21B2C82D5EC4F4004AD75E /* BackgroundPrimary.swift in Sources */,
 				8A827B922D380CCA00D0204E /* TopicReview-CoreDataHelpers.swift in Sources */,
 				8A74F4A22CE69A42008A33B0 /* EntryDetailView.swift in Sources */,
 				8A26DFCA2CED4575002C4F60 /* InsightBoxView.swift in Sources */,
 				8AB2DF482D5701260069E914 /* LaurelItem.swift in Sources */,
 				8A9CC18C2CAB5BF7007C2AA9 /* AppViewsManager.swift in Sources */,
+				8AE398192D6EC41D00F76AAC /* OnboardingIntroView.swift in Sources */,
+				8AE3981F2D7042A100F76AAC /* OnboardingFirstCategoryView.swift in Sources */,
 				8A827B972D38151500D0204E /* TopicReviewEmptyState.swift in Sources */,
 				8A8ED73B2CF42CD200780384 /* EntriesEmptyState.swift in Sources */,
 				8A9CC1B62CAC9B88007C2AA9 /* NewTopicView.swift in Sources */,
@@ -926,7 +991,7 @@
 				8A26DFDB2CEFC4FF002C4F60 /* UnderstandLoadingView.swift in Sources */,
 				8A6332532CDD66B700EF34FA /* ActiveTopicsView.swift in Sources */,
 				8A26DFD12CEF0224002C4F60 /* UnderstandViewModel.swift in Sources */,
-				8A2C36FC2D22CA2100C37315 /* RectangleButtonYellow.swift in Sources */,
+				8A2C36FC2D22CA2100C37315 /* RectangleButtonPrimary.swift in Sources */,
 				8A26DFE42CF0181A002C4F60 /* UnderstandQuestionAnswer.swift in Sources */,
 				8ABE9AE22CB2597700483CFD /* NextButton.swift in Sources */,
 				8A9CC1882CAB44C5007C2AA9 /* OpenAISwiftService.swift in Sources */,
@@ -938,6 +1003,8 @@
 				8A8B63E92D1F02C400BA57D0 /* TopicImageViewModel.swift in Sources */,
 				8A6332492CD8257A00EF34FA /* FocusArea-CoreDataHelpers.swift in Sources */,
 				8AC1D59D2D629EC1000DD8E6 /* FocusAreaRecapTimelineView.swift in Sources */,
+				8AE398242D71101E00F76AAC /* TutorialFirstFocusArea.swift in Sources */,
+				8AE398152D6D861A00F76AAC /* OnboardingMainView.swift in Sources */,
 				8A9CC1C72CAE0B8D007C2AA9 /* Logger+Extension.swift in Sources */,
 				8A9191F32CB494FD007E17A0 /* QuestionOpenView.swift in Sources */,
 				8A9191FE2CBDDCCE007E17A0 /* SectionBox.swift in Sources */,
@@ -955,6 +1022,7 @@
 				8A9CC1E12CAF1BC4007C2AA9 /* TopicSuggestionsList.swift in Sources */,
 				8A2C37062D286BA400C37315 /* FocusAreaLoadingView.swift in Sources */,
 				8A2C36FA2D21A8B100C37315 /* QuestionSingleSelectView.swift in Sources */,
+				8AE3981D2D6FA74300F76AAC /* QuestionsOnboarding.swift in Sources */,
 				8A63A1BE2D486DBF00712B27 /* RetryButton.swift in Sources */,
 				8A8ED72F2CF26EAB00780384 /* FocusAreaSuggestion-CoreDataHelpers.swift in Sources */,
 				8ACE0DDA2CD0C54800718B9E /* SummaryInsightBox.swift in Sources */,
@@ -1240,6 +1308,14 @@
 				minimumVersion = 2.2.11;
 			};
 		};
+		8AE3982C2D718F2200F76AAC /* XCRemoteSwiftPackageReference "CloudStorage" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/nonstrict-hq/CloudStorage?tab=readme-ov-file";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.7.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1272,6 +1348,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 8ABE9AE82CB2768600483CFD /* XCRemoteSwiftPackageReference "WrappingHStack" */;
 			productName = WrappingHStack;
+		};
+		8AE3982D2D718F2200F76AAC /* CloudStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8AE3982C2D718F2200F76AAC /* XCRemoteSwiftPackageReference "CloudStorage" */;
+			productName = CloudStorage;
 		};
 /* End XCSwiftPackageProductDependency section */
 

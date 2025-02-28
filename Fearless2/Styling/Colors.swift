@@ -77,6 +77,7 @@ struct AppColors {
     static let backgroundWellness = Color(.displayP3, red: 0.176, green: 0.22, blue: 0.024, opacity: 1) // #2d3806
     static let backgroundPassion = Color(.displayP3, red: 0.055, green: 0.204, blue: 0.188, opacity: 1) // #0e3430
     static let backgroundPurpose = Color(.displayP3, red: 0.114, green: 0.067, blue: 0.2, opacity: 1) // #1d1133
+    static let backgroundOnboardingIntro = Color(.displayP3, red: 0.082, green: 0.082, blue: 0.09, opacity: 1)
 
     // Strokes
     static let strokePrimary = Color.white

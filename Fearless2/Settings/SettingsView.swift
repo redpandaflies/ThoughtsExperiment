@@ -4,7 +4,7 @@
 //
 //  Created by Yue Deng-Wu on 12/20/23.
 //
-
+import CloudStorage
 import SwiftUI
 
 
@@ -14,7 +14,7 @@ struct SettingsView: View {
 
     @State private var showStartOverAlert: Bool = false
     
-    
+    @CloudStorage("currentCategory") var completedOnboarding: Int = 0
     
     var body: some View {
         
@@ -49,9 +49,7 @@ struct SettingsView: View {
         .alert("⚠️\nAre you sure you want to start over?", isPresented: $showStartOverAlert) {
             Button("Start over", role: .destructive) {
                 dismiss()
-                Task {
-                    await   dataController.deleteAll()
-                }
+                completedOnboarding = 0
                 
             }
             Button("Cancel", role: .cancel) {}

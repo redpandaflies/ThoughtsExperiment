@@ -56,5 +56,10 @@ extension Category {
         let result = sections?.allObjects as? [Section] ?? []
         return result
     }
+    
+    var categoryQuestions: [Question] {
+        let result = questions?.allObjects as? [Question] ?? []
+        return result
+    }
 }
 

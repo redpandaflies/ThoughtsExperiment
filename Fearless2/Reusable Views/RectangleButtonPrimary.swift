@@ -1,5 +1,5 @@
 //
-//  RectangleButtonYellow.swift
+//  RectangleButtonPrimary.swift
 //  Fearless2
 //
 //  Created by Yue Deng-Wu on 12/30/24.
@@ -12,7 +12,7 @@ enum RectangleButtonColor {
     case white
 }
 
-struct RectangleButtonYellow: View {
+struct RectangleButtonPrimary: View {
     let buttonText: String
     let action: () -> Void
     let showChevron: Bool

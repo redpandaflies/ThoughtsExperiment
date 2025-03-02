@@ -5,7 +5,7 @@
 
 import Foundation
 
-extension Category {
+extension Category: CategoryProtocol {
     
     var categoryId: UUID {
         get { id ?? UUID() }

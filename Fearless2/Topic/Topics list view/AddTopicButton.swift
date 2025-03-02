@@ -29,7 +29,7 @@ struct AddTopicButton: View {
             
             VStack {
                 
-                Text("Choose your next quest")
+                Text(noTopics ? "Choose your first quest" : "Choose your next quest")
                     .multilineTextAlignment(.center)
                     .foregroundStyle(AppColors.textBlack)
                     .font(.system(size: 21))

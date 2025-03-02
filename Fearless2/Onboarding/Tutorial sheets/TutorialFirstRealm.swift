@@ -9,6 +9,7 @@ import SwiftUI
 
 struct TutorialFirstRealm: View {
     @Environment(\.dismiss) var dismiss
+    @EnvironmentObject var dataController: DataController
     let backgroundColor: Color
     
     let screenHeight = UIScreen.current.bounds.height
@@ -57,17 +58,27 @@ struct TutorialFirstRealm: View {
             Spacer()
             
             RoundButton(buttonImage: "checkmark", size: 30, frameSize: 80, buttonAction: {
-                dismiss()
+                completeTutorial()
             })
       
         }
+   
         .padding(.horizontal, 20)
         .padding(.top, 40)
         .padding(.bottom, 60)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .backgroundSecondary(backgroundColor: backgroundColor, height: screenHeight * 0.65, yOffset: -(screenHeight * 0.35))
+       
+    }
+    
+    private func completeTutorial() {
+        dismiss()
+        Task {
+            await dataController.updatePoints(newPoints: 5)
+        }
     }
 }
 
-//#Preview {
-//    TutorialFirstRealm()
-//}
+#Preview {
+    TutorialFirstRealm(backgroundColor: AppColors.backgroundCareer)
+}

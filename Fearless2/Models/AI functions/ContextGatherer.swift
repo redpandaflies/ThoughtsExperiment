@@ -383,11 +383,11 @@ struct ContextGatherer {
                 if let questionType = QuestionType(rawValue: question.questionType) {
                     switch questionType {
                     case .singleSelect:
-                        result += "Answer: \(question.questionAnswerSingleSelect)\n"
+                        result += "Answer single select: \(question.questionAnswerSingleSelect)\n"
                     case .multiSelect:
-                        result += "Answer: \(question.questionAnswerMultiSelect)\n"
+                        result += "Answer multi select: \(question.questionAnswerMultiSelect)\n"
                     case .open:
-                        result += "Answer: \(question.questionAnswerOpen)\n"
+                        result += "Answer open: \(question.questionAnswerOpen)\n"
                     }
                 } else {
                     result += "Answer not found for this question\n"

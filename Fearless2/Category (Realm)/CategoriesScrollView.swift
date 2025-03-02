@@ -10,6 +10,7 @@ import SwiftUI
 struct CategoriesScrollView: View {
     
     @Binding var categoriesScrollPosition: Int?
+  
     var categories: FetchedResults<Category>
     
     let frameWidth: CGFloat = 50

@@ -14,7 +14,7 @@ struct OnboardingFirstCategoryView: View {
         @Binding var selectedCategory: String
         
         var category: Realm {
-            return QuestionsOnboarding.getCategoryData(for: selectedCategory)
+            return QuestionCategory.getCategoryData(for: selectedCategory) ?? Realm.realmsData[7]
         }
     
         var body: some View {
@@ -30,7 +30,7 @@ struct OnboardingFirstCategoryView: View {
                     .foregroundStyle(AppColors.textPrimary)
 
 
-                Text("Set clear goals and take bold actions to\ndrive your career forward")
+                Text(category.discoveredDescription)
                     .multilineTextAlignment(.center)
                     .font(.system(size: 16, weight: .light))
                     .foregroundStyle(AppColors.textPrimary)

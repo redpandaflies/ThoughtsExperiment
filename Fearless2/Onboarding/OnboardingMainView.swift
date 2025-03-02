@@ -9,10 +9,11 @@ import SwiftUI
 
 struct OnboardingMainView: View {
     @EnvironmentObject var dataController: DataController
-    @State private var selectedTab: Int = 0
     @State private var selectedIntroPage: Int = 0
-    @State private var categoriesScrollPosition: Int?
+    @State private var imagesScrollPosition: Int?
     @State private var selectedCategory: String = ""
+    @State private var showQuestionsView: Bool = false
+    @State private var animationStage: Int = 0
     let introContent: [OnboardingIntroContent] = OnboardingIntroContent.pages
     
     @FetchRequest(
@@ -21,40 +22,41 @@ struct OnboardingMainView: View {
         ]
     ) var categories: FetchedResults<Category>
     
+    var newCategory: Realm {
+        return QuestionCategory.getCategoryData(for: selectedCategory) ?? Realm.realmsData[6]
+    }
+    
     var body: some View {
         
         VStack {
             
-            switch selectedTab {
-                case 0:
-                OnboardingIntroView(selectedTab: $selectedTab, selectedIntroPage: $selectedIntroPage, categoriesScrollPosition: $categoriesScrollPosition, categories: categories)
-                case 1:
-                OnboardingQuestionsView(selectedTab: $selectedTab, categoriesScrollPosition: $categoriesScrollPosition, selectedCategory: $selectedCategory)
-                default:
-                OnboardingFirstCategoryView(selectedCategory: $selectedCategory)
-            }
-            
+            OnboardingIntroView(selectedIntroPage: $selectedIntroPage, imagesScrollPosition: $imagesScrollPosition, showQuestionsView: $showQuestionsView, animationStage: $animationStage)
+
         }
-      
+        .ignoresSafeArea()
         .background {
-            BackgroundPrimary(backgroundColor: AppColors.backgroundOnboardingIntro)
+            BackgroundOnboarding(animationStage: $animationStage, backgroundColor: AppColors.backgroundOnboardingIntro, newBackgroundColor: newCategory.background)
         }
         .onAppear {
             
             Task {
-                if categories.isEmpty {
-                   
-                    await dataController.addCategoriesToCoreData()
+                if !categories.isEmpty {
                     
-                } else {
                     await dataController.deleteAll()
-                    await dataController.addCategoriesToCoreData()
                     
-                    await MainActor.run {
-                        categoriesScrollPosition = 3
-                    }
                 }
+                    
+                await MainActor.run {
+                    imagesScrollPosition = 0
+                }
+                
             }
+        }
+        .fullScreenCover(isPresented: $showQuestionsView, onDismiss: {
+            showQuestionsView = false
+        }) {
+            OnboardingQuestionsView(selectedCategory: $selectedCategory, selectedIntroPage: $selectedIntroPage, imagesScrollPosition: $imagesScrollPosition)
+                
         }
     }
   

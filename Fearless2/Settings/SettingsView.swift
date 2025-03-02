@@ -15,6 +15,8 @@ struct SettingsView: View {
     @State private var showStartOverAlert: Bool = false
     
     @CloudStorage("currentCategory") var completedOnboarding: Int = 0
+    @AppStorage("currentCategory") var currentCategory: Int = 0
+    @CloudStorage("discoveredFirstCategory") var firstCategory: Bool = false
     
     var body: some View {
         
@@ -48,8 +50,7 @@ struct SettingsView: View {
         .tint(Color.black)//sets the back button on navigationlink views to black
         .alert("⚠️\nAre you sure you want to start over?", isPresented: $showStartOverAlert) {
             Button("Start over", role: .destructive) {
-                dismiss()
-                completedOnboarding = 0
+                startOver()
                 
             }
             Button("Cancel", role: .cancel) {}
@@ -58,6 +59,24 @@ struct SettingsView: View {
         }
         
     }//body
+    
+    private func startOver() {
+        dismiss()
+        
+        //reset all appstorage and cloudstorage vars
+        currentCategory = 0
+        completedOnboarding = 0
+        firstCategory = false
+        
+        //delete all data
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            Task {
+                await dataController.deleteAll()
+                //            await dataController.resetPoints()
+            }
+        }
+        
+    }
     
 }
 

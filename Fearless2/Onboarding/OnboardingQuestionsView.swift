@@ -8,17 +8,17 @@
 import SwiftUI
 
 struct OnboardingQuestionsView: View {
+    @Environment(\.dismiss) var dismiss
     @EnvironmentObject var dataController: DataController
     
     @State private var selectedQuestion: Int = 0
-   
     @State private var answerOpen: String = ""
     @State private var answerSingleSelect: String = ""
     @State private var questions: [QuestionsOnboarding] = QuestionsOnboarding.initialQuestion
     
-    @Binding var selectedTab: Int
-    @Binding var categoriesScrollPosition: Int?
     @Binding var selectedCategory: String
+    @Binding var selectedIntroPage: Int
+    @Binding var imagesScrollPosition: Int?
     
     var currentQuestion: QuestionsOnboarding {
         return questions[selectedQuestion]
@@ -59,6 +59,10 @@ struct OnboardingQuestionsView: View {
         }
         .padding(.horizontal)
         .padding(.bottom)
+        .background {
+            BackgroundPrimary(backgroundColor: AppColors.backgroundOnboardingIntro)
+        }
+       
     }
     
     private func getTitle() -> some View {
@@ -109,16 +113,18 @@ struct OnboardingQuestionsView: View {
         case 0:
             let categoryQuestions = QuestionsOnboarding.getQuestionFlow(for: selectedCategory)
                 questions.append(contentsOf: categoryQuestions)
-        case 4:
-            selectedTab = 0
             
         case 5:
             if isFocused {
                 isFocused = false
             }
-            categoriesScrollPosition = 4
             
-            selectedTab = 0
+            dismiss()
+            
+            withAnimation {
+                selectedIntroPage += 1
+                imagesScrollPosition = (imagesScrollPosition ?? 0) + 1
+            }
             
             answerOpen = ""
             
@@ -126,7 +132,7 @@ struct OnboardingQuestionsView: View {
             break
         }
         
-        if selectedQuestion < 4 {
+        if selectedQuestion < 5 {
             selectedQuestion += 1
         }
         
@@ -143,6 +149,12 @@ struct OnboardingQuestionsView: View {
                 }
                 
             }
+        } else {
+            //add the selected category to coredata
+            Task {
+                await dataController.createSingleCategory(lifeArea: selectedCategory)
+            }
+            
         }
     }
 }

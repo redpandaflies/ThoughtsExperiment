@@ -141,7 +141,7 @@ final class DataController: ObservableObject {
             case .singleSelect:
                 if let answer = userAnswer as? [String] {
                     let arrayString = answer.joined(separator: ";")
-                    question.questionSingleSelectOptions = arrayString
+                    question.questionAnswerSingleSelect = arrayString
                 }
             case .multiSelect:
                 if let answer = userAnswer as? [String] {
@@ -168,6 +168,7 @@ final class DataController: ObservableObject {
             newQuestion.questionId = UUID()
             newQuestion.createdAt = getCurrentTimeString()
             newQuestion.questionType = questionType.rawValue
+            self.logger.info("Question type being saved: \(newQuestion.questionType)")
             newQuestion.questionContent = question.content
             newQuestion.categoryStarter = true
             
@@ -178,9 +179,8 @@ final class DataController: ObservableObject {
                     newQuestion.questionAnswerOpen = answer
                 }
             case .singleSelect:
-                if let answer = userAnswer as? [String] {
-                    let arrayString = answer.joined(separator: ";")
-                    newQuestion.questionSingleSelectOptions = arrayString
+                if let answer = userAnswer as? String {
+                    newQuestion.questionAnswerSingleSelect = answer
                 }
             case .multiSelect:
                 if let answer = userAnswer as? [String] {
@@ -622,6 +622,87 @@ extension DataController {
         
     }
     
+    /// Creates a single category in CoreData based on the provided life area option
+    /// - Parameter lifeAreaOption: The life area string to match with Realm data
+    /// - Returns: The created Category entity or nil if not found
+    func createSingleCategory(lifeArea: String) async {
+        
+        // Find the matching realm data
+        guard let realmData = QuestionCategory.getCategoryData(for: lifeArea) else {
+            self.logger.error("No matching realm found for lifeArea: \(lifeArea)")
+            return
+        }
+        
+        await context.perform {
+            do {
+                // Check if this category already exists
+                let request = NSFetchRequest<Category>(entityName: "Category")
+                request.predicate = NSPredicate(format: "lifeArea == %@", lifeArea)
+                let results = try self.context.fetch(request)
+                
+                if results.first != nil {
+                    self.logger.info("Category already exists for \(lifeArea)")
+                    return
+                }
+                
+                // Create the new category
+                let category = Category(context: self.context)
+                category.categoryId = UUID()
+                category.orderIndex = Int16(0)
+                category.categoryCreatedAt = getCurrentTimeString()
+                category.categoryEmoji = realmData.emoji
+                category.categoryName = realmData.name
+                category.categoryLifeArea = realmData.lifeArea
+                category.categoryUndiscovered = realmData.undiscoveredDescription
+                category.categoryDiscovered = realmData.discoveredDescription
+                
+            } catch {
+                self.logger.error("Error creating single category: \(error)")
+            }
+        }
+        
+        await self.save()
+    }
+
+    /// Saves all categories from Realm.realmsData except for the one that already exists in CoreData
+    /// - Parameter existingLifeArea: The life area of the category that should be skipped
+    func saveAllCategoriesExceptExisting(existingLifeArea: String) async {
+        await context.perform {
+            do {
+                // Check which categories already exist
+                let request = NSFetchRequest<Category>(entityName: "Category")
+                let existingCategories = try self.context.fetch(request)
+                let existingLifeAreas = existingCategories.compactMap { $0.categoryLifeArea }
+                
+                // Filter realms that need to be created
+                let realmsToCreate = Realm.realmsData.filter { realm in
+                    !existingLifeAreas.contains(realm.lifeArea)
+                }
+                
+                // Create each category that doesn't exist yet
+                for realm in realmsToCreate {
+                    let category = Category(context: self.context)
+                    category.categoryId = UUID()
+                    category.orderIndex = Int16(realm.orderIndex)
+                    category.categoryCreatedAt = getCurrentTimeString()
+                    category.categoryEmoji = realm.emoji
+                    category.categoryName = realm.name
+                    category.categoryLifeArea = realm.lifeArea
+                    category.categoryUndiscovered = realm.undiscoveredDescription
+                    category.categoryDiscovered = realm.discoveredDescription
+                    
+                    self.logger.info("Created category: \(realm.name)")
+                }
+                
+                self.logger.info("Created \(realmsToCreate.count) additional categories")
+            } catch {
+                self.logger.error("Error saving additional categories: \(error)")
+            }
+        }
+        
+        await self.save()
+    }
+    
     func removeDuplicateCategories() async {
         let request = NSFetchRequest<Category>(entityName: "Category")
         
@@ -679,6 +760,25 @@ extension DataController {
                     let points = Points(context: self.context)
                     points.pointsId = UUID()
                     points.total = Int64(newPoints)
+                }
+                
+            } catch {
+                self.logger.error("Error updating points CoreData: \(error)")
+            }
+        }
+        
+        await self.save()
+        
+    }
+    
+    func resetPoints() async {
+        let request = NSFetchRequest<Points>(entityName: "Points")
+        
+        await context.perform {
+            do {
+                let results = try self.context.fetch(request)
+                if let existingPoints = results.first {
+                    existingPoints.total = 0
                 }
                 
             } catch {

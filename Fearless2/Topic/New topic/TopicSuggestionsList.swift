@@ -117,6 +117,7 @@ struct TopicSuggestionsList: View {
             }
             
             await createFocusArea(topicId: topicId, focusArea: focusArea)
+            await dataController.saveAllCategoriesExceptExisting(existingLifeArea: category.categoryLifeArea)
         }
     }
     

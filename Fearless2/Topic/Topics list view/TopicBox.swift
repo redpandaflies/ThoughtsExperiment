@@ -61,6 +61,7 @@ struct TopicBox: View {
                 RoundButton(buttonImage: "arrow.right", buttonAction: {
                     buttonAction()
                 })
+                .disabled(true)
             } else {
                 Image(systemName: "checkmark")
                     .font(.system(size: 21))

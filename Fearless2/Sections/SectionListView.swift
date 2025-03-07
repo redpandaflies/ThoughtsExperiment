@@ -15,6 +15,7 @@ struct SectionListView: View {
     @ObservedObject var topicViewModel: TopicViewModel
     @State private var sectionsComplete: Bool = false
     @State private var sectionsScrollPosition: Int?
+    @State private var playHapticEffect: Int = 0
     
     @Binding var showFocusAreaRecapView: Bool
     @Binding var selectedSection: Section?
@@ -89,6 +90,7 @@ struct SectionListView: View {
                         .onTapGesture {
                             startSection(section: section, index: index)
                         }
+                        .sensoryFeedback(.selection, trigger: playHapticEffect)
                     }
                     
                     if focusArea.endOfTopic != true {
@@ -103,6 +105,7 @@ struct SectionListView: View {
                         .onTapGesture {
                             startRecap()
                         }
+                        .sensoryFeedback(.selection, trigger: playHapticEffect)
                     }
                 }//HStack
                 .scrollTargetLayout()
@@ -113,6 +116,9 @@ struct SectionListView: View {
             .scrollTargetBehavior(.viewAligned(limitBehavior: .alwaysByOne))
             .scrollIndicators(.hidden)
             .onAppear {
+                if playHapticEffect != 0 {
+                    playHapticEffect = 0
+                }
                 sectionsScrollPosition = firstIncompleteSectionIndex ?? sections.count
             }
             .onChange(of: selectedSection) {
@@ -130,6 +136,8 @@ struct SectionListView: View {
     }
     
     private func startSection(section: Section, index: Int) {
+        playHapticEffect += 1
+        
         guard let topic = section.topic else {
             logger.error("Topic not found for selected section")
             return
@@ -153,6 +161,7 @@ struct SectionListView: View {
     
     private func startRecap() {
         if allSectionsCompleted {
+            playHapticEffect += 1
             selectedFocusArea = focusArea
             logger.log("Selected focus area: \(String(describing: selectedFocusArea))")
             showFocusAreaRecapView = true

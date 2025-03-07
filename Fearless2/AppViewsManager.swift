@@ -16,7 +16,7 @@ struct AppViewsManager: View {
 //    @StateObject var understandViewModel: UnderstandViewModel
 //    @StateObject var topicViewModel: TopicViewModel
     
-    @CloudStorage("currentCategory") var completedOnboarding: Int = 0
+    @CloudStorage("currentAppView") var currentAppView: Int = 0
      
     init(dataController: DataController, openAISwiftService: OpenAISwiftService) {
 
@@ -34,11 +34,13 @@ struct AppViewsManager: View {
 
     var body: some View {
       
-        switch completedOnboarding {
+        switch currentAppView {
         case 0:
             OnboardingMainView()
-        default:
+        case 1:
             MainAppManager(dataController: dataController, openAISwiftService: openAISwiftService)
+        default:
+            NewCategoryView()
         }
     }
     

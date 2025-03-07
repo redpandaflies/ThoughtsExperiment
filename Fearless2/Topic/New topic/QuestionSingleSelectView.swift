@@ -21,6 +21,7 @@ struct QuestionSingleSelectView: View {
                 .font(.system(size: 22, design: .serif))
                 .foregroundStyle(AppColors.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
+                .padding(.bottom, 15)
             
             
             VStack (spacing: 15) {

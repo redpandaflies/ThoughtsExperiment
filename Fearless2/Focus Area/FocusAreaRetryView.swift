@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct FocusAreaRetryView: View {
+    @State private var playHapticEffect: Int = 0
+    
     let action: () -> Void
     
     var body: some View {
@@ -15,13 +17,20 @@ struct FocusAreaRetryView: View {
             Spacer()
             
             RetryButton(action: {
+                playHapticEffect += 1
                 action()
             })
+            .sensoryFeedback(.selection, trigger: playHapticEffect)
             
             Spacer()
             
         }
         .padding(.top, 20)
+        .onAppear {
+            if playHapticEffect != 0 {
+                playHapticEffect = 0
+            }
+        }
     }
 }
 

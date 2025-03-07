@@ -4,14 +4,15 @@
 //
 //  Created by Yue Deng-Wu on 11/12/24.
 //
-
+import CloudStorage
 import SwiftUI
 
 struct TopicDetailView: View {
     @EnvironmentObject var dataController: DataController
     @ObservedObject var topicViewModel: TopicViewModel
     @ObservedObject var transcriptionViewModel: TranscriptionViewModel
-  
+    @ObservedObject var points: Points
+    
     @State private var showRecordingView: Bool = false
     @State private var selectedEntry: Entry? = nil
     @State private var showFocusAreaRecapView: Bool = false
@@ -21,21 +22,23 @@ struct TopicDetailView: View {
     @State private var selectedEndOfTopicSection: Section? = nil
     @State private var headerHeight: CGFloat = 0
     @State private var focusAreaScrollPosition: Int?
+    @State private var showTutorialFocusArea: Bool = false
+    @State private var showAlertNewCategory: Bool = false
     
     @Binding var selectedTabTopic: TopicPickerItem
     
     let topic: Topic
-    @ObservedObject var points: Points
-    let focusAreasLimit: Int
     let screenWidth = UIScreen.current.bounds.width
     
-    init(topicViewModel: TopicViewModel, transcriptionViewModel: TranscriptionViewModel, selectedTabTopic: Binding<TopicPickerItem>, topic: Topic, points: Points, focusAreasLimit: Int) {
+    @CloudStorage("discoveredFirstFocusArea") var firstFocusArea: Bool = false
+    @CloudStorage("unlockNewCategory") var unlockNewCategory: Int = 0
+    
+    init(topicViewModel: TopicViewModel, transcriptionViewModel: TranscriptionViewModel, selectedTabTopic: Binding<TopicPickerItem>, topic: Topic, points: Points) {
         self.topicViewModel = topicViewModel
         self.transcriptionViewModel = transcriptionViewModel
         self._selectedTabTopic = selectedTabTopic
         self.topic = topic
         self.points = points
-        self.focusAreasLimit = focusAreasLimit
         
     }
     
@@ -63,7 +66,7 @@ struct TopicDetailView: View {
                 
                 
                 VStack {
-                    TopicDetailViewHeader(title: topic.topicTitle, progress: topic.topicFocusAreas.count, focusAreasLimit: focusAreasLimit, topic: topic)
+                    TopicDetailViewHeader(title: topic.topicTitle, progress: topic.topicFocusAreas.count, topic: topic)
                         .background {
                             GeometryReader { geo in
                                 Color.clear
@@ -91,6 +94,14 @@ struct TopicDetailView: View {
                 withAnimation(.snappy(duration: 0.2)) {
                     selectedTabTopic = .paths
                 }
+                
+                //show sheet explaining the concept of focus areas(paths)
+                if !firstFocusArea {
+                    showTutorialFocusArea = true
+                }
+                
+                //show unlock category alert
+                showAlertNewCategory = true
                
             }
             .fullScreenCover(item: $selectedSection, onDismiss: {
@@ -106,9 +117,27 @@ struct TopicDetailView: View {
             .fullScreenCover(isPresented: $showFocusAreaRecapView, onDismiss: {
                 showFocusAreaRecapView = false
             }) {
-                FocusAreaRecapView(topicViewModel: topicViewModel, focusArea: $selectedFocusArea, focusAreaScrollPosition: $focusAreaScrollPosition, totalFocusAreas: topic.topicFocusAreas.count, focusAreasLimit: focusAreasLimit)
+                FocusAreaRecapView(topicViewModel: topicViewModel, focusArea: $selectedFocusArea, focusAreaScrollPosition: $focusAreaScrollPosition, totalFocusAreas: topic.topicFocusAreas.count, focusAreasLimit: Int(topic.focusAreasLimit))
                     .presentationCornerRadius(20)
                     .presentationBackground(AppColors.black4)
+            }
+            .sheet(isPresented: $showTutorialFocusArea, onDismiss: {
+                showTutorialFocusArea = false
+            }) {
+                TutorialFirstFocusArea(backgroundColor: getCategoryBackground())
+                    .presentationDetents([.fraction(0.65)])
+                    .presentationCornerRadius(30)
+                    .interactiveDismissDisabled()
+                
+            }
+            .sheet(isPresented: $showAlertNewCategory, onDismiss: {
+                showAlertNewCategory = false
+            }) {
+                AlertUnlockNewCategory(backgroundColor: getCategoryBackground())
+                    .presentationDetents([.fraction(0.65)])
+                    .presentationCornerRadius(30)
+                    .interactiveDismissDisabled()
+                
             }
             .onChange(of: topicViewModel.updatedEntry) {
                 if let newEntry = topicViewModel.updatedEntry {
@@ -173,6 +202,14 @@ struct TopicDetailView: View {
     private func getFocusAreasCompleted() -> Int? {
         let focusAreas = topic.topicFocusAreas
         return focusAreas.filter { $0.completed }.count
+    }
+    
+    private func getCategoryBackground() -> Color {
+        if let category = topic.category {
+            return Realm.getBackgroundColor(forName: category.categoryName)
+        }
+        
+        return AppColors.backgroundCareer
     }
     
 }

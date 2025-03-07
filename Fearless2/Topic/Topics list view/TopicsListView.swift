@@ -23,7 +23,6 @@ struct TopicsListView: View {
    
 //    @State private var topicsList: TopicsList = .active
     @State private var topicScrollPosition: Int?
-    @State private var focusAreasLimit: Int = 3
     
     @Binding var selectedTopic: Topic?
     @Binding var currentTabBar: TabBarType
@@ -77,9 +76,7 @@ struct TopicsListView: View {
 //                switch topicsList {
 //                case .active:
                     ActiveTopicsView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, showCreateNewTopicView: $showCreateNewTopicView, selectedTopic: $selectedTopic, currentTabBar: $currentTabBar, selectedTabTopic: $selectedTabTopic, navigateToTopicDetailView: $navigateToTopicDetailView,
-                                     topicScrollPosition: $topicScrollPosition, categoriesScrollPosition: $categoriesScrollPosition, focusAreasLimit: $focusAreasLimit,
-                        topics: topics,
-                        points: points
+                                     topicScrollPosition: $topicScrollPosition, categoriesScrollPosition: $categoriesScrollPosition,topics: topics, points: points
                     )
 //                case .archived:
 //                    ArchivedTopicsView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, selectedTopic: $selectedTopic, currentTabBar: $currentTabBar, selectedTabTopic: $selectedTabTopic, navigateToTopicDetailView: $navigateToTopicDetailView)
@@ -93,7 +90,7 @@ struct TopicsListView: View {
             .sheet(isPresented: $showCreateNewTopicView, onDismiss: {
                 showCreateNewTopicView = false
             }) {
-                NewTopicView(topicViewModel: topicViewModel, selectedTopic: $selectedTopic, navigateToTopicDetailView: $navigateToTopicDetailView, currentTabBar: $currentTabBar, focusAreasLimit: $focusAreasLimit, category: category)
+                NewTopicView(topicViewModel: topicViewModel, selectedTopic: $selectedTopic, navigateToTopicDetailView: $navigateToTopicDetailView, currentTabBar: $currentTabBar, category: category)
                     .presentationDetents([.fraction(0.65)])
                     .presentationCornerRadius(30)
                 

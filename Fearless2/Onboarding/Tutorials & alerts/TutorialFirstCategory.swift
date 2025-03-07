@@ -1,21 +1,37 @@
 //
-//  TutorialFirstRealm.swift
+//  TutorialFirstCategory.swift
 //  Fearless2
 //
 //  Created by Yue Deng-Wu on 2/27/25.
 //
-
+import CloudStorage
 import SwiftUI
 
-struct TutorialFirstRealm: View {
+struct TutorialFirstCategory: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var dataController: DataController
     let backgroundColor: Color
     
     let screenHeight = UIScreen.current.bounds.height
  
+    @AppStorage("showTopics") var showTopics: Bool = false
+    @CloudStorage("seenTutorialFirstCategory") var seenTutorialFirstCategory: Bool = false
+    
     var body: some View {
         VStack(spacing: 5) {
+            
+            HStack (spacing: 8){
+                
+                Image(systemName: "laurel.leading")
+                    .font(.system(size: 50, weight: .light))
+                    .foregroundStyle(AppColors.textPrimary)
+                
+                Image(systemName: "laurel.trailing")
+                    .font(.system(size: 50, weight: .light))
+                    .foregroundStyle(AppColors.textPrimary)
+                    
+            }
+            .padding(.bottom, 35)
 
             HStack(spacing: 5) {
                 Text("You earned")
@@ -36,24 +52,12 @@ struct TutorialFirstRealm: View {
                 .foregroundStyle(AppColors.textPrimary)
                 .padding(.bottom, 25)
            
-            HStack {
-                Text("You can use")
-                    .font(.system(size: 17, weight: .light))
-                    .foregroundStyle(AppColors.textPrimary)
-                
-                LaurelItem(size: 17, points: "LAURELS", useSmallCaps: true)
-                
-                Text("to unlock new")
-                    .font(.system(size: 17, weight: .light))
-                    .foregroundStyle(AppColors.textPrimary)
-            }
-
-            
-            Text("realms and abilities.\n\nKeep exploring to earn more.")
-                .multilineTextAlignment(.center)
+           
+            Text("Keep exploring to earn more")
                 .font(.system(size: 17, weight: .light))
                 .foregroundStyle(AppColors.textPrimary)
-        
+                
+             
             
             Spacer()
             
@@ -64,21 +68,28 @@ struct TutorialFirstRealm: View {
         }
    
         .padding(.horizontal, 20)
-        .padding(.top, 40)
-        .padding(.bottom, 60)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(.top, 70)
+        .padding(.bottom, 40)
+        .frame(maxWidth: .infinity, maxHeight: screenHeight * 0.65)
         .backgroundSecondary(backgroundColor: backgroundColor, height: screenHeight * 0.65, yOffset: -(screenHeight * 0.35))
        
     }
     
     private func completeTutorial() {
         dismiss()
+        seenTutorialFirstCategory = true
         Task {
             await dataController.updatePoints(newPoints: 5)
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                withAnimation(.snappy(duration: 0.25)) {
+                    showTopics = true
+                }
+            }
         }
     }
 }
 
 #Preview {
-    TutorialFirstRealm(backgroundColor: AppColors.backgroundCareer)
+    TutorialFirstCategory(backgroundColor: AppColors.backgroundCareer)
 }

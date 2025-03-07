@@ -14,9 +14,12 @@ struct SettingsView: View {
 
     @State private var showStartOverAlert: Bool = false
     
-    @CloudStorage("currentCategory") var completedOnboarding: Int = 0
+    @CloudStorage("currentAppView") var currentAppView: Int = 0
+    @CloudStorage("unlockNewCategory") var newCategory: Bool = false
+    @CloudStorage("seenTutorialFirstCategory") var seenTutorialFirstCategory: Bool = false
+    @CloudStorage("discoveredFirstFocusArea") var firstFocusArea: Bool = false
     @AppStorage("currentCategory") var currentCategory: Int = 0
-    @CloudStorage("discoveredFirstCategory") var firstCategory: Bool = false
+    @AppStorage("showTopics") var showTopics: Bool = false
     
     var body: some View {
         
@@ -51,7 +54,6 @@ struct SettingsView: View {
         .alert("⚠️\nAre you sure you want to start over?", isPresented: $showStartOverAlert) {
             Button("Start over", role: .destructive) {
                 startOver()
-                
             }
             Button("Cancel", role: .cancel) {}
         } message: {
@@ -65,8 +67,11 @@ struct SettingsView: View {
         
         //reset all appstorage and cloudstorage vars
         currentCategory = 0
-        completedOnboarding = 0
-        firstCategory = false
+        currentAppView = 0
+        newCategory = false
+        showTopics = false
+        seenTutorialFirstCategory = false
+        firstFocusArea = false
         
         //delete all data
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {

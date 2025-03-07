@@ -17,7 +17,6 @@ struct ActiveTopicsView: View {
     @Binding var navigateToTopicDetailView: Bool
     @Binding var topicScrollPosition: Int?
     @Binding var categoriesScrollPosition: Int?
-    @Binding var focusAreasLimit: Int
     
     let topics: FetchedResults<Topic>
     
@@ -47,7 +46,7 @@ struct ActiveTopicsView: View {
             .scrollTargetLayout()
             .navigationDestination(isPresented: $navigateToTopicDetailView) {
                 if let topic = selectedTopic {
-                    TopicDetailView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, selectedTabTopic: $selectedTabTopic, topic: topic, points: points, focusAreasLimit: focusAreasLimit)
+                    TopicDetailView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, selectedTabTopic: $selectedTabTopic, topic: topic, points: points)
                         .toolbarRole(.editor) //removes the word "back" in the back button
                         
                 }
@@ -88,7 +87,6 @@ struct ActiveTopicsView: View {
         //set selected topic ID so that delete topic works
         selectedTopic = topic
         
-        focusAreasLimit = FocusAreasLimitCalculator.calculatePaths(topicIndex: index, totalTopics: topics.count)
         if let scrollPosition = categoriesScrollPosition {
             currentCategory = scrollPosition
         }

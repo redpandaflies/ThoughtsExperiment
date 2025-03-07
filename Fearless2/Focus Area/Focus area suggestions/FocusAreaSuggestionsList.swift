@@ -16,6 +16,7 @@ struct FocusAreaSuggestionsList: View {
     
     @EnvironmentObject var dataController: DataController
     @ObservedObject var topicViewModel: TopicViewModel
+    @State private var playHapticEffect: Int = 0
     @Binding var selectedTabSuggestionsList: Int
     
     let suggestions: [any SuggestionProtocol]
@@ -69,8 +70,10 @@ struct FocusAreaSuggestionsList: View {
             })
           
             .onTapGesture {
+                playHapticEffect += 1
                 createFocusArea(suggestion: suggestion, topic: topic)
             }
+            .sensoryFeedback(.selection, trigger: playHapticEffect)
             .scrollTransition { content, phase in
                 content
                     .opacity(phase.isIdentity ? 1 : 0.3)

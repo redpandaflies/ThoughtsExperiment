@@ -113,6 +113,7 @@
         <attribute name="completed" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="createdAt" optional="YES" attributeType="String"/>
         <attribute name="definition" optional="YES" attributeType="String"/>
+        <attribute name="focusAreasLimit" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="mainImage" optional="YES" attributeType="String"/>
         <attribute name="status" optional="YES" attributeType="String"/>

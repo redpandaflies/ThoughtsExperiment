@@ -37,6 +37,7 @@ struct LoadingPlaceholderContent: View {
         VStack {
             
             Text(getLoadingText())
+                .multilineTextAlignment(.center)
                 .font(.system(size: 11))
                 .foregroundStyle(AppColors.textPrimary)
                 .opacity(0.4)
@@ -74,7 +75,7 @@ struct LoadingPlaceholderContent: View {
     private func getBackground() -> some View {
         ZStack {
             RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.gray, lineWidth: 0.5)
+                .stroke(Color.white.opacity(0.3), lineWidth: 0.5)
                 .fill(Color.clear)
             
             if animate {

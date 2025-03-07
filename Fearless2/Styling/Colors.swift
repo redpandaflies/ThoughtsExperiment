@@ -70,14 +70,24 @@ struct AppColors {
 
     // Background
     static let backgroundPrimary = textSecondary
-    static let backgroundCareer = Color(.displayP3, red: 0.059, green: 0.141, blue: 0.239, opacity: 1) // #0f243d
-    static let backgroundUncharted = Color(.displayP3, red: 0.29, green: 0.063, blue: 0.067, opacity: 1) // #4a1011
-    static let backgroundRelationships = Color(.displayP3, red: 0.333, green: 0.149, blue: 0.039, opacity: 1) // #55260a
-    static let backgroundFinances = Color(.displayP3, red: 0.365, green: 0.243, blue: 0, opacity: 1) // #5d3e00
-    static let backgroundWellness = Color(.displayP3, red: 0.176, green: 0.22, blue: 0.024, opacity: 1) // #2d3806
-    static let backgroundPassion = Color(.displayP3, red: 0.055, green: 0.204, blue: 0.188, opacity: 1) // #0e3430
-    static let backgroundPurpose = Color(.displayP3, red: 0.114, green: 0.067, blue: 0.2, opacity: 1) // #1d1133
+//    static let backgroundCareer = Color(.displayP3, red: 0.059, green: 0.141, blue: 0.239, opacity: 1) // #0f243d
+//    static let backgroundUncharted = Color(.displayP3, red: 0.29, green: 0.063, blue: 0.067, opacity: 1) // #4a1011
+//    static let backgroundRelationships = Color(.displayP3, red: 0.333, green: 0.149, blue: 0.039, opacity: 1) // #55260a
+//    static let backgroundFinances = Color(.displayP3, red: 0.365, green: 0.243, blue: 0, opacity: 1) // #5d3e00
+//    static let backgroundWellness = Color(.displayP3, red: 0.176, green: 0.22, blue: 0.024, opacity: 1) // #2d3806
+//    static let backgroundPassion = Color(.displayP3, red: 0.055, green: 0.204, blue: 0.188, opacity: 1) // #0e3430
+//    static let backgroundPurpose = Color(.displayP3, red: 0.114, green: 0.067, blue: 0.2, opacity: 1) // #1d1133
     static let backgroundOnboardingIntro = Color(.displayP3, red: 0.082, green: 0.082, blue: 0.09, opacity: 1)
+    
+    
+    static let backgroundUncharted = Color(.displayP3, red: 0.427, green: 0.090, blue: 0.094, opacity: 1) // #6D1718
+    static let backgroundRelationships = Color(.displayP3, red: 0.478, green: 0.204, blue: 0.043, opacity: 1) // #7A340B
+    static let backgroundFinances = Color(.displayP3, red: 0.506, green: 0.337, blue: 0, opacity: 1) // #815600
+    static let backgroundWellness = Color(.displayP3, red: 0.247, green: 0.306, blue: 0.039, opacity: 1) // #3F4E0A
+    static let backgroundPassion = Color(.displayP3, red: 0.059, green: 0.310, blue: 0.286, opacity: 1) // #0F4F49
+    static let backgroundCareer = Color(.displayP3, red: 0.090, green: 0.216, blue: 0.365, opacity: 1) // #17375D
+    static let backgroundPurpose = Color(.displayP3, red: 0.173, green: 0.098, blue: 0.318, opacity: 1) // #2C1951
+    
 
     // Strokes
     static let strokePrimary = Color.white

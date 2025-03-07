@@ -101,7 +101,7 @@ struct FocusAreaRecapView: View {
             .toolbar {
                
                 ToolbarItem(placement: .principal) {
-                    ToolbarTitleItem2(emoji: focusArea?.category?.categoryEmoji ?? "", title: focusArea?.focusAreaTitle ?? "")
+                    ToolbarTitleItem2(emoji: focusArea?.category?.categoryEmoji ?? "", title: "Path complete")
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -149,7 +149,7 @@ struct FocusAreaRecapView: View {
         case 0:
             if let currentFocusArea = focusArea {
                 RecapCelebrationView(title: currentFocusArea.focusAreaTitle, text: "For exploring", points: "+1")
-                    .padding(.top, 30)
+                    .padding(.top, 80)
             }
             
         case 1:
@@ -224,16 +224,14 @@ struct FocusAreaRecapView: View {
     
     private func disableButton() -> Bool {
         switch selectedTab {
-       
-       
-        case 1:
-            if topicViewModel.createFocusAreaSummary == .loading {
-                return true
-            } else {
+            case 1:
+                if topicViewModel.createFocusAreaSummary == .loading {
+                    return true
+                } else {
+                    return false
+                }
+            default:
                 return false
-            }
-        default:
-            return false
             
         }
         
@@ -336,6 +334,9 @@ struct FocusAreaRecapView: View {
 struct FocusAreaRecapReflectionView: View {
     @ObservedObject var topicViewModel: TopicViewModel
     @State private var animationValue: Bool = false
+    @State private var animatedText = ""
+    @State private var animator: TextAnimator?
+    @State private var startedAnimation: Bool = false
     
     @Binding var recapReady: Bool
     
@@ -345,7 +346,7 @@ struct FocusAreaRecapReflectionView: View {
         
         Group {
             if recapReady {
-                Text(feedback)
+                Text(animatedText)
                     .font(.system(size: 19, design: .serif))
                     .foregroundStyle(AppColors.textPrimary.opacity(0.9))
                     .lineSpacing(1.5)
@@ -369,13 +370,31 @@ struct FocusAreaRecapReflectionView: View {
             }
         }
         .onAppear {
+            if animator == nil {
+                    animator = TextAnimator(text: feedback, animatedText: $animatedText, speed: 0.04)
+                }
+            
             if topicViewModel.createFocusAreaSummary == .ready {
+                startedAnimation = true
                 recapReady = true
+                animator?.animate()
             } else {
                 recapReady = false
             }
         }
+        .onChange(of: recapReady) {
+            if recapReady && !startedAnimation {
+                print("recap ready, starting typewriter animation")
+                if animator == nil {
+                    animator = TextAnimator(text: feedback, animatedText: $animatedText, speed: 0.02)
+                } else {
+                    animator?.updateText(feedback)
+                }
+                animator?.animate()
+            }
+        }
     }
+
 }
 
 struct FocusAreaRecapSuggestionsView: View {

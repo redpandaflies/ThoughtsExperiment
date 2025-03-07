@@ -38,29 +38,30 @@ struct TopicDetailViewFooter: View {
             
             Menu {
                 
-                Button (role: .destructive) {
-                    showDeleteTopicAlert = true
-                    
-                } label: {
-                
-                    Label("Delete", systemImage: "trash")
-                }
-                
-                if let currentTopic = topic, currentTopic.topicStatus == TopicStatusItem.archived.rawValue {
-                    
-                    Button {
-                        updateTopicStatus(newStatus: .active)
-                    } label: {
-                        Label("Unarchive", systemImage: "arrow.up.bin")
-                    }
-                } else {
-                    Button {
-                        updateTopicStatus(newStatus: .archived)
+                if topic?.completed != true {
+                    Button (role: .destructive) {
+                        showDeleteTopicAlert = true
                         
                     } label: {
-                        Label("Archive", systemImage: "archivebox")
+                        
+                        Label("Abandon quest", systemImage: "trash")
                     }
                 }
+//                if let currentTopic = topic, currentTopic.topicStatus == TopicStatusItem.archived.rawValue {
+//                    
+//                    Button {
+//                        updateTopicStatus(newStatus: .active)
+//                    } label: {
+//                        Label("Unarchive", systemImage: "arrow.up.bin")
+//                    }
+//                } else {
+//                    Button {
+//                        updateTopicStatus(newStatus: .archived)
+//                        
+//                    } label: {
+//                        Label("Archive", systemImage: "archivebox")
+//                    }
+//                }
                 
                 
             } label: {

@@ -5,6 +5,7 @@
 //  Created by Yue Deng-Wu on 2/18/25.
 //
 import Mixpanel
+import Pow
 import SwiftUI
 
 struct EndTopicView: View {
@@ -12,6 +13,8 @@ struct EndTopicView: View {
     @EnvironmentObject var dataController: DataController
     @ObservedObject var topicViewModel: TopicViewModel
     @State private var selectedTab: Int = 0
+    @State private var showFragment: Bool = false
+    @State private var startRepeatingAnimation: Bool = false
     @Binding var section: Section?
     @ObservedObject var topic: Topic
     
@@ -30,7 +33,6 @@ struct EndTopicView: View {
                         
                     default:
                         topicRecapView()
-                        
                         
                     }
                 }
@@ -62,7 +64,7 @@ struct EndTopicView: View {
             .toolbar {
                
                 ToolbarItem(placement: .principal) {
-                    ToolbarTitleItem2(emoji: topic.category?.categoryEmoji ?? "", title: topic.topicTitle)
+                    ToolbarTitleItem2(emoji: topic.category?.categoryEmoji ?? "", title: "Quest complete")
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -132,7 +134,17 @@ struct EndTopicView: View {
             switch topicViewModel.createTopicOverview {
             case .ready:
                 if let review = topic.review?.reviewOverview {
-                    TopicRecapFragmentBox(fragmentText: review)
+                    if showFragment {
+                        TopicRecapFragmentBox(fragmentText: review)
+                            .transition(.movingParts.flip)
+                            .conditionalEffect(
+                                  .repeat(
+                                    .glow(color: .white.opacity(0.25), radius: 80),
+                                    every: 3
+                                  ),
+                                  condition: startRepeatingAnimation
+                              )
+                    }
                 } else { //happens when user sees this view before API call has been made
                     LoadingPlaceholderContent(contentType: .topicReview)
                 }
@@ -146,6 +158,15 @@ struct EndTopicView: View {
             
         }
         .frame(maxHeight: .infinity, alignment: .center)
+        .onAppear {
+            revealFragment()
+        }
+        .onChange(of: topicViewModel.createTopicOverview) {
+            revealFragment()
+        }
+        .onDisappear {
+            startRepeatingAnimation = false
+        }
     }
     
     private func getTopicReview() {
@@ -167,6 +188,19 @@ struct EndTopicView: View {
                     Mixpanel.mainInstance().track(event: "Updated topic overview")
                 }
             }
+        }
+    }
+    
+    private func revealFragment() {
+        if topicViewModel.createTopicOverview == .ready {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                withAnimation(.interpolatingSpring(mass: 1, stiffness: 10, damping: 10, initialVelocity: 10)) {
+                    showFragment = true
+                }
+                
+                startRepeatingAnimation = true
+            }
+            
         }
     }
 }

@@ -4,7 +4,7 @@
 //
 //  Created by Yue Deng-Wu on 12/30/24.
 //
-
+import Pow
 import SwiftUI
 
 enum RectangleButtonColor {
@@ -13,6 +13,8 @@ enum RectangleButtonColor {
 }
 
 struct RectangleButtonPrimary: View {
+    @State private var playHapticEffect: Int = 0
+    
     let buttonText: String
     let action: () -> Void
     let showChevron: Bool
@@ -44,72 +46,85 @@ struct RectangleButtonPrimary: View {
     
     var body: some View {
         
-        HStack {
-            
-            if showSkipButton {
-              
-                Text("Skip")
-                    .font(.system(size: 15, weight: .medium))
-                    .foregroundStyle(Color.black)
+        
+        
+            HStack {
+                
+                if showSkipButton {
+                    
+                    Button {
+                        playHapticEffect += 1
+                        skipAction()
+                    } label: {
+                        Text("Skip")
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundStyle(Color.black)
+                            .padding(.horizontal, 20)
+                            .frame(height: 55)
+                            .contentShape(RoundedRectangle(cornerRadius: 15))
+                            .background {
+                                RoundedRectangle(cornerRadius: 15)
+                                    .stroke(Color.white.opacity(0.9), lineWidth: 1)
+                                    .fill(
+                                        LinearGradient(
+                                            gradient: Gradient(colors: [Color.white, AppColors.buttonLightGrey1]),
+                                            startPoint: .top,
+                                            endPoint: .bottom
+                                        )
+                                    )
+                                    .shadow(color: Color.black.opacity(0.15), radius: 5, x: 0, y: 3)
+                            }
+                    }//button label
+                    .buttonStyle(ButtonStylePushDown())
+                    .sensoryFeedback(.selection, trigger: playHapticEffect)
+                }
+                
+                Button {
+                    playHapticEffect += 1
+                    action()
+                } label: {
+                    HStack {
+                        
+                        Spacer()
+                        
+                        Text(buttonText)
+                            .font(.system(size: sizeSmall ? 13 : 15, weight: .medium))
+                            .foregroundStyle(Color.black)
+                        
+                        if showChevron {
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 15, weight: .medium))
+                                .foregroundStyle(Color.black)
+                        }
+                        
+                        Spacer()
+                        
+                    }//HStack
                     .padding(.horizontal, 20)
                     .frame(height: 55)
                     .contentShape(RoundedRectangle(cornerRadius: 15))
                     .background {
                         RoundedRectangle(cornerRadius: 15)
-                            .stroke(Color.white.opacity(0.9), lineWidth: 1)
                             .fill(
                                 LinearGradient(
-                                    gradient: Gradient(colors: [Color.white, AppColors.buttonLightGrey1]),
+                                    gradient: Gradient(colors: buttonColor == .yellow ? [AppColors.buttonYellow1, AppColors.buttonYellow2] : [Color.white, AppColors.buttonLightGrey1]),
                                     startPoint: .top,
                                     endPoint: .bottom
                                 )
                             )
                             .shadow(color: Color.black.opacity(0.15), radius: 5, x: 0, y: 3)
                     }
-                    .onTapGesture {
-                        skipAction()
-                    }
-            }
-            
-          
-            HStack {
-                
-                Spacer()
-                
-                Text(buttonText)
-                    .font(.system(size: sizeSmall ? 13 : 15, weight: .medium))
-                    .foregroundStyle(Color.black)
-                
-                if showChevron {
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 15, weight: .medium))
-                        .foregroundStyle(Color.black)
-                }
-                
-                Spacer()
-                
+                    .opacity(disableMainButton ? 0.3 : 1)
+                }//button label
+                .buttonStyle(ButtonStylePushDown(isDisabled: disableMainButton))
+                .disabled(disableMainButton)
+                .sensoryFeedback(.selection, trigger: playHapticEffect)
             }//HStack
-            .padding(.horizontal, 20)
-            .frame(height: 55)
-            .contentShape(RoundedRectangle(cornerRadius: 15))
-            .background {
-                RoundedRectangle(cornerRadius: 15)
-                    .fill(
-                        LinearGradient(
-                            gradient: Gradient(colors: buttonColor == .yellow ? [AppColors.buttonYellow1, AppColors.buttonYellow2] : [Color.white, AppColors.buttonLightGrey1]),
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
-                    .shadow(color: Color.black.opacity(0.15), radius: 5, x: 0, y: 3)
-            }
-            .opacity(disableMainButton ? 0.3 : 1)
-            .onTapGesture {
-                if !disableMainButton {
-                    action()
+            .onAppear {
+                if playHapticEffect != 0 {
+                    playHapticEffect = 0
                 }
             }
-        }
     }
     
     

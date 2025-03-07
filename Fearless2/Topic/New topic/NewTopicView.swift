@@ -26,7 +26,6 @@ struct NewTopicView: View {
     @Binding var selectedTopic: Topic?
     @Binding var navigateToTopicDetailView: Bool
     @Binding var currentTabBar: TabBarType
-    @Binding var focusAreasLimit: Int
     
     let category: Category
     
@@ -41,7 +40,7 @@ struct NewTopicView: View {
             })
             .padding(.horizontal)
            
-            TopicSuggestionsList(topicViewModel: topicViewModel, selectedTopic: $selectedTopic, navigateToTopicDetailView: $navigateToTopicDetailView, currentTabBar: $currentTabBar, focusAreasLimit: $focusAreasLimit, category: category)
+            TopicSuggestionsList(topicViewModel: topicViewModel, selectedTopic: $selectedTopic, navigateToTopicDetailView: $navigateToTopicDetailView, currentTabBar: $currentTabBar, category: category)
             
                         
         }

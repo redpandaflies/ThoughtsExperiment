@@ -43,7 +43,7 @@ struct AddTopicButton: View {
                 RoundButton(buttonImage: "plus", buttonAction: {
                     buttonAction()
                 })
-                
+                .disabled(true)
                 
                 
             }

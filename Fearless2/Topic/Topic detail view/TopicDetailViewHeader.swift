@@ -11,7 +11,6 @@ struct TopicDetailViewHeader: View {
     
     let title: String
     let progress: Int
-    let focusAreasLimit: Int
     let topic: Topic
     let screenWidth = UIScreen.current.bounds.width
     
@@ -24,7 +23,7 @@ struct TopicDetailViewHeader: View {
                 .foregroundStyle(AppColors.textPrimary)
                 .padding(.horizontal)
             
-            TopicDetailViewProgressBar(progress: progress, focusAreasLimit: focusAreasLimit, topic: topic)
+            TopicDetailViewProgressBar(progress: progress, topic: topic)
         }
         .padding(.top)
         .frame(width: screenWidth)
@@ -33,11 +32,10 @@ struct TopicDetailViewHeader: View {
 
 struct TopicDetailViewProgressBar: View {
     let progress: Int
-    let focusAreasLimit: Int
     let topic: Topic
     let screenWidth = UIScreen.current.bounds.width
     var frameWidth: CGFloat {
-        return screenWidth/CGFloat(focusAreasLimit + 2)
+        return screenWidth/CGFloat(topic.focusAreasLimit + 2)
     }
     
     var progressWidth: CGFloat {
@@ -68,7 +66,7 @@ struct TopicDetailViewProgressBar: View {
                     
             }
             
-            TopicDetailViewProgressBarLabels(progress: progress, focusAreasLimit: focusAreasLimit, frameWidth: frameWidth)
+            TopicDetailViewProgressBarLabels(progress: progress, focusAreasLimit: Int(topic.focusAreasLimit), frameWidth: frameWidth)
         }
     }
     

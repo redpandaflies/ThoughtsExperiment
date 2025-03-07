@@ -161,7 +161,7 @@ final class DataController: ObservableObject {
     }
     
     //save answer onboarding
-    func saveAnswerOnboarding(questionType: QuestionType, question: QuestionsOnboarding, userAnswer: Any, categoryLifeArea: String) async {
+    func saveAnswerOnboarding(questionType: QuestionType, question: QuestionsNewCategory, userAnswer: Any, categoryLifeArea: String) async {
         await context.perform {
             // create a new question
             let newQuestion = Question(context: self.context)
@@ -308,6 +308,12 @@ extension DataController {
             topic.topicCreatedAt = getCurrentTimeString()
             topic.topicStatus = TopicStatusItem.active.rawValue
             topic.topicTitle = suggestion.content
+            let highestFocusAreaTopic = category.categoryTopics.max(by: { $0.focusAreasLimit < $1.focusAreasLimit })
+
+           //get the limit for the topic with highest focusAreasLimit, this is used instead of a simple category.categoryTopics.count because topics can be deleted
+            let highestFocusAreasLimit = highestFocusAreaTopic?.focusAreasLimit ?? 0
+            
+            topic.focusAreasLimit = Int16(highestFocusAreasLimit + 1)
             category.addToTopics(topic)
             
             
@@ -637,10 +643,13 @@ extension DataController {
             do {
                 // Check if this category already exists
                 let request = NSFetchRequest<Category>(entityName: "Category")
-                request.predicate = NSPredicate(format: "lifeArea == %@", lifeArea)
-                let results = try self.context.fetch(request)
-                
-                if results.first != nil {
+                let allCategories = try self.context.fetch(request)
+                                
+                let matchingCategories = allCategories.filter { category in
+                    category.lifeArea == lifeArea
+                }
+                                
+                if !matchingCategories.isEmpty {
                     self.logger.info("Category already exists for \(lifeArea)")
                     return
                 }
@@ -648,7 +657,7 @@ extension DataController {
                 // Create the new category
                 let category = Category(context: self.context)
                 category.categoryId = UUID()
-                category.orderIndex = Int16(0)
+                category.orderIndex = Int16(allCategories.count)
                 category.categoryCreatedAt = getCurrentTimeString()
                 category.categoryEmoji = realmData.emoji
                 category.categoryName = realmData.name

@@ -13,13 +13,13 @@ struct TopicSuggestionsList: View {
     @EnvironmentObject var dataController: DataController
     @ObservedObject var topicViewModel: TopicViewModel
     @State private var selectedTabSuggestionsList: Int = 0
+    @State private var playHapticEffect: Int = 0
     
     private let screenWidth = UIScreen.current.bounds.width
     
     @Binding var selectedTopic: Topic?
     @Binding var navigateToTopicDetailView: Bool
     @Binding var currentTabBar: TabBarType
-    @Binding var focusAreasLimit: Int
     
     let category: Category
     let frameWidth: CGFloat = 260
@@ -77,8 +77,10 @@ struct TopicSuggestionsList: View {
                 selectTopic(suggestion: suggestion)
             })
             .onTapGesture {
+                playHapticEffect += 1
                 selectTopic(suggestion: suggestion)
             }
+            .sensoryFeedback(.selection, trigger: playHapticEffect)
             .scrollTransition { content, phase in
                 content
                     .opacity(phase.isIdentity ? 1 : 0.8)
@@ -117,7 +119,7 @@ struct TopicSuggestionsList: View {
             }
             
             await createFocusArea(topicId: topicId, focusArea: focusArea)
-            await dataController.saveAllCategoriesExceptExisting(existingLifeArea: category.categoryLifeArea)
+
         }
     }
     
@@ -132,9 +134,6 @@ struct TopicSuggestionsList: View {
     private func startNewTopic() {
         //close sheet
         dismiss()
-        
-        //set focus areas limit for new topic
-        focusAreasLimit = FocusAreasLimitCalculator.calculatePaths(topicIndex: 0, totalTopics: category.categoryTopics.count)
         
         //navigate to new topic
         selectedTopic = dataController.newTopic

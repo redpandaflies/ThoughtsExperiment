@@ -1,27 +1,34 @@
 //
-//  OnboardingQuestionsView.swift
+//  NewCategoryQuestionsView.swift
 //  Fearless2
 //
-//  Created by Yue Deng-Wu on 2/25/25.
+//  Created by Yue Deng-Wu on 3/5/25.
 //
 
 import SwiftUI
 
-struct OnboardingQuestionsView: View {
+struct NewCategoryQuestionsView: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var dataController: DataController
     
     @State private var selectedQuestion: Int = 0
     @State private var answerOpen: String = ""
     @State private var answerSingleSelect: String = ""
-    @State private var questions: [QuestionsNewCategory] = QuestionsNewCategory.initialQuestionOnboarding
     
+    @State private var questions: [QuestionsNewCategory] = []
     @Binding var selectedCategory: String
     @Binding var selectedIntroPage: Int
-    @Binding var imagesScrollPosition: Int?
+    
+    let categories: FetchedResults<Category>
     
     var currentQuestion: QuestionsNewCategory {
-        return questions[selectedQuestion]
+        let firstQuestion = QuestionsNewCategory.initialQuestionNewCategory(from: categories)
+            
+        if questions.isEmpty {
+            return firstQuestion[0]
+        } else {
+            return questions[selectedQuestion]
+        }
     }
     
     @FocusState var isFocused: Bool
@@ -29,7 +36,10 @@ struct OnboardingQuestionsView: View {
     var body: some View {
         VStack (spacing: 10){
             // MARK: Header
-            QuestionsProgressBar(currentQuestionIndex: $selectedQuestion, totalQuestions: 6, xmarkAction: {
+            QuestionsProgressBar(
+                currentQuestionIndex: $selectedQuestion,
+                totalQuestions: 6,
+                xmarkAction: {
                     //tbd
             })
                 
@@ -55,23 +65,25 @@ struct OnboardingQuestionsView: View {
             Spacer()
             
             // MARK: Next button
-            RectangleButtonPrimary(buttonText: "Continue", action: {
+            RectangleButtonPrimary(
+                buttonText: "Continue",
+                action: {
                 nextButtonAction()
-            }, disableMainButton: disableButton(), buttonColor: .white)
+                }, disableMainButton: disableButton(),
+                buttonColor: .white)
         }
         .padding(.horizontal)
         .padding(.bottom)
         .background {
             BackgroundPrimary(backgroundColor: AppColors.backgroundOnboardingIntro)
         }
-       
     }
     
     private func getTitle() -> some View {
         HStack (spacing: 5){
             if selectedQuestion == 0 {
                 
-                Text("🛌")
+                Text("💭")
                     .font(.system(size: 40, design: .serif))
                 
                 
@@ -94,18 +106,16 @@ struct OnboardingQuestionsView: View {
     
     private func disableButton() -> Bool {
       
-            switch currentQuestion.questionType {
-            case .open:
-                return answerOpen.isEmpty
-            default:
-                if selectedQuestion == 0 {
-                    return selectedCategory.isEmpty
-                } else {
-                    return answerSingleSelect.isEmpty
-                }
+        switch currentQuestion.questionType {
+        case .open:
+            return answerOpen.isEmpty
+        default:
+            if selectedQuestion == 0 {
+                return selectedCategory.isEmpty
+            } else {
+                return answerSingleSelect.isEmpty
             }
-        
-    
+        }
     }
     
     private func nextButtonAction() {
@@ -129,8 +139,10 @@ struct OnboardingQuestionsView: View {
         
         switch answeredQuestionIndex {
         case 0:
+            let firstQuestion = QuestionsNewCategory.initialQuestionNewCategory(from: categories)
             let categoryQuestions = QuestionsNewCategory.getQuestionFlow(for: selectedCategory)
-                questions.append(contentsOf: categoryQuestions)
+            
+            questions = firstQuestion + categoryQuestions
             
         case 5:
             if isFocused {
@@ -141,7 +153,6 @@ struct OnboardingQuestionsView: View {
             
             withAnimation {
                 selectedIntroPage += 1
-                imagesScrollPosition = (imagesScrollPosition ?? 0) + 1
             }
             
             answerOpen = ""
@@ -171,8 +182,13 @@ struct OnboardingQuestionsView: View {
             //add the selected category to coredata
             Task {
                 await dataController.createSingleCategory(lifeArea: selectedCategory)
+                
             }
             
         }
     }
 }
+
+//#Preview {
+//    NewCategoryQuestionsView()
+//}

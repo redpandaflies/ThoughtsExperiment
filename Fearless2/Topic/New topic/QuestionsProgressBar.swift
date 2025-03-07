@@ -70,11 +70,13 @@ struct QuestionsProgressBar: View {
                 Image(systemName: "xmark.circle.fill")
                     .font(.system(size: xmarkSize))
                     .foregroundStyle(AppColors.progressBarPrimary.opacity(0.3))
+                    .opacity(0)
             }
     
         }//HStack
         .frame(width: screenWidth - 32)
-        .padding(.vertical)
+        .padding(.top)
+        .padding(.bottom, 15)
        
         
     }

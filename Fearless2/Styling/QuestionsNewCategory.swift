@@ -1,5 +1,5 @@
 //
-//  QuestionsOnboarding.swift
+//  QuestionsNewCategory.swift
 //  Fearless2
 //
 //  Created by Yue Deng-Wu on 10/7/24.
@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 
-struct QuestionsOnboarding: Identifiable, Codable {
+struct QuestionsNewCategory: Identifiable, Codable {
     let id: Int
     var content: String
     var questionType: QuestionType
@@ -43,11 +43,11 @@ enum QuestionCategory: String, Codable, CaseIterable {
     }
 }
 
-extension QuestionsOnboarding {
+extension QuestionsNewCategory {
     
-    //initial question
-    static var initialQuestion: [QuestionsOnboarding] {
-        return [QuestionsOnboarding(
+    //initial question onboarding
+    static var initialQuestionOnboarding: [QuestionsNewCategory] {
+        return [QuestionsNewCategory(
             id: 0,
             content: "It's late. You're trying to fall asleep, but your mind is wandering. What are you thinking about?",
             questionType: .singleSelect,
@@ -58,7 +58,37 @@ extension QuestionsOnboarding {
         )]
     }
     
-    static func getQuestionFlow(for categoryChoice: String?) -> [QuestionsOnboarding] {
+    //get initial question new category
+    static func initialQuestionNewCategory(from categories: FetchedResults<Category>) -> [QuestionsNewCategory] {
+        return [QuestionsNewCategory(
+            id: 0,
+            content: "What's been on your mind the most lately?",
+            questionType: .singleSelect,
+            category: .generic,
+            options: getRemainingLifeAreas(from: categories)
+        )]
+    }
+    
+    
+    static func getRemainingLifeAreas(from categories: FetchedResults<Category>) -> [String] {
+        // Get all life areas from existing categories
+        let existingLifeAreas = categories.compactMap { category in
+            return category.categoryLifeArea
+        }
+        
+        // Filter realmsData to exclude:
+        // 1. Realms whose lifeArea is already in categories
+        // 2. Realms with lifeArea "Uncharted Paths"
+        let remainingRealms = Realm.realmsData.filter { realm in
+            !existingLifeAreas.contains(realm.lifeArea) &&
+            realm.lifeArea != Realm.realmsData.last?.lifeArea
+        }
+        
+        // Extract and return the lifeArea values from the remaining realms
+        return remainingRealms.map { $0.lifeArea }
+    }
+    
+    static func getQuestionFlow(for categoryChoice: String?) -> [QuestionsNewCategory] {
         
         
         // If no choice has been made yet, just return empty array
@@ -67,7 +97,7 @@ extension QuestionsOnboarding {
         }
         
         // Determine which follow-up questions to show based on the first choice
-        var questions: [QuestionsOnboarding] = []
+        var questions: [QuestionsNewCategory] = []
         
         switch categoryChoice {
             case Realm.realmsData[0].lifeArea:
@@ -91,7 +121,7 @@ extension QuestionsOnboarding {
     }
     
     // Career-related questions
-    private static var careerQuestions: [QuestionsOnboarding] {
+    private static var careerQuestions: [QuestionsNewCategory] {
         [
             .init(id: 1,
                  content: "How do you feel about your work?",
@@ -146,7 +176,7 @@ extension QuestionsOnboarding {
     }
     
     // Relationship-related questions
-    private static var relationshipsQuestions: [QuestionsOnboarding] {
+    private static var relationshipsQuestions: [QuestionsNewCategory] {
         [
             .init(id: 1,
                  content: "What's getting in the way of feeling close to people?",
@@ -201,7 +231,7 @@ extension QuestionsOnboarding {
     }
     
     // Finance-related questions
-    private static var financeQuestions: [QuestionsOnboarding] {
+    private static var financeQuestions: [QuestionsNewCategory] {
         [
             .init(id: 1,
                  content: "How do you feel about your money situation?",
@@ -256,7 +286,7 @@ extension QuestionsOnboarding {
     }
     
     // Wellness-related questions
-    private static var wellnessQuestions: [QuestionsOnboarding] {
+    private static var wellnessQuestions: [QuestionsNewCategory] {
         [
             .init(id: 1,
                  content: "How do you feel about your health?",
@@ -311,7 +341,7 @@ extension QuestionsOnboarding {
     }
     
     // Passion-related questions
-    private static var passionQuestions: [QuestionsOnboarding] {
+    private static var passionQuestions: [QuestionsNewCategory] {
         [
             .init(id: 1,
                  content: "How do you feel about spending time on things you love?",
@@ -366,7 +396,7 @@ extension QuestionsOnboarding {
     }
     
     // Purpose-related questions
-    private static var purposeQuestions: [QuestionsOnboarding] {
+    private static var purposeQuestions: [QuestionsNewCategory] {
         [
             .init(id: 1,
                  content: "How do you feel about who you are and where you're going?",

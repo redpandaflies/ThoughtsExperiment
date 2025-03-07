@@ -23,6 +23,9 @@ struct UpdateSectionCompleteView: View {
         $0.completed == true
         }.count
     }
+    
+    private let hapticImpact = UIImpactFeedbackGenerator(style: .medium)
+    
     var body: some View {
         VStack (alignment: .leading, spacing: 10){
             
@@ -139,16 +142,19 @@ struct UpdateSectionCompleteView: View {
     private func startAnimating() {
         
         print("Sections complete: \(sectionsComplete)")
+        hapticImpact.prepare()
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
-            withAnimation(.snappy(duration: 0.5)) {
+            withAnimation(.snappy(duration: 0.7)) {
                 let currentIndex = sectionsComplete - 1
+                hapticImpact.impactOccurred(intensity: 0.5)
                 lastCompleteSectionIndex = currentIndex
             }
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 withAnimation(.smooth(duration: 0.2)) {
                     let nextIndex = sectionsComplete
+                    hapticImpact.impactOccurred(intensity: 0.7)
                     nextSectionIndex = nextIndex
                 }
             }

@@ -55,7 +55,7 @@
 //            .sheet(isPresented: $showTutorialSheetView, onDismiss: {
 //                showTutorialSheetView = false
 //            }) {
-//                TutorialFirstCategory(backgroundColor: category.background)
+//                InfoFirstCategory(backgroundColor: category.background)
 //                    .presentationDetents([.fraction(0.65)])
 //                    .presentationCornerRadius(30)
 //                

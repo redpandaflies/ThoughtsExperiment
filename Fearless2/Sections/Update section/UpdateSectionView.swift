@@ -155,6 +155,10 @@ struct UpdateSectionView: View {
         Task {
             await completeSection(totalQuestions: numberOfQuestions, answeredQuestionIndex: answeredQuestionIndex)
             
+            DispatchQueue.global(qos: .background).async {
+                Mixpanel.mainInstance().track(event: "Skipped question")
+            }
+            
         }
     }
     
@@ -252,7 +256,13 @@ struct UpdateSectionView: View {
             
             await MainActor.run {
                 submitForm()
+                
+                DispatchQueue.global(qos: .background).async {
+                    Mixpanel.mainInstance().track(event: "Completed section")
+                }
             }
+            
+            
         }
         
     }

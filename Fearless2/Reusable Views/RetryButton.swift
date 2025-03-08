@@ -23,7 +23,7 @@ struct RetryButton: View {
                     .textCase(.uppercase)
                     .opacity(0.5)
                 
-                Text("Oh no, something went wrong.\nPlease try again 🙏")
+                Text("Tap to try again.\nGive it a few seconds.")
                     .multilineTextAlignment(.center)
                     .font(.system(size: 13))
                     .foregroundStyle(AppColors.whiteDefault)

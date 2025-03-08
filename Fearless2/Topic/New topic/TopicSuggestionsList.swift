@@ -29,7 +29,7 @@ struct TopicSuggestionsList: View {
             
             Text("Choose your next quest")
                 .multilineTextAlignment(.leading)
-                .font(.system(size: 21, weight: .light))
+                .font(.system(size: 21, design: .serif))
                 .foregroundStyle(AppColors.textPrimary)
                 .padding(.bottom, 20)
                 .padding(.horizontal)
@@ -66,6 +66,9 @@ struct TopicSuggestionsList: View {
             if !topicViewModel.topicSuggestions.isEmpty {
                 selectedTabSuggestionsList = 1
             }
+            DispatchQueue.global(qos: .background).async {
+                Mixpanel.mainInstance().track(event: "Generated new quests")
+            }
         }
         
     }
@@ -97,7 +100,7 @@ struct TopicSuggestionsList: View {
             } catch {
                 selectedTabSuggestionsList = 2
             }
-                
+            
         }
     }
     
@@ -144,11 +147,8 @@ struct TopicSuggestionsList: View {
             currentTabBar = .topic
         }
         
-        guard let newTopicTitle = selectedTopic?.topicTitle else { return }
-        
         DispatchQueue.global(qos: .background).async {
-            Mixpanel.mainInstance().track(event: "Created new topic")
-            Mixpanel.mainInstance().track(event: "Created new topic: \(newTopicTitle)")
+            Mixpanel.mainInstance().track(event: "Chose new quest")
         }
        
     }

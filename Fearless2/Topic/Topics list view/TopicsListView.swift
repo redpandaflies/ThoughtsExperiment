@@ -33,6 +33,7 @@ struct TopicsListView: View {
     
     @ObservedObject var category: Category
     @ObservedObject var points: Points
+    let totalCategories: Int
     
     @FetchRequest var topics: FetchedResults<Topic>
    
@@ -49,7 +50,9 @@ struct TopicsListView: View {
          navigateToTopicDetailView: Binding<Bool>,
          categoriesScrollPosition: Binding<Int?>,
          category: Category,
-         points: Points) {
+         points: Points,
+         totalCategories: Int
+    ) {
         
         self.topicViewModel = topicViewModel
         self.transcriptionViewModel = transcriptionViewModel
@@ -60,6 +63,7 @@ struct TopicsListView: View {
         self._categoriesScrollPosition = categoriesScrollPosition
         self.category = category
         self.points = points
+        self.totalCategories = totalCategories
         
         let request: NSFetchRequest<Topic> = Topic.fetchRequest()
         request.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: false)]
@@ -68,6 +72,7 @@ struct TopicsListView: View {
             NSPredicate(format: "category == %@", category)
         ])
         self._topics = FetchRequest(fetchRequest: request)
+        
     }
     
     var body: some View {
@@ -76,7 +81,7 @@ struct TopicsListView: View {
 //                switch topicsList {
 //                case .active:
                     ActiveTopicsView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, showCreateNewTopicView: $showCreateNewTopicView, selectedTopic: $selectedTopic, currentTabBar: $currentTabBar, selectedTabTopic: $selectedTabTopic, navigateToTopicDetailView: $navigateToTopicDetailView,
-                                     topicScrollPosition: $topicScrollPosition, categoriesScrollPosition: $categoriesScrollPosition,topics: topics, points: points
+                                     topicScrollPosition: $topicScrollPosition, categoriesScrollPosition: $categoriesScrollPosition,topics: topics, points: points, totalCategories: totalCategories
                     )
 //                case .archived:
 //                    ArchivedTopicsView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, selectedTopic: $selectedTopic, currentTabBar: $currentTabBar, selectedTabTopic: $selectedTabTopic, navigateToTopicDetailView: $navigateToTopicDetailView)
@@ -93,6 +98,7 @@ struct TopicsListView: View {
                 NewTopicView(topicViewModel: topicViewModel, selectedTopic: $selectedTopic, navigateToTopicDetailView: $navigateToTopicDetailView, currentTabBar: $currentTabBar, category: category)
                     .presentationDetents([.fraction(0.65)])
                     .presentationCornerRadius(30)
+                    .interactiveDismissDisabled()
                 
             }
 

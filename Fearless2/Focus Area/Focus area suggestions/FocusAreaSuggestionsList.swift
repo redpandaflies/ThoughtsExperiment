@@ -102,7 +102,7 @@ struct FocusAreaSuggestionsList: View {
             }
             
             DispatchQueue.global(qos: .background).async {
-                Mixpanel.mainInstance().track(event: "Chose new focus area")
+                Mixpanel.mainInstance().track(event: "Chose new path")
             }
         }
     }
@@ -161,7 +161,7 @@ struct FocusAreaSuggestionBox: View {
             })
            
         }
-        .padding()
+        .padding(25)
         .contentShape(Rectangle())
         .frame(width: suggestionBoxWidth, height: 250)
         .background {

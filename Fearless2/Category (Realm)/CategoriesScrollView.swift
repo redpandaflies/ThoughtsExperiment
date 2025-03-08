@@ -10,8 +10,10 @@ import SwiftUI
 struct CategoriesScrollView: View {
     
     @Binding var categoriesScrollPosition: Int?
+    @Binding var isProgrammaticScroll: Bool
   
     var categories: FetchedResults<Category>
+    let showUndiscovered: Bool
     
     let frameWidth: CGFloat = 50
     var safeAreaPadding: CGFloat {
@@ -30,7 +32,7 @@ struct CategoriesScrollView: View {
                  
                 }
                 
-                if categories.count < 7 {
+                if showUndiscovered {
                     getEmoji(index: categories.count)
                 }
             }
@@ -41,14 +43,18 @@ struct CategoriesScrollView: View {
         .scrollClipDisabled(true)
         .scrollTargetBehavior(.viewAligned)
         .onChange(of: categoriesScrollPosition) {
-            hapticImpact.prepare()
-            hapticImpact.impactOccurred(intensity: 0.7)
+            if !isProgrammaticScroll {
+                hapticImpact.prepare()
+                hapticImpact.impactOccurred(intensity: 0.7)
+            } else {
+                isProgrammaticScroll = false
+            }
         }
        
     }
     
     private func getEmoji(index: Int, category: Category? = nil) -> some View {
-        Text(category?.categoryEmoji ?? "❓")
+        Text(category?.categoryEmoji ?? "❔")
             .id(index)
             .font(.system(size: 50))
             .frame(width: frameWidth)

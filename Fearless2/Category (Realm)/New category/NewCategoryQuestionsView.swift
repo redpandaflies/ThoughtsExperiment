@@ -41,7 +41,9 @@ struct NewCategoryQuestionsView: View {
                 totalQuestions: 6,
                 xmarkAction: {
                     //tbd
-            })
+                },
+                newCategory: true
+            )
                 
             // MARK: Title
             getTitle()

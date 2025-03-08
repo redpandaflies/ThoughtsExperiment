@@ -41,6 +41,7 @@ struct AppViewsManager: View {
             MainAppManager(dataController: dataController, openAISwiftService: openAISwiftService)
         default:
             NewCategoryView()
+                .transition(.asymmetric(insertion: .opacity, removal: .identity))
         }
     }
     

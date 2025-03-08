@@ -39,7 +39,7 @@ struct TopicBox: View {
                 .padding(.vertical, (topic.completed != true) ? 15 : 30)
             
             
-            Text((topic.completed != true) ? "Path \(totalFocusAreas)" : "Topic complete")
+            Text((topic.completed != true) ? "Path \(totalFocusAreas)" : "Quest complete")
                 .font(.system(size: 17, weight: .light).smallCaps())
                 .fontWidth(.condensed)
                 .foregroundStyle(AppColors.textSecondary.opacity(0.5))

@@ -29,7 +29,7 @@ struct OnboardingMainView: View {
     
     @CloudStorage("currentAppView") var currentAppView: Int = 0
     @CloudStorage("unlockNewCategory") var unlockNewCategory: Bool = false
-    @CloudStorage("seenTutorialFirstCategory") var seenTutorialFirstCategory: Bool = false
+    @CloudStorage("discoveredFirstCategory") var discoveredFirstCategory: Bool = false
     @CloudStorage("discoveredFirstFocusArea") var firstFocusArea: Bool = false
     @AppStorage("currentCategory") var currentCategory: Int = 0
     @AppStorage("showTopics") var showTopics: Bool = false
@@ -50,7 +50,7 @@ struct OnboardingMainView: View {
                 } label: {
                     Text("Skip")
                         .font(.system(size: 15))
-                        .foregroundStyle(AppColors.textPrimary.opacity(0.5))
+                        .foregroundStyle(AppColors.textPrimary.opacity(0.0))
                 }
                 
             }
@@ -70,7 +70,7 @@ struct OnboardingMainView: View {
 //            currentAppView = 0
 //            unlockNewCategory = false
 //            showTopics = false
-//            seenTutorialFirstCategory = false
+//            discoveredFirstCategory = false
 //            firstFocusArea = false
             
             Task {

@@ -16,7 +16,7 @@ struct SettingsView: View {
     
     @CloudStorage("currentAppView") var currentAppView: Int = 0
     @CloudStorage("unlockNewCategory") var newCategory: Bool = false
-    @CloudStorage("seenTutorialFirstCategory") var seenTutorialFirstCategory: Bool = false
+    @CloudStorage("discoveredFirstCategory") var discoveredFirstCategory: Bool = false
     @CloudStorage("discoveredFirstFocusArea") var firstFocusArea: Bool = false
     @AppStorage("currentCategory") var currentCategory: Int = 0
     @AppStorage("showTopics") var showTopics: Bool = false
@@ -70,14 +70,14 @@ struct SettingsView: View {
         currentAppView = 0
         newCategory = false
         showTopics = false
-        seenTutorialFirstCategory = false
+        discoveredFirstCategory = false
         firstFocusArea = false
         
         //delete all data
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             Task {
                 await dataController.deleteAll()
-                //            await dataController.resetPoints()
+                await dataController.resetPoints()
             }
         }
         

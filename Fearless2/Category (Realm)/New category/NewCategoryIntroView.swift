@@ -5,6 +5,7 @@
 //  Created by Yue Deng-Wu on 3/5/25.
 //
 import CloudStorage
+import Mixpanel
 import SwiftUI
 
 struct NewCategoryIntroView: View {
@@ -127,6 +128,13 @@ struct NewCategoryIntroView: View {
                 showTopics = false
                 
                 currentAppView = 1
+                
+                let newCategory =  categories[currentCategory].categoryLifeArea
+                    
+                DispatchQueue.global(qos: .background).async {
+                    Mixpanel.mainInstance().track(event: "Discovered new realm: \(newCategory)")
+                }
+                
             }
             
         }

@@ -10,6 +10,11 @@ import SwiftUI
 struct QuestionsProgressBar: View {
     
     @Binding var currentQuestionIndex: Int
+   
+    let xmarkAction: () -> Void
+    let newCategory: Bool
+    let totalQuestions: Int
+    
     let screenWidth = UIScreen.current.bounds.width
     
     var frame: CGFloat {
@@ -28,7 +33,6 @@ struct QuestionsProgressBar: View {
         return frame * 0.002
     }
    
-    let totalQuestions: Int
    
     var progressBarWidth: CGFloat {
         if totalQuestions > 0 {
@@ -44,7 +48,14 @@ struct QuestionsProgressBar: View {
         }
     }
     
-    let xmarkAction: () -> Void 
+   
+    
+    init(currentQuestionIndex: Binding<Int>, totalQuestions: Int, xmarkAction: @escaping () -> Void, newCategory: Bool = false) {
+        self._currentQuestionIndex = currentQuestionIndex
+        self.totalQuestions = totalQuestions
+        self.xmarkAction = xmarkAction
+        self.newCategory = newCategory
+    }
     
     var body: some View {
         
@@ -70,7 +81,7 @@ struct QuestionsProgressBar: View {
                 Image(systemName: "xmark.circle.fill")
                     .font(.system(size: xmarkSize))
                     .foregroundStyle(AppColors.progressBarPrimary.opacity(0.3))
-                    .opacity(0)
+                    .opacity(newCategory ? 0 : 1)
             }
     
         }//HStack

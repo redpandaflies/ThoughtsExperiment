@@ -108,7 +108,6 @@ struct TabBarButton: View {
                 VStack (alignment: .center, spacing: 3){
                     Spacer()
                     
-                    
                     Image(systemName: tab.selectedIconName())
                         .font(.system(size: 15))
                         .foregroundStyle(AppColors.whiteDefault)

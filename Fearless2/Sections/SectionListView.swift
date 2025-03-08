@@ -122,10 +122,10 @@ struct SectionListView: View {
                 sectionsScrollPosition = firstIncompleteSectionIndex ?? sections.count
             }
             .onChange(of: selectedSection) {
-                manageSectionScroll(mixpanelEvent: "Finished path")
+                manageSectionScroll(mixpanelEvent: "Completed path")
             }
             .onChange(of: selectedEndOfTopicSection) {
-                manageSectionScroll(mixpanelEvent: "Finished topic")
+                manageSectionScroll(mixpanelEvent: "Completed quest")
             }
     }
     
@@ -152,7 +152,7 @@ struct SectionListView: View {
                 selectedEndOfTopicSection = section
             } else {
                 if section == firstIncompleteSection {
-                    finishTopic(section: section)
+                    goToAddTopic(section: section)
                 }
             }
         }
@@ -189,20 +189,18 @@ struct SectionListView: View {
         }
     }
     
-    private func finishTopic(section: Section) {
-        
-        if let topic = section.topic {
-            Task {
-                //mark section as complete
-                await dataController.completeTopic(topic: topic, section: section)
-                //return to home view
-                await MainActor.run {
-                    
-                    topicViewModel.scrollToAddTopic = true
-                    dismiss()
-                }
+    private func goToAddTopic(section: Section) {
+
+        Task {
+           
+            //return to home view
+            await MainActor.run {
+                
+                topicViewModel.scrollToAddTopic = true
+                dismiss()
             }
         }
+        
     }
 }
 

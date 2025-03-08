@@ -6,6 +6,7 @@
 //
 import CloudStorage
 import CoreData
+import Mixpanel
 import Pow
 import SwiftUI
 
@@ -17,8 +18,12 @@ struct CategoryView: View {
     @State private var categoriesScrollPosition: Int?
     @State private var showSettingsView: Bool = false
     @State private var animationStage: Int = 0
-    @State private var showTutorialSheetView: Bool = false
+    @State private var showFirstCategoryInfoSheet: Bool = false
+    @State private var showLaurelInfoSheet: Bool = false
+    @State private var showInfoNewCategory: Bool = false
     @State private var showNewCategory: Bool = false //Animation won't work if directly using UserDefaults. Best to trigger animation via a @State private var
+
+    @State private var isProgrammaticScroll: Bool = false //prevent haptic feedback on programmatic scroll
     
     @Binding var selectedTopic: Topic?
     @Binding var currentTabBar: TabBarType
@@ -35,15 +40,25 @@ struct CategoryView: View {
         sortDescriptors: []
     ) var points: FetchedResults<Points>
     
+    @FetchRequest(
+        sortDescriptors: []
+    ) var topics: FetchedResults<Topic>
+    
+    @CloudStorage("currentAppView") var currentAppView: Int = 0
     @AppStorage("currentCategory") var currentCategory: Int = 0
     @AppStorage("showTopics") var showTopics: Bool = false
     @CloudStorage("unlockNewCategory") var newCategory: Bool = false
-    @CloudStorage("seenTutorialFirstCategory") var seenTutorialFirstCategory: Bool = false
+    @CloudStorage("discoveredFirstCategory") var discoveredFirstCategory: Bool = false
     
     let categoryEmojiSize: CGFloat = 50
     
     var safeAreaPadding: CGFloat {
         return (UIScreen.main.bounds.width - categoryEmojiSize)/2
+    }
+    
+    var showUndiscovered: Bool {
+        let checker = NewCategoryEligibilityChecker()
+        return checker.checkEligibility(topics: topics, totalCategories: categories.count)
     }
     
     var body: some View {
@@ -52,49 +67,65 @@ struct CategoryView: View {
             VStack {
                 // MARK: - Categories Scroll View
                 ZStack {
-                    CategoriesScrollView(categoriesScrollPosition: $categoriesScrollPosition, categories: categories)
+                    CategoriesScrollView(categoriesScrollPosition: $categoriesScrollPosition, isProgrammaticScroll: $isProgrammaticScroll, categories: categories, showUndiscovered: showUndiscovered)
                         .opacity((!newCategory) ? 0 : 1)
                     
                     if showNewCategory {
                         Text(categories[currentCategory].categoryEmoji)
-                            .font(.system(size: (animationStage == 0) ? 100 : categoryEmojiSize))
-                            .transition(.movingParts.blur)
-                            .padding(.horizontal, (animationStage == 0) ? 0 : safeAreaPadding)
+                            .font(.system(size: categoryEmojiSize))
+                            .transition(
+                                .identity
+                                    .animation(.linear(duration: 1).delay(2))
+                                    .combined(
+                                        with: .movingParts.anvil
+                                    )
+                            )
+                            .padding(.horizontal, safeAreaPadding)
+                            .sensoryFeedback(.impact, trigger: showNewCategory) { oldValue, newValue in
+                                return oldValue != newValue && newValue == true
+                            }
                     }
                 }
-                .frame(height: (!newCategory && animationStage == 0) ? 100 : categoryEmojiSize)
+                .frame(height: categoryEmojiSize)
                 
-                // MARK: - Category description
-                ///  scrollPosition < categories.count needed for when scroll is on the questionmark
+                
                 if let scrollPosition = categoriesScrollPosition, scrollPosition < categories.count {
+                    
+                    // MARK: - Category description
+                    ///  scrollPosition < categories.count needed for when scroll is on the questionmark
                     CategoryDescriptionView(animationStage: $animationStage, showNewCategory: $showNewCategory, category: categories[scrollPosition])
                         .padding(.vertical, 25)
-                        .padding(.horizontal, (!newCategory && animationStage == 0) ? 15: 30)
-                }
-                
-                // MARK: - To do
-//                CategoryMissionBox()
-//                    .padding(.horizontal)
-//                    .padding(.bottom, 25)
-                
-                if showTopics {
+                        .padding(.horizontal, 30)
+    
                     
-                    if let scrollPosition = categoriesScrollPosition, let currentPoints = points.first, scrollPosition < categories.count {
-                    // MARK: - Quest header
-                    CategoryQuestsHeading()
-                        .padding(.horizontal)
-                        .padding(.bottom, 25)
-                        .padding(.top, 20)
+                    // MARK: - To do
+                    //                CategoryMissionBox()
+                    //                    .padding(.horizontal)
+                    //                    .padding(.bottom, 25)
                     
-                    // MARK: - Topics list
-                    
-                        TopicsListView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, selectedTopic: $selectedTopic, currentTabBar: $currentTabBar, selectedTabTopic: $selectedTabTopic, navigateToTopicDetailView: $navigateToTopicDetailView, categoriesScrollPosition: $categoriesScrollPosition, category: categories[scrollPosition], points: currentPoints)
+                    if showTopics {
+                        
+                        if let currentPoints = points.first {
+                            // MARK: - Quest header
+                            CategoryQuestsHeading()
+                                .padding(.horizontal)
+                                .padding(.bottom, 25)
+                                .padding(.top, 20)
                             
+                            // MARK: - Topics list
+                            
+                            TopicsListView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, selectedTopic: $selectedTopic, currentTabBar: $currentTabBar, selectedTabTopic: $selectedTabTopic, navigateToTopicDetailView: $navigateToTopicDetailView, categoriesScrollPosition: $categoriesScrollPosition, category: categories[scrollPosition], points: currentPoints, totalCategories: categories.count)
+                            
+                        }
                     }
+                } else {
+                    CategoryUndiscoveredView()
                 }
+                
+                
             } //VStack
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: (!newCategory && animationStage == 0) ? .center : .top)
-            .padding(.top, (!newCategory && animationStage == 0) ? 0 : 30)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .padding(.top, 30)
             .background {
                 BackgroundPrimary(backgroundColor: getCategoryBackground())
             }
@@ -117,6 +148,12 @@ struct CategoryView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         //tbd
+                        showLaurelInfoSheet = true
+                        
+                        DispatchQueue.global(qos: .background).async {
+                            Mixpanel.mainInstance().track(event: "Tapped laurel counter")
+                        }
+                        
                     } label: {
                         LaurelItem(size: 15, points: "\(Int(points.first?.total ?? 0))")
                             .opacity(newCategory ? 1 : 0)
@@ -136,13 +173,45 @@ struct CategoryView: View {
                             .environment(\.colorScheme, .dark )
                     }
             })
-            .sheet(isPresented: $showTutorialSheetView, onDismiss: {
-                showTutorialSheetView = false
+            .sheet(isPresented: $showFirstCategoryInfoSheet, onDismiss: {
+                showFirstCategoryInfoSheet = false
             }) {
-                TutorialFirstCategory(backgroundColor: getCategoryBackground())
+                InfoFirstCategory(backgroundColor: getCategoryBackground())
                     .presentationDetents([.fraction(0.65)])
                     .presentationCornerRadius(30)
                     .interactiveDismissDisabled()
+            }
+            .sheet(isPresented: $showInfoNewCategory, onDismiss: {
+                showInfoNewCategory = false
+            }) {
+                InfoPrimaryView(
+                    backgroundColor: getCategoryBackground(),
+                    useIcon: true,
+                    iconName: "mountain.2.fill",
+                    titleText: "A new realm emerges",
+                    descriptionText: "The path ahead is shifting.\nStep forward and see where it leads.",
+                    useRectangleButton: true,
+                    rectangleButtonText: "Unveil your next realm",
+                    buttonAction: {
+                        startNewRealmFlow()
+                    })
+                    .presentationDetents([.fraction(0.65)])
+                    .presentationCornerRadius(30)
+            }
+            .sheet(isPresented: $showLaurelInfoSheet, onDismiss: {
+                showLaurelInfoSheet = false
+            }) {
+                
+                InfoPrimaryView(
+                    backgroundColor: getCategoryBackground(),
+                    useIcon: false,
+                    titleText: "You earn laurels by exploring paths and completing quests.",
+                    descriptionText: "You’ll be able to use them to unlock new abilities.",
+                    useRectangleButton: false,
+                    buttonAction: {}
+                )
+                    .presentationDetents([.fraction(0.65)])
+                    .presentationCornerRadius(30)
             }
             
         }
@@ -151,7 +220,7 @@ struct CategoryView: View {
     }
     
     private func setupView() {
-        
+        isProgrammaticScroll = true
         categoriesScrollPosition = currentCategory
         
         if !newCategory {
@@ -171,34 +240,27 @@ struct CategoryView: View {
             }
         }
         
-        // First stage: Move to smaller layout
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            withAnimation(.smooth(duration: 0.25)) {
-                animationStage = 1
-            }
-        }
-        
-        // Second stage: Fade in description
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+        // Fade in description
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
             withAnimation(.smooth(duration: 0.3)) {
-                animationStage = 2
+                animationStage = 1
             }
            
         }
         
         // show date
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             withAnimation(.smooth(duration: 0.3)) {
-                animationStage = 3
+                animationStage = 2
             }
         }
         
         // Show tutorial sheet
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3.5) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
             newCategory = true
             showNewCategory = false
-            if !seenTutorialFirstCategory {
-                showTutorialSheetView = true
+            if !discoveredFirstCategory {
+                showFirstCategoryInfoSheet = true
             } else if !showTopics {
                 withAnimation(.easeIn) {
                     showTopics = true
@@ -213,5 +275,13 @@ struct CategoryView: View {
         }
         
         return AppColors.backgroundOnboardingIntro
+    }
+    
+    private func startNewRealmFlow() {
+        currentAppView = 2
+        
+        DispatchQueue.global(qos: .background).async {
+            Mixpanel.mainInstance().track(event: "Started unveiling a new realm")
+        }
     }
 }

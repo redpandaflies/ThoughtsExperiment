@@ -5,6 +5,7 @@
 //  Created by Yue Deng-Wu on 2/25/25.
 //
 import CloudStorage
+import Mixpanel
 import SwiftUI
 
 struct OnboardingIntroView: View {
@@ -81,6 +82,12 @@ struct OnboardingIntroView: View {
             withAnimation {
                 selectedIntroPage += 1
                 imagesScrollPosition = (imagesScrollPosition ?? 0) + 1
+            }
+        }
+        
+        if selectedIntroPage == 9 {
+            DispatchQueue.global(qos: .background).async {
+                Mixpanel.mainInstance().track(event: "Finished static onboarding")
             }
         }
         

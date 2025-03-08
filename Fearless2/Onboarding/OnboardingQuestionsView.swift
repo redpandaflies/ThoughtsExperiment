@@ -4,7 +4,7 @@
 //
 //  Created by Yue Deng-Wu on 2/25/25.
 //
-
+import Mixpanel
 import SwiftUI
 
 struct OnboardingQuestionsView: View {
@@ -29,9 +29,7 @@ struct OnboardingQuestionsView: View {
     var body: some View {
         VStack (spacing: 10){
             // MARK: Header
-            QuestionsProgressBar(currentQuestionIndex: $selectedQuestion, totalQuestions: 6, xmarkAction: {
-                    //tbd
-            })
+            QuestionsProgressBar(currentQuestionIndex: $selectedQuestion, totalQuestions: 6, xmarkAction: {}, newCategory: true)
                 
             // MARK: Title
             getTitle()
@@ -173,6 +171,12 @@ struct OnboardingQuestionsView: View {
                 await dataController.createSingleCategory(lifeArea: selectedCategory)
             }
             
+        }
+        
+        if answeredQuestionIndex == 5 {
+            DispatchQueue.global(qos: .background).async {
+                Mixpanel.mainInstance().track(event: "Completed onboarding questions")
+            }
         }
     }
 }

@@ -106,8 +106,11 @@ struct EndTopicView: View {
             
             if let currentSection = section {
                 Task {
-                    //mark topic as complete
+                    //mark section as complete
                     await dataController.completeSection(section: currentSection)
+                    
+                    //mark topic as complete
+                    await dataController.completeTopic(topic: topic, section: currentSection)
                     
                     //close view
                     await MainActor.run {
@@ -185,7 +188,7 @@ struct EndTopicView: View {
                 }
                 
                 DispatchQueue.global(qos: .background).async {
-                    Mixpanel.mainInstance().track(event: "Updated topic overview")
+                    Mixpanel.mainInstance().track(event: "Restored fragment")
                 }
             }
         }

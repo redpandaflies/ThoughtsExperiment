@@ -96,11 +96,14 @@
 		8A9191FE2CBDDCCE007E17A0 /* SectionBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9191FD2CBDDCC3007E17A0 /* SectionBox.swift */; };
 		8A9192022CBE3C76007E17A0 /* CategoryItemProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9192012CBE3C5D007E17A0 /* CategoryItemProtocol.swift */; };
 		8A9B99092D76C02D001707FD /* TypewriterAnimation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9B99082D76C029001707FD /* TypewriterAnimation.swift */; };
-		8A9B990B2D78E113001707FD /* AlertUnlockNewCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9B990A2D78E113001707FD /* AlertUnlockNewCategory.swift */; };
 		8A9B990D2D78EC36001707FD /* NewCategoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9B990C2D78EC36001707FD /* NewCategoryView.swift */; };
 		8A9B99102D78F0F5001707FD /* NewCategoryIntroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9B990F2D78F0DF001707FD /* NewCategoryIntroView.swift */; };
 		8A9B99122D78F861001707FD /* NewCategoryContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9B99112D78F855001707FD /* NewCategoryContent.swift */; };
 		8A9B99142D7902DD001707FD /* NewCategoryQuestionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9B99132D7902DD001707FD /* NewCategoryQuestionsView.swift */; };
+		8A9B99162D7BBDFA001707FD /* InfoPrimaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9B99152D7BBDFA001707FD /* InfoPrimaryView.swift */; };
+		8A9B99182D7BCA35001707FD /* LaurelWreath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9B99172D7BCA33001707FD /* LaurelWreath.swift */; };
+		8A9B991A2D7BDBCD001707FD /* NewCategoryEligibilityChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9B99192D7BDBBD001707FD /* NewCategoryEligibilityChecker.swift */; };
+		8A9B991C2D7BFE34001707FD /* CategoryUndiscoveredView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9B991B2D7BFE34001707FD /* CategoryUndiscoveredView.swift */; };
 		8A9CC1772CAB3DEA007C2AA9 /* Fearless2App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9CC1762CAB3DEA007C2AA9 /* Fearless2App.swift */; };
 		8A9CC17B2CAB3DEB007C2AA9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8A9CC17A2CAB3DEB007C2AA9 /* Assets.xcassets */; };
 		8A9CC17E2CAB3DEB007C2AA9 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8A9CC17D2CAB3DEB007C2AA9 /* Preview Assets.xcassets */; };
@@ -161,8 +164,7 @@
 		8AE3981B2D6EC70F00F76AAC /* OnboardingQuestionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE3981A2D6EC70800F76AAC /* OnboardingQuestionsView.swift */; };
 		8AE3981D2D6FA74300F76AAC /* QuestionsNewCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE3981C2D6FA74300F76AAC /* QuestionsNewCategory.swift */; };
 		8AE3981F2D7042A100F76AAC /* OnboardingFirstCategoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE3981E2D7042A100F76AAC /* OnboardingFirstCategoryView.swift */; };
-		8AE398222D70FC0300F76AAC /* TutorialFirstCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE398212D70FC0300F76AAC /* TutorialFirstCategory.swift */; };
-		8AE398242D71101E00F76AAC /* TutorialFirstFocusArea.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE398232D71101E00F76AAC /* TutorialFirstFocusArea.swift */; };
+		8AE398222D70FC0300F76AAC /* InfoFirstCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE398212D70FC0300F76AAC /* InfoFirstCategory.swift */; };
 		8AE3982A2D711FF700F76AAC /* BackgroundSecondary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE398292D711FF700F76AAC /* BackgroundSecondary.swift */; };
 		8AE3982E2D718F2200F76AAC /* CloudStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 8AE3982D2D718F2200F76AAC /* CloudStorage */; };
 		8AE398302D71908B00F76AAC /* MainAppManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE3982F2D71908B00F76AAC /* MainAppManager.swift */; };
@@ -259,11 +261,14 @@
 		8A9191FD2CBDDCC3007E17A0 /* SectionBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionBox.swift; sourceTree = "<group>"; };
 		8A9192012CBE3C5D007E17A0 /* CategoryItemProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryItemProtocol.swift; sourceTree = "<group>"; };
 		8A9B99082D76C029001707FD /* TypewriterAnimation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypewriterAnimation.swift; sourceTree = "<group>"; };
-		8A9B990A2D78E113001707FD /* AlertUnlockNewCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertUnlockNewCategory.swift; sourceTree = "<group>"; };
 		8A9B990C2D78EC36001707FD /* NewCategoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewCategoryView.swift; sourceTree = "<group>"; };
 		8A9B990F2D78F0DF001707FD /* NewCategoryIntroView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewCategoryIntroView.swift; sourceTree = "<group>"; };
 		8A9B99112D78F855001707FD /* NewCategoryContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewCategoryContent.swift; sourceTree = "<group>"; };
 		8A9B99132D7902DD001707FD /* NewCategoryQuestionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewCategoryQuestionsView.swift; sourceTree = "<group>"; };
+		8A9B99152D7BBDFA001707FD /* InfoPrimaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoPrimaryView.swift; sourceTree = "<group>"; };
+		8A9B99172D7BCA33001707FD /* LaurelWreath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaurelWreath.swift; sourceTree = "<group>"; };
+		8A9B99192D7BDBBD001707FD /* NewCategoryEligibilityChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewCategoryEligibilityChecker.swift; sourceTree = "<group>"; };
+		8A9B991B2D7BFE34001707FD /* CategoryUndiscoveredView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryUndiscoveredView.swift; sourceTree = "<group>"; };
 		8A9CC1732CAB3DEA007C2AA9 /* Fearless2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Fearless2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8A9CC1762CAB3DEA007C2AA9 /* Fearless2App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fearless2App.swift; sourceTree = "<group>"; };
 		8A9CC17A2CAB3DEB007C2AA9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -325,8 +330,7 @@
 		8AE3981A2D6EC70800F76AAC /* OnboardingQuestionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingQuestionsView.swift; sourceTree = "<group>"; };
 		8AE3981C2D6FA74300F76AAC /* QuestionsNewCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionsNewCategory.swift; sourceTree = "<group>"; };
 		8AE3981E2D7042A100F76AAC /* OnboardingFirstCategoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingFirstCategoryView.swift; sourceTree = "<group>"; };
-		8AE398212D70FC0300F76AAC /* TutorialFirstCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TutorialFirstCategory.swift; sourceTree = "<group>"; };
-		8AE398232D71101E00F76AAC /* TutorialFirstFocusArea.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TutorialFirstFocusArea.swift; sourceTree = "<group>"; };
+		8AE398212D70FC0300F76AAC /* InfoFirstCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoFirstCategory.swift; sourceTree = "<group>"; };
 		8AE398292D711FF700F76AAC /* BackgroundSecondary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundSecondary.swift; sourceTree = "<group>"; };
 		8AE3982F2D71908B00F76AAC /* MainAppManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainAppManager.swift; sourceTree = "<group>"; };
 		8AE398312D74053900F76AAC /* BackgroundNewCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundNewCategory.swift; sourceTree = "<group>"; };
@@ -660,6 +664,7 @@
 				8AE3981C2D6FA74300F76AAC /* QuestionsNewCategory.swift */,
 				8AE398162D6D90D800F76AAC /* OnboardingIntroContent.swift */,
 				8A9B99112D78F855001707FD /* NewCategoryContent.swift */,
+				8A9B99192D7BDBBD001707FD /* NewCategoryEligibilityChecker.swift */,
 			);
 			path = Styling;
 			sourceTree = "<group>";
@@ -696,6 +701,7 @@
 				8AB2DF4F2D5AEFD00069E914 /* PageIndicatorView.swift */,
 				8AFCCCD52D5D4BFC0079732C /* RoundButton.swift */,
 				8AB2DF472D5701260069E914 /* LaurelItem.swift */,
+				8A9B99172D7BCA33001707FD /* LaurelWreath.swift */,
 			);
 			path = "Reusable Views";
 			sourceTree = "<group>";
@@ -766,6 +772,7 @@
 				8AB2DF452D56F0BD0069E914 /* CategoryView.swift */,
 				8AB2DF492D570A510069E914 /* CategoriesScrollView.swift */,
 				8AB2DF4B2D57236B0069E914 /* CategoryDescriptionView.swift */,
+				8A9B991B2D7BFE34001707FD /* CategoryUndiscoveredView.swift */,
 				8AB2DF4D2D573F770069E914 /* CategoryMissionBox.swift */,
 				8A4B27482D6A9B6900FEAC44 /* CategoryQuestsHeading.swift */,
 			);
@@ -811,7 +818,7 @@
 		8AE398132D6D85FF00F76AAC /* Onboarding */ = {
 			isa = PBXGroup;
 			children = (
-				8AE398202D70FBD000F76AAC /* Tutorials & alerts */,
+				8AE398202D70FBD000F76AAC /* Info sheets */,
 				8AE398142D6D861A00F76AAC /* OnboardingMainView.swift */,
 				8AE398182D6EC41700F76AAC /* OnboardingIntroView.swift */,
 				8AE3981A2D6EC70800F76AAC /* OnboardingQuestionsView.swift */,
@@ -820,14 +827,13 @@
 			path = Onboarding;
 			sourceTree = "<group>";
 		};
-		8AE398202D70FBD000F76AAC /* Tutorials & alerts */ = {
+		8AE398202D70FBD000F76AAC /* Info sheets */ = {
 			isa = PBXGroup;
 			children = (
-				8AE398212D70FC0300F76AAC /* TutorialFirstCategory.swift */,
-				8AE398232D71101E00F76AAC /* TutorialFirstFocusArea.swift */,
-				8A9B990A2D78E113001707FD /* AlertUnlockNewCategory.swift */,
+				8A9B99152D7BBDFA001707FD /* InfoPrimaryView.swift */,
+				8AE398212D70FC0300F76AAC /* InfoFirstCategory.swift */,
 			);
-			path = "Tutorials & alerts";
+			path = "Info sheets";
 			sourceTree = "<group>";
 		};
 		8AE3982B2D71257F00F76AAC /* Background */ = {
@@ -933,6 +939,7 @@
 				8AA56BFB2CFA32B4005D0119 /* WarningLostProgress.swift in Sources */,
 				8AEFB6E62CF6F60B00942293 /* SuggestionProtocol.swift in Sources */,
 				8A79EAB22CE40A6D000A966B /* TranscriptionViewModel.swift in Sources */,
+				8A9B991C2D7BFE34001707FD /* CategoryUndiscoveredView.swift in Sources */,
 				8A26DFC82CED43DD002C4F60 /* InsightsListView.swift in Sources */,
 				8A6332512CDAD1ED00EF34FA /* TabBarItem.swift in Sources */,
 				8A8ED7372CF3BFAB00780384 /* TopicDetailViewHeader.swift in Sources */,
@@ -955,9 +962,8 @@
 				8A63325C2CDDCA7E00EF34FA /* FocusAreaRecapPreviewBox.swift in Sources */,
 				8A827BA12D414A4C00D0204E /* TopicStatusItem.swift in Sources */,
 				8A26DFCD2CEEC076002C4F60 /* UnderstandView.swift in Sources */,
-				8AE398222D70FC0300F76AAC /* TutorialFirstCategory.swift in Sources */,
+				8AE398222D70FC0300F76AAC /* InfoFirstCategory.swift in Sources */,
 				8ACE0DE52CD2B58F00718B9E /* FocusAreaRecapView.swift in Sources */,
-				8A9B990B2D78E113001707FD /* AlertUnlockNewCategory.swift in Sources */,
 				8A63325E2CDEAC1C00EF34FA /* FocusAreaBox.swift in Sources */,
 				8A2C37092D29B93200C37315 /* TopicChroniclesView.swift in Sources */,
 				8AB2DF4E2D573F770069E914 /* CategoryMissionBox.swift in Sources */,
@@ -983,6 +989,7 @@
 				8A827B9D2D41339A00D0204E /* TopicsListView.swift in Sources */,
 				8A63325A2CDDA01300EF34FA /* RectangleButton.swift in Sources */,
 				8A827B992D38171B00D0204E /* TopicOverviewBox.swift in Sources */,
+				8A9B991A2D7BDBCD001707FD /* NewCategoryEligibilityChecker.swift in Sources */,
 				8A9CC1E52CAF5427007C2AA9 /* UpdateSectionView.swift in Sources */,
 				8AE398322D74053900F76AAC /* BackgroundNewCategory.swift in Sources */,
 				8A9CC1D12CAE4325007C2AA9 /* TopicViewModel.swift in Sources */,
@@ -1000,6 +1007,7 @@
 				8A9CC1B42CAC6ABE007C2AA9 /* CategoryItem.swift in Sources */,
 				8AC1D5A82D6582F3000DD8E6 /* EndTopicView.swift in Sources */,
 				8A8ED7312CF2799100780384 /* FocusAreaEmptyState.swift in Sources */,
+				8A9B99182D7BCA35001707FD /* LaurelWreath.swift in Sources */,
 				8A26DFD72CEFAE58002C4F60 /* UnderstandAskQuestionView.swift in Sources */,
 				8A26DFDF2CF00B43002C4F60 /* XmarkToolbarItem.swift in Sources */,
 				8AE398172D6D90D800F76AAC /* OnboardingIntroContent.swift in Sources */,
@@ -1019,6 +1027,7 @@
 				8A26DFCA2CED4575002C4F60 /* InsightBoxView.swift in Sources */,
 				8AB2DF482D5701260069E914 /* LaurelItem.swift in Sources */,
 				8A9B99092D76C02D001707FD /* TypewriterAnimation.swift in Sources */,
+				8A9B99162D7BBDFA001707FD /* InfoPrimaryView.swift in Sources */,
 				8A9CC18C2CAB5BF7007C2AA9 /* AppViewsManager.swift in Sources */,
 				8AE398192D6EC41D00F76AAC /* OnboardingIntroView.swift in Sources */,
 				8AE3981F2D7042A100F76AAC /* OnboardingFirstCategoryView.swift in Sources */,
@@ -1044,7 +1053,6 @@
 				8A8B63E92D1F02C400BA57D0 /* TopicImageViewModel.swift in Sources */,
 				8A6332492CD8257A00EF34FA /* FocusArea-CoreDataHelpers.swift in Sources */,
 				8AC1D59D2D629EC1000DD8E6 /* FocusAreaRecapTimelineView.swift in Sources */,
-				8AE398242D71101E00F76AAC /* TutorialFirstFocusArea.swift in Sources */,
 				8A9B99142D7902DD001707FD /* NewCategoryQuestionsView.swift in Sources */,
 				8AE398152D6D861A00F76AAC /* OnboardingMainView.swift in Sources */,
 				8A9CC1C72CAE0B8D007C2AA9 /* Logger+Extension.swift in Sources */,
@@ -1216,7 +1224,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Fearless2/Fearless2.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 9;
+				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_ASSET_PATHS = "\"Fearless2/Preview Content\"";
 				DEVELOPMENT_TEAM = 79TB36U8AD;
 				ENABLE_PREVIEWS = YES;
@@ -1252,7 +1260,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Fearless2/Fearless2.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 9;
+				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_ASSET_PATHS = "\"Fearless2/Preview Content\"";
 				DEVELOPMENT_TEAM = 79TB36U8AD;
 				ENABLE_PREVIEWS = YES;

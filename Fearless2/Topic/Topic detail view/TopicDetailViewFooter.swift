@@ -85,6 +85,20 @@ struct TopicDetailViewFooter: View {
         } message: {
             Text("This will erase all data for the topic.")
         }
+        .onChange(of: currentTabBar) {
+            var event: String
+            
+            switch selectedTabTopic {
+            case .paths:
+                event = "Switched to paths tab"
+            case .chronicles:
+                event = "Switched to chronicles tab"
+            }
+            
+            DispatchQueue.global(qos: .background).async {
+                Mixpanel.mainInstance().track(event: event)
+            }
+        }
     }
     
     private func dismissView() {
@@ -108,7 +122,7 @@ struct TopicDetailViewFooter: View {
                 }
                 
                 DispatchQueue.global(qos: .background).async {
-                    Mixpanel.mainInstance().track(event: "Deleted topic")
+                    Mixpanel.mainInstance().track(event: "Abandoned quest")
                 }
             }
             
@@ -128,7 +142,7 @@ struct TopicDetailViewFooter: View {
                 }
                 
                 var mixpanelEvent: String {
-                    return newStatus == .active ? "Unarchived topic" : "Archived topic"
+                    return newStatus == .active ? "Unarchived quest" : "Archived quest"
                 }
                 
                 DispatchQueue.global(qos: .background).async {

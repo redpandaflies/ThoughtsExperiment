@@ -4,7 +4,6 @@
 //
 //  Created by Yue Deng-Wu on 10/1/24.
 //
-import Mixpanel
 import OSLog
 import SwiftUI
 

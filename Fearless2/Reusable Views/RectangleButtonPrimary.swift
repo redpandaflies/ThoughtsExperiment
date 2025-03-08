@@ -46,8 +46,6 @@ struct RectangleButtonPrimary: View {
     
     var body: some View {
         
-        
-        
             HStack {
                 
                 if showSkipButton {

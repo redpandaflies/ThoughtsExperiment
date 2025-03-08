@@ -19,8 +19,8 @@ struct ActiveTopicsView: View {
     @Binding var categoriesScrollPosition: Int?
     
     let topics: FetchedResults<Topic>
-    
     @ObservedObject var points: Points
+    let totalCategories: Int
    
     
     let frameWidth: CGFloat = 270
@@ -46,7 +46,7 @@ struct ActiveTopicsView: View {
             .scrollTargetLayout()
             .navigationDestination(isPresented: $navigateToTopicDetailView) {
                 if let topic = selectedTopic {
-                    TopicDetailView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, selectedTabTopic: $selectedTabTopic, topic: topic, points: points)
+                    TopicDetailView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, selectedTabTopic: $selectedTabTopic, topic: topic, points: points, totalCategories: totalCategories)
                         .toolbarRole(.editor) //removes the word "back" in the back button
                         
                 }

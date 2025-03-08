@@ -18,6 +18,7 @@ struct FocusAreaRecapView: View {
     @State private var showSuggestions: Bool = false
     @State private var recapReady: Bool = false //manage the UI changes when recap is ready
     @State private var animationValue: Bool = false//manages animation of the ellipsis animation on loading view
+    @State private var animatedText = ""
     
     @Binding var focusArea: FocusArea?
     @Binding var focusAreaScrollPosition: Int?
@@ -156,6 +157,7 @@ struct FocusAreaRecapView: View {
             FocusAreaRecapReflectionView(
                 topicViewModel: topicViewModel,
                 recapReady: $recapReady,
+                animatedText: $animatedText,
                 feedback: focusArea?.summary?.summaryFeedback ?? ""
             )
             
@@ -228,7 +230,11 @@ struct FocusAreaRecapView: View {
                 if topicViewModel.createFocusAreaSummary == .loading {
                     return true
                 } else {
-                    return false
+                    if let feedback = focusArea?.summary?.summaryFeedback {
+                       return animatedText != feedback
+                    } else {
+                        return false
+                    }
                 }
             default:
                 return false
@@ -305,7 +311,7 @@ struct FocusAreaRecapView: View {
                 }
             }
             DispatchQueue.global(qos: .background).async {
-                Mixpanel.mainInstance().track(event: "Generated recap")
+                Mixpanel.mainInstance().track(event: "Revealed reflection")
             }
         }
     }
@@ -334,11 +340,11 @@ struct FocusAreaRecapView: View {
 struct FocusAreaRecapReflectionView: View {
     @ObservedObject var topicViewModel: TopicViewModel
     @State private var animationValue: Bool = false
-    @State private var animatedText = ""
     @State private var animator: TextAnimator?
     @State private var startedAnimation: Bool = false
     
     @Binding var recapReady: Bool
+    @Binding var animatedText: String
     
     let feedback: String
     

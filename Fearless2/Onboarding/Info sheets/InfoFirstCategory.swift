@@ -1,5 +1,5 @@
 //
-//  TutorialFirstCategory.swift
+//  InfoFirstCategory.swift
 //  Fearless2
 //
 //  Created by Yue Deng-Wu on 2/27/25.
@@ -7,7 +7,7 @@
 import CloudStorage
 import SwiftUI
 
-struct TutorialFirstCategory: View {
+struct InfoFirstCategory: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var dataController: DataController
     let backgroundColor: Color
@@ -15,23 +15,12 @@ struct TutorialFirstCategory: View {
     let screenHeight = UIScreen.current.bounds.height
  
     @AppStorage("showTopics") var showTopics: Bool = false
-    @CloudStorage("seenTutorialFirstCategory") var seenTutorialFirstCategory: Bool = false
+    @CloudStorage("discoveredFirstCategory") var discoveredFirstCategory: Bool = false
     
     var body: some View {
         VStack(spacing: 5) {
             
-            HStack (spacing: 8){
-                
-                Image(systemName: "laurel.leading")
-                    .font(.system(size: 50, weight: .light))
-                    .foregroundStyle(AppColors.textPrimary)
-                
-                Image(systemName: "laurel.trailing")
-                    .font(.system(size: 50, weight: .light))
-                    .foregroundStyle(AppColors.textPrimary)
-                    
-            }
-            .padding(.bottom, 35)
+            LaurelWreath()
 
             HStack(spacing: 5) {
                 Text("You earned")
@@ -68,7 +57,7 @@ struct TutorialFirstCategory: View {
         }
    
         .padding(.horizontal, 20)
-        .padding(.top, 70)
+        .padding(.top, 50)
         .padding(.bottom, 40)
         .frame(maxWidth: .infinity, maxHeight: screenHeight * 0.65)
         .backgroundSecondary(backgroundColor: backgroundColor, height: screenHeight * 0.65, yOffset: -(screenHeight * 0.35))
@@ -77,7 +66,7 @@ struct TutorialFirstCategory: View {
     
     private func completeTutorial() {
         dismiss()
-        seenTutorialFirstCategory = true
+        discoveredFirstCategory = true
         Task {
             await dataController.updatePoints(newPoints: 5)
             
@@ -91,5 +80,5 @@ struct TutorialFirstCategory: View {
 }
 
 #Preview {
-    TutorialFirstCategory(backgroundColor: AppColors.backgroundCareer)
+    InfoFirstCategory(backgroundColor: AppColors.backgroundCareer)
 }

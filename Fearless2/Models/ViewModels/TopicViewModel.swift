@@ -108,7 +108,7 @@ final class TopicViewModel: ObservableObject {
                     self.createFocusAreaSuggestions = .ready
                 }
                 if selectedAssistant == .topicOverview {
-                    self.createTopicOverview = .ready
+                    self.createTopicOverview = .loading
                 }
                 self.sectionSummaryCreated = false
                 self.updatedEntry = nil

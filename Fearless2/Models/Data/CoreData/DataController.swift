@@ -56,9 +56,7 @@ final class DataController: ObservableObject {
             }
         }
     }
-    
-    
-    
+
     //MARK: other
     //fetch a section
     func fetchSection(id: UUID) async -> Section? {
@@ -408,29 +406,63 @@ extension DataController {
     
     //delete all
     func deleteAll() async {
-        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Category")
-        let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+        // 1. First delete categories (which should cascade delete related topics)
+        let categoryFetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Category")
+        let categoryBatchDeleteRequest = NSBatchDeleteRequest(fetchRequest: categoryFetchRequest)
         
         // Configure batch to get object IDs for updating the context's state
-        batchDeleteRequest.resultType = .resultTypeObjectIDs
+        categoryBatchDeleteRequest.resultType = .resultTypeObjectIDs
         
         await context.perform {
             do {
-                // Execute the batch delete
-                let batchDelete = try self.context.execute(batchDeleteRequest) as? NSBatchDeleteResult
+                // Execute the category batch delete
+                let categoryBatchDelete = try self.context.execute(categoryBatchDeleteRequest) as? NSBatchDeleteResult
                 
                 // Use the deleted object IDs to update the context's state
-                if let deletedObjectIDs = batchDelete?.result as? [NSManagedObjectID] {
-                    let changes = [NSDeletedObjectsKey: deletedObjectIDs]
-                    NSManagedObjectContext.mergeChanges(fromRemoteContextSave: changes, into: [self.context])
+                if let deletedCategoryIDs = categoryBatchDelete?.result as? [NSManagedObjectID] {
+                    let categoryChanges = [NSDeletedObjectsKey: deletedCategoryIDs]
+                    NSManagedObjectContext.mergeChanges(fromRemoteContextSave: categoryChanges, into: [self.context])
                 }
                 
-                // Save context to ensure changes are persisted
+                // Save context to ensure category deletions are persisted
                 try self.context.save()
                 
-                self.logger.info("Successfully deleted all categories")
+                // 2. Now delete only orphaned topics (those unrelated to any category)
+                // Create a fetch request that finds topics not associated with any category
+                let topicFetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Topic")
+                let topicBatchDeleteRequest = NSBatchDeleteRequest(fetchRequest: topicFetchRequest)
+                topicBatchDeleteRequest.resultType = .resultTypeObjectIDs
+                
+                // Execute the topic batch delete for orphaned topics
+                let topicBatchDelete = try self.context.execute(topicBatchDeleteRequest) as? NSBatchDeleteResult
+                
+                // Use the deleted object IDs to update the context's state
+                if let deletedTopicIDs = topicBatchDelete?.result as? [NSManagedObjectID] {
+                    let topicChanges = [NSDeletedObjectsKey: deletedTopicIDs]
+                    NSManagedObjectContext.mergeChanges(fromRemoteContextSave: topicChanges, into: [self.context])
+                }
+                
+                // Final save to ensure all changes are persisted
+                try self.context.save()
+                
+                self.logger.info("Successfully deleted all categories and orphaned topics")
+                
+                // 3. Delete the user's profile
+               let profileFetchRequest = NSFetchRequest<Profile>(entityName: "Profile")
+               let profiles = try self.context.fetch(profileFetchRequest)
+               
+                //delet all found profiles (there should only be one)
+               for profile in profiles {
+                   self.context.delete(profile)
+               }
+               
+               // Final save to ensure all changes are persisted
+               try self.context.save()
+               
+               self.logger.info("Successfully deleted all categories, orphaned topics, and user profile")
+                
             } catch {
-                self.logger.error("Error batch deleting all categories: \(error.localizedDescription)")
+                self.logger.error("Error during deletion process: \(error.localizedDescription)")
             }
         }
     }
@@ -797,6 +829,55 @@ extension DataController {
         
         await self.save()
         
+    }
+    
+    func saveUserName(name: String) async {
+        
+        await context.perform {
+            let profile = Profile(context: self.context)
+            profile.profileId = UUID()
+            profile.profileName = name
+        }
+                    
+        await self.save()
+    }
+    
+    @MainActor
+    func fetchUserProfile() async -> (uuid: UUID?, name: String?) {
+        let request = NSFetchRequest<Profile>(entityName: "Profile")
+        request.fetchLimit = 1
+        
+        return await context.perform {
+            do {
+                let profiles = try self.context.fetch(request)
+                if let profile = profiles.first {
+                    return (uuid: profile.profileId, name: profile.profileName)
+                } else {
+                    self.logger.error("No profile found in CoreData")
+                    return (uuid: nil, name: nil)
+                }
+            } catch {
+                self.logger.error("Failed to fetch profile from CoreData: \(error)")
+                return (uuid: nil, name: nil)
+            }
+        }
+    }
+    
+    func updateFocusArea(focusArea: FocusArea) async {
+        await context.perform {
+            focusArea.choseSuggestion = true
+        }
+        
+        await self.save()
+    }
+    
+    func completeFocusArea(focusArea: FocusArea) async {
+        await context.perform {
+            focusArea.completed = true
+            focusArea.completedAt = getCurrentTimeString()
+        }
+        
+        await self.save()
     }
     
 }

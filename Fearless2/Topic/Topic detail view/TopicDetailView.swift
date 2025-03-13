@@ -268,7 +268,10 @@ struct TopicDetailView: View {
     }
     
     private func startNewRealmFlow() {
-        currentAppView = 2
+        
+        withAnimation(.snappy(duration: 0.5)) {
+            currentAppView = 2
+        }
         
         DispatchQueue.global(qos: .background).async {
             Mixpanel.mainInstance().track(event: "Started unveiling a new realm")

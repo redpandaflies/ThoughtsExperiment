@@ -29,7 +29,7 @@ struct OnboardingQuestionsView: View {
     var body: some View {
         VStack (spacing: 10){
             // MARK: Header
-            QuestionsProgressBar(currentQuestionIndex: $selectedQuestion, totalQuestions: 6, xmarkAction: {}, newCategory: true)
+            QuestionsProgressBar(currentQuestionIndex: $selectedQuestion, totalQuestions: 7, xmarkAction: {}, newCategory: true)
                 
             // MARK: Title
             getTitle()
@@ -37,10 +37,10 @@ struct OnboardingQuestionsView: View {
             // MARK: Question
             switch currentQuestion.questionType {
                 case .open:
-                    QuestionOpenView(topicText: $answerOpen, isFocused: $isFocused, question: currentQuestion.content, placeholderText: "Share as much as you’d like")
+                QuestionOpenView(topicText: $answerOpen, isFocused: $isFocused, question: currentQuestion.content, placeholderText: selectedQuestion == 0 ? "Enter your name" : "Share as much as you’d like")
                       
                 default:
-                    if selectedQuestion == 0 {
+                    if selectedQuestion == 1 {
                         QuestionSingleSelectView(singleSelectAnswer: $selectedCategory, question: currentQuestion.content, items: currentQuestion.options ?? [])
                            
                     } else {
@@ -67,14 +67,15 @@ struct OnboardingQuestionsView: View {
     
     private func getTitle() -> some View {
         HStack (spacing: 5){
-            if selectedQuestion == 0 {
-                
+            
+            switch selectedQuestion {
+            case 0:
+                Text("👀")
+                    .font(.system(size: 40, design: .serif))
+            case 1:
                 Text("🛌")
                     .font(.system(size: 40, design: .serif))
-                
-                
-            } else {
-               
+            default:
                 Text(Realm.getEmoji(forLifeArea: selectedCategory))
                     .font(.system(size: 19, weight: .light))
                     .fontWidth(.condensed)
@@ -83,8 +84,8 @@ struct OnboardingQuestionsView: View {
                     .font(.system(size: 19, weight: .light).smallCaps())
                     .fontWidth(.condensed)
                     .foregroundStyle(AppColors.textPrimary.opacity(0.7))
-          
             }
+           
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         
@@ -96,7 +97,7 @@ struct OnboardingQuestionsView: View {
             case .open:
                 return answerOpen.isEmpty
             default:
-                if selectedQuestion == 0 {
+                if selectedQuestion == 1 {
                     return selectedCategory.isEmpty
                 } else {
                     return answerSingleSelect.isEmpty
@@ -118,7 +119,7 @@ struct OnboardingQuestionsView: View {
         case .open:
             answeredQuestionOpen = answerOpen
         default:
-            if answeredQuestionIndex == 0 {
+            if answeredQuestionIndex == 1 {
                 answeredQuestionSingleSelect = selectedCategory
             } else {
                 answeredQuestionSingleSelect = answerSingleSelect
@@ -127,10 +128,16 @@ struct OnboardingQuestionsView: View {
         
         switch answeredQuestionIndex {
         case 0:
+            if isFocused {
+                isFocused = false
+            }
+            
+            answerOpen = ""
+        case 1:
             let categoryQuestions = QuestionsNewCategory.getQuestionFlow(for: selectedCategory)
                 questions.append(contentsOf: categoryQuestions)
             
-        case 5:
+        case 6:
             if isFocused {
                 isFocused = false
             }
@@ -148,18 +155,26 @@ struct OnboardingQuestionsView: View {
             break
         }
         
-        if selectedQuestion < 5 {
-            selectedQuestion += 1
+        if selectedQuestion < 6 {
+            withAnimation(.interpolatingSpring) {
+                selectedQuestion += 1
+            }
         }
         
         //Save question answer
-        if answeredQuestionIndex > 0 {
-                Task {
+        if answeredQuestionIndex != 1 {
+            Task {
                 switch answeredQuestion.questionType {
+                
                 case .open:
-                    await dataController.saveAnswerOnboarding(questionType: answeredQuestion.questionType, question: answeredQuestion, userAnswer: answeredQuestionOpen ?? "", categoryLifeArea: Realm.getLifeArea(forCategory: answeredQuestion.category))
-                default:
                     
+                    if answeredQuestionIndex == 0 {
+                        await dataController.saveUserName(name: answeredQuestionOpen ?? "")
+                    } else {
+                        await dataController.saveAnswerOnboarding(questionType: answeredQuestion.questionType, question: answeredQuestion, userAnswer: answeredQuestionOpen ?? "", categoryLifeArea: Realm.getLifeArea(forCategory: answeredQuestion.category))
+                    }
+                
+                default:
                     await dataController.saveAnswerOnboarding(questionType: answeredQuestion.questionType, question: answeredQuestion, userAnswer: answeredQuestionSingleSelect ?? "", categoryLifeArea: Realm.getLifeArea(forCategory: answeredQuestion.category) )
                     
                 }
@@ -173,10 +188,20 @@ struct OnboardingQuestionsView: View {
             
         }
         
-        if answeredQuestionIndex == 5 {
+        if answeredQuestionIndex == 6 {
             DispatchQueue.global(qos: .background).async {
                 Mixpanel.mainInstance().track(event: "Completed onboarding questions")
+                Mixpanel.mainInstance().track(event: "Discovered new realm: \(selectedCategory)")
             }
+        }
+        
+        if answeredQuestionIndex == 0 {
+            let mixpanelService = MixpanelService(dataController: dataController)
+            Task {
+                await mixpanelService.setupMixpanelTracking()
+                Mixpanel.mainInstance().track(event: "Finished static onboarding") //this is here & not earlier in the onboarding flow because we need to create the user profile for mixpanel before sending an event
+            }
+            
         }
     }
 }

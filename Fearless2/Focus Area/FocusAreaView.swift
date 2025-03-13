@@ -49,7 +49,7 @@ struct FocusAreasView: View {
                 case 0:
                     FocusAreaEmptyState(topicViewModel: topicViewModel, selectedTab: $selectedTab, topicId: topicId)
                 default:
-                FocusAreaList(topicViewModel: topicViewModel, showFocusAreaRecapView: $showFocusAreaRecapView, selectedSection: $selectedSection, selectedSectionSummary: $selectedSectionSummary, selectedFocusArea: $selectedFocusArea, selectedEndOfTopicSection: $selectedEndOfTopicSection, focusAreaScrollPosition: $focusAreaScrollPosition, focusAreas: focusAreas)
+                    FocusAreaList(topicViewModel: topicViewModel, showFocusAreaRecapView: $showFocusAreaRecapView, selectedSection: $selectedSection, selectedSectionSummary: $selectedSectionSummary, selectedFocusArea: $selectedFocusArea, selectedEndOfTopicSection: $selectedEndOfTopicSection, focusAreaScrollPosition: $focusAreaScrollPosition, focusAreas: focusAreas)
             }
         }
         .ignoresSafeArea(.keyboard)
@@ -57,7 +57,6 @@ struct FocusAreasView: View {
             if let scrollPosition = focusAreaScrollPosition {
                 nextFocusAreaIndicator(scrollPosition: scrollPosition)
             }
-            
         }
         .onAppear {
             if !focusAreas.isEmpty && selectedTab != 1 {
@@ -101,7 +100,16 @@ struct FocusAreasView: View {
         if scrollPosition < totalFocusAreas - 1 {
             let nextFocusAreaIndex = scrollPosition + 1
             let nextFocusArea = focusAreas[nextFocusAreaIndex]
-            return nextFocusArea.focusAreaTitle
+            let nextFocusAreaDisplayNumber = scrollPosition + 2 //the number displayed for focus area in UI
+            
+            if let topic = focusAreas.first?.topic {
+                let limit = Int(topic.focusAreasLimit)
+                if scrollPosition == limit - 1 {
+                    return "\(nextFocusArea.focusAreaTitle)"
+                }
+            }
+            
+            return "\(nextFocusAreaDisplayNumber) \(nextFocusArea.focusAreaTitle)"
         } else {
             return ""
         }
@@ -113,11 +121,11 @@ struct FocusAreasView: View {
 
 struct FocusAreaList: View {
     @EnvironmentObject var dataController: DataController
-   @ObservedObject var topicViewModel: TopicViewModel
+    @ObservedObject var topicViewModel: TopicViewModel
     @State private var scrollViewHeight: CGFloat = 0
    
-   @Binding var showFocusAreaRecapView: Bool
-   @Binding var selectedSection: Section?
+    @Binding var showFocusAreaRecapView: Bool
+    @Binding var selectedSection: Section?
     @Binding var selectedSectionSummary: SectionSummary?
     @Binding var selectedFocusArea: FocusArea?
     @Binding var selectedEndOfTopicSection: Section?

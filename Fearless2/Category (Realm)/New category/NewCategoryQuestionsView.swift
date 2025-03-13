@@ -164,7 +164,9 @@ struct NewCategoryQuestionsView: View {
         }
         
         if selectedQuestion < 5 {
-            selectedQuestion += 1
+            withAnimation(.interpolatingSpring) {
+                selectedQuestion += 1
+            }
         }
         
         //Save question answer

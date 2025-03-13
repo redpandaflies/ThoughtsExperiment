@@ -66,19 +66,19 @@ struct OnboardingMainView: View {
         }
         .onAppear {
             //reset all appstorage and cloudstorage vars
-//            currentCategory = 0
-//            currentAppView = 0
-//            unlockNewCategory = false
-//            showTopics = false
-//            discoveredFirstCategory = false
-//            firstFocusArea = false
+            currentCategory = 0
+            currentAppView = 0
+            unlockNewCategory = false
+            showTopics = false
+            discoveredFirstCategory = false
+            firstFocusArea = false
             
             Task {
-//                if !categories.isEmpty {
-//                    
-//                    await dataController.deleteAll()
-//                    
-//                }
+                if !categories.isEmpty {
+                    
+                    await dataController.deleteAll()
+                    
+                }
                     
                 await MainActor.run {
                     imagesScrollPosition = 0

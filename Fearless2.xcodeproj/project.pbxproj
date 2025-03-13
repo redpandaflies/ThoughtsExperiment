@@ -68,6 +68,9 @@
 		8A79EAB52CE45B1B000A966B /* TopicDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A79EAB42CE45B1B000A966B /* TopicDetailView.swift */; };
 		8A79EAB72CE467C9000A966B /* TopicPickerItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A79EAB62CE467C9000A966B /* TopicPickerItem.swift */; };
 		8A7A597C2CF7B54200E80367 /* FocusAreaSuggestionsList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A7A597B2CF7B54100E80367 /* FocusAreaSuggestionsList.swift */; };
+		8A81D4592D800330008C8DA9 /* Profile-CoreDataHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A81D4582D800321008C8DA9 /* Profile-CoreDataHelpers.swift */; };
+		8A81D45C2D80F8BF008C8DA9 /* MixpanelService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A81D45B2D80F8B9008C8DA9 /* MixpanelService.swift */; };
+		8A81D45E2D8154B2008C8DA9 /* Staging.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 8A81D45D2D8154B2008C8DA9 /* Staging.xcconfig */; };
 		8A827B922D380CCA00D0204E /* TopicReview-CoreDataHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A827B912D380CCA00D0204E /* TopicReview-CoreDataHelpers.swift */; };
 		8A827B972D38151500D0204E /* TopicReviewEmptyState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A827B962D38151500D0204E /* TopicReviewEmptyState.swift */; };
 		8A827B992D38171B00D0204E /* TopicOverviewBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A827B982D38171B00D0204E /* TopicOverviewBox.swift */; };
@@ -144,7 +147,7 @@
 		8ABE9AE42CB2627A00483CFD /* QuestionMultipleChoiceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ABE9AE32CB2627A00483CFD /* QuestionMultipleChoiceView.swift */; };
 		8ABE9AEA2CB2768600483CFD /* WrappingHStack in Frameworks */ = {isa = PBXBuildFile; productRef = 8ABE9AE92CB2768600483CFD /* WrappingHStack */; };
 		8AC1D59D2D629EC1000DD8E6 /* FocusAreaRecapTimelineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AC1D59C2D629EC1000DD8E6 /* FocusAreaRecapTimelineView.swift */; };
-		8AC1D59F2D62B275000DD8E6 /* Points-CoreDataHelpers 2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AC1D59E2D62B275000DD8E6 /* Points-CoreDataHelpers 2.swift */; };
+		8AC1D59F2D62B275000DD8E6 /* Points-CoreDataHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AC1D59E2D62B275000DD8E6 /* Points-CoreDataHelpers.swift */; };
 		8AC1D5A52D655AD7000DD8E6 /* EndOfTopicItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AC1D5A42D655AD1000DD8E6 /* EndOfTopicItem.swift */; };
 		8AC1D5A82D6582F3000DD8E6 /* EndTopicView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AC1D5A72D6582F3000DD8E6 /* EndTopicView.swift */; };
 		8AC1D5AA2D65998B000DD8E6 /* RecapCelebrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AC1D5A92D659986000DD8E6 /* RecapCelebrationView.swift */; };
@@ -235,6 +238,10 @@
 		8A79EAB42CE45B1B000A966B /* TopicDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicDetailView.swift; sourceTree = "<group>"; };
 		8A79EAB62CE467C9000A966B /* TopicPickerItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicPickerItem.swift; sourceTree = "<group>"; };
 		8A7A597B2CF7B54100E80367 /* FocusAreaSuggestionsList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusAreaSuggestionsList.swift; sourceTree = "<group>"; };
+		8A81D4582D800321008C8DA9 /* Profile-CoreDataHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Profile-CoreDataHelpers.swift"; sourceTree = "<group>"; };
+		8A81D45B2D80F8B9008C8DA9 /* MixpanelService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MixpanelService.swift; sourceTree = "<group>"; };
+		8A81D45D2D8154B2008C8DA9 /* Staging.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Staging.xcconfig; sourceTree = "<group>"; };
+		8A81D45F2D815BEC008C8DA9 /* Fearless2Debug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Fearless2Debug.entitlements; sourceTree = "<group>"; };
 		8A827B912D380CCA00D0204E /* TopicReview-CoreDataHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TopicReview-CoreDataHelpers.swift"; sourceTree = "<group>"; };
 		8A827B962D38151500D0204E /* TopicReviewEmptyState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicReviewEmptyState.swift; sourceTree = "<group>"; };
 		8A827B982D38171B00D0204E /* TopicOverviewBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicOverviewBox.swift; sourceTree = "<group>"; };
@@ -311,7 +318,7 @@
 		8ABE9AE12CB2597300483CFD /* NextButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextButton.swift; sourceTree = "<group>"; };
 		8ABE9AE32CB2627A00483CFD /* QuestionMultipleChoiceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionMultipleChoiceView.swift; sourceTree = "<group>"; };
 		8AC1D59C2D629EC1000DD8E6 /* FocusAreaRecapTimelineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusAreaRecapTimelineView.swift; sourceTree = "<group>"; };
-		8AC1D59E2D62B275000DD8E6 /* Points-CoreDataHelpers 2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Points-CoreDataHelpers 2.swift"; sourceTree = "<group>"; };
+		8AC1D59E2D62B275000DD8E6 /* Points-CoreDataHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Points-CoreDataHelpers.swift"; sourceTree = "<group>"; };
 		8AC1D5A42D655AD1000DD8E6 /* EndOfTopicItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EndOfTopicItem.swift; sourceTree = "<group>"; };
 		8AC1D5A72D6582F3000DD8E6 /* EndTopicView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EndTopicView.swift; sourceTree = "<group>"; };
 		8AC1D5A92D659986000DD8E6 /* RecapCelebrationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecapCelebrationView.swift; sourceTree = "<group>"; };
@@ -501,6 +508,14 @@
 			path = "Focus area suggestions";
 			sourceTree = "<group>";
 		};
+		8A81D45A2D80F8A8008C8DA9 /* Launch sequence */ = {
+			isa = PBXGroup;
+			children = (
+				8A81D45B2D80F8B9008C8DA9 /* MixpanelService.swift */,
+			);
+			path = "Launch sequence";
+			sourceTree = "<group>";
+		};
 		8A8B63E02D1EFC0C00BA57D0 /* AI functions */ = {
 			isa = PBXGroup;
 			children = (
@@ -533,8 +548,9 @@
 		8A8B63E52D1F00CA00BA57D0 /* CoreData */ = {
 			isa = PBXGroup;
 			children = (
+				8A81D4582D800321008C8DA9 /* Profile-CoreDataHelpers.swift */,
 				8AB2DF422D54329C0069E914 /* Category-CoreDataHelpers.swift */,
-				8AC1D59E2D62B275000DD8E6 /* Points-CoreDataHelpers 2.swift */,
+				8AC1D59E2D62B275000DD8E6 /* Points-CoreDataHelpers.swift */,
 				8A9CC1BD2CAD26E7007C2AA9 /* Topic-CoreDataHelpers.swift */,
 				8A827BA02D414A4400D0204E /* TopicStatusItem.swift */,
 				8A827B912D380CCA00D0204E /* TopicReview-CoreDataHelpers.swift */,
@@ -594,6 +610,7 @@
 		8A9CC1752CAB3DEA007C2AA9 /* Fearless2 */ = {
 			isa = PBXGroup;
 			children = (
+				8A81D45F2D815BEC008C8DA9 /* Fearless2Debug.entitlements */,
 				8A9CC1CA2CAE17E8007C2AA9 /* Fearless2.entitlements */,
 				8A9CC1C52CAE0727007C2AA9 /* Info.plist */,
 				8A9CC1B92CAD1A4A007C2AA9 /* ModelTopics.xcdatamodeld */,
@@ -618,6 +635,7 @@
 				8A2C370E2D2C5B5F00C37315 /* loadingAnimation.json */,
 				8A9CC17C2CAB3DEB007C2AA9 /* Preview Content */,
 				8A9CC1C42CAE066D007C2AA9 /* Production.xcconfig */,
+				8A81D45D2D8154B2008C8DA9 /* Staging.xcconfig */,
 			);
 			path = Fearless2;
 			sourceTree = "<group>";
@@ -633,6 +651,7 @@
 		8A9CC1842CAB449F007C2AA9 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				8A81D45A2D80F8A8008C8DA9 /* Launch sequence */,
 				8A63A1BF2D4BF46800712B27 /* Error handling */,
 				8A8B63E02D1EFC0C00BA57D0 /* AI functions */,
 				8A79EAAE2CE3F038000A966B /* Audio */,
@@ -656,9 +675,9 @@
 				8A9CC1972CAB66DF007C2AA9 /* Colors.swift */,
 				8A9CC1AB2CAB8E50007C2AA9 /* Shadows.swift */,
 				8A9CC1992CAB69EA007C2AA9 /* GetScreenSize.swift */,
-				8A9CC19D2CAB7855007C2AA9 /* CustomToolbarAppearance.swift */,
 				8A9CC1B32CAC6ABE007C2AA9 /* CategoryItem.swift */,
 				8A9CC1D92CAE7697007C2AA9 /* LottieView.swift */,
+				8A9CC19D2CAB7855007C2AA9 /* CustomToolbarAppearance.swift */,
 				8A9191F42CB4A227007E17A0 /* QuestionsNewTopic.swift */,
 				8A9192012CBE3C5D007E17A0 /* CategoryItemProtocol.swift */,
 				8AE3981C2D6FA74300F76AAC /* QuestionsNewCategory.swift */,
@@ -921,6 +940,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8A81D45E2D8154B2008C8DA9 /* Staging.xcconfig in Resources */,
 				8A9CC17E2CAB3DEB007C2AA9 /* Preview Assets.xcassets in Resources */,
 				8A9CC17B2CAB3DEB007C2AA9 /* Assets.xcassets in Resources */,
 				8A2C370F2D2C5B5F00C37315 /* loadingAnimation.json in Resources */,
@@ -950,6 +970,7 @@
 				8A9CC1982CAB66DF007C2AA9 /* Colors.swift in Sources */,
 				8A63324C2CD8415600EF34FA /* FocusAreaView.swift in Sources */,
 				8AB2DF462D56F0CD0069E914 /* CategoryView.swift in Sources */,
+				8A81D4592D800330008C8DA9 /* Profile-CoreDataHelpers.swift in Sources */,
 				8A26DFDD2CEFF2EB002C4F60 /* UnderstandToolbarItem.swift in Sources */,
 				8AE398302D71908B00F76AAC /* MainAppManager.swift in Sources */,
 				8A6332562CDD66D500EF34FA /* TopicBox.swift in Sources */,
@@ -1060,6 +1081,7 @@
 				8A9191FE2CBDDCCE007E17A0 /* SectionBox.swift in Sources */,
 				8A63A1C32D51F6C500712B27 /* FocusAreaRetryView.swift in Sources */,
 				8A74F49B2CE593FD008A33B0 /* TopicPickerView.swift in Sources */,
+				8A81D45C2D80F8BF008C8DA9 /* MixpanelService.swift in Sources */,
 				8ACE0DD12CCF308700718B9E /* ModelTopics.xcdatamodeld in Sources */,
 				8AC1D5AC2D670557000DD8E6 /* FocusAreasCalculator.swift in Sources */,
 				8A9CC1772CAB3DEA007C2AA9 /* Fearless2App.swift in Sources */,
@@ -1088,7 +1110,7 @@
 				8ACE0DD82CD0C4A700718B9E /* SectionSummaryView.swift in Sources */,
 				8A827B9B2D412AD400D0204E /* TopicsListContent.swift in Sources */,
 				8ACE0DDC2CD0C54F00718B9E /* EntryQuestionView.swift in Sources */,
-				8AC1D59F2D62B275000DD8E6 /* Points-CoreDataHelpers 2.swift in Sources */,
+				8AC1D59F2D62B275000DD8E6 /* Points-CoreDataHelpers.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1097,7 +1119,7 @@
 /* Begin XCBuildConfiguration section */
 		8A9CC17F2CAB3DEB007C2AA9 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 8A9CC1C42CAE066D007C2AA9 /* Production.xcconfig */;
+			baseConfigurationReference = 8A81D45D2D8154B2008C8DA9 /* Staging.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -1218,19 +1240,20 @@
 		};
 		8A9CC1822CAB3DEB007C2AA9 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 8A9CC1C42CAE066D007C2AA9 /* Production.xcconfig */;
+			baseConfigurationReference = 8A81D45D2D8154B2008C8DA9 /* Staging.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = Fearless2/Fearless2.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Fearless2/Fearless2Debug.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 10;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"Fearless2/Preview Content\"";
 				DEVELOPMENT_TEAM = 79TB36U8AD;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Fearless2/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Forgotten Realms";
+				INFOPLIST_KEY_CFBundleDisplayName = "$(BUNDLE_DISPLAY_NAME)";
 				INFOPLIST_KEY_MetalCaptureEnabled = YES;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Audio is recorded for AI to transcribe and process.  ";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -1244,7 +1267,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = app.spacenotes.burrow;
+				PRODUCT_BUNDLE_IDENTIFIER = "app.spacenotes.staging-realms";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -1260,13 +1283,13 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Fearless2/Fearless2.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 10;
+				CURRENT_PROJECT_VERSION = 13;
 				DEVELOPMENT_ASSET_PATHS = "\"Fearless2/Preview Content\"";
 				DEVELOPMENT_TEAM = 79TB36U8AD;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Fearless2/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Forgotten Realms";
+				INFOPLIST_KEY_CFBundleDisplayName = "$(BUNDLE_DISPLAY_NAME)";
 				INFOPLIST_KEY_MetalCaptureEnabled = YES;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Audio is recorded for AI to transcribe and process.  ";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;

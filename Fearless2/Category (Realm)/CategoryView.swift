@@ -20,7 +20,6 @@ struct CategoryView: View {
     @State private var animationStage: Int = 0
     @State private var showFirstCategoryInfoSheet: Bool = false
     @State private var showLaurelInfoSheet: Bool = false
-    @State private var showInfoNewCategory: Bool = false
     @State private var showNewCategory: Bool = false //Animation won't work if directly using UserDefaults. Best to trigger animation via a @State private var
 
     @State private var isProgrammaticScroll: Bool = false //prevent haptic feedback on programmatic scroll
@@ -137,7 +136,7 @@ struct CategoryView: View {
                     SettingsToolbarItem(action: {
                         showSettingsView = true
                     })
-                    .opacity(newCategory ? 1 : 0)
+                   
                 }
                 
                 ToolbarItem(placement: .principal) {
@@ -181,23 +180,6 @@ struct CategoryView: View {
                     .presentationCornerRadius(30)
                     .interactiveDismissDisabled()
             }
-            .sheet(isPresented: $showInfoNewCategory, onDismiss: {
-                showInfoNewCategory = false
-            }) {
-                InfoPrimaryView(
-                    backgroundColor: getCategoryBackground(),
-                    useIcon: true,
-                    iconName: "mountain.2.fill",
-                    titleText: "A new realm emerges",
-                    descriptionText: "The path ahead is shifting.\nStep forward and see where it leads.",
-                    useRectangleButton: true,
-                    rectangleButtonText: "Unveil your next realm",
-                    buttonAction: {
-                        startNewRealmFlow()
-                    })
-                    .presentationDetents([.fraction(0.65)])
-                    .presentationCornerRadius(30)
-            }
             .sheet(isPresented: $showLaurelInfoSheet, onDismiss: {
                 showLaurelInfoSheet = false
             }) {
@@ -222,6 +204,8 @@ struct CategoryView: View {
     private func setupView() {
         isProgrammaticScroll = true
         categoriesScrollPosition = currentCategory
+        
+        
         
         if !newCategory {
             startAnimation()
@@ -275,13 +259,5 @@ struct CategoryView: View {
         }
         
         return AppColors.backgroundOnboardingIntro
-    }
-    
-    private func startNewRealmFlow() {
-        currentAppView = 2
-        
-        DispatchQueue.global(qos: .background).async {
-            Mixpanel.mainInstance().track(event: "Started unveiling a new realm")
-        }
     }
 }

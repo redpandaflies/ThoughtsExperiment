@@ -56,7 +56,6 @@ struct UpdateSectionView: View {
             case 0:
                 UpdateSectionBox(topicViewModel: topicViewModel, selectedQuestion: $selectedQuestion, topicText: $topicText, singleSelectAnswer: $singleSelectAnswer, multiSelectAnswers: $multiSelectAnswers, isFocused: $isFocused, section: section, questions: questions)
                     .padding(.top)
-                    .transition(.move(edge: .bottom))
                 
             default:
                 if let currentFocusArea = focusArea {
@@ -242,7 +241,9 @@ struct UpdateSectionView: View {
         }
     
         //add fill to progress bar
-        currentQuestionIndex += 1
+        withAnimation(.interpolatingSpring) {
+            currentQuestionIndex += 1
+        }
         
     }
     
@@ -279,6 +280,12 @@ struct UpdateSectionView: View {
     
     private func completeSection() {
         dismiss()
+        let completedSections = focusArea?.focusAreaSections.filter { $0.completed == true }.count
+        if completedSections == focusArea?.focusAreaSections.count {
+            DispatchQueue.global(qos: .background).async {
+                Mixpanel.mainInstance().track(event: "Completed path")
+            }
+        }
     }
 }
 

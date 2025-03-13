@@ -18,7 +18,6 @@ struct EndTopicView: View {
     @Binding var section: Section?
     @ObservedObject var topic: Topic
     
-    
     var body: some View {
         NavigationStack {
             VStack {
@@ -26,7 +25,6 @@ struct EndTopicView: View {
                 Group {
                     switch selectedTab {
                     case 0:
-                        
                         RecapCelebrationView(title: section?.topic?.topicTitle ?? "", text: "For completing", points: "+5")
                             .padding(.horizontal)
                             .padding(.bottom, 30)
@@ -102,6 +100,10 @@ struct EndTopicView: View {
     private func buttonAction() {
         if selectedTab == 0 {
             selectedTab += 1
+            Task {
+                //add 5 points for completing topic
+                await dataController.updatePoints(newPoints: 5)
+            }
         } else {
             
             if let currentSection = section {
@@ -115,6 +117,10 @@ struct EndTopicView: View {
                     //close view
                     await MainActor.run {
                         dismiss()
+                    }
+                    
+                    DispatchQueue.global(qos: .background).async {
+                        Mixpanel.mainInstance().track(event: "Completed quest")
                     }
                 }
             }
@@ -162,10 +168,19 @@ struct EndTopicView: View {
         }
         .frame(maxHeight: .infinity, alignment: .center)
         .onAppear {
-            revealFragment()
+            if let _ = topic.review?.reviewOverview, topicViewModel.createTopicOverview == .ready {
+                revealFragment()
+            }
         }
-        .onChange(of: topicViewModel.createTopicOverview) {
-            revealFragment()
+        .onChange(of: topicViewModel.createTopicOverview) { oldState, newState in
+            // Now properly detect transition from loading to ready
+            if oldState == .loading && newState == .ready {
+                // Reset animation state first
+                showFragment = false
+                
+                // Then trigger the animation sequence
+                revealFragment()
+            }
         }
         .onDisappear {
             startRepeatingAnimation = false
@@ -195,16 +210,15 @@ struct EndTopicView: View {
     }
     
     private func revealFragment() {
-        if topicViewModel.createTopicOverview == .ready {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                withAnimation(.interpolatingSpring(mass: 1, stiffness: 10, damping: 10, initialVelocity: 10)) {
-                    showFragment = true
-                }
-                
-                startRepeatingAnimation = true
+            
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            withAnimation(.interpolatingSpring(mass: 1, stiffness: 10, damping: 10, initialVelocity: 10)) {
+                showFragment = true
             }
             
+            startRepeatingAnimation = true
         }
+            
     }
 }
 

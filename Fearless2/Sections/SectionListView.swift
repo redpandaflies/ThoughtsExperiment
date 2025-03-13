@@ -94,7 +94,11 @@ struct SectionListView: View {
                     }
                     
                     if focusArea.endOfTopic != true {
-                        FocusAreaRecapPreviewBox(focusAreaCompleted: focusAreaCompleted, available: allSectionsCompleted, buttonAction: {
+                        FocusAreaRecapPreviewBox(
+                            choseSuggestion: focusArea.choseSuggestion,
+                            focusAreaCompleted: focusAreaCompleted,
+                            available: allSectionsCompleted,
+                            buttonAction: {
                             startRecap()
                         })
                         .scrollTransition { content, phase in
@@ -122,10 +126,14 @@ struct SectionListView: View {
                 sectionsScrollPosition = firstIncompleteSectionIndex ?? sections.count
             }
             .onChange(of: selectedSection) {
-                manageSectionScroll(mixpanelEvent: "Completed path")
+                if selectedSection == nil {
+                    manageSectionScroll()
+                }
             }
             .onChange(of: selectedEndOfTopicSection) {
-                manageSectionScroll(mixpanelEvent: "Completed quest")
+                if selectedEndOfTopicSection == nil {
+                    manageSectionScroll()
+                }
             }
     }
     
@@ -168,7 +176,7 @@ struct SectionListView: View {
         }
     }
     
-    private func manageSectionScroll(mixpanelEvent: String) {
+    private func manageSectionScroll() {
         if let index = firstIncompleteSectionIndex {
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -182,9 +190,6 @@ struct SectionListView: View {
                 withAnimation(.smooth(duration: 0.2)) {
                     sectionsScrollPosition = sections.count
                 }
-            }
-            DispatchQueue.global(qos: .background).async {
-                Mixpanel.mainInstance().track(event: mixpanelEvent)
             }
         }
     }

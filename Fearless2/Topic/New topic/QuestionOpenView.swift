@@ -18,11 +18,13 @@ struct QuestionOpenView: View {
     init(topicText: Binding<String>,
          isFocused: FocusState<Bool>.Binding,
          question: String = "",
-         placeholderText: String = "Type your answer") {
+         placeholderText: String = "Type your answer"
+    ) {
         self._topicText = topicText
         self._isFocused = isFocused
         self.question = question
         self.placeholderText = placeholderText
+  
     }
     
     var body: some View {
@@ -42,8 +44,14 @@ struct QuestionOpenView: View {
                 .lineSpacing(3)
                 .focused($isFocused)
                 .keyboardType(.alphabet)
+                .onChange(of: topicText) { oldValue, newValue in
+                    if newValue.contains("\n") {
+                        topicText = newValue.replacingOccurrences(of: "\n", with: "")
+                    }
+                }
                 
         }//VStack
+        .environment(\.colorScheme, .dark)
         .onAppear {
             if !isFocused {
                 isFocused = true

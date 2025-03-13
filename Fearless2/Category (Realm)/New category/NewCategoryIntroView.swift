@@ -24,8 +24,8 @@ struct NewCategoryIntroView: View {
     }
     
     @CloudStorage("currentAppView") var currentAppView: Int = 0
-    @AppStorage("currentCategory") var currentCategory: Int = 0
     @CloudStorage("unlockNewCategory") var newCategory: Bool = false
+    @AppStorage("currentCategory") var currentCategory: Int = 0
     @AppStorage("showTopics") var showTopics: Bool = false
     
     var body: some View {
@@ -94,7 +94,7 @@ struct NewCategoryIntroView: View {
     
     private func typewriterAnimation() {
         if animator == nil {
-            animator = TextAnimator(text: content.description, animatedText: $animatedText)
+            animator = TextAnimator(text: content.description, animatedText: $animatedText, speed: 0.03)
         } else {
             animator?.updateText(content.description)
         }
@@ -129,7 +129,10 @@ struct NewCategoryIntroView: View {
                 
                 currentAppView = 1
                 
+                
                 let newCategory =  categories[currentCategory].categoryLifeArea
+                
+                print("New category: \(newCategory)")
                     
                 DispatchQueue.global(qos: .background).async {
                     Mixpanel.mainInstance().track(event: "Discovered new realm: \(newCategory)")

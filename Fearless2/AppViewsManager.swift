@@ -5,16 +5,22 @@
 //  Created by Yue Deng-Wu on 9/30/24.
 //
 import CloudStorage
+import CoreData
 import SwiftUI
 
 struct AppViewsManager: View {
     
     @EnvironmentObject var dataController: DataController
     @EnvironmentObject var openAISwiftService: OpenAISwiftService
-
 //    @StateObject var transcriptionViewModel: TranscriptionViewModel
 //    @StateObject var understandViewModel: UnderstandViewModel
 //    @StateObject var topicViewModel: TopicViewModel
+    
+    @FetchRequest(
+        sortDescriptors: [
+            NSSortDescriptor(key: "orderIndex", ascending: true)
+        ]
+    ) var categories: FetchedResults<Category>
     
     @CloudStorage("currentAppView") var currentAppView: Int = 0
      
@@ -38,7 +44,12 @@ struct AppViewsManager: View {
         case 0:
             OnboardingMainView()
         case 1:
-            MainAppManager(dataController: dataController, openAISwiftService: openAISwiftService)
+            if !categories.isEmpty {
+                MainAppManager(dataController: dataController, openAISwiftService: openAISwiftService)
+                    
+            } else {
+                OnboardingMainView()
+            }
         default:
             NewCategoryView()
                 .transition(.asymmetric(insertion: .opacity, removal: .identity))

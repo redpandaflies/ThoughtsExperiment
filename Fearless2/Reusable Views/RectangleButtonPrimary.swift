@@ -23,6 +23,7 @@ struct RectangleButtonPrimary: View {
     let disableMainButton: Bool
     let sizeSmall: Bool
     let buttonColor: RectangleButtonColor
+    let screenWidth = UIScreen.current.bounds.width
     
     init(
         buttonText: String,
@@ -46,7 +47,7 @@ struct RectangleButtonPrimary: View {
     
     var body: some View {
         
-            HStack {
+            HStack (spacing: 10){
                 
                 if showSkipButton {
                     
@@ -57,8 +58,7 @@ struct RectangleButtonPrimary: View {
                         Text("Skip")
                             .font(.system(size: 15, weight: .medium))
                             .foregroundStyle(Color.black)
-                            .padding(.horizontal, 20)
-                            .frame(height: 55)
+                            .frame(width: 71, height: 55)
                             .contentShape(RoundedRectangle(cornerRadius: 15))
                             .background {
                                 RoundedRectangle(cornerRadius: 15)
@@ -77,46 +77,25 @@ struct RectangleButtonPrimary: View {
                     .sensoryFeedback(.selection, trigger: playHapticEffect)
                 }
                 
+                
                 Button {
                     playHapticEffect += 1
                     action()
                 } label: {
-                    HStack {
-                        
-                        Spacer()
-                        
-                        Text(buttonText)
-                            .font(.system(size: sizeSmall ? 13 : 15, weight: .medium))
-                            .foregroundStyle(Color.black)
-                        
-                        if showChevron {
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 15, weight: .medium))
-                                .foregroundStyle(Color.black)
-                        }
-                        
-                        Spacer()
-                        
-                    }//HStack
-                    .padding(.horizontal, 20)
-                    .frame(height: 55)
-                    .contentShape(RoundedRectangle(cornerRadius: 15))
-                    .background {
-                        RoundedRectangle(cornerRadius: 15)
-                            .fill(
-                                LinearGradient(
-                                    gradient: Gradient(colors: buttonColor == .yellow ? [AppColors.buttonYellow1, AppColors.buttonYellow2] : [Color.white, AppColors.buttonLightGrey1]),
-                                    startPoint: .top,
-                                    endPoint: .bottom
-                                )
-                            )
-                            .shadow(color: Color.black.opacity(0.15), radius: 5, x: 0, y: 3)
+                    //wrote it this way to avoid the automatic transition when button changes size
+                    if showSkipButton {
+                        mainButton(width: screenWidth - 105)
+                            .transition(.identity)
+                    } else {
+                        mainButton(width: screenWidth - 32)
+                            .transition(.identity)
                     }
-                    .opacity(disableMainButton ? 0.3 : 1)
+                   
                 }//button label
                 .buttonStyle(ButtonStylePushDown(isDisabled: disableMainButton))
                 .disabled(disableMainButton)
                 .sensoryFeedback(.selection, trigger: playHapticEffect)
+              
             }//HStack
             .onAppear {
                 if playHapticEffect != 0 {
@@ -125,7 +104,40 @@ struct RectangleButtonPrimary: View {
             }
     }
     
-    
+    private func mainButton(width: CGFloat) -> some View {
+        HStack {
+            
+            Text(buttonText)
+                .font(.system(size: sizeSmall ? 13 : 15, weight: .medium))
+                .foregroundStyle(Color.black)
+            
+            if showChevron {
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundStyle(Color.black)
+            }
+            
+          
+            
+        }//HStack
+        .frame(height: 55)
+        .frame(maxWidth: width)
+        .contentShape(RoundedRectangle(cornerRadius: 15))
+        .background {
+            RoundedRectangle(cornerRadius: 15)
+                .fill(
+                    LinearGradient(
+                        gradient: Gradient(colors: buttonColor == .yellow ? [AppColors.buttonYellow1, AppColors.buttonYellow2] : [Color.white, AppColors.buttonLightGrey1]),
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .shadow(color: Color.black.opacity(0.15), radius: 5, x: 0, y: 3)
+               
+        }
+        .opacity(disableMainButton ? 0.3 : 1)
+        
+    }
 }
 
 //#Preview {

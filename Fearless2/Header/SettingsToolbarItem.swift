@@ -19,6 +19,7 @@ struct SettingsToolbarItem: View {
             Image(systemName: "gearshape.fill")
                 .font(.system(size: 17, weight: .thin))
                 .foregroundStyle(AppColors.textPrimary)
+                .opacity(0)
         }
             
         

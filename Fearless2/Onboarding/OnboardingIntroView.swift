@@ -39,7 +39,6 @@ struct OnboardingIntroView: View {
                     typewriterAnimation()
                 }
             
-            
             Spacer()
             
             RoundButton(buttonImage: "arrow.right",
@@ -68,7 +67,6 @@ struct OnboardingIntroView: View {
     
     private func introViewButtonAction() {
         
-        
         switch selectedIntroPage {
             case 9:
                 showQuestionsView = true
@@ -84,13 +82,7 @@ struct OnboardingIntroView: View {
                 imagesScrollPosition = (imagesScrollPosition ?? 0) + 1
             }
         }
-        
-        if selectedIntroPage == 9 {
-            DispatchQueue.global(qos: .background).async {
-                Mixpanel.mainInstance().track(event: "Finished static onboarding")
-            }
-        }
-        
+
     }
     
     private func completeOnboarding() {
@@ -125,7 +117,7 @@ struct OnboardingIntroView: View {
     
     private func typewriterAnimation() {
         if animator == nil {
-            animator = TextAnimator(text: content.title, animatedText: $animatedText)
+            animator = TextAnimator(text: content.title, animatedText: $animatedText, speed: 0.03)
         } else {
             animator?.updateText(content.title)
         }

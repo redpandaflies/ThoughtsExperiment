@@ -1,0 +1,16 @@
+//
+//  Staging.xcconfig
+//  Fearless2
+//
+//  Created by Yue Deng-Wu on 1/25/24.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+PRODUCT_BUNDLE_IDENTIFIER = app.spacenotes.staging-realms
+BUNDLE_DISPLAY_NAME = coconut
+
+
+
+

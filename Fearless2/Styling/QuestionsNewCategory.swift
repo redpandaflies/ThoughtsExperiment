@@ -47,15 +47,23 @@ extension QuestionsNewCategory {
     
     //initial question onboarding
     static var initialQuestionOnboarding: [QuestionsNewCategory] {
-        return [QuestionsNewCategory(
-            id: 0,
-            content: "It's late. You're trying to fall asleep, but your mind is wandering. What are you thinking about?",
-            questionType: .singleSelect,
-            category: .generic,
-            options: Realm.realmsData
-                .dropLast()
-                .map { $0.lifeArea }
-        )]
+        return [
+            QuestionsNewCategory(
+                id: 0,
+                content: "What should I call you?",
+                questionType: .open,
+                category: .generic
+            ),
+            QuestionsNewCategory(
+                id: 1,
+                content: "It's late. You're trying to fall asleep, but your mind is wandering. What are you thinking about?",
+                questionType: .singleSelect,
+                category: .generic,
+                options: Realm.realmsData
+                    .dropLast()
+                    .map { $0.lifeArea }
+            )
+        ]
     }
     
     //get initial question new category
@@ -124,7 +132,7 @@ extension QuestionsNewCategory {
         static var careerQuestions: [QuestionsNewCategory] {
             [
                 .init(
-                    id: 1,
+                    id: 2,
                     content: "How are you feeling about your work these days?",
                     questionType: .singleSelect,
                     category: .career,
@@ -137,7 +145,7 @@ extension QuestionsNewCategory {
                     ]
                 ),
                 .init(
-                    id: 2,
+                    id: 3,
                     content: "What's making work feel harder than it needs to be right now?",
                     questionType: .singleSelect,
                     category: .career,
@@ -150,7 +158,7 @@ extension QuestionsNewCategory {
                     ]
                 ),
                 .init(
-                    id: 3,
+                    id: 4,
                     content: "What would make things easier or better for you at work?",
                     questionType: .singleSelect,
                     category: .career,
@@ -163,7 +171,7 @@ extension QuestionsNewCategory {
                     ]
                 ),
                 .init(
-                    id: 4,
+                    id: 5,
                     content: "What's your work life like right now?",
                     questionType: .singleSelect,
                     category: .career,
@@ -177,7 +185,7 @@ extension QuestionsNewCategory {
                     ]
                 ),
                 .init(
-                    id: 5,
+                    id: 6,
                     content: "Imagine you're really happy with your career. What does that look like?",
                     questionType: .open,
                     category: .career
@@ -189,7 +197,7 @@ extension QuestionsNewCategory {
         static var relationshipsQuestions: [QuestionsNewCategory] {
             [
                 .init(
-                    id: 1,
+                    id: 2,
                     content: "How connected do you feel with the people around you lately?",
                     questionType: .singleSelect,
                     category: .relationships,
@@ -202,7 +210,7 @@ extension QuestionsNewCategory {
                     ]
                 ),
                 .init(
-                    id: 2,
+                    id: 3,
                     content: "What's been holding you back from connecting more deeply?",
                     questionType: .singleSelect,
                     category: .relationships,
@@ -215,7 +223,7 @@ extension QuestionsNewCategory {
                     ]
                 ),
                 .init(
-                    id: 3,
+                    id: 4,
                     content: "What would help you feel closer to others right now?",
                     questionType: .singleSelect,
                     category: .relationships,
@@ -228,7 +236,7 @@ extension QuestionsNewCategory {
                     ]
                 ),
                 .init(
-                    id: 4,
+                    id: 5,
                     content: "What relationships matter most to you right now?",
                     questionType: .singleSelect,
                     category: .relationships,
@@ -242,7 +250,7 @@ extension QuestionsNewCategory {
                     ]
                 ),
                 .init(
-                    id: 5,
+                    id: 6,
                     content: "Imagine your relationships feel supportive and joyful. What does that look like for you?",
                     questionType: .open,
                     category: .relationships
@@ -254,7 +262,7 @@ extension QuestionsNewCategory {
         static var financeQuestions: [QuestionsNewCategory] {
             [
                 .init(
-                    id: 1,
+                    id: 2,
                     content: "How do you feel about your finances these days?",
                     questionType: .singleSelect,
                     category: .finance,
@@ -267,7 +275,7 @@ extension QuestionsNewCategory {
                     ]
                 ),
                 .init(
-                    id: 2,
+                    id: 3,
                     content: "What's causing the most tension around money right now?",
                     questionType: .singleSelect,
                     category: .finance,
@@ -280,7 +288,7 @@ extension QuestionsNewCategory {
                     ]
                 ),
                 .init(
-                    id: 3,
+                    id: 4,
                     content: "What would help you feel better about your financial situation?",
                     questionType: .singleSelect,
                     category: .finance,
@@ -293,7 +301,7 @@ extension QuestionsNewCategory {
                     ]
                 ),
                 .init(
-                    id: 4,
+                    id: 5,
                     content: "What's your financial situation like right now?",
                     questionType: .singleSelect,
                     category: .finance,
@@ -307,7 +315,7 @@ extension QuestionsNewCategory {
                     ]
                 ),
                 .init(
-                    id: 5,
+                    id: 6,
                     content: "Imagine you feel totally secure and confident financially. What does that look like?",
                     questionType: .open,
                     category: .finance
@@ -319,7 +327,7 @@ extension QuestionsNewCategory {
         static var wellnessQuestions: [QuestionsNewCategory] {
             [
                 .init(
-                    id: 1,
+                    id: 2,
                     content: "How have you been feeling health-wise lately?",
                     questionType: .singleSelect,
                     category: .wellness,
@@ -332,7 +340,7 @@ extension QuestionsNewCategory {
                     ]
                 ),
                 .init(
-                    id: 2,
+                    id: 3,
                     content: "What's been making self-care challenging recently?",
                     questionType: .singleSelect,
                     category: .wellness,
@@ -345,7 +353,7 @@ extension QuestionsNewCategory {
                     ]
                 ),
                 .init(
-                    id: 3,
+                    id: 4,
                     content: "What could help you feel healthier or more balanced?",
                     questionType: .singleSelect,
                     category: .wellness,
@@ -358,7 +366,7 @@ extension QuestionsNewCategory {
                     ]
                 ),
                 .init(
-                    id: 4,
+                    id: 5,
                     content: "What's your biggest wellness priority right now?",
                     questionType: .singleSelect,
                     category: .wellness,
@@ -372,7 +380,7 @@ extension QuestionsNewCategory {
                     ]
                 ),
                 .init(
-                    id: 5,
+                    id: 6,
                     content: "Imagine feeling completely healthy and balanced. How does that look for you?",
                     questionType: .open,
                     category: .wellness
@@ -384,7 +392,7 @@ extension QuestionsNewCategory {
         static var passionQuestions: [QuestionsNewCategory] {
             [
                 .init(
-                    id: 1,
+                    id: 2,
                     content: "How do you feel about spending time on things you love lately?",
                     questionType: .singleSelect,
                     category: .passion,
@@ -397,7 +405,7 @@ extension QuestionsNewCategory {
                     ]
                 ),
                 .init(
-                    id: 2,
+                    id: 3,
                     content: "What's keeping you from doing more of what you enjoy?",
                     questionType: .singleSelect,
                     category: .passion,
@@ -410,7 +418,7 @@ extension QuestionsNewCategory {
                     ]
                 ),
                 .init(
-                    id: 3,
+                    id: 4,
                     content: "What would help you do more of what you love right now?",
                     questionType: .singleSelect,
                     category: .passion,
@@ -423,7 +431,7 @@ extension QuestionsNewCategory {
                     ]
                 ),
                 .init(
-                    id: 4,
+                    id: 5,
                     content: "What excites you most right now?",
                     questionType: .singleSelect,
                     category: .passion,
@@ -437,7 +445,7 @@ extension QuestionsNewCategory {
                     ]
                 ),
                 .init(
-                    id: 5,
+                    id: 6,
                     content: "Imagine you feel inspired and free to explore your passions fully. What does that look like?",
                     questionType: .open,
                     category: .passion
@@ -449,7 +457,7 @@ extension QuestionsNewCategory {
         static var purposeQuestions: [QuestionsNewCategory] {
             [
                 .init(
-                    id: 1,
+                    id: 2,
                     content: "How clear do you feel about your life's direction lately?",
                     questionType: .singleSelect,
                     category: .purpose,
@@ -462,7 +470,7 @@ extension QuestionsNewCategory {
                     ]
                 ),
                 .init(
-                    id: 2,
+                    id: 3,
                     content: "What's making it tough to feel clear about your path?",
                     questionType: .singleSelect,
                     category: .purpose,
@@ -475,7 +483,7 @@ extension QuestionsNewCategory {
                     ]
                 ),
                 .init(
-                    id: 3,
+                    id: 4,
                     content: "What would help you feel clearer about your purpose right now?",
                     questionType: .singleSelect,
                     category: .purpose,
@@ -488,7 +496,7 @@ extension QuestionsNewCategory {
                     ]
                 ),
                 .init(
-                    id: 4,
+                    id: 5,
                     content: "What feels most meaningful to you right now?",
                     questionType: .singleSelect,
                     category: .purpose,
@@ -502,7 +510,7 @@ extension QuestionsNewCategory {
                     ]
                 ),
                 .init(
-                    id: 5,
+                    id: 6,
                     content: "Imagine you're completely sure about who you are and where you're headed. What does that look like?",
                     questionType: .open,
                     category: .purpose

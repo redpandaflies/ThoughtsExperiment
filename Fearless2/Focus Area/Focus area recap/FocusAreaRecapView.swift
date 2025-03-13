@@ -158,7 +158,8 @@ struct FocusAreaRecapView: View {
                 topicViewModel: topicViewModel,
                 recapReady: $recapReady,
                 animatedText: $animatedText,
-                feedback: focusArea?.summary?.summaryFeedback ?? ""
+                feedback: focusArea?.summary?.summaryFeedback ?? "",
+                focusArea: focusArea
             )
             
         case 2:
@@ -209,9 +210,12 @@ struct FocusAreaRecapView: View {
             updatePoints()
             
         case 1:
+            
             if showSuggestions && (totalFocusAreas < focusAreasLimit){
                 selectedTab += 1
+                completeFocusArea()
             } else {
+                completeFocusArea()
                 createEndOfTopicFocsAreaIfNeeded()
             }
             
@@ -323,11 +327,26 @@ struct FocusAreaRecapView: View {
         }
     }
     
+    private func completeFocusArea() {
+        Task {
+            if let focusArea = focusArea {
+                await dataController.completeFocusArea(focusArea: focusArea)
+            }
+        }
+    }
+    
+    
     private func createEndOfTopicFocsAreaIfNeeded() {
         dismiss()
         
         if totalFocusAreas == focusAreasLimit {
+            
             Task {
+                //mark focusArea.choseSuggestion as true since suggestions won't be needed
+                if let focusArea = focusArea {
+                    await dataController.updateFocusArea(focusArea: focusArea)
+                }
+                
                 if let topic = focusArea?.topic {
                     await dataController.addEndOfTopicFocusArea(topic: topic)
                 }
@@ -347,6 +366,7 @@ struct FocusAreaRecapReflectionView: View {
     @Binding var animatedText: String
     
     let feedback: String
+    let focusArea: FocusArea?
     
     var body: some View {
         
@@ -381,9 +401,15 @@ struct FocusAreaRecapReflectionView: View {
                 }
             
             if topicViewModel.createFocusAreaSummary == .ready {
-                startedAnimation = true
-                recapReady = true
-                animator?.animate()
+                if let focusArea = focusArea, focusArea.completed {
+                    animatedText = feedback //no animation if use has already seen the feedback once
+                    startedAnimation = true //prevent triggering animation when recapReady is set to true
+                    recapReady = true
+                } else {
+                    startedAnimation = true
+                    recapReady = true
+                    animator?.animate()
+                }
             } else {
                 recapReady = false
             }
@@ -415,11 +441,10 @@ struct FocusAreaRecapSuggestionsView: View {
         VStack (spacing: 20) {
             
             FocusAreaRecapTimelineView(topic: focusArea?.topic)
-               
             
             FocusAreaSuggestionsList(topicViewModel: topicViewModel, selectedTabSuggestionsList: $selectedTabSuggestionsList, suggestions: getSuggestions(), action: {
                     dismiss()
-                }, topic: focusArea?.topic, useCase: .recap)
+            }, topic: focusArea?.topic, focusArea: focusArea, useCase: .recap)
         }
     }
     

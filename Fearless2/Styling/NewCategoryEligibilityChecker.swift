@@ -8,7 +8,7 @@ import SwiftUI
 
 struct NewCategoryEligibilityChecker {
     // Required topic counts for each realm
-    private let requiredTopicsforNewCategory = [2, 5, 10, 18, 31, 53]
+    private let requiredTopicsforNewCategory = [1, 4, 9, 17, 30, 52]
     
     
     /// Checks both eligibility for a new realm and whether user already has that realm
@@ -20,8 +20,8 @@ struct NewCategoryEligibilityChecker {
         // Count completed topics
         let completedTopicsCount = topics.filter { $0.completed }.count
         
-        // Check if completed count matches a requirement
-        if let realmIndex = requiredTopicsforNewCategory.firstIndex(of: completedTopicsCount) {
+        // find the count that matches or is smaller than the total complete topics
+        if let realmIndex = requiredTopicsforNewCategory.lastIndex(where: { $0 <= completedTopicsCount }) {
             // Expected number of realms at this point (realmIndex + 2 because we start at realm 2)
             let expectedRealms = realmIndex + 2
             
@@ -29,7 +29,6 @@ struct NewCategoryEligibilityChecker {
             return totalCategories < expectedRealms
         }
         
-        // Not eligible for a new realm
         return false
     }
 }

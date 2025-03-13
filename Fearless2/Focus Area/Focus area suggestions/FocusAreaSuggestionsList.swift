@@ -25,7 +25,25 @@ struct FocusAreaSuggestionsList: View {
     
     let action: () -> Void
     let topic: Topic?
+    let focusArea: FocusArea?
     let useCase: SuggestionsListUseCase
+    
+    init(topicViewModel: TopicViewModel,
+         selectedTabSuggestionsList: Binding<Int>,
+         suggestions: [any SuggestionProtocol],
+         action: @escaping () -> Void,
+         topic: Topic?,
+         focusArea: FocusArea? = nil,
+         useCase: SuggestionsListUseCase) {
+        
+        self.topicViewModel = topicViewModel
+        self._selectedTabSuggestionsList = selectedTabSuggestionsList
+        self.suggestions = suggestions
+        self.action = action
+        self.topic = topic
+        self.focusArea = focusArea
+        self.useCase = useCase
+    }
     
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
@@ -90,16 +108,25 @@ struct FocusAreaSuggestionsList: View {
         action()
         
         Task {
+            //mark that a suggestion has been selected
+            if let completedFocusArea = self.focusArea {
+                await dataController.updateFocusArea(focusArea: completedFocusArea)
+            }
+            
             //save the suggestion as focus area
-            guard let focusArea = await dataController.createFocusArea(suggestion: suggestion, topic: topic) else {
+            guard let newFocusArea = await dataController.createFocusArea(suggestion: suggestion, topic: topic) else {
                 return
             }
             //API call to create new focus area
             do {
-                try await topicViewModel.manageRun(selectedAssistant: .focusArea, topicId: topic?.topicId, focusArea: focusArea)
+                try await topicViewModel.manageRun(selectedAssistant: .focusArea, topicId: topic?.topicId, focusArea: newFocusArea)
+               
             } catch {
                 topicViewModel.focusAreaCreationFailed = true
             }
+            
+            
+            
             
             DispatchQueue.global(qos: .background).async {
                 Mixpanel.mainInstance().track(event: "Chose new path")

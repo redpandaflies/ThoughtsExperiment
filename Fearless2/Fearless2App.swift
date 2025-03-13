@@ -17,7 +17,7 @@ struct Fearless2App: App {
         let dataController = DataController()
         let openAISwiftService = OpenAISwiftService(dataController: dataController)
         
-        Mixpanel.initialize(token: "d4d86478dfdb268b3b66c023196232f0", trackAutomaticEvents: false)
+        Mixpanel.initialize(token: "d4d86478dfdb268b3b66c023196232f0", trackAutomaticEvents: false, flushInterval: 30)
         
         _dataController = StateObject(wrappedValue: dataController)
         _openAISwiftService = StateObject(wrappedValue: openAISwiftService)
@@ -31,6 +31,7 @@ struct Fearless2App: App {
                 .environment(\.managedObjectContext, dataController.container.viewContext)
                 .environmentObject(dataController)
                 .environmentObject(openAISwiftService)
+                
         }
     }
 }

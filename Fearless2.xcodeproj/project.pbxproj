@@ -169,7 +169,6 @@
 		8AE3981F2D7042A100F76AAC /* OnboardingFirstCategoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE3981E2D7042A100F76AAC /* OnboardingFirstCategoryView.swift */; };
 		8AE398222D70FC0300F76AAC /* InfoFirstCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE398212D70FC0300F76AAC /* InfoFirstCategory.swift */; };
 		8AE3982A2D711FF700F76AAC /* BackgroundSecondary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE398292D711FF700F76AAC /* BackgroundSecondary.swift */; };
-		8AE3982E2D718F2200F76AAC /* CloudStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 8AE3982D2D718F2200F76AAC /* CloudStorage */; };
 		8AE398302D71908B00F76AAC /* MainAppManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE3982F2D71908B00F76AAC /* MainAppManager.swift */; };
 		8AE398322D74053900F76AAC /* BackgroundNewCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE398312D74053900F76AAC /* BackgroundNewCategory.swift */; };
 		8AE398342D7575C300F76AAC /* ButtonStylePushDown.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE398332D7575B100F76AAC /* ButtonStylePushDown.swift */; };
@@ -354,7 +353,6 @@
 				8A5881B32D3456E60019C785 /* Mixpanel in Frameworks */,
 				8A9CC1C32CAD2A6E007C2AA9 /* SwiftOpenAI in Frameworks */,
 				8A8ED7422CF5656100780384 /* Pow in Frameworks */,
-				8AE3982E2D718F2200F76AAC /* CloudStorage in Frameworks */,
 				8A8B63EE2D1F068A00BA57D0 /* AIProxy in Frameworks */,
 				8ABE9AEA2CB2768600483CFD /* WrappingHStack in Frameworks */,
 				8A9CC1D62CAE7609007C2AA9 /* Lottie in Frameworks */,
@@ -887,7 +885,6 @@
 				8A8ED7412CF5656100780384 /* Pow */,
 				8A8B63ED2D1F068A00BA57D0 /* AIProxy */,
 				8A5881B22D3456E60019C785 /* Mixpanel */,
-				8AE3982D2D718F2200F76AAC /* CloudStorage */,
 			);
 			productName = Fearless2;
 			productReference = 8A9CC1732CAB3DEA007C2AA9 /* Fearless2.app */;
@@ -924,7 +921,6 @@
 				8A8ED7402CF5656100780384 /* XCRemoteSwiftPackageReference "Pow" */,
 				8A8B63EC2D1F068A00BA57D0 /* XCRemoteSwiftPackageReference "AIProxySwift" */,
 				8A5881B12D3456E60019C785 /* XCRemoteSwiftPackageReference "mixpanel-swift" */,
-				8AE3982C2D718F2200F76AAC /* XCRemoteSwiftPackageReference "CloudStorage" */,
 			);
 			productRefGroup = 8A9CC1742CAB3DEA007C2AA9 /* Products */;
 			projectDirPath = "";
@@ -1246,10 +1242,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Fearless2/Fearless2Debug.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 4;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"Fearless2/Preview Content\"";
 				DEVELOPMENT_TEAM = 79TB36U8AD;
+				ENABLE_DEBUG_DYLIB = NO;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Fearless2/Info.plist;
@@ -1283,9 +1280,10 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Fearless2/Fearless2.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 13;
+				CURRENT_PROJECT_VERSION = 15;
 				DEVELOPMENT_ASSET_PATHS = "\"Fearless2/Preview Content\"";
 				DEVELOPMENT_TEAM = 79TB36U8AD;
+				ENABLE_DEBUG_DYLIB = NO;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Fearless2/Info.plist;
@@ -1383,14 +1381,6 @@
 				minimumVersion = 2.2.11;
 			};
 		};
-		8AE3982C2D718F2200F76AAC /* XCRemoteSwiftPackageReference "CloudStorage" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/nonstrict-hq/CloudStorage?tab=readme-ov-file";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.7.0;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1423,11 +1413,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 8ABE9AE82CB2768600483CFD /* XCRemoteSwiftPackageReference "WrappingHStack" */;
 			productName = WrappingHStack;
-		};
-		8AE3982D2D718F2200F76AAC /* CloudStorage */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 8AE3982C2D718F2200F76AAC /* XCRemoteSwiftPackageReference "CloudStorage" */;
-			productName = CloudStorage;
 		};
 /* End XCSwiftPackageProductDependency section */
 

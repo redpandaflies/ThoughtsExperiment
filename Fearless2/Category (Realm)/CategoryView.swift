@@ -4,7 +4,6 @@
 //
 //  Created by Yue Deng-Wu on 2/7/25.
 //
-import CloudStorage
 import CoreData
 import Mixpanel
 import Pow
@@ -43,11 +42,11 @@ struct CategoryView: View {
         sortDescriptors: []
     ) var topics: FetchedResults<Topic>
     
-    @CloudStorage("currentAppView") var currentAppView: Int = 0
+    @AppStorage("currentAppView") var currentAppView: Int = 0
     @AppStorage("currentCategory") var currentCategory: Int = 0
     @AppStorage("showTopics") var showTopics: Bool = false
-    @CloudStorage("unlockNewCategory") var newCategory: Bool = false
-    @CloudStorage("discoveredFirstCategory") var discoveredFirstCategory: Bool = false
+    @AppStorage("unlockNewCategory") var newCategory: Bool = false
+    @AppStorage("discoveredFirstCategory") var discoveredFirstCategory: Bool = false
     
     let categoryEmojiSize: CGFloat = 50
     
@@ -60,13 +59,17 @@ struct CategoryView: View {
         return checker.checkEligibility(topics: topics, totalCategories: categories.count)
     }
     
+    var lockedCategories: [Realm] {
+        return getLockedCategories()
+    }
+    
     var body: some View {
        
         NavigationStack {
             VStack {
                 // MARK: - Categories Scroll View
                 ZStack {
-                    CategoriesScrollView(categoriesScrollPosition: $categoriesScrollPosition, isProgrammaticScroll: $isProgrammaticScroll, categories: categories, showUndiscovered: showUndiscovered)
+                    CategoriesScrollView(categoriesScrollPosition: $categoriesScrollPosition, isProgrammaticScroll: $isProgrammaticScroll, categories: categories, lockedCategories: lockedCategories, totalTopics: topics.count)
                         .opacity((!newCategory) ? 0 : 1)
                     
                     if showNewCategory {
@@ -117,8 +120,12 @@ struct CategoryView: View {
                             
                         }
                     }
-                } else {
-                    CategoryUndiscoveredView()
+                } else if topics.count > 0 {
+                    if let scrollPosition = categoriesScrollPosition {
+                        let totalCategories = categories.count
+                        let lockedScrollPosition = scrollPosition - totalCategories
+                        CategoryUndiscoveredView(topics: topics, category: lockedCategories[lockedScrollPosition], showUndiscovered: showUndiscovered, unlockedCategories: totalCategories)
+                    }
                 }
                 
                 
@@ -205,9 +212,9 @@ struct CategoryView: View {
         isProgrammaticScroll = true
         categoriesScrollPosition = currentCategory
         
-        
-        
-        if !newCategory {
+        if (!discoveredFirstCategory && topics.count > 0) {
+            setupViewForExistingUser()
+        } else if !newCategory {
             startAnimation()
         }
         
@@ -218,7 +225,7 @@ struct CategoryView: View {
         animationStage = 0
         
         //show new category emoji and name
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
             withAnimation {
                 showNewCategory = true
             }
@@ -227,7 +234,7 @@ struct CategoryView: View {
         // Fade in description
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
             withAnimation(.smooth(duration: 0.3)) {
-                animationStage = 1
+                animationStage = 2
             }
            
         }
@@ -253,11 +260,57 @@ struct CategoryView: View {
         }
     }
     
-    private func getCategoryBackground() -> Color {
-        if let scrollPosition = categoriesScrollPosition, scrollPosition < categories.count {
-            return Realm.getBackgroundColor(forName: categories[scrollPosition].categoryName)
+    //needed in case user deletes and reinstalls app, and appstorage vars reset
+    private func setupViewForExistingUser() {
+        // Initial state
+        newCategory = true
+        animationStage = 0
+        
+        // Fade in description & show date discovered
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            withAnimation(.smooth(duration: 0.3)) {
+                animationStage = 2
+            }
+           
         }
         
-        return AppColors.backgroundOnboardingIntro
+        // show date
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            if !discoveredFirstCategory {
+                showFirstCategoryInfoSheet = true
+            } else if !showTopics {
+                withAnimation(.easeIn) {
+                    showTopics = true
+                }
+            }
+        }
+        
+    }
+    
+    private func getCategoryBackground() -> Color {
+        guard let scrollPosition = categoriesScrollPosition else {
+            return AppColors.backgroundOnboardingIntro
+        }
+        
+        if scrollPosition < categories.count {
+            return Realm.getBackgroundColor(forName: categories[scrollPosition].categoryName)
+        } else {
+            let lockedScrollPosition = scrollPosition - categories.count
+            return Realm.getBackgroundColor(forName: lockedCategories[lockedScrollPosition].name)
+        }
+
+    }
+    
+    private func getLockedCategories() -> [Realm] {
+        let existingCategories = categories.compactMap { category in
+            return category.categoryName
+        }
+        
+        let undiscoveredCategories = Realm.realmsData.filter { realm in
+            !existingCategories.contains(realm.name)
+        }
+        
+        return undiscoveredCategories
+        
     }
 }

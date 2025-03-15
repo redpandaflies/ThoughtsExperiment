@@ -9,8 +9,6 @@
 // https://help.apple.com/xcode/#/dev745c5c974
 
 PRODUCT_BUNDLE_IDENTIFIER = app.spacenotes.staging-realms
-BUNDLE_DISPLAY_NAME = coconut
-
-
+BUNDLE_DISPLAY_NAME = Coconut Realms
 
 

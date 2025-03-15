@@ -47,9 +47,17 @@ struct UpdateSectionView: View {
         VStack {
             
             //Header
-            QuestionsProgressBar(currentQuestionIndex: $currentQuestionIndex, totalQuestions: section.sectionQuestions.count, xmarkAction: {
+            QuestionsProgressBar(
+                currentQuestionIndex: $currentQuestionIndex,
+                totalQuestions: section.sectionQuestions.count,
+                showXmark: true,
+                xmarkAction: {
                 dismiss()
-            })
+                },
+                showBackButton: selectedQuestion > 0,
+                backAction: {
+                    backButtonAction()
+                })
             
             //Question
             switch selectedTab {
@@ -206,22 +214,12 @@ struct UpdateSectionView: View {
         //save answers
         Task {
             
-            if let answeredQuestionType =  QuestionType(rawValue: answeredQuestion.questionType){
-                switch answeredQuestionType {
-                case .open:
-                    if let newTopicText = answeredQuestionTopicText {
-                        await dataController.saveAnswer(questionType: .open, questionId: answeredQuestion.questionId, userAnswer: newTopicText)
-                    }
-                case .singleSelect:
-                    if let newSelectedValue = answeredQuestionSingleSelect {
-                        await dataController.saveAnswer(questionType: .singleSelect, questionId: answeredQuestion.questionId, userAnswer: newSelectedValue)
-                    }
-                case .multiSelect:
-                    if let newSelectedOptions = answeredQuestionMultiSelect {
-                        await dataController.saveAnswer(questionType: .multiSelect, questionId: answeredQuestion.questionId, userAnswer: newSelectedOptions)
-                    }
-                }
-            }
+            await saveQuestionAnswer(
+                   question: answeredQuestion,
+                   topicText: answeredQuestionTopicText,
+                   singleSelectAnswer: answeredQuestionSingleSelect,
+                   multiSelectAnswers: answeredQuestionMultiSelect
+               )
             
             print("SelectedQuestion: \(selectedQuestion)")
             
@@ -247,6 +245,42 @@ struct UpdateSectionView: View {
         
     }
     
+    private func saveQuestionAnswer(
+        question: Question,
+        topicText: String?,
+        singleSelectAnswer: String?,
+        multiSelectAnswers: [String]?
+    ) async {
+        if let questionType = QuestionType(rawValue: question.questionType) {
+            switch questionType {
+            case .open:
+                if let newTopicText = topicText {
+                    await dataController.saveAnswer(
+                        questionType: .open,
+                        questionId: question.questionId,
+                        userAnswer: newTopicText
+                    )
+                }
+            case .singleSelect:
+                if let newSelectedValue = singleSelectAnswer {
+                    await dataController.saveAnswer(
+                        questionType: .singleSelect,
+                        questionId: question.questionId,
+                        userAnswer: newSelectedValue
+                    )
+                }
+            case .multiSelect:
+                if let newSelectedOptions = multiSelectAnswers {
+                    await dataController.saveAnswer(
+                        questionType: .multiSelect,
+                        questionId: question.questionId,
+                        userAnswer: newSelectedOptions
+                    )
+                }
+            }
+        }
+    }
+    
     private func completeSection(totalQuestions: Int, answeredQuestionIndex: Int) async {
         
         if answeredQuestionIndex + 1 == totalQuestions {
@@ -262,8 +296,6 @@ struct UpdateSectionView: View {
                     Mixpanel.mainInstance().track(event: "Completed section")
                 }
             }
-            
-            
         }
         
     }
@@ -285,6 +317,56 @@ struct UpdateSectionView: View {
             DispatchQueue.global(qos: .background).async {
                 Mixpanel.mainInstance().track(event: "Completed path")
             }
+        }
+    }
+    
+    private func backButtonAction() {
+        //capture current state
+        let answeredQuestionIndex = selectedQuestion
+        
+        let answeredQuestion = questions[answeredQuestionIndex]
+       
+        var answeredQuestionTopicText: String?
+        var answeredQuestionSingleSelect: String?
+        var answeredQuestionMultiSelect: [String]?
+        
+        if let answeredQuestionType =  QuestionType(rawValue: answeredQuestion.questionType){
+            switch answeredQuestionType {
+            case .open:
+                answeredQuestionTopicText = topicText
+            case .singleSelect:
+                answeredQuestionSingleSelect = singleSelectAnswer
+            case .multiSelect:
+                answeredQuestionMultiSelect = multiSelectAnswers
+            }
+        }
+        
+        //close keyboard if previous question is not open-ended
+        let previousQuestionIndex = selectedQuestion - 1
+        
+        if let questionType = QuestionType(rawValue: questions[previousQuestionIndex].questionType), questionType != .open {
+            if isFocused {
+                isFocused = false
+            }
+        }
+        
+        //go to previous question
+        if selectedQuestion > 0 {
+            selectedQuestion -= 1
+        }
+        
+        //move progress bar back
+        withAnimation(.interpolatingSpring) {
+            currentQuestionIndex -= 1
+        }
+        
+        Task {
+            await saveQuestionAnswer(
+                question: answeredQuestion,
+                topicText: answeredQuestionTopicText,
+                singleSelectAnswer: answeredQuestionSingleSelect,
+                multiSelectAnswers: answeredQuestionMultiSelect
+            )
         }
     }
 }

@@ -36,7 +36,7 @@ struct NewCategoryView: View {
         .background {
             BackgroundNewCategory(animationStage: $animationStage, backgroundColor: AppColors.backgroundOnboardingIntro, newBackgroundColor: newCategory.background)
         }
-        
+        .environment(\.colorScheme, .dark )
         .fullScreenCover(isPresented: $showQuestionsView, onDismiss: {
             showQuestionsView = false
         }) {

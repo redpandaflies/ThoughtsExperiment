@@ -4,7 +4,6 @@
 //
 //  Created by Yue Deng-Wu on 9/30/24.
 //
-import CloudStorage
 import CoreData
 import SwiftUI
 
@@ -12,9 +11,8 @@ struct AppViewsManager: View {
     
     @EnvironmentObject var dataController: DataController
     @EnvironmentObject var openAISwiftService: OpenAISwiftService
-//    @StateObject var transcriptionViewModel: TranscriptionViewModel
-//    @StateObject var understandViewModel: UnderstandViewModel
-//    @StateObject var topicViewModel: TopicViewModel
+    
+    @State private var currentView: Int = 0
     
     @FetchRequest(
         sortDescriptors: [
@@ -22,37 +20,46 @@ struct AppViewsManager: View {
         ]
     ) var categories: FetchedResults<Category>
     
-    @CloudStorage("currentAppView") var currentAppView: Int = 0
+    @AppStorage("currentAppView") var currentAppView: Int = 0
      
     init(dataController: DataController, openAISwiftService: OpenAISwiftService) {
-
-//        let transcriptionViewModel = TranscriptionViewModel(openAISwiftService: openAISwiftService, dataController: dataController)
-//        let understandViewModel = UnderstandViewModel(openAISwiftService: openAISwiftService, dataController: dataController)
-//        
-//        _transcriptionViewModel = StateObject(wrappedValue: transcriptionViewModel)
-//        _understandViewModel = StateObject(wrappedValue: understandViewModel)
-//        
-//        let topicViewModel = TopicViewModel(openAISwiftService: openAISwiftService, dataController: dataController, transcriptionViewModel: transcriptionViewModel)
-//        _topicViewModel = StateObject(wrappedValue: topicViewModel)
-//        
         
     }
 
     var body: some View {
-      
-        switch currentAppView {
-        case 0:
-            OnboardingMainView()
-        case 1:
-            if !categories.isEmpty {
-                MainAppManager(dataController: dataController, openAISwiftService: openAISwiftService)
-                    
-            } else {
+        Group {
+            switch currentAppView {
+            case 0:
                 OnboardingMainView()
+            case 1:
+                if !categories.isEmpty {
+                    MainAppManager(dataController: dataController, openAISwiftService: openAISwiftService)
+                    
+                } else {
+                    //Should never happen, user should always have categories unless they haven't done onboarding, may come up during testing
+                    OnboardingMainView()
+                }
+            default:
+                if currentView == 2 {
+                    NewCategoryView()
+                        .transition(.asymmetric(insertion: .opacity, removal: .identity))
+                }
             }
-        default:
-            NewCategoryView()
-                .transition(.asymmetric(insertion: .opacity, removal: .identity))
+        }
+        .environment(\.colorScheme, .dark)
+        .onChange(of: currentAppView) {
+            if currentAppView == 2 {
+                withAnimation(.smooth) {
+                    currentView = 2
+                }
+            } else {
+                currentView = 0
+            }
+        }
+        .onAppear {
+            if categories.count > 0 && currentAppView == 0 {
+                currentAppView = 1
+            }
         }
     }
     

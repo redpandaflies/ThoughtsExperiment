@@ -12,7 +12,15 @@ struct QuestionMultiSelectView: View {
     @Binding var multiSelectAnswers: [String]
     let question: String
     let items: [String]
-        
+    let answers: String
+    
+    init(multiSelectAnswers: Binding<[String]>, question: String, items: [String], answers: String = "") {
+        self._multiSelectAnswers = multiSelectAnswers
+        self.question = question
+        self.items = items
+        self.answers = answers
+    }
+    
     var body: some View {
         VStack (alignment: .leading, spacing: 10) {
             
@@ -37,6 +45,9 @@ struct QuestionMultiSelectView: View {
             }
 
         }//VStack
+        .onAppear {
+            getSavedAnswers()
+        }
     }
     
     private func selectPill(pillLabel: String) {
@@ -46,6 +57,15 @@ struct QuestionMultiSelectView: View {
         } else {
             // Otherwise, add it to the selected pills
             multiSelectAnswers.append(pillLabel)
+        }
+    }
+    
+    private func getSavedAnswers() {
+        if !answers.isEmpty {
+            let answersArray = answers.components(separatedBy: ";")
+            for answer in answersArray {
+                multiSelectAnswers.append(answer)
+            }
         }
     }
 }

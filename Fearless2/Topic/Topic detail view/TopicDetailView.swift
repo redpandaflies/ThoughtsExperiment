@@ -5,7 +5,6 @@
 //  Created by Yue Deng-Wu on 11/12/24.
 //
 import CoreData
-import CloudStorage
 import Mixpanel
 import SwiftUI
 
@@ -38,9 +37,9 @@ struct TopicDetailView: View {
         sortDescriptors: []
     ) var topics: FetchedResults<Topic>
     
-    @CloudStorage("currentAppView") var currentAppView: Int = 0
-    @CloudStorage("discoveredFirstFocusArea") var firstFocusArea: Bool = false
-    @CloudStorage("unlockNewCategory") var unlockNewCategory: Int = 0
+    @AppStorage("currentAppView") var currentAppView: Int = 0
+    @AppStorage("discoveredFirstFocusArea") var firstFocusArea: Bool = false
+    @AppStorage("unlockNewCategory") var unlockNewCategory: Int = 0
     
     init(topicViewModel: TopicViewModel, transcriptionViewModel: TranscriptionViewModel, selectedTabTopic: Binding<TopicPickerItem>, topic: Topic, points: Points, totalCategories: Int) {
         self.topicViewModel = topicViewModel
@@ -268,10 +267,8 @@ struct TopicDetailView: View {
     }
     
     private func startNewRealmFlow() {
-        
-        withAnimation(.snappy(duration: 0.5)) {
-            currentAppView = 2
-        }
+       
+        currentAppView = 2
         
         DispatchQueue.global(qos: .background).async {
             Mixpanel.mainInstance().track(event: "Started unveiling a new realm")

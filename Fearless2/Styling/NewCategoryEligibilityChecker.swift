@@ -8,7 +8,7 @@ import SwiftUI
 
 struct NewCategoryEligibilityChecker {
     // Required topic counts for each realm
-    private let requiredTopicsforNewCategory = [1, 4, 9, 17, 30, 52]
+   let requiredTopicsforNewCategory = [2, 5, 10, 18, 31, 53]
     
     
     /// Checks both eligibility for a new realm and whether user already has that realm
@@ -31,4 +31,20 @@ struct NewCategoryEligibilityChecker {
         
         return false
     }
+    
+    func requiredTopics(totalCompletedTopics: Int, showUndiscovered: Bool) -> Int {
+        // Check if there's an exact match first
+       if let exactMatchIndex = requiredTopicsforNewCategory.firstIndex(where: { $0 == totalCompletedTopics }) {
+           return showUndiscovered ? requiredTopicsforNewCategory[exactMatchIndex] : requiredTopicsforNewCategory[exactMatchIndex + 1]
+       }
+       
+       // If no exact match, find smallest index that's larger than totalCompletedTopics
+       if let lagerIndex = requiredTopicsforNewCategory.firstIndex(where: { $0 > totalCompletedTopics }) {
+           return showUndiscovered ? requiredTopicsforNewCategory[lagerIndex - 1] :  requiredTopicsforNewCategory[lagerIndex]
+       }
+       
+       // Default case
+       return 2
+    }
+    
 }

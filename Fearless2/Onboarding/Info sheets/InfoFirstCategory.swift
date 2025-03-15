@@ -4,7 +4,6 @@
 //
 //  Created by Yue Deng-Wu on 2/27/25.
 //
-import CloudStorage
 import SwiftUI
 
 struct InfoFirstCategory: View {
@@ -15,7 +14,7 @@ struct InfoFirstCategory: View {
     let screenHeight = UIScreen.current.bounds.height
  
     @AppStorage("showTopics") var showTopics: Bool = false
-    @CloudStorage("discoveredFirstCategory") var discoveredFirstCategory: Bool = false
+    @AppStorage("discoveredFirstCategory") var discoveredFirstCategory: Bool = false
     
     var body: some View {
         VStack(spacing: 5) {

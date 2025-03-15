@@ -4,7 +4,6 @@
 //
 //  Created by Yue Deng-Wu on 3/3/25.
 //
-import CloudStorage
 import Pow
 import SwiftUI
 
@@ -15,9 +14,9 @@ struct TestView: View {
 //    init() {
 //        self.playAnimation = UserDefaults.standard.bool(forKey: "showFirstCategory")
 //    }
-    @CloudStorage("currentAppView") var currentAppView: Int = 0
+    @AppStorage("currentAppView") var currentAppView: Int = 0
     @AppStorage("currentCategory") var currentCategory: Int = 0
-    @CloudStorage("unlockNewCategory") var newCategory: Bool = false
+    @AppStorage("unlockNewCategory") var newCategory: Bool = false
     @AppStorage("showTopics") var showTopics: Bool = false
     
     var body: some View {

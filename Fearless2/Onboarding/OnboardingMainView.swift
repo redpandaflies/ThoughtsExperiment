@@ -4,7 +4,6 @@
 //
 //  Created by Yue Deng-Wu on 2/24/25.
 //
-import CloudStorage
 import CoreData
 import SwiftUI
 
@@ -27,10 +26,10 @@ struct OnboardingMainView: View {
         return QuestionCategory.getCategoryData(for: selectedCategory) ?? Realm.realmsData[6]
     }
     
-    @CloudStorage("currentAppView") var currentAppView: Int = 0
-    @CloudStorage("unlockNewCategory") var unlockNewCategory: Bool = false
-    @CloudStorage("discoveredFirstCategory") var discoveredFirstCategory: Bool = false
-    @CloudStorage("discoveredFirstFocusArea") var firstFocusArea: Bool = false
+    @AppStorage("currentAppView") var currentAppView: Int = 0
+    @AppStorage("unlockNewCategory") var unlockNewCategory: Bool = false
+    @AppStorage("discoveredFirstCategory") var discoveredFirstCategory: Bool = false
+    @AppStorage("discoveredFirstFocusArea") var firstFocusArea: Bool = false
     @AppStorage("currentCategory") var currentCategory: Int = 0
     @AppStorage("showTopics") var showTopics: Bool = false
     
@@ -66,19 +65,19 @@ struct OnboardingMainView: View {
         }
         .onAppear {
             //reset all appstorage and cloudstorage vars
-            currentCategory = 0
-            currentAppView = 0
-            unlockNewCategory = false
-            showTopics = false
-            discoveredFirstCategory = false
-            firstFocusArea = false
+//            currentCategory = 0
+//            currentAppView = 0
+//            unlockNewCategory = false
+//            showTopics = false
+//            discoveredFirstCategory = false
+//            firstFocusArea = false
             
             Task {
-                if !categories.isEmpty {
-                    
-                    await dataController.deleteAll()
-                    
-                }
+//                if !categories.isEmpty {
+//                    
+//                    await dataController.deleteAll()
+//                    
+//                }
                     
                 await MainActor.run {
                     imagesScrollPosition = 0

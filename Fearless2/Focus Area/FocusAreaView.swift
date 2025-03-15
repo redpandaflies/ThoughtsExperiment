@@ -182,8 +182,18 @@ struct FocusAreaList: View {
         .scrollBounceBehavior(.basedOnSize)
         .scrollClipDisabled(true)
         .contentMargins(.vertical, 10, for: .scrollContent)
-        .onChange(of: dataController.newFocusArea) {
-            focusAreaScrollPosition = dataController.newFocusArea
+        .onChange(of: showFocusAreaRecapView) {
+            if !showFocusAreaRecapView && dataController.newFocusArea {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    withAnimation {
+                        focusAreaScrollPosition = (focusAreaScrollPosition ?? 0) + 1
+                    }
+                    
+                    //reset published var dataController.newFoucsArea, which tracks if a new focus area has just been created
+                    dataController.newFocusArea = false
+                }
+                
+            }
         }
         .onChange(of: focusAreaScrollPosition) {
             print("Scroll position updated to: \(focusAreaScrollPosition ?? -1)")

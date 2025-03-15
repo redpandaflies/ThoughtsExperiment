@@ -13,7 +13,7 @@ import OSLog
 final class DataController: ObservableObject {
     
     @Published var newTopic: Topic? = nil
-    @Published var newFocusArea: Int = 0
+    @Published var newFocusArea: Bool = false
     @Published var onboardingCategory: Category? = nil
     
     let container: NSPersistentCloudKitContainer
@@ -137,9 +137,8 @@ final class DataController: ObservableObject {
                     question.questionAnswerOpen = answer
                 }
             case .singleSelect:
-                if let answer = userAnswer as? [String] {
-                    let arrayString = answer.joined(separator: ";")
-                    question.questionAnswerSingleSelect = arrayString
+                if let answer = userAnswer as? String {
+                    question.questionAnswerSingleSelect = answer
                 }
             case .multiSelect:
                 if let answer = userAnswer as? [String] {
@@ -471,7 +470,6 @@ extension DataController {
     func createFocusArea(suggestion: any SuggestionProtocol, topic: Topic?) async -> FocusArea? {
         
         var focusArea: FocusArea?
-        var totalFocusAreas: Int?
         
         await context.perform {
             let newFocusArea = FocusArea(context: self.context)
@@ -497,20 +495,10 @@ extension DataController {
             self.logger.log("Created new focus area")
             focusArea = newFocusArea
             
-            //get total number of focus areas
-            totalFocusAreas = currentTopic.topicFocusAreas.count
-            
         }
         
         await self.save()
-        
-        if let focusAreasCount = totalFocusAreas {
-            await MainActor.run {
-                self.newFocusArea = focusAreasCount - 1
-            }
-        }
-        
-        
+
         return focusArea
     }
     
@@ -607,7 +595,7 @@ extension DataController {
         await self.save()
         
         await MainActor.run {
-            self.newFocusArea = topic.topicFocusAreas.count - 1
+            self.newFocusArea = true
         }
     }
     
@@ -865,10 +853,13 @@ extension DataController {
     
     func updateFocusArea(focusArea: FocusArea) async {
         await context.perform {
-            focusArea.choseSuggestion = true
+            if !focusArea.choseSuggestion {
+                focusArea.choseSuggestion = true
+            }
         }
         
         await self.save()
+    
     }
     
     func completeFocusArea(focusArea: FocusArea) async {

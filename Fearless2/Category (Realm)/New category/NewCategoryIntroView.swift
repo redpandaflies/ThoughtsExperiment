@@ -4,7 +4,6 @@
 //
 //  Created by Yue Deng-Wu on 3/5/25.
 //
-import CloudStorage
 import Mixpanel
 import SwiftUI
 
@@ -23,8 +22,8 @@ struct NewCategoryIntroView: View {
         return NewCategoryContent.pages[selectedIntroPage]
     }
     
-    @CloudStorage("currentAppView") var currentAppView: Int = 0
-    @CloudStorage("unlockNewCategory") var newCategory: Bool = false
+    @AppStorage("currentAppView") var currentAppView: Int = 0
+    @AppStorage("unlockNewCategory") var newCategory: Bool = false
     @AppStorage("currentCategory") var currentCategory: Int = 0
     @AppStorage("showTopics") var showTopics: Bool = false
     

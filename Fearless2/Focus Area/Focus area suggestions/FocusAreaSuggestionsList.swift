@@ -103,7 +103,7 @@ struct FocusAreaSuggestionsList: View {
     
     
     private func createFocusArea(suggestion: any SuggestionProtocol, topic: Topic?) {
-        
+        dataController.newFocusArea = true //to trigger scroll to new focus area
         topicViewModel.updatingfocusArea = true
         action()
         
@@ -111,6 +111,7 @@ struct FocusAreaSuggestionsList: View {
             //mark that a suggestion has been selected
             if let completedFocusArea = self.focusArea {
                 await dataController.updateFocusArea(focusArea: completedFocusArea)
+                
             }
             
             //save the suggestion as focus area
@@ -124,10 +125,7 @@ struct FocusAreaSuggestionsList: View {
             } catch {
                 topicViewModel.focusAreaCreationFailed = true
             }
-            
-            
-            
-            
+
             DispatchQueue.global(qos: .background).async {
                 Mixpanel.mainInstance().track(event: "Chose new path")
             }

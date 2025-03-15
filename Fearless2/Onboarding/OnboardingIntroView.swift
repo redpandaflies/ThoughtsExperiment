@@ -4,7 +4,6 @@
 //
 //  Created by Yue Deng-Wu on 2/25/25.
 //
-import CloudStorage
 import Mixpanel
 import SwiftUI
 
@@ -19,7 +18,7 @@ struct OnboardingIntroView: View {
     var content: OnboardingIntroContent {
         return OnboardingIntroContent.pages[selectedIntroPage]
     }
-    @CloudStorage("currentAppView") var currentAppView: Int = 0
+    @AppStorage("currentAppView") var currentAppView: Int = 0
     @AppStorage("currentCategory") var currentCategory: Int = 0
     
     var body: some View {

@@ -11,9 +11,10 @@ struct CategoriesScrollView: View {
     
     @Binding var categoriesScrollPosition: Int?
     @Binding var isProgrammaticScroll: Bool
-  
+    
     var categories: FetchedResults<Category>
-    let showUndiscovered: Bool
+    let lockedCategories: [Realm]
+    let totalTopics: Int
     
     let frameWidth: CGFloat = 50
     var safeAreaPadding: CGFloat {
@@ -28,12 +29,14 @@ struct CategoriesScrollView: View {
             HStack (alignment: .center, spacing: 15) {
                 
                 ForEach(Array(categories.enumerated()), id: \.element.categoryId) { index, category in
-                    getEmoji(index: index, category: category)
+                    getEmoji(index: index, emoji: category.categoryEmoji)
                  
                 }
                 
-                if showUndiscovered {
-                    getEmoji(index: categories.count)
+                if totalTopics > 0 {
+                    ForEach(Array(lockedCategories.enumerated()), id: \.element.orderIndex) { index, category in
+                        getEmoji(index: categories.count + index, emoji: "🗝️")
+                    }
                 }
             }
             .scrollTargetLayout()
@@ -53,16 +56,16 @@ struct CategoriesScrollView: View {
        
     }
     
-    private func getEmoji(index: Int, category: Category? = nil) -> some View {
-        Text(category?.categoryEmoji ?? "❔")
+    private func getEmoji(index: Int, emoji: String) -> some View {
+        Text(emoji)
             .id(index)
             .font(.system(size: 50))
             .frame(width: frameWidth)
             .scaleEffect(getScaleFactor(for: index))
             .scrollTransition { content, phase in
                 content
-                    .opacity(phase.isIdentity ? 1 : 0.5)
-                    .blur(radius: phase.isIdentity ? 0 : 5)
+                    .opacity(phase.isIdentity ? 1 : 0.75)
+                    .blur(radius: phase.isIdentity ? 0 : 3)
             }
     }
     
@@ -87,5 +90,18 @@ struct CategoriesScrollView: View {
         }
         // Ensure the scale doesn't go below minimum
         return max(calculatedScale, minScale)
+    }
+    
+    private func getLockedCategories() -> [Realm] {
+        let existingCategories = categories.compactMap { category in
+            return category.categoryName
+        }
+        
+        let undiscoveredCategories = Realm.realmsData.filter { realm in
+            !existingCategories.contains(realm.name)
+        }
+        
+        return undiscoveredCategories
+        
     }
 }

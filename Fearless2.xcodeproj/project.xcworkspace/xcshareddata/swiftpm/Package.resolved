@@ -1,5 +1,5 @@
 {
-  "originHash" : "bda9b328b3703220662bbe5441d1e2d65ac64ff359070af3405861a5fe3fbb94",
+  "originHash" : "d5bf0d138ab3bd278aeac25a45f45bb05378303a429d7f31916afbc7c23466d5",
   "pins" : [
     {
       "identity" : "aiproxyswift",
@@ -8,15 +8,6 @@
       "state" : {
         "revision" : "a71eac7de6e1f9a80a0ba659a66bec7db9196bd6",
         "version" : "0.49.0"
-      }
-    },
-    {
-      "identity" : "cloudstorage?tab=readme-ov-file",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/nonstrict-hq/CloudStorage?tab=readme-ov-file",
-      "state" : {
-        "revision" : "d94cb14e563c1a20edeba8a861395c60c2b9d064",
-        "version" : "0.7.0"
       }
     },
     {

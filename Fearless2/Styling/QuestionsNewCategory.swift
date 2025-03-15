@@ -62,19 +62,46 @@ extension QuestionsNewCategory {
                 options: Realm.realmsData
                     .dropLast()
                     .map { $0.lifeArea }
+            ),
+            QuestionsNewCategory(
+                id: 2,
+                content: "What’s keeping you up at night about this part of your life?",
+                questionType: .open,
+                category: .generic
+            ),
+            QuestionsNewCategory(
+                id: 3,
+                content: "What would make you feel better about this?",
+                questionType: .open,
+                category: .generic
             )
+            
         ]
     }
     
     //get initial question new category
     static func initialQuestionNewCategory(from categories: FetchedResults<Category>) -> [QuestionsNewCategory] {
-        return [QuestionsNewCategory(
+        return [
+            QuestionsNewCategory(
             id: 0,
             content: "What's been on your mind the most lately?",
             questionType: .singleSelect,
             category: .generic,
             options: getRemainingLifeAreas(from: categories)
-        )]
+            ),
+            QuestionsNewCategory(
+                id: 1,
+                content: "What’s keeping you up at night about this part of your life?",
+                questionType: .open,
+                category: .generic
+            ),
+            QuestionsNewCategory(
+                id: 2,
+                content: "What would make you feel better about this?",
+                questionType: .open,
+                category: .generic
+            )
+        ]
     }
     
     

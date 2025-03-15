@@ -12,6 +12,7 @@ struct OnboardingQuestionsView: View {
     @EnvironmentObject var dataController: DataController
     
     @State private var selectedQuestion: Int = 0
+    @State private var progressBarQuestionIndex: Int = 0
     @State private var answerOpen: String = ""
     @State private var answerSingleSelect: String = ""
     @State private var questions: [QuestionsNewCategory] = QuestionsNewCategory.initialQuestionOnboarding
@@ -29,7 +30,7 @@ struct OnboardingQuestionsView: View {
     var body: some View {
         VStack (spacing: 10){
             // MARK: Header
-            QuestionsProgressBar(currentQuestionIndex: $selectedQuestion, totalQuestions: 7, xmarkAction: {}, newCategory: true)
+            QuestionsProgressBar(currentQuestionIndex: $progressBarQuestionIndex, totalQuestions: 4)
                 
             // MARK: Title
             getTitle()
@@ -37,7 +38,7 @@ struct OnboardingQuestionsView: View {
             // MARK: Question
             switch currentQuestion.questionType {
                 case .open:
-                QuestionOpenView(topicText: $answerOpen, isFocused: $isFocused, question: currentQuestion.content, placeholderText: selectedQuestion == 0 ? "Enter your name" : "Share as much as you’d like")
+                QuestionOpenView(topicText: $answerOpen, isFocused: $isFocused, question: currentQuestion.content, placeholderText: selectedQuestion == 0 ? "Enter your name" : "For best results, be very specific.")
                       
                 default:
                     if selectedQuestion == 1 {
@@ -113,17 +114,18 @@ struct OnboardingQuestionsView: View {
         let answeredQuestion = currentQuestion
         
         var answeredQuestionOpen: String?
-        var answeredQuestionSingleSelect: String?
+//        var answeredQuestionSingleSelect: String?
         
         switch answeredQuestion.questionType {
         case .open:
             answeredQuestionOpen = answerOpen
         default:
-            if answeredQuestionIndex == 1 {
-                answeredQuestionSingleSelect = selectedCategory
-            } else {
-                answeredQuestionSingleSelect = answerSingleSelect
-            }
+//            if answeredQuestionIndex == 1 {
+//                answeredQuestionSingleSelect = selectedCategory
+//            } else {
+//                answeredQuestionSingleSelect = answerSingleSelect
+//            }
+            break
         }
         
         switch answeredQuestionIndex {
@@ -132,12 +134,7 @@ struct OnboardingQuestionsView: View {
                 isFocused = false
             }
             
-            answerOpen = ""
-        case 1:
-            let categoryQuestions = QuestionsNewCategory.getQuestionFlow(for: selectedCategory)
-                questions.append(contentsOf: categoryQuestions)
-            
-        case 6:
+        case 3:
             if isFocused {
                 isFocused = false
             }
@@ -149,15 +146,20 @@ struct OnboardingQuestionsView: View {
                 imagesScrollPosition = (imagesScrollPosition ?? 0) + 1
             }
             
-            answerOpen = ""
             
         default:
             break
         }
         
-        if selectedQuestion < 6 {
-            withAnimation(.interpolatingSpring) {
+        DispatchQueue.main.async {
+            answerOpen = ""
+            
+            if selectedQuestion < 3 {
+                
                 selectedQuestion += 1
+                withAnimation(.interpolatingSpring) {
+                    progressBarQuestionIndex += 1
+                }
             }
         }
         
@@ -171,12 +173,12 @@ struct OnboardingQuestionsView: View {
                     if answeredQuestionIndex == 0 {
                         await dataController.saveUserName(name: answeredQuestionOpen ?? "")
                     } else {
-                        await dataController.saveAnswerOnboarding(questionType: answeredQuestion.questionType, question: answeredQuestion, userAnswer: answeredQuestionOpen ?? "", categoryLifeArea: Realm.getLifeArea(forCategory: answeredQuestion.category))
+                        await dataController.saveAnswerOnboarding(questionType: answeredQuestion.questionType, question: answeredQuestion, userAnswer: answeredQuestionOpen ?? "", categoryLifeArea: selectedCategory)
                     }
                 
                 default:
-                    await dataController.saveAnswerOnboarding(questionType: answeredQuestion.questionType, question: answeredQuestion, userAnswer: answeredQuestionSingleSelect ?? "", categoryLifeArea: Realm.getLifeArea(forCategory: answeredQuestion.category) )
-                    
+//                    await dataController.saveAnswerOnboarding(questionType: answeredQuestion.questionType, question: answeredQuestion, userAnswer: answeredQuestionSingleSelect ?? "", categoryLifeArea: selectedCategory)
+                    break
                 }
                 
             }
@@ -188,7 +190,7 @@ struct OnboardingQuestionsView: View {
             
         }
         
-        if answeredQuestionIndex == 6 {
+        if answeredQuestionIndex == 3 {
             DispatchQueue.global(qos: .background).async {
                 Mixpanel.mainInstance().track(event: "Completed onboarding questions")
                 Mixpanel.mainInstance().track(event: "Discovered new realm: \(selectedCategory)")

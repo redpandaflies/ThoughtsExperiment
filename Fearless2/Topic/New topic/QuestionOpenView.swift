@@ -12,18 +12,21 @@ struct QuestionOpenView: View {
     @Binding var topicText: String
     @FocusState.Binding var isFocused: Bool
     
-    var question: String
+    let question: String
     let placeholderText: String
+    let answer: String
     
     init(topicText: Binding<String>,
          isFocused: FocusState<Bool>.Binding,
          question: String = "",
-         placeholderText: String = "Type your answer"
+         placeholderText: String = "Type your answer",
+         answer: String = ""
     ) {
         self._topicText = topicText
         self._isFocused = isFocused
         self.question = question
         self.placeholderText = placeholderText
+        self.answer = answer
   
     }
     
@@ -55,6 +58,10 @@ struct QuestionOpenView: View {
         .onAppear {
             if !isFocused {
                 isFocused = true
+            }
+            
+            if !answer.isEmpty {
+                topicText = answer
             }
         }
         .onChange(of: question) {

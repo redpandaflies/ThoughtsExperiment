@@ -12,6 +12,7 @@ struct NewCategoryQuestionsView: View {
     @EnvironmentObject var dataController: DataController
     
     @State private var selectedQuestion: Int = 0
+    @State private var progressBarQuestionIndex: Int = 0
     @State private var answerOpen: String = ""
     @State private var answerSingleSelect: String = ""
     
@@ -37,12 +38,8 @@ struct NewCategoryQuestionsView: View {
         VStack (spacing: 10){
             // MARK: Header
             QuestionsProgressBar(
-                currentQuestionIndex: $selectedQuestion,
-                totalQuestions: 6,
-                xmarkAction: {
-                    //tbd
-                },
-                newCategory: true
+                currentQuestionIndex: $progressBarQuestionIndex,
+                totalQuestions: 3
             )
                 
             // MARK: Title
@@ -51,7 +48,7 @@ struct NewCategoryQuestionsView: View {
             // MARK: Question
             switch currentQuestion.questionType {
                 case .open:
-                    QuestionOpenView(topicText: $answerOpen, isFocused: $isFocused, question: currentQuestion.content, placeholderText: "Share as much as you’d like")
+                QuestionOpenView(topicText: $answerOpen, isFocused: $isFocused, question: currentQuestion.content, placeholderText: "For best results, be very specific.")
                       
                 default:
                     if selectedQuestion == 0 {
@@ -126,27 +123,27 @@ struct NewCategoryQuestionsView: View {
         let answeredQuestion = currentQuestion
         
         var answeredQuestionOpen: String?
-        var answeredQuestionSingleSelect: String?
+//        var answeredQuestionSingleSelect: String?
         
         switch answeredQuestion.questionType {
         case .open:
             answeredQuestionOpen = answerOpen
         default:
-            if answeredQuestionIndex == 0 {
-                answeredQuestionSingleSelect = selectedCategory
-            } else {
-                answeredQuestionSingleSelect = answerSingleSelect
-            }
+//            if answeredQuestionIndex == 0 {
+//                answeredQuestionSingleSelect = selectedCategory
+//            } else {
+//                answeredQuestionSingleSelect = answerSingleSelect
+//            }
+            break
         }
         
         switch answeredQuestionIndex {
         case 0:
-            let firstQuestion = QuestionsNewCategory.initialQuestionNewCategory(from: categories)
-            let categoryQuestions = QuestionsNewCategory.getQuestionFlow(for: selectedCategory)
+            let categoryQuestions = QuestionsNewCategory.initialQuestionNewCategory(from: categories)
             
-            questions = firstQuestion + categoryQuestions
+            questions = categoryQuestions
             
-        case 5:
+        case 2:
             if isFocused {
                 isFocused = false
             }
@@ -157,15 +154,22 @@ struct NewCategoryQuestionsView: View {
                 selectedIntroPage += 1
             }
             
-            answerOpen = ""
-            
         default:
             break
         }
         
-        if selectedQuestion < 5 {
-            withAnimation(.interpolatingSpring) {
+        DispatchQueue.main.async {
+            if !answerOpen.isEmpty {
+                answerOpen = ""
+            }
+            
+            if selectedQuestion < 2 {
+                
                 selectedQuestion += 1
+                
+                withAnimation(.interpolatingSpring) {
+                    progressBarQuestionIndex += 1
+                }
             }
         }
         
@@ -174,10 +178,10 @@ struct NewCategoryQuestionsView: View {
                 Task {
                 switch answeredQuestion.questionType {
                 case .open:
-                    await dataController.saveAnswerOnboarding(questionType: answeredQuestion.questionType, question: answeredQuestion, userAnswer: answeredQuestionOpen ?? "", categoryLifeArea: Realm.getLifeArea(forCategory: answeredQuestion.category))
+                    await dataController.saveAnswerOnboarding(questionType: answeredQuestion.questionType, question: answeredQuestion, userAnswer: answeredQuestionOpen ?? "", categoryLifeArea: selectedCategory)
                 default:
                     
-                    await dataController.saveAnswerOnboarding(questionType: answeredQuestion.questionType, question: answeredQuestion, userAnswer: answeredQuestionSingleSelect ?? "", categoryLifeArea: Realm.getLifeArea(forCategory: answeredQuestion.category) )
+                    break
                     
                 }
                 

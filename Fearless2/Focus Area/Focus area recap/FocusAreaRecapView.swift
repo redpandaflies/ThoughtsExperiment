@@ -194,8 +194,10 @@ struct FocusAreaRecapView: View {
             case 1:
                 if showSuggestions && (totalFocusAreas < focusAreasLimit) {
                     return topicViewModel.createFocusAreaSummary == .loading ? "Loading..." : "Next: Choose next path"
-                } else {
+                } else if totalFocusAreas == focusAreasLimit && lastFocusArea {
                     return topicViewModel.createFocusAreaSummary == .loading ? "Loading..." : "Next: Restore lost fragment"
+                } else {
+                    return "Complete"
                 }
                 
             default:
@@ -214,9 +216,12 @@ struct FocusAreaRecapView: View {
             if showSuggestions && (totalFocusAreas < focusAreasLimit){
                 selectedTab += 1
                 completeFocusArea()
-            } else {
+            } else if totalFocusAreas == focusAreasLimit && lastFocusArea {
                 completeFocusArea()
                 createEndOfTopicFocsAreaIfNeeded()
+            } else {
+                //for when user is just reviewing their recap
+                dismiss()
             }
             
         case 2:
@@ -337,12 +342,15 @@ struct FocusAreaRecapView: View {
     
     
     private func createEndOfTopicFocsAreaIfNeeded() {
+        dataController.newFocusArea = true
         dismiss()
         
+        
         if totalFocusAreas == focusAreasLimit {
+           
             
             Task {
-                //mark focusArea.choseSuggestion as true since suggestions won't be needed
+                //mark focusArea.choseSuggestion as true since suggestions won't be needed, and indicate a new focus area is available to trigger scroll animation
                 if let focusArea = focusArea {
                     await dataController.updateFocusArea(focusArea: focusArea)
                 }

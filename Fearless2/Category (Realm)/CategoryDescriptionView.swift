@@ -4,7 +4,6 @@
 //
 //  Created by Yue Deng-Wu on 2/7/25.
 //
-import CloudStorage
 import Pow
 import SwiftUI
 
@@ -13,7 +12,7 @@ struct CategoryDescriptionView: View {
     @Binding var showNewCategory: Bool
     let category: Category
     
-    @CloudStorage("unlockNewCategory") var newCategory: Bool = false
+    @AppStorage("unlockNewCategory") var newCategory: Bool = false
     
     var body: some View {
         VStack (spacing: 13) {

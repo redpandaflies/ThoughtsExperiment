@@ -10,10 +10,12 @@ import SwiftUI
 struct QuestionsProgressBar: View {
     
     @Binding var currentQuestionIndex: Int
-   
-    let xmarkAction: () -> Void
-    let newCategory: Bool
+    
     let totalQuestions: Int
+    let showBackButton: Bool
+    let showXmark: Bool
+    let xmarkAction: () -> Void
+    let backAction: () -> Void
     
     let screenWidth = UIScreen.current.bounds.width
     
@@ -22,17 +24,8 @@ struct QuestionsProgressBar: View {
     }
     
     var wholeBarWidth: CGFloat {
-        return frame * 0.923
+        return frame * 0.85
     }
-    
-    var xmarkSize: CGFloat {
-        return frame * 0.075
-    }
-    
-    var trailingSpace: CGFloat {
-        return frame * 0.002
-    }
-   
    
     var progressBarWidth: CGFloat {
         if totalQuestions > 0 {
@@ -48,18 +41,36 @@ struct QuestionsProgressBar: View {
         }
     }
     
-   
-    
-    init(currentQuestionIndex: Binding<Int>, totalQuestions: Int, xmarkAction: @escaping () -> Void, newCategory: Bool = false) {
+    init(currentQuestionIndex: Binding<Int>, totalQuestions: Int, showXmark: Bool = false, xmarkAction: @escaping () -> Void = {}, showBackButton: Bool = false, backAction: @escaping () -> Void = {}) {
         self._currentQuestionIndex = currentQuestionIndex
         self.totalQuestions = totalQuestions
+        self.showXmark = showXmark
         self.xmarkAction = xmarkAction
-        self.newCategory = newCategory
+        self.showBackButton = showBackButton
+        self.backAction = backAction
     }
     
     var body: some View {
         
-        HStack (spacing: 30) {
+        HStack (spacing: 0) {
+            
+            if showBackButton {
+                
+                Button {
+                    backAction()
+                    
+                } label: {
+                    
+                    Image(systemName: "chevron.backward")
+                        .font(.system(size: 25))
+                        .foregroundStyle(AppColors.progressBarPrimary.opacity(0.3))
+                }
+                
+                Spacer()
+            }
+            
+      
+            
             ZStack (alignment: .leading) {
                 RoundedRectangle(cornerRadius: 50)
                     .fill(AppColors.progressBarPrimary.opacity(0.3))
@@ -72,16 +83,17 @@ struct QuestionsProgressBar: View {
                     .contentTransition(.interpolate)
                 
             }//ZStack
-            .padding(.trailing, trailingSpace)
+            
+            Spacer()
             
             Button {
                 xmarkAction()
             } label: {
                 
                 Image(systemName: "xmark.circle.fill")
-                    .font(.system(size: xmarkSize))
+                    .font(.system(size: 25))
                     .foregroundStyle(AppColors.progressBarPrimary.opacity(0.3))
-                    .opacity(newCategory ? 0 : 1)
+                    .opacity(showXmark ? 1 : 0)
             }
     
         }//HStack

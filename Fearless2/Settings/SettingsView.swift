@@ -4,7 +4,6 @@
 //
 //  Created by Yue Deng-Wu on 12/20/23.
 //
-import CloudStorage
 import SwiftUI
 
 
@@ -14,10 +13,10 @@ struct SettingsView: View {
 
     @State private var showStartOverAlert: Bool = false
     
-    @CloudStorage("currentAppView") var currentAppView: Int = 0
-    @CloudStorage("unlockNewCategory") var newCategory: Bool = false
-    @CloudStorage("discoveredFirstCategory") var discoveredFirstCategory: Bool = false
-    @CloudStorage("discoveredFirstFocusArea") var firstFocusArea: Bool = false
+    @AppStorage("currentAppView") var currentAppView: Int = 0
+    @AppStorage("unlockNewCategory") var newCategory: Bool = false
+    @AppStorage("discoveredFirstCategory") var discoveredFirstCategory: Bool = false
+    @AppStorage("discoveredFirstFocusArea") var firstFocusArea: Bool = false
     @AppStorage("currentCategory") var currentCategory: Int = 0
     @AppStorage("showTopics") var showTopics: Bool = false
     

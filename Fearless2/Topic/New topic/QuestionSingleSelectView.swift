@@ -12,6 +12,14 @@ struct QuestionSingleSelectView: View {
     @Binding var singleSelectAnswer: String
     let question: String
     let items: [String]
+    let answer: String
+    
+    init(singleSelectAnswer: Binding<String>, question: String, items: [String], answer: String = "") {
+        self._singleSelectAnswer = singleSelectAnswer
+        self.question = question
+        self.items = items
+        self.answer = answer
+    }
         
     var body: some View {
         VStack (alignment: .leading, spacing: 15) {
@@ -33,6 +41,9 @@ struct QuestionSingleSelectView: View {
                 }
             }
         }//VStack
+        .onAppear {
+            getSavedAnswers()
+        }
     }
     
     private func selectPill(pillLabel: String) {
@@ -41,6 +52,13 @@ struct QuestionSingleSelectView: View {
             singleSelectAnswer = ""
         } else {
             singleSelectAnswer = pillLabel
+        }
+    }
+    
+    private func getSavedAnswers() {
+        if !answer.isEmpty {
+            print("Answer: \(answer)")
+            singleSelectAnswer = answer
         }
     }
 }

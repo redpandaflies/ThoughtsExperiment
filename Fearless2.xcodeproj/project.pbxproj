@@ -78,6 +78,9 @@
 		8A827B9D2D41339A00D0204E /* TopicsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A827B9C2D41339A00D0204E /* TopicsListView.swift */; };
 		8A827B9F2D413C3100D0204E /* ArchivedTopicsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A827B9E2D413C3100D0204E /* ArchivedTopicsView.swift */; };
 		8A827BA12D414A4C00D0204E /* TopicStatusItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A827BA02D414A4400D0204E /* TopicStatusItem.swift */; };
+		8A8382972D8BFF9E0041B01D /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A8382952D8BFF9E0041B01D /* Notifications.swift */; };
+		8A83829B2D8CD22B0041B01D /* NotificationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A83829A2D8CD22B0041B01D /* NotificationSettingsView.swift */; };
+		8A83829D2D8CEE5E0041B01D /* InfoNotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A83829C2D8CEE5E0041B01D /* InfoNotifications.swift */; };
 		8A8B63E32D1EFCDA00BA57D0 /* LocalFileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A8B63E22D1EFCDA00BA57D0 /* LocalFileManager.swift */; };
 		8A8B63E72D1F010D00BA57D0 /* ImageCacheManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A8B63E62D1F010D00BA57D0 /* ImageCacheManager.swift */; };
 		8A8B63E92D1F02C400BA57D0 /* TopicImageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A8B63E82D1F02BE00BA57D0 /* TopicImageViewModel.swift */; };
@@ -248,6 +251,9 @@
 		8A827B9C2D41339A00D0204E /* TopicsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicsListView.swift; sourceTree = "<group>"; };
 		8A827B9E2D413C3100D0204E /* ArchivedTopicsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchivedTopicsView.swift; sourceTree = "<group>"; };
 		8A827BA02D414A4400D0204E /* TopicStatusItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicStatusItem.swift; sourceTree = "<group>"; };
+		8A8382952D8BFF9E0041B01D /* Notifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notifications.swift; sourceTree = "<group>"; };
+		8A83829A2D8CD22B0041B01D /* NotificationSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationSettingsView.swift; sourceTree = "<group>"; };
+		8A83829C2D8CEE5E0041B01D /* InfoNotifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoNotifications.swift; sourceTree = "<group>"; };
 		8A8B63E22D1EFCDA00BA57D0 /* LocalFileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalFileManager.swift; sourceTree = "<group>"; };
 		8A8B63E62D1F010D00BA57D0 /* ImageCacheManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCacheManager.swift; sourceTree = "<group>"; };
 		8A8B63E82D1F02BE00BA57D0 /* TopicImageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicImageViewModel.swift; sourceTree = "<group>"; };
@@ -514,6 +520,14 @@
 			path = "Launch sequence";
 			sourceTree = "<group>";
 		};
+		8A8382962D8BFF9E0041B01D /* Notifications */ = {
+			isa = PBXGroup;
+			children = (
+				8A8382952D8BFF9E0041B01D /* Notifications.swift */,
+			);
+			path = Notifications;
+			sourceTree = "<group>";
+		};
 		8A8B63E02D1EFC0C00BA57D0 /* AI functions */ = {
 			isa = PBXGroup;
 			children = (
@@ -649,6 +663,7 @@
 		8A9CC1842CAB449F007C2AA9 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				8A8382962D8BFF9E0041B01D /* Notifications */,
 				8A81D45A2D80F8A8008C8DA9 /* Launch sequence */,
 				8A63A1BF2D4BF46800712B27 /* Error handling */,
 				8A8B63E02D1EFC0C00BA57D0 /* AI functions */,
@@ -808,6 +823,7 @@
 			isa = PBXGroup;
 			children = (
 				8AC1D5AE2D685524000DD8E6 /* SettingsView.swift */,
+				8A83829A2D8CD22B0041B01D /* NotificationSettingsView.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -849,6 +865,7 @@
 			children = (
 				8A9B99152D7BBDFA001707FD /* InfoPrimaryView.swift */,
 				8AE398212D70FC0300F76AAC /* InfoFirstCategory.swift */,
+				8A83829C2D8CEE5E0041B01D /* InfoNotifications.swift */,
 			);
 			path = "Info sheets";
 			sourceTree = "<group>";
@@ -988,6 +1005,7 @@
 				8AE3982A2D711FF700F76AAC /* BackgroundSecondary.swift in Sources */,
 				8AE3981B2D6EC70F00F76AAC /* OnboardingQuestionsView.swift in Sources */,
 				8A9B990D2D78EC36001707FD /* NewCategoryView.swift in Sources */,
+				8A8382972D8BFF9E0041B01D /* Notifications.swift in Sources */,
 				8A74F4AE2CE802A1008A33B0 /* DetailViewToolBarItem.swift in Sources */,
 				8A2C37002D24341400C37315 /* NewTopicHeader.swift in Sources */,
 				8AB2DF502D5AEFD00069E914 /* PageIndicatorView.swift in Sources */,
@@ -1005,6 +1023,7 @@
 				8ACE0DD52CD03A1500718B9E /* Insight-CoreDataHelpers.swift in Sources */,
 				8A827B9D2D41339A00D0204E /* TopicsListView.swift in Sources */,
 				8A63325A2CDDA01300EF34FA /* RectangleButton.swift in Sources */,
+				8A83829D2D8CEE5E0041B01D /* InfoNotifications.swift in Sources */,
 				8A827B992D38171B00D0204E /* TopicOverviewBox.swift in Sources */,
 				8A9B991A2D7BDBCD001707FD /* NewCategoryEligibilityChecker.swift in Sources */,
 				8A9CC1E52CAF5427007C2AA9 /* UpdateSectionView.swift in Sources */,
@@ -1033,6 +1052,7 @@
 				8A26DFCF2CEEF3A0002C4F60 /* Understand-CoreDataHelpers.swift in Sources */,
 				8A9CC1CC2CAE1DCB007C2AA9 /* AssistantItem.swift in Sources */,
 				8A8ED7332CF2EE5D00780384 /* FocusAreaSummary-CoreDataHelpers.swift in Sources */,
+				8A83829B2D8CD22B0041B01D /* NotificationSettingsView.swift in Sources */,
 				8A21B2CC2D5FF33D004AD75E /* ToolbarTitleItem2.swift in Sources */,
 				8A79EAB02CE3F045000A966B /* AudioRecorder.swift in Sources */,
 				8A9CC1DA2CAE7697007C2AA9 /* LottieView.swift in Sources */,
@@ -1242,7 +1262,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Fearless2/Fearless2Debug.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"Fearless2/Preview Content\"";
 				DEVELOPMENT_TEAM = 79TB36U8AD;
@@ -1280,7 +1300,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Fearless2/Fearless2.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 17;
 				DEVELOPMENT_ASSET_PATHS = "\"Fearless2/Preview Content\"";
 				DEVELOPMENT_TEAM = 79TB36U8AD;
 				ENABLE_DEBUG_DYLIB = NO;

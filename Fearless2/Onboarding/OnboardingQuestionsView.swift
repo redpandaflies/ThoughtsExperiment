@@ -13,9 +13,13 @@ struct OnboardingQuestionsView: View {
     
     @State private var selectedQuestion: Int = 0
     @State private var progressBarQuestionIndex: Int = 0
-    @State private var answerOpen: String = ""
+    @State private var answerOpenQ1: String = ""
+    @State private var answerOpenQ2: String = ""
     @State private var answerSingleSelect: String = ""
-    @State private var questions: [QuestionsNewCategory] = QuestionsNewCategory.initialQuestionOnboarding
+    @State private var questions: [QuestionsNewCategory] = QuestionsNewCategory.initialQuestionsOnboarding
+    
+    // Track answers for each question
+    @State private var savedAnswers: [Int: String] = [:]
     
     @Binding var selectedCategory: String
     @Binding var selectedIntroPage: Int
@@ -30,7 +34,12 @@ struct OnboardingQuestionsView: View {
     var body: some View {
         VStack (spacing: 10){
             // MARK: Header
-            QuestionsProgressBar(currentQuestionIndex: $progressBarQuestionIndex, totalQuestions: 4)
+            QuestionsProgressBar(
+                currentQuestionIndex: $progressBarQuestionIndex, 
+                totalQuestions: 4, 
+                showBackButton: selectedQuestion > 0,
+                backAction: handleBackButton
+            )
                 
             // MARK: Title
             getTitle()
@@ -38,7 +47,13 @@ struct OnboardingQuestionsView: View {
             // MARK: Question
             switch currentQuestion.questionType {
                 case .open:
-                QuestionOpenView(topicText: $answerOpen, isFocused: $isFocused, question: currentQuestion.content, placeholderText: selectedQuestion == 0 ? "Enter your name" : "For best results, be very specific.")
+                QuestionOpenView(
+                    topicText: selectedQuestion == 3 ? $answerOpenQ2 : $answerOpenQ1,
+                    isFocused: $isFocused,
+                    question: currentQuestion.content,
+                    placeholderText: selectedQuestion == 0 ? "Enter your name" : "For best results, be very specific.",
+                    disableNewLine: selectedQuestion == 0
+                )
                       
                 default:
                     if selectedQuestion == 1 {
@@ -54,16 +69,20 @@ struct OnboardingQuestionsView: View {
             Spacer()
             
             // MARK: Next button
-            RectangleButtonPrimary(buttonText: "Continue", action: {
-                nextButtonAction()
-            }, disableMainButton: disableButton(), buttonColor: .white)
+            RectangleButtonPrimary(
+                buttonText: "Continue",
+                action: {
+                    nextButtonAction()
+                },
+                disableMainButton: disableButton(),
+                buttonColor: .white
+            )
         }
         .padding(.horizontal)
         .padding(.bottom)
         .background {
             BackgroundPrimary(backgroundColor: AppColors.backgroundOnboardingIntro)
         }
-       
     }
     
     private func getTitle() -> some View {
@@ -96,7 +115,7 @@ struct OnboardingQuestionsView: View {
       
             switch currentQuestion.questionType {
             case .open:
-                return answerOpen.isEmpty
+                return selectedQuestion == 3 ? answerOpenQ2.isEmpty : answerOpenQ1.isEmpty
             default:
                 if selectedQuestion == 1 {
                     return selectedCategory.isEmpty
@@ -108,33 +127,146 @@ struct OnboardingQuestionsView: View {
     
     }
     
+    // Handle the back button action
+    private func handleBackButton() {
+        let answeredQuestionIndex = selectedQuestion
+        
+        if answeredQuestionIndex > 0 {
+            // Save current answer before going back
+            saveCurrentAnswer(index: answeredQuestionIndex)
+            
+            // Go back one question
+            if isFocused {
+                isFocused = false
+            }
+            selectedQuestion -= 1
+            withAnimation(.interpolatingSpring) {
+                progressBarQuestionIndex -= 1
+            }
+            
+            // Restore previous answer
+            restorePreviousAnswer()
+        }
+    }
+    
+    // Save the current answer to our in-memory dictionary
+    private func saveCurrentAnswer(index: Int) {
+        switch currentQuestion.questionType {
+        case .open:
+            if selectedQuestion == 2 {
+                savedAnswers[index] = answerOpenQ2
+            } else {
+                savedAnswers[index] = answerOpenQ1
+            }
+        case .singleSelect, .multiSelect:
+            if selectedQuestion == 1 {
+                savedAnswers[index] = selectedCategory
+            } else {
+                savedAnswers[index] = answerSingleSelect
+            }
+        }
+    }
+    
+    // Restore a previously saved answer
+    private func restorePreviousAnswer() {
+        // Get the answer for the current question (after moving back)
+        if let savedAnswer = savedAnswers[selectedQuestion] {
+            switch questions[selectedQuestion].questionType {
+            case .open:
+                if selectedQuestion == 3 {
+                    answerOpenQ2 = savedAnswer
+                } else {
+                    answerOpenQ1 = savedAnswer
+                }
+                
+            case .singleSelect, .multiSelect:
+                if selectedQuestion == 1 {
+                    selectedCategory = savedAnswer
+                } else {
+                    answerSingleSelect = savedAnswer
+                }
+            }
+        }
+    }
+    
     private func nextButtonAction() {
         //capture current state
         let answeredQuestionIndex = selectedQuestion
         let answeredQuestion = currentQuestion
         
         var answeredQuestionOpen: String?
-//        var answeredQuestionSingleSelect: String?
         
         switch answeredQuestion.questionType {
         case .open:
-            answeredQuestionOpen = answerOpen
+            
+            if selectedQuestion == 3 {
+                answeredQuestionOpen = answerOpenQ2
+            } else {
+                answeredQuestionOpen = answerOpenQ1
+            }
+          
         default:
-//            if answeredQuestionIndex == 1 {
-//                answeredQuestionSingleSelect = selectedCategory
-//            } else {
-//                answeredQuestionSingleSelect = answerSingleSelect
-//            }
             break
         }
         
-        switch answeredQuestionIndex {
-        case 0:
-            if isFocused {
-                isFocused = false
+        // Save the current answer to in-memory dictionary
+        saveCurrentAnswer(index: answeredQuestionIndex)
+
+        //Save question answer
+        Task {
+            if answeredQuestionIndex == 0 {
+                await dataController.saveUserName(name: answeredQuestionOpen ?? "")
+            }
+    
+            //add the selected category to coredata
+            if answeredQuestionIndex == 3 {
+                //create category
+                let savedCategory = await dataController.createSingleCategory(lifeArea: selectedCategory)
+                
+//                print("Saved answers: \(savedAnswers)")
+                
+                //save the answers for questions about the category selected
+                for (key, value) in savedAnswers where key > 1 {
+                    if let category = savedCategory {
+                        await dataController.saveAnswerOnboarding(
+                            questionType: .open,
+                            question: questions[key],
+                            userAnswer: value,
+                            categoryLifeArea: selectedCategory,
+                            category: category
+                        )
+                    }
+                }
             }
             
-        case 3:
+        }
+        
+        // Only clear answerOpen if we're not restoring a previously saved answer
+        if selectedQuestion < 3 {
+            
+            if answeredQuestionIndex == 0 {
+                if isFocused {
+                    isFocused = false
+                }
+            }
+            
+            answerOpenQ1 = ""
+            answerOpenQ2 = ""
+            
+            //navigate to the next question
+            selectedQuestion += 1
+            withAnimation(.interpolatingSpring) {
+                progressBarQuestionIndex += 1
+            }
+            
+            restorePreviousAnswer()
+            
+            if selectedQuestion == 2 {
+                isFocused = true
+            }
+   
+        } else {
+            
             if isFocused {
                 isFocused = false
             }
@@ -144,48 +276,6 @@ struct OnboardingQuestionsView: View {
             withAnimation {
                 selectedIntroPage += 1
                 imagesScrollPosition = (imagesScrollPosition ?? 0) + 1
-            }
-            
-            
-        default:
-            break
-        }
-        
-        DispatchQueue.main.async {
-            answerOpen = ""
-            
-            if selectedQuestion < 3 {
-                
-                selectedQuestion += 1
-                withAnimation(.interpolatingSpring) {
-                    progressBarQuestionIndex += 1
-                }
-            }
-        }
-        
-        //Save question answer
-        if answeredQuestionIndex != 1 {
-            Task {
-                switch answeredQuestion.questionType {
-                
-                case .open:
-                    
-                    if answeredQuestionIndex == 0 {
-                        await dataController.saveUserName(name: answeredQuestionOpen ?? "")
-                    } else {
-                        await dataController.saveAnswerOnboarding(questionType: answeredQuestion.questionType, question: answeredQuestion, userAnswer: answeredQuestionOpen ?? "", categoryLifeArea: selectedCategory)
-                    }
-                
-                default:
-//                    await dataController.saveAnswerOnboarding(questionType: answeredQuestion.questionType, question: answeredQuestion, userAnswer: answeredQuestionSingleSelect ?? "", categoryLifeArea: selectedCategory)
-                    break
-                }
-                
-            }
-        } else {
-            //add the selected category to coredata
-            Task {
-                await dataController.createSingleCategory(lifeArea: selectedCategory)
             }
             
         }
@@ -203,7 +293,6 @@ struct OnboardingQuestionsView: View {
                 await mixpanelService.setupMixpanelTracking()
                 Mixpanel.mainInstance().track(event: "Finished static onboarding") //this is here & not earlier in the onboarding flow because we need to create the user profile for mixpanel before sending an event
             }
-            
         }
     }
 }

@@ -95,18 +95,17 @@ struct TopicPathSummaryBox: View {
             } else {
                 VStack (alignment: .center) {
                         
-                        Image(systemName: "lock.fill")
-                            .multilineTextAlignment(.center)
-                            .font(.system(size: 30))
-                            .foregroundStyle(AppColors.textPrimary)
-                            .opacity(0.5)
-                            .padding(.bottom, 15)
+                    Image(systemName: "lock.fill")
+                        .multilineTextAlignment(.center)
+                        .font(.system(size: 30))
+                        .foregroundStyle(AppColors.textPrimary)
+                        .opacity(0.5)
+                        .padding(.bottom, 15)
                         
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                 
             }
-            
            
         }
         .padding(30)

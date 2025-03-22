@@ -46,7 +46,7 @@ enum QuestionCategory: String, Codable, CaseIterable {
 extension QuestionsNewCategory {
     
     //initial question onboarding
-    static var initialQuestionOnboarding: [QuestionsNewCategory] {
+    static var initialQuestionsOnboarding: [QuestionsNewCategory] {
         return [
             QuestionsNewCategory(
                 id: 0,

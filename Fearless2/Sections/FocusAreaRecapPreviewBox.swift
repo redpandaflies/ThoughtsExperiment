@@ -21,6 +21,10 @@ struct FocusAreaRecapPreviewBox: View {
                 .font(.system(size: 17, weight: (!choseSuggestion && focusAreaCompleted) ? .regular : ( focusAreaCompleted ? .light : (available ? .regular : .light))))
                 .fontWidth(.condensed)
                 .foregroundStyle((!choseSuggestion && focusAreaCompleted) ? Color.black : (focusAreaCompleted ? AppColors.textPrimary : (available ? Color.black : AppColors.textPrimary)))
+                .padding(.bottom, 5)
+            
+            LaurelItem(size: 15, points: "+1", primaryColor: (!choseSuggestion && focusAreaCompleted) ? Color.black : (focusAreaCompleted ? AppColors.textPrimary : (available ? Color.black : AppColors.textPrimary)))
+                .opacity((!choseSuggestion && focusAreaCompleted) ? 0.7 : (focusAreaCompleted ? 0.5 : (available ? 0.7 : 0.5)))
             
             Spacer()
             

@@ -10,10 +10,13 @@ import SwiftUI
 struct UpdateSectionBox: View {
     @EnvironmentObject var dataController: DataController
     @ObservedObject var topicViewModel: TopicViewModel
+    @Binding var showProgressBar: Bool
     @Binding var selectedQuestion: Int
     @Binding var topicText: String
     @Binding var singleSelectAnswer: String
     @Binding var multiSelectAnswers: [String]
+    @Binding var singleSelectCustomItems: [String]
+    @Binding var multiSelectCustomItems: [String]
 
     @FocusState.Binding var isFocused: Bool
 
@@ -52,12 +55,12 @@ struct UpdateSectionBox: View {
                     case .singleSelect:
                         let optionsString = currentQuestion.questionSingleSelectOptions
                         let optionsArray = optionsString.components(separatedBy: ";")
-                    QuestionSingleSelectView(singleSelectAnswer: $singleSelectAnswer, question: currentQuestion.questionContent, items: optionsArray, answer: currentQuestion.questionAnswerSingleSelect)
+                    QuestionSingleSelectView(singleSelectAnswer: $singleSelectAnswer, customItems: $singleSelectCustomItems, showProgressBar: $showProgressBar, question: currentQuestion.questionContent, items: optionsArray, answer: currentQuestion.questionAnswerSingleSelect, itemsEdited: currentQuestion.editedSingleSelect)
                         
                     case .multiSelect:
                         let optionsString = currentQuestion.questionMultiSelectOptions
                         let optionsArray = optionsString.components(separatedBy: ";")
-                    QuestionMultiSelectView(multiSelectAnswers: $multiSelectAnswers, question: currentQuestion.questionContent, items: optionsArray, answers: currentQuestion.questionAnswerMultiSelect)
+                    QuestionMultiSelectView(multiSelectAnswers: $multiSelectAnswers, customItems: $multiSelectCustomItems, showProgressBar: $showProgressBar, question: currentQuestion.questionContent, items: optionsArray, answers: currentQuestion.questionAnswerMultiSelect, itemsEdited: currentQuestion.editedMultiSelect)
                     
                     default:
                     QuestionOpenView(topicText: $topicText, isFocused: $isFocused, question: currentQuestion.questionContent, answer: currentQuestion.questionAnswerOpen)

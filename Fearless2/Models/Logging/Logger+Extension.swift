@@ -19,4 +19,5 @@ extension Logger {
     static let stabilityEvents = Logger(subsystem: subsystem, category: "stabilityEvents")
     static let uiEvents = Logger(subsystem: subsystem, category: "uiEvents")
     static let mixpanelEvents = Logger(subsystem: subsystem, category: "mixpanelEvents")
+    static let notificationEvents = Logger(subsystem: subsystem, category: "notificationEvents")
 }

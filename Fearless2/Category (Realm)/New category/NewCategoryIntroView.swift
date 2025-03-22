@@ -30,11 +30,17 @@ struct NewCategoryIntroView: View {
     var body: some View {
         VStack (spacing: 10) {
             
+            if selectedIntroPage == 0 {
+                showXmark()
+                    .padding(.horizontal)
+                    .padding(.top, 50)
+            }
+            
             Image(content.imageName)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: 90)
-                .padding(.top, 140)
+                .padding(.top,  selectedIntroPage == 0 ? 60 : 140)
                 .padding(.bottom, 50)
             
             if selectedIntroPage == 0 {
@@ -140,5 +146,22 @@ struct NewCategoryIntroView: View {
             }
             
         }
+    }
+    
+    private func showXmark() -> some View {
+        HStack {
+            
+            Spacer()
+            
+            Button {
+                currentAppView = 1
+            } label: {
+                
+                Image(systemName: "xmark.circle.fill")
+                    .font(.system(size: 25))
+                    .foregroundStyle(AppColors.progressBarPrimary.opacity(0.3))
+            }
+        }
+        
     }
 }

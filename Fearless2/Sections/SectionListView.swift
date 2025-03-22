@@ -74,7 +74,6 @@ struct SectionListView: View {
     
     var body: some View {
        
-            
             ScrollView (.horizontal) {
                 
                 HStack(spacing: 12) {

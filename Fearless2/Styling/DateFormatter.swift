@@ -53,3 +53,13 @@ extension DateFormatter {
             return DateFormatter.displayFormat2.string(from: date).capitalized
     }
 }
+
+//notification date format
+extension DateFormatter {
+    static let reminderFormat: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "hh:mm a"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        return formatter
+    }()
+}

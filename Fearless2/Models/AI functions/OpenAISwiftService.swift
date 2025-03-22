@@ -269,51 +269,7 @@ extension OpenAISwiftService {
         }
     }
     
-    @MainActor
-    func processNewTopic(messageText: String, topicId: UUID) async throws -> Topic? {
-        let arguments = messageText
-        let context = self.dataController.container.viewContext
-        var fetchedTopic: Topic? = nil
-        
-        try await context.perform {
-            // Fetch the topic with the provided topicId
-            let request = NSFetchRequest<Topic>(entityName: "Topic")
-            request.predicate = NSPredicate(format: "id == %@", topicId as CVarArg)
-
-            
-            guard let topic = try context.fetch(request).first else {
-                self.loggerCoreData.error("No topic found with topicId: \(topicId)")
-                throw ProcessingError.missingRequiredField("Existing topic not found")
-            }
-            
-            // Decode the arguments to get the new section data
-            guard let newTopic = self.decodeArguments(arguments: arguments, as: NewTopic.self) else {
-                self.loggerOpenAI.error("Couldn't decode arguments for new topic: \(topic.topicTitle).")
-                throw ProcessingError.decodingError("new topic")
-            }
-            
-            
-            topic.topicTitle = newTopic.title
-            topic.topicDefinition = newTopic.definition
-            
-            for newSuggestion in newTopic.suggestions {
-                let suggestion = FocusAreaSuggestion(context: context)
-                suggestion.suggestionId = UUID()
-                suggestion.suggestionContent = newSuggestion.content
-                suggestion.suggestionReasoning = newSuggestion.reasoning
-                suggestion.suggestionEmoji = newSuggestion.emoji
-                topic.addToSuggestions(suggestion)
-            }
-            
-            //update fetchedTopic
-            fetchedTopic = topic
-
-            // Save the context after processing each section and its questions
-            try self.saveCoreDataChanges(context: context, errorDescription: "new topic")
-        }
-        
-        return fetchedTopic
-    }
+    
     
     func processTopicSuggestions(messageText: String) async throws -> NewTopicSuggestions? {
         let arguments = messageText

@@ -93,7 +93,7 @@ final class DataController: ObservableObject {
     
     //save user answer for an question
     //note: questionContent needed when creating new topic, questionId needed when updating topic
-    func saveAnswer(questionType: QuestionType, questionContent: String? = nil, questionId: UUID? = nil, userAnswer: Any) async {
+    func saveAnswer(questionType: QuestionType, questionContent: String? = nil, questionId: UUID? = nil, userAnswer: Any, customItems: [String]? = nil) async {
         await context.perform {
             let question: Question
             
@@ -140,10 +140,25 @@ final class DataController: ObservableObject {
                 if let answer = userAnswer as? String {
                     question.questionAnswerSingleSelect = answer
                 }
+                
+                if let items = customItems, !items.isEmpty {
+                    let arrayString = items.joined(separator: ";")
+                    question.singleSelectOptions = arrayString
+                    question.editedSingleSelect = true
+                    self.logger.log("New single select options: \(arrayString)")
+                }
+                
             case .multiSelect:
                 if let answer = userAnswer as? [String] {
                     let arrayString = answer.joined(separator: ";")
                     question.questionAnswerMultiSelect = arrayString
+                }
+                
+                if let items = customItems, !items.isEmpty {
+                    let arrayString = items.joined(separator: ";")
+                    question.multiSelectOptions = arrayString
+                    question.editedMultiSelect = true
+                    self.logger.log("New multi select options: \(arrayString)")
                 }
             }
             
@@ -158,14 +173,14 @@ final class DataController: ObservableObject {
     }
     
     //save answer onboarding
-    func saveAnswerOnboarding(questionType: QuestionType, question: QuestionsNewCategory, userAnswer: Any, categoryLifeArea: String) async {
+    func saveAnswerOnboarding(questionType: QuestionType, question: QuestionsNewCategory, userAnswer: Any, categoryLifeArea: String, category: Category) async {
         await context.perform {
             // create a new question
             let newQuestion = Question(context: self.context)
             newQuestion.questionId = UUID()
             newQuestion.createdAt = getCurrentTimeString()
             newQuestion.questionType = questionType.rawValue
-            self.logger.info("Question type being saved: \(newQuestion.questionType)")
+            self.logger.info("Question type being saved: \(newQuestion.questionType) ")
             newQuestion.questionContent = question.content
             newQuestion.categoryStarter = true
             
@@ -189,29 +204,9 @@ final class DataController: ObservableObject {
             // Mark the question as completed
             newQuestion.completed = true
             
-            // find the Category
-            
-            if let category = self.onboardingCategory {
-                category.addToQuestions(newQuestion)
-            } else {
-                let categoryRequest = NSFetchRequest<Category>(entityName: "Category")
-                categoryRequest.predicate = NSPredicate(format: "lifeArea == %@", categoryLifeArea)
-                
-                do {
-                    let categories = try self.context.fetch(categoryRequest)
-                    if let fetchedCategory = categories.first {
-                        
-                        // add question to the category
-                        fetchedCategory.addToQuestions(newQuestion)
-                        self.onboardingCategory = fetchedCategory
-                        
-                    } else {
-                        self.logger.error("No category found with lifeArea: \(categoryLifeArea)")
-                    }
-                } catch {
-                    self.logger.error("Error fetching category: \(error.localizedDescription)")
-                }
-            }
+            // add question to category
+            category.addToQuestions(newQuestion)
+                    
         }
         
         await self.save()
@@ -305,6 +300,7 @@ extension DataController {
             topic.topicCreatedAt = getCurrentTimeString()
             topic.topicStatus = TopicStatusItem.active.rawValue
             topic.topicTitle = suggestion.content
+            topic.topicDefinition = suggestion.reasoning
             let highestFocusAreaTopic = category.categoryTopics.max(by: { $0.focusAreasLimit < $1.focusAreasLimit })
 
            //get the limit for the topic with highest focusAreasLimit, this is used instead of a simple category.categoryTopics.count because topics can be deleted
@@ -443,8 +439,6 @@ extension DataController {
                 
                 // Final save to ensure all changes are persisted
                 try self.context.save()
-                
-                self.logger.info("Successfully deleted all categories and orphaned topics")
                 
                 // 3. Delete the user's profile
                let profileFetchRequest = NSFetchRequest<Profile>(entityName: "Profile")
@@ -651,13 +645,15 @@ extension DataController {
     /// Creates a single category in CoreData based on the provided life area option
     /// - Parameter lifeAreaOption: The life area string to match with Realm data
     /// - Returns: The created Category entity or nil if not found
-    func createSingleCategory(lifeArea: String) async {
+    func createSingleCategory(lifeArea: String) async -> Category? {
         
         // Find the matching realm data
         guard let realmData = QuestionCategory.getCategoryData(for: lifeArea) else {
             self.logger.error("No matching realm found for lifeArea: \(lifeArea)")
-            return
+            return nil
         }
+        
+        var newCategory: Category?
         
         await context.perform {
             do {
@@ -671,6 +667,7 @@ extension DataController {
                                 
                 if !matchingCategories.isEmpty {
                     self.logger.info("Category already exists for \(lifeArea)")
+                    newCategory = matchingCategories.first
                     return
                 }
                 
@@ -685,12 +682,17 @@ extension DataController {
                 category.categoryUndiscovered = realmData.undiscoveredDescription
                 category.categoryDiscovered = realmData.discoveredDescription
                 
+                newCategory = category
+                
             } catch {
                 self.logger.error("Error creating single category: \(error)")
+                newCategory = nil
             }
         }
         
         await self.save()
+        
+        return newCategory
     }
 
     /// Saves all categories from Realm.realmsData except for the one that already exists in CoreData
@@ -821,12 +823,28 @@ extension DataController {
     
     func saveUserName(name: String) async {
         
+        
         await context.perform {
-            let profile = Profile(context: self.context)
-            profile.profileId = UUID()
-            profile.profileName = name
+            // First check if a profile already exists
+            let request = NSFetchRequest<Profile>(entityName: "Profile")
+            
+            do {
+                let existingProfiles = try self.context.fetch(request)
+                
+                if let existingProfile = existingProfiles.first {
+                    // Update existing profile
+                    existingProfile.profileName = name
+                } else {
+                    // Create new profile if none exists
+                    let profile = Profile(context: self.context)
+                    profile.profileId = UUID()
+                    profile.profileName = name
+                }
+            } catch {
+                print("Error fetching existing profiles: \(error.localizedDescription)")
+            }
         }
-                    
+        
         await self.save()
     }
     

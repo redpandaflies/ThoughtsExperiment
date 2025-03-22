@@ -115,11 +115,11 @@ struct CategoryView: View {
                                 .padding(.top, 20)
                             
                             // MARK: - Topics list
-                            
                             TopicsListView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, selectedTopic: $selectedTopic, currentTabBar: $currentTabBar, selectedTabTopic: $selectedTabTopic, navigateToTopicDetailView: $navigateToTopicDetailView, categoriesScrollPosition: $categoriesScrollPosition, category: categories[scrollPosition], points: currentPoints, totalCategories: categories.count)
                             
                         }
                     }
+                    
                 } else if topics.count > 0 {
                     if let scrollPosition = categoriesScrollPosition {
                         let totalCategories = categories.count
@@ -137,12 +137,14 @@ struct CategoryView: View {
             }
             .onAppear {
                 setupView()
+                
             }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     SettingsToolbarItem(action: {
                         showSettingsView = true
                     })
+                    .opacity(newCategory ? 1 : 0)
                    
                 }
                 
@@ -171,7 +173,7 @@ struct CategoryView: View {
             .sheet(isPresented: $showSettingsView, onDismiss: {
                 showSettingsView = false
             }, content: {
-                SettingsView()
+                SettingsView(backgroundColor: getCategoryBackground())
                     .presentationCornerRadius(20)
                     .presentationBackground {
                         Color.clear

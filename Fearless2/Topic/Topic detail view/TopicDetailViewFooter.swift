@@ -36,9 +36,10 @@ struct TopicDetailViewFooter: View {
             
             Spacer()
             
-            Menu {
-                
-                if topic?.completed != true {
+            if topic?.completed != true {
+                Menu {
+                    
+                    
                     Button (role: .destructive) {
                         showDeleteTopicAlert = true
                         
@@ -46,44 +47,45 @@ struct TopicDetailViewFooter: View {
                         
                         Label("Abandon quest", systemImage: "trash")
                     }
+                    
+                    //                if let currentTopic = topic, currentTopic.topicStatus == TopicStatusItem.archived.rawValue {
+                    //
+                    //                    Button {
+                    //                        updateTopicStatus(newStatus: .active)
+                    //                    } label: {
+                    //                        Label("Unarchive", systemImage: "arrow.up.bin")
+                    //                    }
+                    //                } else {
+                    //                    Button {
+                    //                        updateTopicStatus(newStatus: .archived)
+                    //
+                    //                    } label: {
+                    //                        Label("Archive", systemImage: "archivebox")
+                    //                    }
+                    //                }
+                    
+                    
+                } label: {
+                    
+                    Image(systemName: "ellipsis")
+                        .font(.system(size: 20))
+                        .foregroundStyle(AppColors.whiteDefault.opacity(0.7))
+                        .frame(width: 30, height: 30)
+                    
                 }
-//                if let currentTopic = topic, currentTopic.topicStatus == TopicStatusItem.archived.rawValue {
-//                    
-//                    Button {
-//                        updateTopicStatus(newStatus: .active)
-//                    } label: {
-//                        Label("Unarchive", systemImage: "arrow.up.bin")
-//                    }
-//                } else {
-//                    Button {
-//                        updateTopicStatus(newStatus: .archived)
-//                        
-//                    } label: {
-//                        Label("Archive", systemImage: "archivebox")
-//                    }
-//                }
-                
-                
-            } label: {
-                
-                Image(systemName: "ellipsis")
-                    .font(.system(size: 20))
-                    .foregroundStyle(AppColors.whiteDefault.opacity(0.7))
-                    .frame(width: 30, height: 30)
-                
             }
             
             
         }//HStack
         .padding(.horizontal)
         .frame(height: 40)
-        .alert("Are you sure you want to delete this topic?", isPresented: $showDeleteTopicAlert) {
+        .alert("Are you sure you want to abort this quest?", isPresented: $showDeleteTopicAlert) {
             Button("Cancel", role: .cancel) {}
             Button("Yes", role: .destructive) {
                 deleteTopic()
             }
         } message: {
-            Text("This will erase all data for the topic.")
+            Text("You'll lose all content for this quest.")
         }
         .onChange(of: currentTabBar) {
             var event: String

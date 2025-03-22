@@ -81,6 +81,8 @@
         <attribute name="completed" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="content" optional="YES" attributeType="String"/>
         <attribute name="createdAt" optional="YES" attributeType="String"/>
+        <attribute name="editedMultiSelect" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="editedSingleSelect" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="emoji" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="maxLabel" optional="YES" attributeType="String"/>

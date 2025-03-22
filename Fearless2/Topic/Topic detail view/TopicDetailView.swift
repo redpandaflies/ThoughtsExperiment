@@ -26,6 +26,7 @@ struct TopicDetailView: View {
     @State private var showTutorialFocusArea: Bool = false
     @State private var showInfoNewCategory: Bool = false
     @State private var showLaurelInfoSheet: Bool = false
+    @State private var showInfoNotifications: Bool = false
     
     @Binding var selectedTabTopic: TopicPickerItem
     
@@ -40,6 +41,7 @@ struct TopicDetailView: View {
     @AppStorage("currentAppView") var currentAppView: Int = 0
     @AppStorage("discoveredFirstFocusArea") var firstFocusArea: Bool = false
     @AppStorage("unlockNewCategory") var unlockNewCategory: Int = 0
+    @AppStorage("seenNotificationsInfoSheet") var seenNotificationsInfoSheet: Bool = false
     
     init(topicViewModel: TopicViewModel, transcriptionViewModel: TranscriptionViewModel, selectedTabTopic: Binding<TopicPickerItem>, topic: Topic, points: Points, totalCategories: Int) {
         self.topicViewModel = topicViewModel
@@ -102,6 +104,10 @@ struct TopicDetailView: View {
             .onAppear {
                 withAnimation(.snappy(duration: 0.2)) {
                     selectedTabTopic = .paths
+                }
+                //show notifications sheet
+                if !seenNotificationsInfoSheet {
+                    showInfoNotifications = true
                 }
                 
                 //show sheet explaining the concept of focus areas(paths)
@@ -216,6 +222,15 @@ struct TopicDetailView: View {
             )
                 .presentationDetents([.fraction(0.65)])
                 .presentationCornerRadius(30)
+        }
+        .sheet(isPresented: $showInfoNotifications, onDismiss: {
+            showInfoNotifications = false
+        }) {
+            
+            InfoNotifications(backgroundColor: getCategoryBackground())
+                .presentationDetents([.fraction(0.90)])
+                .presentationCornerRadius(30)
+                .interactiveDismissDisabled()
         }
     }
     

@@ -172,36 +172,6 @@ final class TopicViewModel: ObservableObject {
             
             switch selectedAssistant {
                 
-            case .topic:
-                
-                await MainActor.run {
-                    self.generatingImage = true
-                }
-                
-                guard let currentTopicId = topicId else {
-                    loggerCoreData.error("Failed to get new topic ID")
-                    throw OpenAIError.missingRequiredField("Topic ID")
-                }
-                
-                let currentTopic = try await openAISwiftService.processNewTopic(messageText: messageText, topicId: currentTopicId)
-                
-                loggerOpenAI.log("Added new sections to topic")
-                
-                await MainActor.run {
-                    self.topicUpdated = true
-                }
-                
-                if let topic = currentTopic {
-                    await self.getTopicImage(topic: topic)
-                    
-                } else {
-                    
-                    loggerOpenAI.log("Unable to get image; no topic found")
-                    await MainActor.run {
-                        self.showPlaceholder = true
-                        self.generatingImage = false
-                    }
-                }
             case .topicSuggestions:
                 guard let newSuggestions = try await openAISwiftService.processTopicSuggestions(messageText: messageText) else {
                     loggerOpenAI.error("Failed to process topic suggestions")
@@ -369,18 +339,10 @@ final class TopicViewModel: ObservableObject {
         }
         
         switch selectedAssistant {
-        case .topic:
-            
-            guard let gatheredContext = await ContextGatherer.gatherContextNewTopic(dataController: dataController, loggerCoreData: loggerCoreData, topicId: currentTopic) else {
-                loggerCoreData.error("Failed to get user context")
-                throw ContextError.noContextFound("create new topic")
-            }
-            
-            userContext += gatheredContext
             
         case .topicOverview:
             
-            guard let gatheredContext = await ContextGatherer.gatherContextTopicOverview(dataController: dataController, loggerCoreData: loggerCoreData, topicId: currentTopic) else {
+            guard let gatheredContext = await ContextGatherer.gatherContextGeneral(dataController: dataController, loggerCoreData: loggerCoreData, selectedAssistant: selectedAssistant, topicId: currentTopic) else {
                 loggerCoreData.error("Failed to get user context")
                 throw ContextError.noContextFound("create topic review")
             }
@@ -417,20 +379,6 @@ final class TopicViewModel: ObservableObject {
             }
             
             userContext += gatheredContext
-            
-            
-            //                case .sectionSummary:
-            //                    guard let currentSection = section else {
-            //                        loggerCoreData.error("No current section found")
-            //                        return
-            //                    }
-            //
-            //                    guard let gatheredContext = await ContextGatherer.gatherContextUpdateTopic(dataController: dataController, loggerCoreData: loggerCoreData, section: currentSection) else {
-            //                        loggerCoreData.error("Failed to get user context")
-            //                        return
-            //                    }
-            //                    userContext += gatheredContext
-            
             
         default:
             break

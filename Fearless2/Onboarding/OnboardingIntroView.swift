@@ -122,7 +122,6 @@ struct OnboardingIntroView: View {
         }
         animator?.animate()
     }
-   
 }
 
 

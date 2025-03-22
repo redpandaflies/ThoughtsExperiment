@@ -13,6 +13,7 @@ struct UpdateSectionView: View {
     @EnvironmentObject var dataController: DataController
     @ObservedObject var topicViewModel: TopicViewModel
     
+    @State private var showProgressBar: Bool = true //for hiding progress bar when user is typing their answer for single-select question
     @State private var selectedTab: Int = 0
     @State private var showWarningSheet: Bool = false
     @State private var selectedQuestion: Int = 0
@@ -20,6 +21,8 @@ struct UpdateSectionView: View {
     @State private var singleSelectAnswer: String = "" //single-select answer
     @State private var multiSelectAnswers: [String] = [] //answers user choose for muti-select questions
     @State private var currentQuestionIndex: Int = 0 //for the progress bar
+    @State private var singleSelectCustomItems: [String] = []//stores updated array when user inputs their own answer for single select
+    @State private var multiSelectCustomItems: [String] = []//stores updated array when user inputs their own answer for multi select
     
     @Binding var selectedSectionSummary: SectionSummary?
     
@@ -46,23 +49,26 @@ struct UpdateSectionView: View {
         
         VStack {
             
-            //Header
-            QuestionsProgressBar(
-                currentQuestionIndex: $currentQuestionIndex,
-                totalQuestions: section.sectionQuestions.count,
-                showXmark: true,
-                xmarkAction: {
-                dismiss()
-                },
-                showBackButton: selectedQuestion > 0,
-                backAction: {
-                    backButtonAction()
-                })
+            if showProgressBar {
+                //Header
+                QuestionsProgressBar(
+                    currentQuestionIndex: $currentQuestionIndex,
+                    totalQuestions: section.sectionQuestions.count,
+                    showXmark: true,
+                    xmarkAction: {
+                        dismiss()
+                    },
+                    showBackButton: selectedQuestion > 0,
+                    backAction: {
+                        backButtonAction()
+                    })
+                    .transition(.opacity)
+            }
             
             //Question
             switch selectedTab {
             case 0:
-                UpdateSectionBox(topicViewModel: topicViewModel, selectedQuestion: $selectedQuestion, topicText: $topicText, singleSelectAnswer: $singleSelectAnswer, multiSelectAnswers: $multiSelectAnswers, isFocused: $isFocused, section: section, questions: questions)
+                UpdateSectionBox(topicViewModel: topicViewModel, showProgressBar: $showProgressBar, selectedQuestion: $selectedQuestion, topicText: $topicText, singleSelectAnswer: $singleSelectAnswer, multiSelectAnswers: $multiSelectAnswers, singleSelectCustomItems: $singleSelectCustomItems, multiSelectCustomItems: $multiSelectCustomItems, isFocused: $isFocused, section: section, questions: questions)
                     .padding(.top)
                 
             default:
@@ -71,18 +77,7 @@ struct UpdateSectionView: View {
                 }
             }//switch
             
-            //Next button
-            RectangleButtonPrimary (
-                buttonText: getButtonText(),
-                action: {
-                    getMainButtonAction()
-                },
-                showSkipButton: showSkipButton(),
-                skipAction: {
-                    skipButtonAction()
-                },
-                disableMainButton: showSkipButton()
-            )
+           
             
                 
         }//VStack
@@ -95,6 +90,10 @@ struct UpdateSectionView: View {
                 BackgroundPrimary(backgroundColor: AppColors.backgroundCareer)
             }
         }
+        .overlay {
+            getViewButton()
+            
+        }
         .environment(\.colorScheme, .dark)
         .sheet(isPresented: $showWarningSheet, onDismiss: {
             showWarningSheet = false
@@ -106,6 +105,26 @@ struct UpdateSectionView: View {
             .presentationBackground(AppColors.black3)
             .presentationDetents([.medium])
         }
+    }
+    
+    private func getViewButton() -> some View {
+        VStack {
+            //Next button
+            RectangleButtonPrimary (
+                buttonText: getButtonText(),
+                action: {
+                    getMainButtonAction()
+                },
+                showSkipButton: showSkipButton(),
+                skipAction: {
+                    skipButtonAction()
+                },
+                disableMainButton: showSkipButton()
+            )
+        }
+        .frame(maxHeight: .infinity, alignment: .bottom)
+        .padding(.bottom)
+        .ignoresSafeArea(QuestionType(rawValue: questions[selectedQuestion].questionType) == .open ? [] : .keyboard)
     }
     
     private func getButtonText() -> String {
@@ -179,6 +198,8 @@ struct UpdateSectionView: View {
         var answeredQuestionTopicText: String?
         var answeredQuestionSingleSelect: String?
         var answeredQuestionMultiSelect: [String]?
+        var customItemsSingleSelect: [String]?
+        var customItemsMultiSelect: [String]?
         
         if let answeredQuestionType =  QuestionType(rawValue: answeredQuestion.questionType){
             switch answeredQuestionType {
@@ -193,17 +214,21 @@ struct UpdateSectionView: View {
                 answeredQuestionTopicText = topicText
             case .singleSelect:
                 answeredQuestionSingleSelect = singleSelectAnswer
+                customItemsSingleSelect = singleSelectCustomItems
             case .multiSelect:
                 answeredQuestionMultiSelect = multiSelectAnswers
+                customItemsMultiSelect = multiSelectCustomItems
             }
         }
         
         
-        //reset the value of @State vars managing answers
+        //reset the value of @State vars managing answers, and custom answers for single and multi select
         if answeredQuestionIndex + 1 < numberOfQuestions {
             topicText = ""
             singleSelectAnswer = ""
             multiSelectAnswers = []
+            singleSelectCustomItems = []
+            multiSelectCustomItems = []
         }
         
         //move to next question
@@ -218,7 +243,9 @@ struct UpdateSectionView: View {
                    question: answeredQuestion,
                    topicText: answeredQuestionTopicText,
                    singleSelectAnswer: answeredQuestionSingleSelect,
-                   multiSelectAnswers: answeredQuestionMultiSelect
+                   multiSelectAnswers: answeredQuestionMultiSelect,
+                   singleSelectCustomItems: customItemsSingleSelect,
+                   multiSelectCustomItems: customItemsMultiSelect
                )
             
             print("SelectedQuestion: \(selectedQuestion)")
@@ -249,7 +276,9 @@ struct UpdateSectionView: View {
         question: Question,
         topicText: String?,
         singleSelectAnswer: String?,
-        multiSelectAnswers: [String]?
+        multiSelectAnswers: [String]?,
+        singleSelectCustomItems: [String]?,
+        multiSelectCustomItems: [String]?
     ) async {
         if let questionType = QuestionType(rawValue: question.questionType) {
             switch questionType {
@@ -266,7 +295,8 @@ struct UpdateSectionView: View {
                     await dataController.saveAnswer(
                         questionType: .singleSelect,
                         questionId: question.questionId,
-                        userAnswer: newSelectedValue
+                        userAnswer: newSelectedValue,
+                        customItems: singleSelectCustomItems
                     )
                 }
             case .multiSelect:
@@ -274,7 +304,8 @@ struct UpdateSectionView: View {
                     await dataController.saveAnswer(
                         questionType: .multiSelect,
                         questionId: question.questionId,
-                        userAnswer: newSelectedOptions
+                        userAnswer: newSelectedOptions,
+                        customItems: multiSelectCustomItems
                     )
                 }
             }
@@ -329,6 +360,8 @@ struct UpdateSectionView: View {
         var answeredQuestionTopicText: String?
         var answeredQuestionSingleSelect: String?
         var answeredQuestionMultiSelect: [String]?
+        var customItemsSingleSelect: [String]?
+        var customItemsMultiSelect: [String]?
         
         if let answeredQuestionType =  QuestionType(rawValue: answeredQuestion.questionType){
             switch answeredQuestionType {
@@ -336,8 +369,10 @@ struct UpdateSectionView: View {
                 answeredQuestionTopicText = topicText
             case .singleSelect:
                 answeredQuestionSingleSelect = singleSelectAnswer
+                customItemsSingleSelect = singleSelectCustomItems
             case .multiSelect:
                 answeredQuestionMultiSelect = multiSelectAnswers
+                customItemsMultiSelect = multiSelectCustomItems
             }
         }
         
@@ -349,6 +384,13 @@ struct UpdateSectionView: View {
                 isFocused = false
             }
         }
+        
+        //reset the value of @State vars managing answers, and custom answers for single and multi select
+        topicText = ""
+        singleSelectAnswer = ""
+        multiSelectAnswers = []
+        singleSelectCustomItems = []
+        multiSelectCustomItems = []
         
         //go to previous question
         if selectedQuestion > 0 {
@@ -365,7 +407,9 @@ struct UpdateSectionView: View {
                 question: answeredQuestion,
                 topicText: answeredQuestionTopicText,
                 singleSelectAnswer: answeredQuestionSingleSelect,
-                multiSelectAnswers: answeredQuestionMultiSelect
+                multiSelectAnswers: answeredQuestionMultiSelect,
+                singleSelectCustomItems: customItemsSingleSelect,
+                multiSelectCustomItems: customItemsMultiSelect
             )
         }
     }
@@ -374,3 +418,4 @@ struct UpdateSectionView: View {
 //#Preview {
 //    UpdateSectionView()
 //}
+

@@ -215,9 +215,9 @@ struct FocusAreaRecapView: View {
             
             if showSuggestions && (totalFocusAreas < focusAreasLimit){
                 selectedTab += 1
-                completeFocusArea()
+               
             } else if totalFocusAreas == focusAreasLimit && lastFocusArea {
-                completeFocusArea()
+               
                 createEndOfTopicFocsAreaIfNeeded()
             } else {
                 //for when user is just reviewing their recap
@@ -304,6 +304,8 @@ struct FocusAreaRecapView: View {
         Task {
             do {
                 try await topicViewModel.manageRun(selectedAssistant: .focusAreaSummary, topicId: topicId, focusArea: focusArea)
+                
+                completeFocusArea()
             } catch {
                 await MainActor.run {
                     selectedTab = 3

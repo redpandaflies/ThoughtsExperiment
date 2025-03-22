@@ -47,6 +47,13 @@ struct AppViewsManager: View {
             }
         }
         .environment(\.colorScheme, .dark)
+        .onAppear {
+            if currentAppView == 2 {
+                withAnimation(.smooth) {
+                    currentView = 2
+                }
+            }
+        }
         .onChange(of: currentAppView) {
             if currentAppView == 2 {
                 withAnimation(.smooth) {

@@ -41,7 +41,7 @@ struct CategoryDescriptionView: View {
                 .opacity((!newCategory && animationStage < 1) ? 0 : 0.8)
                 .lineSpacing(1.5)
             
-            Text("Discovered on " + DateFormatter.displayString2(from: DateFormatter.incomingFormat.date(from: category.categoryCreatedAt) ?? Date()))
+            Text("Discovered on " + DateFormatter.displayString(from: DateFormatter.incomingFormat.date(from: category.categoryCreatedAt) ?? Date()))
                 .font(.system(size: 17, weight: .thin).smallCaps())
                 .foregroundStyle(AppColors.textPrimary)
                 .fontWidth(.condensed)

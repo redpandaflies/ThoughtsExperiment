@@ -35,6 +35,7 @@ struct InfoNotifications: View {
                 
                 Button {
                     dismiss()
+                    seenNotificationsInfoSheet = true
                 } label: {
                     
                     Image(systemName: "xmark.circle.fill")
@@ -99,7 +100,7 @@ struct InfoNotifications: View {
         .padding(.bottom, 40)
         .frame(maxWidth: .infinity, maxHeight: screenHeight * 0.9, alignment: .top)
         .backgroundSecondary(backgroundColor: backgroundColor, height: screenHeight * 0.9, yOffset: -(screenHeight * 0.1))
-       
+        .environment(\.colorScheme, .dark)
     }
     
     private func handleIsScheduledChange() {

@@ -13,15 +13,14 @@ struct NewCategoryQuestionsView: View {
     
     @State private var selectedQuestion: Int = 0
     @State private var progressBarQuestionIndex: Int = 0
-    @State private var answerOpenQ1: String = ""
-    @State private var answerOpenQ2: String = ""
     @State private var answerSingleSelect: String = ""
     
     @State private var questions: [QuestionsNewCategory] = []
-    // Track answers for each question
-    @State private var savedAnswers: [Int: String] = [:]
+    // Array to store all open question answers
+    @State private var answersOpen: [String] = Array(repeating: "", count: 3)
     // Manage when to show alert for exiting create new category flow
     @State private var showExitFlowAlert: Bool = false
+    
     @Binding var selectedCategory: String
     @Binding var selectedIntroPage: Int
     
@@ -37,7 +36,7 @@ struct NewCategoryQuestionsView: View {
         }
     }
     
-    @FocusState var isFocused: Bool
+    @FocusState var focusField: NewCategoryFocusField?
     @AppStorage("currentAppView") var currentAppView: Int = 0
     
     var body: some View {
@@ -60,11 +59,15 @@ struct NewCategoryQuestionsView: View {
             // MARK: Question
             switch currentQuestion.questionType {
                 case .open:
-                        QuestionOpenView(topicText: selectedQuestion == 2 ? $answerOpenQ2 : $answerOpenQ1,
-                                 isFocused: $isFocused,
-                                 question: currentQuestion.content,
-                                 placeholderText: "For best results, be very specific.")
-                      
+                
+                    NewCategoryQuestionOpenView(
+                        topicText: $answersOpen[selectedQuestion],
+                        focusField: $focusField,
+                        focusValue: .question(selectedQuestion),
+                        question: currentQuestion.content,
+                        placeholderText: "For best results, be very specific."
+                    )
+       
                 default:
                     if selectedQuestion == 0 {
                         QuestionSingleSelectView(singleSelectAnswer: $selectedCategory, question: currentQuestion.content, items: currentQuestion.options ?? [])
@@ -131,7 +134,7 @@ struct NewCategoryQuestionsView: View {
       
         switch currentQuestion.questionType {
         case .open:
-            return selectedQuestion == 2 ? answerOpenQ2.isEmpty : answerOpenQ1.isEmpty
+            return answersOpen[selectedQuestion].isEmpty
         default:
             if selectedQuestion == 0 {
                 return selectedCategory.isEmpty
@@ -141,74 +144,11 @@ struct NewCategoryQuestionsView: View {
         }
     }
     
-    // Handle the back button action
-    private func handleBackButton() {
-        let answeredQuestionIndex = selectedQuestion
-        
-        if answeredQuestionIndex > 0 {
-            // Save current answer before going back
-            saveCurrentAnswer(index: answeredQuestionIndex)
-            
-            // Go back one question
-            if isFocused {
-                isFocused = false
-            }
-            selectedQuestion -= 1
-            withAnimation(.interpolatingSpring) {
-                progressBarQuestionIndex -= 1
-            }
-            
-            // Restore previous answer
-            restorePreviousAnswer()
-        }
-    }
-    
-    // Save the current answer to our in-memory dictionary
-    private func saveCurrentAnswer(index: Int) {
-        switch currentQuestion.questionType {
-        case .open:
-            if selectedQuestion == 2 {
-                savedAnswers[index] = answerOpenQ2
-            } else {
-                savedAnswers[index] = answerOpenQ1
-            }
-        case .singleSelect, .multiSelect:
-            if selectedQuestion == 0 {
-                savedAnswers[index] = selectedCategory
-            } else {
-                savedAnswers[index] = answerSingleSelect
-            }
-        }
-    }
-    
-    // Restore a previously saved answer
-    private func restorePreviousAnswer() {
-        // Get the answer for the current question (after moving back)
-        if let savedAnswer = savedAnswers[selectedQuestion] {
-            switch questions[selectedQuestion].questionType {
-            case .open:
-                if selectedQuestion == 2 {
-                    answerOpenQ2 = savedAnswer
-                } else {
-                    answerOpenQ1 = savedAnswer
-                }
-            case .singleSelect, .multiSelect:
-                if selectedQuestion == 0 {
-                    selectedCategory = savedAnswer
-                } else {
-                    answerSingleSelect = savedAnswer
-                }
-            }
-        }
-    }
-    
+   
     
     private func nextButtonAction() {
         //capture current state
         let answeredQuestionIndex = selectedQuestion
-        
-        // Save the current answer to in-memory dictionary
-        saveCurrentAnswer(index: answeredQuestionIndex)
         
         switch answeredQuestionIndex {
         case 0:
@@ -223,65 +163,105 @@ struct NewCategoryQuestionsView: View {
         //Save question answer to coredata on the last question
         if answeredQuestionIndex == 2 {
             Task {
-                // Create the category
-                let savedCategory = await dataController.createSingleCategory(lifeArea: selectedCategory)
-                
-                
-                // Then save all other answers
-                for (key, value) in savedAnswers where key > 0 {
-                    
-                    if let category = savedCategory {
-                        await dataController.saveAnswerOnboarding(
-                            questionType: .open,
-                            question: questions[key],
-                            userAnswer: value,
-                            categoryLifeArea: selectedCategory,
-                            category: category
-                        )
-                    }
-                }
+               await saveAnswersForCategory()
             }
         }
         
-        if selectedQuestion < 2 {
-            answerOpenQ1 = ""
-            answerOpenQ2 = ""
-            
-            //navigate to the next question
-            selectedQuestion += 1
-            withAnimation(.interpolatingSpring) {
-                progressBarQuestionIndex += 1
-            }
-            restorePreviousAnswer()
-            
-            if selectedQuestion == 1 {
-                isFocused = true
-            }
-            
-        } else {
-            if isFocused {
-                isFocused = false
-            }
-            
-            dismiss()
-            
-            withAnimation {
-                selectedIntroPage += 1
-            }
-            
-        }
+        //navigate to next view
+        handleUIAndNavigation(answeredQuestionIndex: answeredQuestionIndex)
        
        
     }
     
     private func exitCreateNewCategory() {
-        if isFocused {
-            isFocused = false
+        if focusField != nil {
+            focusField = nil
         }
-        
         currentAppView = 1
         
     }
+    
+    private func saveAnswersForCategory() async {
+
+        // Create the category
+        let savedCategory = await dataController.createSingleCategory(lifeArea: selectedCategory)
+        
+        if let category = savedCategory {
+            
+            for (index, answer) in answersOpen.enumerated() where !answer.isEmpty {
+                // Skip the single-select question (index 1)
+                if index > 0 {
+                    await dataController.saveAnswerOnboarding(
+                        questionType: .open,
+                        question: questions[index],
+                        userAnswer: answer,
+                        categoryLifeArea: selectedCategory,
+                        category: category
+                    )
+                }
+            }
+            
+            //create first set of topics for the realm based on a quest map
+            await dataController.createTopics(questMap: QuestMapItem.questMap1, category: category)
+            
+        }
+    }
+    
+    private func handleUIAndNavigation(answeredQuestionIndex index: Int) {
+        if index < 2 {
+            navigateToNextQuestion()
+            updateFocusState(answeredQuestionIndex: index)
+        } else {
+            finishOnboarding()
+        }
+    }
+
+   
+
+    private func navigateToNextQuestion() {
+        selectedQuestion += 1
+        withAnimation(.interpolatingSpring) {
+            progressBarQuestionIndex += 1
+        }
+    }
+
+    private func updateFocusState(answeredQuestionIndex index: Int) {
+        if index == 1 {
+            focusField = .question(index + 1)
+        }
+    }
+
+    private func finishOnboarding() {
+        focusField = nil
+        
+        dismiss()
+        
+        withAnimation {
+            selectedIntroPage += 1
+        }
+    }
+    
+    // MARK: - Handle the back button action
+    
+    private func handleBackButton() {
+        let answeredQuestionIndex = selectedQuestion
+        
+        if answeredQuestionIndex > 0 {
+            // Go back one question
+            navigateToPreviousQuestion()
+        }
+    }
+    
+    
+    private func navigateToPreviousQuestion() {
+        
+        focusField = nil
+        selectedQuestion -= 1
+        withAnimation(.interpolatingSpring) {
+            progressBarQuestionIndex -= 1
+        }
+    }
+
 }
 
 //#Preview {

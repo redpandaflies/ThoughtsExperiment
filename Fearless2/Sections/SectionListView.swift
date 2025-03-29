@@ -94,7 +94,6 @@ struct SectionListView: View {
                     
                     if focusArea.endOfTopic != true {
                         FocusAreaRecapPreviewBox(
-                            choseSuggestion: focusArea.choseSuggestion,
                             focusAreaCompleted: focusAreaCompleted,
                             available: allSectionsCompleted,
                             buttonAction: {

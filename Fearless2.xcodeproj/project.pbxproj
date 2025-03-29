@@ -51,7 +51,11 @@
 		8A63A1BE2D486DBF00712B27 /* RetryButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A63A1BD2D486DBF00712B27 /* RetryButton.swift */; };
 		8A63A1C12D4BF96500712B27 /* CustomErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A63A1C02D4BF96500712B27 /* CustomErrors.swift */; };
 		8A63A1C32D51F6C500712B27 /* FocusAreaRetryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A63A1C22D51F6C500712B27 /* FocusAreaRetryView.swift */; };
-		8A7351D52D763A150000B7B9 /* Test.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A7351D42D763A120000B7B9 /* Test.swift */; };
+		8A6A99652D923B070069CAE0 /* QuestMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A6A99642D9239FF0069CAE0 /* QuestMapView.swift */; };
+		8A6A99682D932A1F0069CAE0 /* QuestTypeItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A6A99672D932A120069CAE0 /* QuestTypeItem.swift */; };
+		8A6A996A2D932DC70069CAE0 /* QuestMapItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A6A99692D932DBB0069CAE0 /* QuestMapItem.swift */; };
+		8A6A996D2D94C7110069CAE0 /* NewCategoryQuestionOpenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A6A996C2D94C7110069CAE0 /* NewCategoryQuestionOpenView.swift */; };
+		8A6A99712D961E9A0069CAE0 /* FocusAreaStatusItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A6A99702D961E9A0069CAE0 /* FocusAreaStatusItem.swift */; };
 		8A74F4992CE58ACB008A33B0 /* RecordingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A74F4982CE58AC7008A33B0 /* RecordingView.swift */; };
 		8A74F49B2CE593FD008A33B0 /* TopicPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A74F49A2CE593F8008A33B0 /* TopicPickerView.swift */; };
 		8A74F49D2CE59420008A33B0 /* TopicDetailViewFooter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A74F49C2CE5941E008A33B0 /* TopicDetailViewFooter.swift */; };
@@ -88,7 +92,6 @@
 		8A8B63EE2D1F068A00BA57D0 /* AIProxy in Frameworks */ = {isa = PBXBuildFile; productRef = 8A8B63ED2D1F068A00BA57D0 /* AIProxy */; };
 		8A8B63F02D2000CE00BA57D0 /* TopicImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A8B63EF2D2000CE00BA57D0 /* TopicImageView.swift */; };
 		8A8ED72F2CF26EAB00780384 /* FocusAreaSuggestion-CoreDataHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A8ED72E2CF26E9900780384 /* FocusAreaSuggestion-CoreDataHelpers.swift */; };
-		8A8ED7312CF2799100780384 /* FocusAreaEmptyState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A8ED7302CF2798600780384 /* FocusAreaEmptyState.swift */; };
 		8A8ED7332CF2EE5D00780384 /* FocusAreaSummary-CoreDataHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A8ED7322CF2EE2A00780384 /* FocusAreaSummary-CoreDataHelpers.swift */; };
 		8A8ED7352CF3ACE900780384 /* AddTopicButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A8ED7342CF3ACDC00780384 /* AddTopicButton.swift */; };
 		8A8ED7372CF3BFAB00780384 /* TopicDetailViewHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A8ED7362CF3BFA300780384 /* TopicDetailViewHeader.swift */; };
@@ -223,7 +226,11 @@
 		8A63A1BD2D486DBF00712B27 /* RetryButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RetryButton.swift; sourceTree = "<group>"; };
 		8A63A1C02D4BF96500712B27 /* CustomErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomErrors.swift; sourceTree = "<group>"; };
 		8A63A1C22D51F6C500712B27 /* FocusAreaRetryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusAreaRetryView.swift; sourceTree = "<group>"; };
-		8A7351D42D763A120000B7B9 /* Test.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Test.swift; sourceTree = "<group>"; };
+		8A6A99642D9239FF0069CAE0 /* QuestMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestMapView.swift; sourceTree = "<group>"; };
+		8A6A99672D932A120069CAE0 /* QuestTypeItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestTypeItem.swift; sourceTree = "<group>"; };
+		8A6A99692D932DBB0069CAE0 /* QuestMapItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestMapItem.swift; sourceTree = "<group>"; };
+		8A6A996C2D94C7110069CAE0 /* NewCategoryQuestionOpenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewCategoryQuestionOpenView.swift; sourceTree = "<group>"; };
+		8A6A99702D961E9A0069CAE0 /* FocusAreaStatusItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusAreaStatusItem.swift; sourceTree = "<group>"; };
 		8A74F4982CE58AC7008A33B0 /* RecordingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingView.swift; sourceTree = "<group>"; };
 		8A74F49A2CE593F8008A33B0 /* TopicPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicPickerView.swift; sourceTree = "<group>"; };
 		8A74F49C2CE5941E008A33B0 /* TopicDetailViewFooter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicDetailViewFooter.swift; sourceTree = "<group>"; };
@@ -260,7 +267,6 @@
 		8A8B63EA2D1F065100BA57D0 /* StabilityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StabilityService.swift; sourceTree = "<group>"; };
 		8A8B63EF2D2000CE00BA57D0 /* TopicImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicImageView.swift; sourceTree = "<group>"; };
 		8A8ED72E2CF26E9900780384 /* FocusAreaSuggestion-CoreDataHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FocusAreaSuggestion-CoreDataHelpers.swift"; sourceTree = "<group>"; };
-		8A8ED7302CF2798600780384 /* FocusAreaEmptyState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusAreaEmptyState.swift; sourceTree = "<group>"; };
 		8A8ED7322CF2EE2A00780384 /* FocusAreaSummary-CoreDataHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FocusAreaSummary-CoreDataHelpers.swift"; sourceTree = "<group>"; };
 		8A8ED7342CF3ACDC00780384 /* AddTopicButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddTopicButton.swift; sourceTree = "<group>"; };
 		8A8ED7362CF3BFA300780384 /* TopicDetailViewHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicDetailViewHeader.swift; sourceTree = "<group>"; };
@@ -425,7 +431,6 @@
 				8AEFB6E52CF6F5E100942293 /* SuggestionProtocol.swift */,
 				8A63324B2CD8415600EF34FA /* FocusAreaView.swift */,
 				8A63325D2CDEAC1C00EF34FA /* FocusAreaBox.swift */,
-				8A8ED7302CF2798600780384 /* FocusAreaEmptyState.swift */,
 				8A63325F2CDEB0B100EF34FA /* FocusAreaHeader.swift */,
 				8A63A1C22D51F6C500712B27 /* FocusAreaRetryView.swift */,
 				8ACE0DE12CD1EE6A00718B9E /* Focus area recap */,
@@ -461,6 +466,36 @@
 				8A63A1C02D4BF96500712B27 /* CustomErrors.swift */,
 			);
 			path = "Error handling";
+			sourceTree = "<group>";
+		};
+		8A6A99632D9222570069CAE0 /* Quest (topic) list */ = {
+			isa = PBXGroup;
+			children = (
+				8A6A99642D9239FF0069CAE0 /* QuestMapView.swift */,
+			);
+			path = "Quest (topic) list";
+			sourceTree = "<group>";
+		};
+		8A6A99662D932A070069CAE0 /* Quest map */ = {
+			isa = PBXGroup;
+			children = (
+				8A6A99692D932DBB0069CAE0 /* QuestMapItem.swift */,
+				8A6A99672D932A120069CAE0 /* QuestTypeItem.swift */,
+			);
+			path = "Quest map";
+			sourceTree = "<group>";
+		};
+		8A6A996B2D94AF140069CAE0 /* Main */ = {
+			isa = PBXGroup;
+			children = (
+				8AB2DF452D56F0BD0069E914 /* CategoryView.swift */,
+				8AB2DF492D570A510069E914 /* CategoriesScrollView.swift */,
+				8AB2DF4B2D57236B0069E914 /* CategoryDescriptionView.swift */,
+				8A9B991B2D7BFE34001707FD /* CategoryUndiscoveredView.swift */,
+				8AB2DF4D2D573F770069E914 /* CategoryMissionBox.swift */,
+				8A4B27482D6A9B6900FEAC44 /* CategoryQuestsHeading.swift */,
+			);
+			path = Main;
 			sourceTree = "<group>";
 		};
 		8A74F4972CE587FF008A33B0 /* Recording View */ = {
@@ -567,6 +602,7 @@
 				8A827BA02D414A4400D0204E /* TopicStatusItem.swift */,
 				8A827B912D380CCA00D0204E /* TopicReview-CoreDataHelpers.swift */,
 				8A6332482CD8257A00EF34FA /* FocusArea-CoreDataHelpers.swift */,
+				8A6A99702D961E9A0069CAE0 /* FocusAreaStatusItem.swift */,
 				8A8ED72E2CF26E9900780384 /* FocusAreaSuggestion-CoreDataHelpers.swift */,
 				8A8ED7322CF2EE2A00780384 /* FocusAreaSummary-CoreDataHelpers.swift */,
 				8A9191F62CBDA392007E17A0 /* Section-CoreDataHelpers.swift */,
@@ -599,6 +635,7 @@
 				8A9B990F2D78F0DF001707FD /* NewCategoryIntroView.swift */,
 				8A9B99132D7902DD001707FD /* NewCategoryQuestionsView.swift */,
 				8AE398312D74053900F76AAC /* BackgroundNewCategory.swift */,
+				8A6A996C2D94C7110069CAE0 /* NewCategoryQuestionOpenView.swift */,
 			);
 			path = "New category";
 			sourceTree = "<group>";
@@ -678,25 +715,26 @@
 		8A9CC1962CAB66B3007C2AA9 /* Styling */ = {
 			isa = PBXGroup;
 			children = (
-				8A9B99082D76C029001707FD /* TypewriterAnimation.swift */,
+				8A6A99662D932A070069CAE0 /* Quest map */,
 				8AE398332D7575B100F76AAC /* ButtonStylePushDown.swift */,
-				8AC1D5AB2D670538000DD8E6 /* FocusAreasCalculator.swift */,
-				8AC1D5A42D655AD1000DD8E6 /* EndOfTopicItem.swift */,
-				8A74F4AB2CE7F43D008A33B0 /* TextLimitMax.swift */,
-				8A74F4A52CE6A90F008A33B0 /* DateFormatter.swift */,
-				8A6332502CDAD1E100EF34FA /* TabBarItem.swift */,
-				8A9CC1972CAB66DF007C2AA9 /* Colors.swift */,
-				8A9CC1AB2CAB8E50007C2AA9 /* Shadows.swift */,
-				8A9CC1992CAB69EA007C2AA9 /* GetScreenSize.swift */,
 				8A9CC1B32CAC6ABE007C2AA9 /* CategoryItem.swift */,
-				8A9CC1D92CAE7697007C2AA9 /* LottieView.swift */,
-				8A9CC19D2CAB7855007C2AA9 /* CustomToolbarAppearance.swift */,
-				8A9191F42CB4A227007E17A0 /* QuestionsNewTopic.swift */,
 				8A9192012CBE3C5D007E17A0 /* CategoryItemProtocol.swift */,
-				8AE3981C2D6FA74300F76AAC /* QuestionsNewCategory.swift */,
-				8AE398162D6D90D800F76AAC /* OnboardingIntroContent.swift */,
+				8A9CC1972CAB66DF007C2AA9 /* Colors.swift */,
+				8A9CC19D2CAB7855007C2AA9 /* CustomToolbarAppearance.swift */,
+				8A74F4A52CE6A90F008A33B0 /* DateFormatter.swift */,
+				8AC1D5A42D655AD1000DD8E6 /* EndOfTopicItem.swift */,
+				8AC1D5AB2D670538000DD8E6 /* FocusAreasCalculator.swift */,
+				8A9CC1992CAB69EA007C2AA9 /* GetScreenSize.swift */,
+				8A9CC1D92CAE7697007C2AA9 /* LottieView.swift */,
 				8A9B99112D78F855001707FD /* NewCategoryContent.swift */,
 				8A9B99192D7BDBBD001707FD /* NewCategoryEligibilityChecker.swift */,
+				8AE398162D6D90D800F76AAC /* OnboardingIntroContent.swift */,
+				8AE3981C2D6FA74300F76AAC /* QuestionsNewCategory.swift */,
+				8A9191F42CB4A227007E17A0 /* QuestionsNewTopic.swift */,
+				8A9CC1AB2CAB8E50007C2AA9 /* Shadows.swift */,
+				8A6332502CDAD1E100EF34FA /* TabBarItem.swift */,
+				8A74F4AB2CE7F43D008A33B0 /* TextLimitMax.swift */,
+				8A9B99082D76C029001707FD /* TypewriterAnimation.swift */,
 			);
 			path = Styling;
 			sourceTree = "<group>";
@@ -799,14 +837,9 @@
 		8AB2DF442D56EF850069E914 /* Category (Realm) */ = {
 			isa = PBXGroup;
 			children = (
+				8A6A996B2D94AF140069CAE0 /* Main */,
+				8A6A99632D9222570069CAE0 /* Quest (topic) list */,
 				8A9B990E2D78EC48001707FD /* New category */,
-				8A7351D42D763A120000B7B9 /* Test.swift */,
-				8AB2DF452D56F0BD0069E914 /* CategoryView.swift */,
-				8AB2DF492D570A510069E914 /* CategoriesScrollView.swift */,
-				8AB2DF4B2D57236B0069E914 /* CategoryDescriptionView.swift */,
-				8A9B991B2D7BFE34001707FD /* CategoryUndiscoveredView.swift */,
-				8AB2DF4D2D573F770069E914 /* CategoryMissionBox.swift */,
-				8A4B27482D6A9B6900FEAC44 /* CategoryQuestsHeading.swift */,
 			);
 			path = "Category (Realm)";
 			sourceTree = "<group>";
@@ -977,6 +1010,7 @@
 				8A6332512CDAD1ED00EF34FA /* TabBarItem.swift in Sources */,
 				8A8ED7372CF3BFAB00780384 /* TopicDetailViewHeader.swift in Sources */,
 				8A9CC1AC2CAB8E50007C2AA9 /* Shadows.swift in Sources */,
+				8A6A996A2D932DC70069CAE0 /* QuestMapItem.swift in Sources */,
 				8A9CC1C02CAD26F6007C2AA9 /* Question-CoreDataHelpers.swift in Sources */,
 				8A9192022CBE3C76007E17A0 /* CategoryItemProtocol.swift in Sources */,
 				8A74F4A42CE69AAB008A33B0 /* EntriesListView.swift in Sources */,
@@ -996,12 +1030,14 @@
 				8A63325C2CDDCA7E00EF34FA /* FocusAreaRecapPreviewBox.swift in Sources */,
 				8A827BA12D414A4C00D0204E /* TopicStatusItem.swift in Sources */,
 				8A26DFCD2CEEC076002C4F60 /* UnderstandView.swift in Sources */,
+				8A6A99712D961E9A0069CAE0 /* FocusAreaStatusItem.swift in Sources */,
 				8AE398222D70FC0300F76AAC /* InfoFirstCategory.swift in Sources */,
 				8ACE0DE52CD2B58F00718B9E /* FocusAreaRecapView.swift in Sources */,
 				8A63325E2CDEAC1C00EF34FA /* FocusAreaBox.swift in Sources */,
 				8A2C37092D29B93200C37315 /* TopicChroniclesView.swift in Sources */,
 				8AB2DF4E2D573F770069E914 /* CategoryMissionBox.swift in Sources */,
 				8A74F49F2CE5A71A008A33B0 /* RecordingLoadingAnimation.swift in Sources */,
+				8A6A996D2D94C7110069CAE0 /* NewCategoryQuestionOpenView.swift in Sources */,
 				8AE3982A2D711FF700F76AAC /* BackgroundSecondary.swift in Sources */,
 				8AE3981B2D6EC70F00F76AAC /* OnboardingQuestionsView.swift in Sources */,
 				8A9B990D2D78EC36001707FD /* NewCategoryView.swift in Sources */,
@@ -1009,7 +1045,6 @@
 				8A74F4AE2CE802A1008A33B0 /* DetailViewToolBarItem.swift in Sources */,
 				8A2C37002D24341400C37315 /* NewTopicHeader.swift in Sources */,
 				8AB2DF502D5AEFD00069E914 /* PageIndicatorView.swift in Sources */,
-				8A7351D52D763A150000B7B9 /* Test.swift in Sources */,
 				8A8B63EB2D1F065100BA57D0 /* StabilityService.swift in Sources */,
 				8A9191F72CBDA392007E17A0 /* Section-CoreDataHelpers.swift in Sources */,
 				8A9CC1BE2CAD26E7007C2AA9 /* Topic-CoreDataHelpers.swift in Sources */,
@@ -1042,7 +1077,6 @@
 				8A2C36FE2D242B4A00C37315 /* NewTopicLoadingView.swift in Sources */,
 				8A9CC1B42CAC6ABE007C2AA9 /* CategoryItem.swift in Sources */,
 				8AC1D5A82D6582F3000DD8E6 /* EndTopicView.swift in Sources */,
-				8A8ED7312CF2799100780384 /* FocusAreaEmptyState.swift in Sources */,
 				8A9B99182D7BCA35001707FD /* LaurelWreath.swift in Sources */,
 				8A26DFD72CEFAE58002C4F60 /* UnderstandAskQuestionView.swift in Sources */,
 				8A26DFDF2CF00B43002C4F60 /* XmarkToolbarItem.swift in Sources */,
@@ -1066,6 +1100,7 @@
 				8A9B99092D76C02D001707FD /* TypewriterAnimation.swift in Sources */,
 				8A9B99162D7BBDFA001707FD /* InfoPrimaryView.swift in Sources */,
 				8A9CC18C2CAB5BF7007C2AA9 /* AppViewsManager.swift in Sources */,
+				8A6A99682D932A1F0069CAE0 /* QuestTypeItem.swift in Sources */,
 				8AE398192D6EC41D00F76AAC /* OnboardingIntroView.swift in Sources */,
 				8AE3981F2D7042A100F76AAC /* OnboardingFirstCategoryView.swift in Sources */,
 				8A827B972D38151500D0204E /* TopicReviewEmptyState.swift in Sources */,
@@ -1120,6 +1155,7 @@
 				8A9B99122D78F861001707FD /* NewCategoryContent.swift in Sources */,
 				8A9CC1E72CAF5477007C2AA9 /* UpdateSectionBox.swift in Sources */,
 				8A9CC1862CAB44B1007C2AA9 /* Constants.swift in Sources */,
+				8A6A99652D923B070069CAE0 /* QuestMapView.swift in Sources */,
 				8ABE9AE42CB2627A00483CFD /* QuestionMultipleChoiceView.swift in Sources */,
 				8A26DFD52CEFAE42002C4F60 /* UnderstandQuestionsList.swift in Sources */,
 				8A2C37042D285DB400C37315 /* FocusAreaRecapHeader.swift in Sources */,

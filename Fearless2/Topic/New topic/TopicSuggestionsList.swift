@@ -66,6 +66,7 @@ struct TopicSuggestionsList: View {
             if !topicViewModel.topicSuggestions.isEmpty {
                 selectedTabSuggestionsList = 1
             }
+            
             DispatchQueue.global(qos: .background).async {
                 Mixpanel.mainInstance().track(event: "Generated new quests")
             }
@@ -96,7 +97,7 @@ struct TopicSuggestionsList: View {
         Task {
   
             do {
-                try await topicViewModel.manageRun(selectedAssistant: .topicSuggestions, category: self.category)
+                try await topicViewModel.manageRun(selectedAssistant: .topicSuggestions2, category: self.category)
             } catch {
                 selectedTabSuggestionsList = 2
             }
@@ -117,7 +118,7 @@ struct TopicSuggestionsList: View {
             let (topicId, focusArea) = await createTopic(suggestion: suggestion, category: self.category)
             
             await MainActor.run {
-                topicViewModel.updatingfocusArea = true
+                topicViewModel.createNewFocusArea = .loading
                 startNewTopic()
             }
             
@@ -128,9 +129,15 @@ struct TopicSuggestionsList: View {
     
     private func createTopic(suggestion: NewTopicSuggestion, category: Category) async -> (topicId: UUID?, focusArea: FocusArea?) {
         
-        //save selected topic to coredata
-        let (topicId, focusArea) = await dataController.createTopic(suggestion: suggestion, category: category)
+        guard let existingTopicId = selectedTopic?.topicId else {
+            print("No selected topic found. Failed to save topic updates")
+            selectedTabSuggestionsList = 2
+            return (nil, nil)
+        }
         
+        //save selected topic to coredata
+        let (topicId, focusArea) = await dataController.createTopic(suggestion: suggestion, topicId: existingTopicId, category: category)
+  
         return (topicId, focusArea)
     }
     
@@ -161,7 +168,7 @@ struct TopicSuggestionsList: View {
                 try await topicViewModel.manageRun(selectedAssistant: .focusArea, topicId: topicId, focusArea: focusArea)
             }
         } catch {
-            topicViewModel.focusAreaCreationFailed = true
+            topicViewModel.createNewFocusArea = .retry
         }
         
     }

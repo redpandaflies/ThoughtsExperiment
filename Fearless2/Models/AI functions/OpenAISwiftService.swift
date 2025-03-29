@@ -337,12 +337,13 @@ extension OpenAISwiftService {
                 throw ProcessingError.missingRequiredField("Related category not found")
             }
             
-            // Decode the arguments to get the new section data
+            // decode the arguments to get the new section data
             guard let newFocusArea = self.decodeArguments(arguments: arguments, as: NewFocusArea.self) else {
                 self.loggerOpenAI.log("Failed to decode new sections for focus area: \(focusArea.focusAreaTitle)")
-                throw ProcessingError.decodingError("new focus area sections")
+                throw ProcessingError.decodingError("New focus area sections")
             }
             
+            // add sections to focus area
             self.processSections(newFocusArea: newFocusArea, focusArea: focusArea, topic: topic, category: category, context: context)
             
             
@@ -352,6 +353,8 @@ extension OpenAISwiftService {
     }
     
     private func processSections(newFocusArea: NewFocusArea, focusArea: FocusArea, topic: Topic, category: Category, context: NSManagedObjectContext) {
+        
+        
         for newSection in newFocusArea.sections {
             // Skip if section already exists (AI sometimes hallucinates)
             if focusArea.focusAreaSections.contains(where: { $0.sectionNumber == newSection.sectionNumber }) {
@@ -437,10 +440,6 @@ extension OpenAISwiftService {
                 summary.addToInsights(insight)
                 topic.addToInsights(insight)
             }
-            
-//            //mark focus area as complete
-//            focusArea.completed = true
-//            focusArea.completedAt = getCurrentTimeString()
             
             //Save the context
             try self.saveCoreDataChanges(context: context, errorDescription: "new focus area recap")
@@ -660,15 +659,29 @@ struct NewTopicSuggestion: Codable, Hashable {
     let content: String
     let reasoning: String
     let emoji: String
-    let focusArea: NewSuggestion
+    let focusAreas: [NewFocusAreaHeading]
     
     enum CodingKeys: String, CodingKey {
         case content
         case reasoning
         case emoji
-        case focusArea = "focus_area"
+        case focusAreas = "focus_areas"
     }
+}
+
+// focus area generated with topic suggestions
+struct NewFocusAreaHeading: Codable, Hashable {
+    let focusAreaNumber: Int
+    let content: String
+    let reasoning: String
+    let emoji: String
     
+    enum CodingKeys: String, CodingKey {
+        case focusAreaNumber = "focusArea_number"
+        case content
+        case reasoning
+        case emoji
+    }
 }
 
 struct NewFocusArea: Codable, Hashable {

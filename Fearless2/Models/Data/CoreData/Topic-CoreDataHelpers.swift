@@ -24,6 +24,16 @@ extension Topic {
         set { status = newValue }
     }
     
+    var topicQuestType: String {
+        get { questType ?? "" }
+        set { questType = newValue }
+    }
+    
+    var topicEmoji: String {
+        get { emoji ?? "" }
+        set { emoji = newValue }
+    }
+    
     var topicTitle: String {
         get { title ?? "" }
         set { title = newValue }

@@ -23,6 +23,11 @@ extension FocusArea {
         set { completedAt = newValue }
     }
     
+    var focusAreaStatus: String {
+        get { status ?? "" }
+        set { status = newValue }
+    }
+    
     var focusAreaTitle: String {
         get { title ?? "" }
         set { title = newValue }

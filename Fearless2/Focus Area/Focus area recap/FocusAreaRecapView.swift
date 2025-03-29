@@ -6,6 +6,7 @@
 //
 import CoreData
 import Mixpanel
+import OSLog
 import Pow
 import SwiftUI
 
@@ -13,9 +14,8 @@ struct FocusAreaRecapView: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var dataController: DataController
     @ObservedObject var topicViewModel: TopicViewModel
-    @State private var selectedTab: Int = 1 // [0] celebration, [1] feedback, [2] suggestions
+    @State private var selectedTab: Int = 1 // [0] celebration, [1] feedback, [2] retry
     @State private var selectedTabSuggestionsList: Int = 1 //manages whether suggestions, loading view or retry is shown on suggestions list
-    @State private var showSuggestions: Bool = false
     @State private var recapReady: Bool = false //manage the UI changes when recap is ready
     @State private var animationValue: Bool = false//manages animation of the ellipsis animation on loading view
     @State private var animatedText = ""
@@ -23,14 +23,19 @@ struct FocusAreaRecapView: View {
     @Binding var focusArea: FocusArea?
     @Binding var focusAreaScrollPosition: Int?
     
-    let totalFocusAreas: Int
-    let focusAreasLimit: Int
+    let topic: Topic
     
-    var lastFocusArea: Bool {
-        return focusAreaScrollPosition == totalFocusAreas - 1
+    var focusAreaIndex: Int {
+        let focusAreaNumber = focusArea?.orderIndex ?? 1
+        return Int(focusAreaNumber)
+    }
+    
+    var focusAreasLimit: Int {
+        return Int(topic.focusAreasLimit)
     }
     
     private let screenWidth = UIScreen.current.bounds.width
+    private let logger = Logger.uiEvents
     
     var body: some View {
         NavigationStack {
@@ -128,9 +133,6 @@ struct FocusAreaRecapView: View {
                 case 1:
                     Text("Reflection")
                     
-                case 2:
-                    Text("Where should I go next?")
-                    
                 default:
                     Text("")
                 }
@@ -162,27 +164,10 @@ struct FocusAreaRecapView: View {
                 focusArea: focusArea
             )
             
-        case 2:
-            FocusAreaRecapSuggestionsView(
-                topicViewModel: topicViewModel,
-                selectedTabSuggestionsList: $selectedTabSuggestionsList,
-                focusArea: $focusArea
-            )
-            
         default:
             FocusAreaRetryView(action: {
                 generateNewRecap(isRetry: true)
             })
-        }
-    }
-    
-   
-    
-    private func insightsView() -> some View {
-        ForEach(focusArea?.summary?.summaryInsights ?? [], id: \.insightId) { insight in
-            
-            SummaryInsightBox(insight: insight)
-                .padding(.bottom, 5)
         }
     }
     
@@ -192,14 +177,14 @@ struct FocusAreaRecapView: View {
                 return "Next: A small reflection"
                 
             case 1:
-                if showSuggestions && (totalFocusAreas < focusAreasLimit) {
-                    return topicViewModel.createFocusAreaSummary == .loading ? "Loading..." : "Next: Choose next path"
-                } else if totalFocusAreas == focusAreasLimit && lastFocusArea {
+            if let currentFocusArea = focusArea, (currentFocusArea.recapComplete != true) && (focusAreaIndex < focusAreasLimit) {
+                    return topicViewModel.createFocusAreaSummary == .loading ? "Loading..." : "Next: Go to new path"
+                } else if focusAreaIndex == focusAreasLimit {
                     return topicViewModel.createFocusAreaSummary == .loading ? "Loading..." : "Next: Restore lost fragment"
                 } else {
                     return "Complete"
                 }
-                
+        
             default:
                 return "Retry"
         }
@@ -212,20 +197,17 @@ struct FocusAreaRecapView: View {
             updatePoints()
             
         case 1:
-            
-            if showSuggestions && (totalFocusAreas < focusAreasLimit){
-                selectedTab += 1
-               
-            } else if totalFocusAreas == focusAreasLimit && lastFocusArea {
-               
+            if let currentFocusArea = focusArea, (currentFocusArea.recapComplete != true) && (focusAreaIndex < focusAreasLimit) {
+                //complete recap
+                dismiss()
+                completeFocusArea()
+            } else if focusAreaIndex == focusAreasLimit {
+               //add sections for complete quest path
                 createEndOfTopicFocsAreaIfNeeded()
             } else {
-                //for when user is just reviewing their recap
+                //for when user is just reviewing their recap,
                 dismiss()
             }
-            
-        case 2:
-            break
             
         default:
             generateNewRecap(isRetry: true)
@@ -255,13 +237,9 @@ struct FocusAreaRecapView: View {
     //create or show focus area summary
     private func getRecap() {
         
-        if let currentFocusArea = focusArea, let topic = currentFocusArea.topic, currentFocusArea.completed {
+        if let currentFocusArea = focusArea, currentFocusArea.focusAreaStatus == FocusAreaStatusItem.completed.rawValue {
             
-            print("This is the last focus area: \(lastFocusArea)")
-            
-            if lastFocusArea && (topic.topicStatus != TopicStatusItem.archived.rawValue) && (totalFocusAreas < focusAreasLimit){
-                showSuggestions = true
-            }
+            logger.log("Focus area summary already generated")
             
         } else {
             
@@ -269,58 +247,48 @@ struct FocusAreaRecapView: View {
         }
     }
     
-    private func gradientBackground(fill: LinearGradient, height: CGFloat, header: Bool) -> some View {
-        ZStack {
-            VStack {
-                
-                if !header {
-                    Spacer()
-                }
-                
-                Rectangle()
-                    .fill(AppColors.black4)
-                    .frame(width: screenWidth, height: 20)
-                
-                if header {
-                    Spacer()
-                }
-            }
-            
-            Rectangle()
-                .fill(fill)
-                .blur(radius: 3)
-                .frame(width: screenWidth, height: height)
-               
-        }
-        .frame(width: screenWidth, height: height)
-    }
-    
     private func generateNewRecap(isRetry: Bool) {
         selectedTab = isRetry ? 1 : 0
-        showSuggestions = true
+        topicViewModel.createNewFocusArea = .loading //ensures focus area section list shows loading animation
         
         let topicId = focusArea?.topic?.topicId
         
+        let sortedFocusAreas = topic.topicFocusAreas.sorted { $0.orderIndex < $1.orderIndex }
+        
+        let newFocusArea: FocusArea = sortedFocusAreas[focusAreaIndex]
+        
         Task {
             do {
+                
                 try await topicViewModel.manageRun(selectedAssistant: .focusAreaSummary, topicId: topicId, focusArea: focusArea)
                 
-                completeFocusArea()
+                //mark focusArea complete
+                if let focusArea = focusArea {
+                    await dataController.completeFocusArea(focusArea: focusArea)
+                }
+                
+                // update next focus area status to active
+                 await dataController.updateFocusAreaStatus(focusArea: newFocusArea)
+               
             } catch {
                 await MainActor.run {
                     selectedTab = 3
                 }
             }
             
-            if totalFocusAreas < focusAreasLimit {
+            if focusAreaIndex < focusAreasLimit {
+                //API call to create new focus area
                 do {
-                    try await topicViewModel.manageRun(selectedAssistant: .focusAreaSuggestions, topicId: topicId)
+                    
+                    // create sections for next focus area
+                    try await topicViewModel.manageRun(selectedAssistant: .focusArea, topicId: topicId, focusArea: newFocusArea)
+                    
                 } catch {
-                    await MainActor.run {
-                        topicViewModel.createFocusAreaSuggestions = .retry
-                    }
+                    topicViewModel.createNewFocusArea = .retry
                 }
+
             }
+            
             DispatchQueue.global(qos: .background).async {
                 Mixpanel.mainInstance().track(event: "Revealed reflection")
             }
@@ -335,30 +303,32 @@ struct FocusAreaRecapView: View {
     }
     
     private func completeFocusArea() {
+        dataController.newFocusArea = true //to trigger scroll to new focus area
+        
         Task {
             if let focusArea = focusArea {
-                await dataController.completeFocusArea(focusArea: focusArea)
+                await dataController.completeFocusAreaRecap(focusArea: focusArea)
             }
         }
     }
     
-    
     private func createEndOfTopicFocsAreaIfNeeded() {
-        dataController.newFocusArea = true
+        topicViewModel.createNewFocusArea = .loading //change this to trigger section list view update
+        dataController.newFocusArea = true //scroll to complete quest path
         dismiss()
         
-        
-        if totalFocusAreas == focusAreasLimit {
-           
+        if focusAreaIndex == focusAreasLimit {
+           print("Adding sections for last path")
             
             Task {
-                //mark focusArea.choseSuggestion as true since suggestions won't be needed, and indicate a new focus area is available to trigger scroll animation
-                if let focusArea = focusArea {
-                    await dataController.updateFocusArea(focusArea: focusArea)
-                }
                 
+                // add sections to complete quest path
                 if let topic = focusArea?.topic {
                     await dataController.addEndOfTopicFocusArea(topic: topic)
+                }
+                
+                await MainActor.run {
+                    topicViewModel.createNewFocusArea = .ready
                 }
             }
         }
@@ -411,7 +381,7 @@ struct FocusAreaRecapReflectionView: View {
                 }
             
             if topicViewModel.createFocusAreaSummary == .ready {
-                if let focusArea = focusArea, focusArea.completed {
+                if let focusArea = focusArea, focusArea.focusAreaStatus == FocusAreaStatusItem.completed.rawValue {
                     animatedText = feedback //no animation if use has already seen the feedback once
                     startedAnimation = true //prevent triggering animation when recapReady is set to true
                     recapReady = true
@@ -439,38 +409,38 @@ struct FocusAreaRecapReflectionView: View {
 
 }
 
-struct FocusAreaRecapSuggestionsView: View {
-    @Environment(\.dismiss) var dismiss
-    @ObservedObject var topicViewModel: TopicViewModel
-    
-    @Binding var selectedTabSuggestionsList: Int
-    
-    @Binding var focusArea: FocusArea?
-    
-    var body: some View {
-        VStack (spacing: 20) {
-            
-            FocusAreaRecapTimelineView(topic: focusArea?.topic)
-            
-            FocusAreaSuggestionsList(topicViewModel: topicViewModel, selectedTabSuggestionsList: $selectedTabSuggestionsList, suggestions: getSuggestions(), action: {
-                    dismiss()
-            }, topic: focusArea?.topic, focusArea: focusArea, useCase: .recap)
-        }
-    }
-    
-    private func getSuggestions()  -> [any SuggestionProtocol] {
-        if let topic = focusArea?.topic {
-            print("found topic")
-            let suggestions = topic.topicSuggestions
-            print("Topic suggestions: \(suggestions)")
-            return suggestions.map { $0 as (any SuggestionProtocol) }
-        } else {
-            print("failed to find topic")
-            return []
-        }
-      
-    }
-}
+//struct FocusAreaRecapSuggestionsView: View {
+//    @Environment(\.dismiss) var dismiss
+//    @ObservedObject var topicViewModel: TopicViewModel
+//    
+//    @Binding var selectedTabSuggestionsList: Int
+//    
+//    @Binding var focusArea: FocusArea?
+//    
+//    var body: some View {
+//        VStack (spacing: 20) {
+//            
+//            FocusAreaRecapTimelineView(topic: focusArea?.topic)
+//            
+//            FocusAreaSuggestionsList(topicViewModel: topicViewModel, selectedTabSuggestionsList: $selectedTabSuggestionsList, suggestions: getSuggestions(), action: {
+//                    dismiss()
+//            }, topic: focusArea?.topic, focusArea: focusArea, useCase: .recap)
+//        }
+//    }
+//    
+//    private func getSuggestions()  -> [any SuggestionProtocol] {
+//        if let topic = focusArea?.topic {
+//            print("found topic")
+//            let suggestions = topic.topicSuggestions
+//            print("Topic suggestions: \(suggestions)")
+//            return suggestions.map { $0 as (any SuggestionProtocol) }
+//        } else {
+//            print("failed to find topic")
+//            return []
+//        }
+//      
+//    }
+//}
 
 
 

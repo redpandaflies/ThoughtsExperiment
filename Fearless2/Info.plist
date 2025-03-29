@@ -26,6 +26,8 @@
 	<string>$(OPENAI_PARTIAL_KEY)</string>
 	<key>STABILITY_PARTIAL_KEY</key>
 	<string>$(STABILITY_PARTIAL_KEY)</string>
+	<key>OPENAI_ASSISTANT_ID_TOPIC_SUGGESTIONS2</key>
+	<string>$(OPENAI_ASSISTANT_ID_TOPIC_SUGGESTIONS2)</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>

@@ -211,7 +211,6 @@ final class DataController: ObservableObject {
         
         await self.save()
     }
-   
     
     func deleteEntry(id: UUID) async {
         
@@ -288,46 +287,108 @@ final class DataController: ObservableObject {
 //MARK: Topic related functions
 extension DataController {
     
-    //create new topic
-    func createTopic(suggestion: NewTopicSuggestion, category: Category) async -> (topicId: UUID?, focusArea: FocusArea?) {
-        var topicId: UUID? = nil
-        var createdFocusArea: FocusArea? = nil
+    //create new topics based on quest map
+    func createTopics(questMap: [QuestMapItem], category: Category) async {
         
         await context.perform {
             
-            let topic = Topic(context: self.context)
-            topic.topicId = UUID()
-            topic.topicCreatedAt = getCurrentTimeString()
-            topic.topicStatus = TopicStatusItem.active.rawValue
-            topic.topicTitle = suggestion.content
-            topic.topicDefinition = suggestion.reasoning
-            let highestFocusAreaTopic = category.categoryTopics.max(by: { $0.focusAreasLimit < $1.focusAreasLimit })
-
-           //get the limit for the topic with highest focusAreasLimit, this is used instead of a simple category.categoryTopics.count because topics can be deleted
-            let highestFocusAreasLimit = highestFocusAreaTopic?.focusAreasLimit ?? 0
+            for quest in questMap {
+                let topic = Topic(context: self.context)
+                topic.topicId = UUID()
+                topic.topicCreatedAt = getCurrentTimeString()
+                topic.topicStatus = TopicStatusItem.locked.rawValue
+                topic.topicQuestType = quest.questType.rawValue
+                topic.orderIndex = Int16(quest.orderIndex)
+                
+                //add topic to category
+                category.addToTopics(topic)
+            }
             
-            topic.focusAreasLimit = Int16(highestFocusAreasLimit + 1)
-            category.addToTopics(topic)
+        }
+        
+        await self.save()
+        
+    }
+    
+    //create new topic
+    func createTopic(suggestion: NewTopicSuggestion, topicId: UUID, category: Category) async -> (topicId: UUID?, focusArea: FocusArea?) {
+       
+        var createdFocusArea: FocusArea? = nil
+        
+        let request = NSFetchRequest<Topic>(entityName: "Topic")
+            request.predicate = NSPredicate(format: "id == %@", topicId as CVarArg)
+        
+        await context.perform {
+            
+            do {
+                
+                let results = try self.context.fetch(request)
+                            
+                // If no topic found, exit the function
+                guard let existingTopic = results.first else {
+                    self.logger.log("No topic found with ID: \(topicId)")
+                    return
+                }
+               
+                // Update the existing topic with suggestion data
+                existingTopic.topicStatus = TopicStatusItem.active.rawValue
+                existingTopic.topicCreatedAt = getCurrentTimeString()
+                existingTopic.topicTitle = suggestion.content
+                existingTopic.topicDefinition = suggestion.reasoning
+                existingTopic.topicEmoji = suggestion.emoji
+               
+                let focusAreasTotal = suggestion.focusAreas.count
+                existingTopic.focusAreasLimit = Int16(focusAreasTotal)
+                
+                category.addToTopics(existingTopic)
+                
+                for newFocusArea in suggestion.focusAreas {
+                    let focusArea = FocusArea(context: self.context)
+                    focusArea.focusAreaId = UUID()
+                    focusArea.focusAreaCreatedAt = getCurrentTimeString()
+                    focusArea.orderIndex = Int16(newFocusArea.focusAreaNumber)
+                    focusArea.focusAreaTitle = newFocusArea.content
+                    focusArea.focusAreaReasoning = newFocusArea.reasoning
+                    focusArea.focusAreaEmoji = newFocusArea.emoji
+                    
+                    existingTopic.addToFocusAreas(focusArea)
+                    category.addToFocusAreas(focusArea)
+                    
+                    if newFocusArea.focusAreaNumber == 1 {
+                        createdFocusArea = focusArea
+                        focusArea.focusAreaStatus = FocusAreaStatusItem.active.rawValue
+                    } else {
+                        focusArea.focusAreaStatus = FocusAreaStatusItem.locked.rawValue
+                    }
+                }
+                
+                self.addLastFocusArea(topic: existingTopic, category: category, index: focusAreasTotal + 1)
+                
+                self.newTopic = existingTopic
+                self.logger.log("Updated newTopic published variable")
+            } catch {
+                self.logger.error("Error fetching topic: \(error.localizedDescription)")
+            }
             
             
-            let focusArea = FocusArea(context: self.context)
-            focusArea.focusAreaId = UUID()
-            focusArea.focusAreaCreatedAt = getCurrentTimeString()
-            focusArea.focusAreaTitle = suggestion.focusArea.content
-            focusArea.focusAreaReasoning = suggestion.focusArea.reasoning
-            focusArea.focusAreaEmoji = suggestion.focusArea.emoji
-            topic.addToFocusAreas(focusArea)
-            category.addToFocusAreas(focusArea)
             
-            topicId = topic.topicId
-            createdFocusArea = focusArea
-            self.newTopic = topic
-            self.logger.log("Updated newTopic published variable")
         }
         
         await self.save()
         
         return (topicId, createdFocusArea)
+    }
+    
+    private func addLastFocusArea(topic: Topic, category: Category, index: Int) {
+        let newFocusArea = FocusArea(context: self.context)
+        newFocusArea.focusAreaId = UUID()
+        newFocusArea.focusAreaCreatedAt = getCurrentTimeString()
+        newFocusArea.focusAreaTitle = EndOfTopic.sampleEndOfTopic.title
+        newFocusArea.focusAreaReasoning = EndOfTopic.sampleEndOfTopic.reasoning
+        newFocusArea.orderIndex = Int16(index)
+        newFocusArea.endOfTopic = true
+        topic.addToFocusAreas(newFocusArea)
+        category.addToFocusAreas(newFocusArea)
     }
     
     func updateTopicStatus(id: UUID, item: TopicStatusItem) async {
@@ -563,15 +624,9 @@ extension DataController {
                 return
             }
             
-            if fetchEndOfTopic.isEmpty {
-                let newFocusArea = FocusArea(context: self.context)
-                newFocusArea.focusAreaId = UUID()
-                newFocusArea.focusAreaCreatedAt = getCurrentTimeString()
-                newFocusArea.focusAreaTitle = EndOfTopic.sampleEndOfTopic.title
-                newFocusArea.focusAreaReasoning = EndOfTopic.sampleEndOfTopic.reasoning
-                newFocusArea.endOfTopic = true
-                topic.addToFocusAreas(newFocusArea)
-                category.addToFocusAreas(newFocusArea)
+            if let existingFocusArea = fetchEndOfTopic.first {
+                
+                self.logger.log("Adding end of topic path sections")
                 
                 for section in EndOfTopic.sampleEndOfTopic.sections {
                     let newSection = Section(context: self.context)
@@ -579,18 +634,14 @@ extension DataController {
                     newSection.sectionNumber = Int16(section.sectionNumber)
                     newSection.sectionTitle = section.title
                     topic.addToSections(newSection)
-                    newFocusArea.addToSections(newSection)
-                    category.addToFocusAreas(newFocusArea)
-                    
+                    existingFocusArea.addToSections(newSection)
+                    category.addToSections(newSection)
                 }
             }
         }
         
         await self.save()
         
-        await MainActor.run {
-            self.newFocusArea = true
-        }
     }
     
     //mark topic and section as complete
@@ -869,11 +920,13 @@ extension DataController {
         }
     }
     
-    func updateFocusArea(focusArea: FocusArea) async {
+    func updateFocusAreaStatus(focusArea: FocusArea) async {
         await context.perform {
-            if !focusArea.choseSuggestion {
-                focusArea.choseSuggestion = true
-            }
+            //update focus area status to active
+            
+            self.logger.log("Updating status for focus area: \(focusArea.orderIndex) \(focusArea.focusAreaTitle)")
+            
+            focusArea.focusAreaStatus = FocusAreaStatusItem.active.rawValue
         }
         
         await self.save()
@@ -882,8 +935,20 @@ extension DataController {
     
     func completeFocusArea(focusArea: FocusArea) async {
         await context.perform {
-            focusArea.completed = true
             focusArea.completedAt = getCurrentTimeString()
+            focusArea.focusAreaStatus = FocusAreaStatusItem.completed.rawValue
+            
+            self.logger.log("Complete focus area: \(focusArea.orderIndex) \(focusArea.focusAreaTitle)")
+        }
+        
+        await self.save()
+    }
+    
+    func completeFocusAreaRecap(focusArea: FocusArea) async {
+        await context.perform {
+            focusArea.recapComplete = true
+            
+            self.logger.log("Complete focus area recap: \(focusArea.orderIndex) \(focusArea.focusAreaTitle)")
         }
         
         await self.save()

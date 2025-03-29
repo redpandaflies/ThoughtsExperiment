@@ -77,7 +77,7 @@ struct TopicDetailView: View {
                 
                 
                 VStack {
-                    TopicDetailViewHeader(title: topic.topicTitle, progress: topic.topicFocusAreas.count, topic: topic)
+                    TopicDetailViewHeader(topic: topic)
                         .background {
                             GeometryReader { geo in
                                 Color.clear
@@ -169,7 +169,7 @@ struct TopicDetailView: View {
         .fullScreenCover(isPresented: $showFocusAreaRecapView, onDismiss: {
             showFocusAreaRecapView = false
         }) {
-            FocusAreaRecapView(topicViewModel: topicViewModel, focusArea: $selectedFocusArea, focusAreaScrollPosition: $focusAreaScrollPosition, totalFocusAreas: topic.topicFocusAreas.count, focusAreasLimit: Int(topic.focusAreasLimit))
+            FocusAreaRecapView(topicViewModel: topicViewModel, focusArea: $selectedFocusArea, focusAreaScrollPosition: $focusAreaScrollPosition, topic: topic)
                 .presentationCornerRadius(20)
                 .presentationBackground(AppColors.black4)
         }
@@ -270,7 +270,7 @@ struct TopicDetailView: View {
     
     private func getFocusAreasCompleted() -> Int? {
         let focusAreas = topic.topicFocusAreas
-        return focusAreas.filter { $0.completed }.count
+        return focusAreas.filter { $0.focusAreaStatus == FocusAreaStatusItem.completed.rawValue }.count
     }
     
     private func getCategoryBackground() -> Color {

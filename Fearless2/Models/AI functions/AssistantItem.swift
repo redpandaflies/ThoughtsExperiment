@@ -13,6 +13,7 @@ enum AssistantItem: Int, CaseIterable {
     case topic
     case topicOverview
     case topicSuggestions
+    case topicSuggestions2
     case sectionSummary
     case focusArea
     case focusAreaSuggestions
@@ -28,6 +29,8 @@ enum AssistantItem: Int, CaseIterable {
             return Constants.openAIAssistantIdTopicOverview
         case .topicSuggestions:
             return Constants.openAIAssistantIdTopicSuggestions
+        case .topicSuggestions2:
+            return Constants.openAIAssistantIdTopicSuggestions2
         case .sectionSummary:
             return Constants.openAIAssistantIdSectionSummary
         case .focusArea:

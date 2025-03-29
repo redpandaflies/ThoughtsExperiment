@@ -16,9 +16,9 @@ final class TopicViewModel: ObservableObject {
     @Published var showPlaceholder: Bool = false
     @Published var generatingImage: Bool = false
     @Published var updatedEntry: Entry? = nil
-    @Published var updatingfocusArea: Bool = false
-    @Published var focusAreaUpdated: Bool = false
-    @Published var focusAreaCreationFailed: Bool = false
+    // create sections for focus area
+    @Published var createNewFocusArea: NewFocusAreaState = .ready
+    @Published var focusAreaCreationFailed: Bool = false //when run fails
     @Published var createFocusAreaSummary: FocusAreaSummaryState = .ready
     @Published var createFocusAreaSuggestions: FocusAreaSuggestionsState = .ready
     @Published var sectionSummaryCreated: Bool = false
@@ -65,6 +65,12 @@ final class TopicViewModel: ObservableObject {
         case retry
     }
     
+    enum NewFocusAreaState {
+        case ready
+        case loading
+        case retry
+    }
+    
     @MainActor
     private func setupTranscriptionReadySubscription() {
         transcriptionViewModel.transcriptionReadySubject
@@ -92,11 +98,13 @@ final class TopicViewModel: ObservableObject {
                 self.topicSuggestions = []
                 self.showPlaceholder = false
                 self.generatingImage = false
-                if selectedAssistant != .focusArea {
-                    self.updatingfocusArea = false
+                if selectedAssistant == .focusArea {
+                    if self.createNewFocusArea != .loading {
+                        self.createNewFocusArea = .loading
+                    }
+                } else {
+                    self.createNewFocusArea = .ready
                 }
-                self.focusAreaUpdated = false
-                self.focusAreaCreationFailed = false
                 if selectedAssistant == .focusAreaSummary {
                     self.createFocusAreaSummary = .loading
                 } else {
@@ -119,9 +127,6 @@ final class TopicViewModel: ObservableObject {
             
         } catch {
             loggerOpenAI.error("Failed to complete OpenAI run: \(error.localizedDescription), \(error)")
-            await MainActor.run {
-                self.updatingfocusArea = false
-            }
             throw OpenAIError.runIncomplete(error)
             
         }
@@ -172,7 +177,7 @@ final class TopicViewModel: ObservableObject {
             
             switch selectedAssistant {
                 
-            case .topicSuggestions:
+            case .topicSuggestions2:
                 guard let newSuggestions = try await openAISwiftService.processTopicSuggestions(messageText: messageText) else {
                     loggerOpenAI.error("Failed to process topic suggestions")
                     throw ProcessingError.processingFailed()
@@ -221,8 +226,7 @@ final class TopicViewModel: ObservableObject {
                 loggerOpenAI.log("Added new focus area to topic")
                 
                 await MainActor.run {
-                    self.updatingfocusArea = false
-                    self.focusAreaUpdated = true
+                    self.createNewFocusArea = .ready
                 }
                 
             case .focusAreaSummary:
@@ -317,7 +321,7 @@ final class TopicViewModel: ObservableObject {
     private func gatherUserContext(selectedAssistant: AssistantItem, topicId: UUID? = nil, transcript: String? = nil, focusArea: FocusArea? = nil, category: Category? = nil) async throws -> String {
         
         //topic suggestion assistant only
-        if selectedAssistant == .topicSuggestions {
+        if selectedAssistant == .topicSuggestions2 {
             guard let currentCategory = category else {
                 loggerCoreData.error("Failed to get current category")
                 throw ContextError.missingRequiredField("Category")

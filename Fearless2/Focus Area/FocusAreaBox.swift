@@ -8,9 +8,6 @@ import OSLog
 import Pow
 import SwiftUI
 
-
-
-
 struct FocusAreaBox: View {
     @ObservedObject var topicViewModel: TopicViewModel
     @State private var selectedTab: Int = 0
@@ -62,9 +59,13 @@ struct FocusAreaBox: View {
                 case 0:
                     LoadingPlaceholderContent(contentType: .focusArea)
                 
-                case 1:
-                    SectionListView(topicViewModel: topicViewModel, showFocusAreaRecapView: $showFocusAreaRecapView, selectedSection: $selectedSection, selectedSectionSummary: $selectedSectionSummary, selectedFocusArea: $selectedFocusArea, selectedEndOfTopicSection: $selectedEndOfTopicSection, focusArea: focusArea, focusAreaCompleted: focusArea.completed)
                 
+                case 1:
+                SectionListView(topicViewModel: topicViewModel, showFocusAreaRecapView: $showFocusAreaRecapView, selectedSection: $selectedSection, selectedSectionSummary: $selectedSectionSummary, selectedFocusArea: $selectedFocusArea, selectedEndOfTopicSection: $selectedEndOfTopicSection, focusArea: focusArea, focusAreaCompleted: focusArea.focusAreaStatus == FocusAreaStatusItem.completed.rawValue)
+                
+                case 2:
+                    SectionListLockedView()
+                    
                 default:
                     FocusAreaRetryView(action: {
                         retry()
@@ -76,27 +77,42 @@ struct FocusAreaBox: View {
             
         }//VStack
         .onAppear {
-            if focusArea.focusAreaSections.isEmpty && !topicViewModel.updatingfocusArea {
-                selectedTab = 2
-            } else if topicViewModel.updatingfocusArea {
-                selectedTab = 0
-            } else {
-                selectedTab = 1
-            }
-        }
-        .onChange(of: topicViewModel.focusAreaUpdated) {
-            //focusArea.completed needed so that only the completed ones aren't affected
-            if topicViewModel.focusAreaUpdated && !focusArea.completed {
-                selectedTab += 1
-            }
-        }
-        .onChange(of: topicViewModel.focusAreaCreationFailed) {
-            //focusArea.completed needed so that only the completed ones aren't affected
-            if topicViewModel.focusAreaCreationFailed && !focusArea.completed {
-                selectedTab = 2
-            }
-        }
+            let focusAreaStatus = FocusAreaStatusItem(rawValue: focusArea.focusAreaStatus)
+            
+            switch focusAreaStatus {
+                case .active:
+                    if topicViewModel.createNewFocusArea == .loading {
+                        selectedTab = 0
+                    } else if topicViewModel.createNewFocusArea == .retry {
+                        selectedTab = 3
+                    } else {
+                        selectedTab = 1
+                    }
+                case .completed:
+                    selectedTab = 1
+                default:
+                    selectedTab = 2
                 
+            }
+            
+        }
+        .onChange(of: topicViewModel.createNewFocusArea) {
+            
+            let focusAreaStatus = FocusAreaStatusItem(rawValue: focusArea.focusAreaStatus)
+            
+            if focusAreaStatus == .active {
+                
+                switch topicViewModel.createNewFocusArea {
+                    case .retry:
+                        selectedTab = 3
+                    case .ready:
+                        selectedTab = 1
+                    case .loading:
+                        selectedTab = 0
+                }
+            } 
+            
+        }
         
     }
     
@@ -130,6 +146,21 @@ struct FocusAreaBox: View {
         }
     }
     
+}
+
+struct SectionListLockedView: View {
+    var body: some View {
+        
+        VStack {
+            Image(systemName: "lock.fill")
+                .multilineTextAlignment(.center)
+                .font(.system(size: 30))
+                .foregroundStyle(AppColors.textPrimary)
+                .opacity(0.5)
+                .padding(.vertical)
+        }
+        .frame(maxWidth: .infinity, alignment: .center)
+    }
 }
 
 

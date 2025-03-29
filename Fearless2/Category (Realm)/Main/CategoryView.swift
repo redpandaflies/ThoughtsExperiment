@@ -101,9 +101,9 @@ struct CategoryView: View {
     
                     
                     // MARK: - To do
-                    //                CategoryMissionBox()
-                    //                    .padding(.horizontal)
-                    //                    .padding(.bottom, 25)
+    //                CategoryMissionBox()
+    //                    .padding(.horizontal)
+    //                    .padding(.bottom, 25)
                     
                     if showTopics {
                         
@@ -114,8 +114,8 @@ struct CategoryView: View {
                                 .padding(.bottom, 25)
                                 .padding(.top, 20)
                             
-                            // MARK: - Topics list
-                            TopicsListView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, selectedTopic: $selectedTopic, currentTabBar: $currentTabBar, selectedTabTopic: $selectedTabTopic, navigateToTopicDetailView: $navigateToTopicDetailView, categoriesScrollPosition: $categoriesScrollPosition, category: categories[scrollPosition], points: currentPoints, totalCategories: categories.count)
+                            // MARK: - Quests map
+                            QuestMapView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, selectedTopic: $selectedTopic, currentTabBar: $currentTabBar, selectedTabTopic: $selectedTabTopic, navigateToTopicDetailView: $navigateToTopicDetailView, categoriesScrollPosition: $categoriesScrollPosition, category: categories[scrollPosition], points: currentPoints, totalCategories: categories.count, backgroundColor: getCategoryBackground())
                             
                         }
                     }
@@ -201,8 +201,8 @@ struct CategoryView: View {
                     useRectangleButton: false,
                     buttonAction: {}
                 )
-                    .presentationDetents([.fraction(0.65)])
-                    .presentationCornerRadius(30)
+                .presentationDetents([.fraction(0.65)])
+                .presentationCornerRadius(30)
             }
             
         }
@@ -214,12 +214,18 @@ struct CategoryView: View {
         isProgrammaticScroll = true
         categoriesScrollPosition = currentCategory
         
-        if (!discoveredFirstCategory && topics.count > 0) {
+        //needed in case user deletes and reinstalls app, and appstorage vars reset
+        
+        /// new user shouldn't have any topics that are active yet, because they haven't picked their first topic
+        let createdTopics = topics.filter { $0.status == TopicStatusItem.active.rawValue }.count
+        
+        if (!discoveredFirstCategory && createdTopics > 0) {
+            //restore app to its state before deletion
             setupViewForExistingUser()
         } else if !newCategory {
+            //new realm discovered
             startAnimation()
         }
-        
     }
     
     private func startAnimation() {

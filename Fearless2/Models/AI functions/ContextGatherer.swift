@@ -52,7 +52,7 @@ struct ContextGatherer {
             .sorted { $0.focusAreaCreatedAt < $1.focusAreaCreatedAt }
         
         let completedFocusAreas = focusAreas
-            .filter { $0.completed == true }
+            .filter { $0.focusAreaStatus == FocusAreaStatusItem.completed.rawValue }
     
         if selectedAssistant == .focusArea || selectedAssistant == .focusAreaSuggestions || selectedAssistant == .topicOverview {
             
@@ -139,6 +139,12 @@ struct ContextGatherer {
     //for topic suggestions
     static func gatherContextTopicSuggestions(dataController: DataController, loggerCoreData: Logger, category: Category) async -> String? {
         var context = "Current life area: \(category.categoryLifeArea).\n\n"
+        
+        // Get focus areas limit
+        let highestFocusAreaTopic = category.categoryTopics.max(by: { $0.focusAreasLimit < $1.focusAreasLimit })
+        let highestFocusAreasLimit = highestFocusAreaTopic?.focusAreasLimit ?? 0
+        let focusAreasLimit = min(max(highestFocusAreasLimit + 1, 2), 5)
+        context += "Please generate exactly \(focusAreasLimit) focus areas for each quest.\n\n"
         
         //get questions answered when creating category
         context += getOnboardingContext(from: category)

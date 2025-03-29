@@ -9,10 +9,15 @@ import SwiftUI
 
 struct TopicDetailViewHeader: View {
     
-    let title: String
-    let progress: Int
-    let topic: Topic
+   
+    @ObservedObject var topic: Topic
     let screenWidth = UIScreen.current.bounds.width
+    var progress: Int {
+        return topic.topicFocusAreas.filter { $0.focusAreaStatus == FocusAreaStatusItem.active.rawValue || $0.focusAreaStatus == FocusAreaStatusItem.completed.rawValue }.count
+    }
+    var title: String {
+        return topic.topicTitle
+    }
     
     var body: some View {
         VStack (spacing: 20){

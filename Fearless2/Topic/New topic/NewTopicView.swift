@@ -60,7 +60,6 @@ struct NewTopicView: View {
        
     }
     
-    
 }
 
 

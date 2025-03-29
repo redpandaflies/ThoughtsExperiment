@@ -9,7 +9,7 @@ import SwiftUI
 
 struct FocusAreasView: View {
     @ObservedObject var topicViewModel: TopicViewModel
-    @State private var selectedTab: Int = 1
+    
     
     @Binding var showFocusAreaRecapView: Bool
     @Binding var selectedSection: Section?
@@ -35,7 +35,7 @@ struct FocusAreasView: View {
         self.topicId = topicId
         
         let request: NSFetchRequest<FocusArea> = FocusArea.fetchRequest()
-        request.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: true)]
+        request.sortDescriptors = [NSSortDescriptor(key: "orderIndex", ascending: true)]
         request.predicate = NSPredicate(format: "topic.id == %@", topicId as CVarArg)
         
         self._focusAreas = FetchRequest(fetchRequest: request)
@@ -45,22 +45,14 @@ struct FocusAreasView: View {
     var body: some View {
         
         VStack {
-            switch selectedTab {
-                case 0:
-                    FocusAreaEmptyState(topicViewModel: topicViewModel, selectedTab: $selectedTab, topicId: topicId)
-                default:
-                    FocusAreaList(topicViewModel: topicViewModel, showFocusAreaRecapView: $showFocusAreaRecapView, selectedSection: $selectedSection, selectedSectionSummary: $selectedSectionSummary, selectedFocusArea: $selectedFocusArea, selectedEndOfTopicSection: $selectedEndOfTopicSection, focusAreaScrollPosition: $focusAreaScrollPosition, focusAreas: focusAreas)
-            }
+           
+            FocusAreaList(topicViewModel: topicViewModel, showFocusAreaRecapView: $showFocusAreaRecapView, selectedSection: $selectedSection, selectedSectionSummary: $selectedSectionSummary, selectedFocusArea: $selectedFocusArea, selectedEndOfTopicSection: $selectedEndOfTopicSection, focusAreaScrollPosition: $focusAreaScrollPosition, focusAreas: focusAreas)
+            
         }
         .ignoresSafeArea(.keyboard)
         .overlay {
             if let scrollPosition = focusAreaScrollPosition {
                 nextFocusAreaIndicator(scrollPosition: scrollPosition)
-            }
-        }
-        .onAppear {
-            if !focusAreas.isEmpty && selectedTab != 1 {
-                selectedTab = 1
             }
         }
     }
@@ -199,14 +191,20 @@ struct FocusAreaList: View {
             print("Scroll position updated to: \(focusAreaScrollPosition ?? -1)")
         }
         .onAppear {
-            let totalFocusArea = focusAreas.count
-            print("total focus area for this topic: \(totalFocusArea)")
-            let scrollPosition = totalFocusArea - 1
-            if scrollPosition >= 0 {
-                focusAreaScrollPosition = scrollPosition
-                print("set focus area scroll position: \(scrollPosition)")
+           let activeFocusArea = focusAreas.first(where: { $0.focusAreaStatus == FocusAreaStatusItem.active.rawValue })
+            
+            let totalFocusAreas = focusAreas.count
+            
+            if let activeFocusArea = activeFocusArea {
+                let scrollPosition = Int(activeFocusArea.orderIndex) - 1
+                if scrollPosition >= 0 {
+                    focusAreaScrollPosition = scrollPosition
+                    print("set focus area scroll position: \(scrollPosition)")
+                } else {
+                    focusAreaScrollPosition = 0
+                }
             } else {
-                focusAreaScrollPosition = 0
+                focusAreaScrollPosition = totalFocusAreas - 1
             }
         }
         .onDisappear {

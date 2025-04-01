@@ -62,13 +62,18 @@ struct FocusAreasView: View {
             Spacer()
 
             if scrollPosition < focusAreas.count - 1 {
-                VStack (spacing: 10){
+                VStack (spacing: 5){
+                    Text(getNextFocusAreaDisplayNumber(scrollPosition: scrollPosition))
+                        .font(.system(size: 12))
+                        .foregroundStyle(AppColors.whiteDefault.opacity(0.7))
+                    
                     Text(getNextFocusAreaTitle(scrollPosition: scrollPosition))
                         .font(.system(size: 12))
                         .foregroundStyle(AppColors.whiteDefault.opacity(0.7))
                         .onAppear {
                             print("Scroll position: \(scrollPosition), total focus area \(focusAreas.count)")
                         }
+                        .padding(.bottom, 5)
                     
                     Image(systemName: "chevron.compact.down")
                         .font(.system(size: 20))
@@ -87,25 +92,28 @@ struct FocusAreasView: View {
     }
     
     private func getNextFocusAreaTitle(scrollPosition: Int) -> String {
-     
         let totalFocusAreas = focusAreas.count
         if scrollPosition < totalFocusAreas - 1 {
             let nextFocusAreaIndex = scrollPosition + 1
             let nextFocusArea = focusAreas[nextFocusAreaIndex]
-            let nextFocusAreaDisplayNumber = scrollPosition + 2 //the number displayed for focus area in UI
             
-            if let topic = focusAreas.first?.topic {
-                let limit = Int(topic.focusAreasLimit)
-                if scrollPosition == limit - 1 {
-                    return "\(nextFocusArea.focusAreaTitle)"
-                }
-            }
-            
-            return "\(nextFocusAreaDisplayNumber) \(nextFocusArea.focusAreaTitle)"
+            return "\(nextFocusArea.focusAreaTitle)"
         } else {
             return ""
         }
+    }
+
+    private func getNextFocusAreaDisplayNumber(scrollPosition: Int) -> String {
         
+        let totalFocusAreas = focusAreas.count
+        let nextFocusAreaDisplayNumber = scrollPosition + 2 //the number displayed for focus area in UI
+        
+        if scrollPosition < totalFocusAreas - 2 {
+            
+            return "\(nextFocusAreaDisplayNumber)"
+        }
+        
+        return ""
     }
     
 }

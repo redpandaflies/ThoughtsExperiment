@@ -707,7 +707,7 @@ extension DataController {
                     let category = Category(context: self.context)
                     category.categoryId = UUID()
                     category.orderIndex = Int16(realm.orderIndex)
-                    category.categoryEmoji = realm.emoji
+                    category.categoryEmoji = realm.icon
                     category.categoryName = realm.name
                     category.categoryLifeArea = realm.lifeArea
                     category.categoryUndiscovered = realm.undiscoveredDescription
@@ -757,7 +757,7 @@ extension DataController {
                 category.categoryId = UUID()
                 category.orderIndex = Int16(allCategories.count)
                 category.categoryCreatedAt = getCurrentTimeString()
-                category.categoryEmoji = realmData.emoji
+                category.categoryEmoji = realmData.icon
                 category.categoryName = realmData.name
                 category.categoryLifeArea = realmData.lifeArea
                 category.categoryUndiscovered = realmData.undiscoveredDescription
@@ -797,7 +797,7 @@ extension DataController {
                     category.categoryId = UUID()
                     category.orderIndex = Int16(realm.orderIndex)
                     category.categoryCreatedAt = getCurrentTimeString()
-                    category.categoryEmoji = realm.emoji
+                    category.categoryEmoji = realm.icon
                     category.categoryName = realm.name
                     category.categoryLifeArea = realm.lifeArea
                     category.categoryUndiscovered = realm.undiscoveredDescription

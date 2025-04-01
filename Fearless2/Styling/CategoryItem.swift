@@ -13,7 +13,7 @@ import SwiftUI
 struct Realm: Identifiable {
     let id: UUID
     let orderIndex: Int
-    let emoji: String
+    let icon: String
     let name: String
     let lifeArea: String
     let undiscoveredDescription: String
@@ -21,11 +21,11 @@ struct Realm: Identifiable {
     let background: Color
     let category: QuestionCategory
     
-    init(orderIndex: Int, emoji: String, name: String, lifeArea: String,
+    init(orderIndex: Int, icon: String, name: String, lifeArea: String,
          undiscoveredDescription: String, discoveredDescription: String, background: Color, category: QuestionCategory) {
         self.id = UUID()
         self.orderIndex = orderIndex
-        self.emoji = emoji
+        self.icon = icon
         self.name = name
         self.lifeArea = lifeArea
         self.undiscoveredDescription = undiscoveredDescription
@@ -40,71 +40,71 @@ extension Realm {
     static let realmsData: [Realm] = [
         Realm(
             orderIndex: 0,
-            emoji: "🏛️",
-            name: "Halls of Ambition",
+            icon: "realm11",
+            name: "Peak of Ambition",
             lifeArea: "Career and professional growth",
-            undiscoveredDescription: "A secret hall where whispers of achievement beckon you to unlock your potential.",
-            discoveredDescription: "Set clear goals and take bold actions to drive your career forward.",
+            undiscoveredDescription: "Where the air is thin, and something inside you keeps reaching higher.",
+            discoveredDescription: "Explore what truly drives you and examine the values behind your pursuit.",
             background: AppColors.backgroundCareer,
             category: .career
         ),
         Realm(
             orderIndex: 1,
-            emoji: "🤝",
-            name: "Valley of Connection",
+            icon: "realm22",
+            name: "Nest of Belonging",
             lifeArea: "Relationships and social life",
-            undiscoveredDescription: "A hidden valley where unexpected bonds await to redefine how you connect.",
-            discoveredDescription: "Forge deeper bonds with the people you care about.",
+            undiscoveredDescription: "A quiet place that feels warm, even before you step inside.",
+            discoveredDescription: "Reflect on the relationships that shape you and what it means to feel connected.",
             background: AppColors.backgroundRelationships,
             category: .relationships
         ),
         Realm(
             orderIndex: 2,
-            emoji: "💰",
-            name: "Vault of Prosperity",
+            icon: "realm33",
+            name: "Chamber of Fortune",
             lifeArea: "Money and financial security",
-            undiscoveredDescription: "A mysterious vault filled with secrets about money's true role in your life.",
-            discoveredDescription: "Explore your relationship with money and make choices you feel good about.",
+            undiscoveredDescription: "Echoes of value linger here — some inherited, some earned.",
+            discoveredDescription: "Understand how you think about money and what it means to feel secure.",
             background: AppColors.backgroundFinances,
             category: .finance
         ),
         Realm(
             orderIndex: 3,
-            emoji: "🌿",
+            icon: "realm44",
             name: "Garden of Well-Being",
             lifeArea: "Health and wellness",
-            undiscoveredDescription: "A secluded garden promising hidden paths to inner balance and rejuvenation.",
-            discoveredDescription: "Embrace self-care and mindful habits to cultivate lasting wellness.",
+            undiscoveredDescription: "Still and alive at once, with rhythms you’ve felt but never named.",
+            discoveredDescription: "Look at how you care for yourself and what your habits reveal about your needs.",
             background: AppColors.backgroundWellness,
             category: .wellness
         ),
         Realm(
             orderIndex: 4,
-            emoji: "🎨",
-            name: "Temple of Fulfillment",
+            icon: "realm55",
+            name: "Attic of Fulfillment",
             lifeArea: "Passion and creativity",
-            undiscoveredDescription: "An enigmatic temple hinting at bursts of passion and creative spark waiting to be found.",
-            discoveredDescription: "Ignite your passions and break through creative blocks to fuel your inner drive.",
+            undiscoveredDescription: "Dust floats in the light, and something meaningful rests quietly in the corner.",
+            discoveredDescription: "Revisit what excites you and uncover what brings you creative joy.",
             background: AppColors.backgroundPassion,
             category: .passion
         ),
         Realm(
             orderIndex: 5,
-            emoji: "🌀",
-            name: "Cavern of Self-Discovery",
+            icon: "realm66",
+            name: "Room of Mirrors",
             lifeArea: "Identity and purpose",
-            undiscoveredDescription: "A shadowed cavern offering clues to your true self and purpose.",
-            discoveredDescription: "Engage in honest reflection and take steps to uncover your true identity.",
+            undiscoveredDescription: "You step inside, and everything reflects — some of it familiar, some of it not.",
+            discoveredDescription: "Explore how you see yourself and what shapes your sense of identity.",
             background: AppColors.backgroundPurpose,
             category: .purpose
         ),
         Realm(
             orderIndex: 6,
-            emoji: "🏰",
+            icon: "realm77",
             name: "Palace of Possibility",
             lifeArea: "Uncharted Paths",
-            undiscoveredDescription: "A cloaked palace where bold, uncharted ideas are poised to ignite your future.",
-            discoveredDescription: "Explore innovative ideas and dare to pursue uncharted paths that redefine your future.",
+            undiscoveredDescription: "Each corridor feels like a question you haven’t asked yet.",
+            discoveredDescription: "Examine the paths that call to you and what holds you back from exploring them.",
             background: AppColors.backgroundUncharted,
             category: .generic
         )
@@ -120,9 +120,9 @@ extension Realm {
         return AppColors.backgroundCareer
     }
     
-    static func getEmoji(forLifeArea lifeArea: String) -> String {
+    static func getIcon(forLifeArea lifeArea: String) -> String {
         if let realm = realmsData.first(where: { $0.lifeArea == lifeArea }) {
-            return realm.emoji
+            return realm.icon
         }
         return ""
     }

@@ -102,9 +102,10 @@ struct OnboardingQuestionsView: View {
                 Text("🛌")
                     .font(.system(size: 40, design: .serif))
             default:
-                Text(Realm.getEmoji(forLifeArea: selectedCategory))
-                    .font(.system(size: 19, weight: .light))
-                    .fontWidth(.condensed)
+                Image(Realm.getIcon(forLifeArea: selectedCategory))
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 19)
                 
                 Text(selectedCategory)
                     .font(.system(size: 19, weight: .light).smallCaps())

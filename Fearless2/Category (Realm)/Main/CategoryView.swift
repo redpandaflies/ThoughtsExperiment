@@ -48,7 +48,7 @@ struct CategoryView: View {
     @AppStorage("unlockNewCategory") var newCategory: Bool = false
     @AppStorage("discoveredFirstCategory") var discoveredFirstCategory: Bool = false
     
-    let categoryEmojiSize: CGFloat = 50
+    let categoryEmojiSize: CGFloat = 100
     
     var safeAreaPadding: CGFloat {
         return (UIScreen.main.bounds.width - categoryEmojiSize)/2
@@ -73,8 +73,10 @@ struct CategoryView: View {
                         .opacity((!newCategory) ? 0 : 1)
                     
                     if showNewCategory {
-                        Text(categories[currentCategory].categoryEmoji)
-                            .font(.system(size: categoryEmojiSize))
+                        Image(categories[currentCategory].categoryEmoji)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: categoryEmojiSize)
                             .transition(
                                 .identity
                                     .animation(.linear(duration: 1).delay(2))
@@ -148,10 +150,10 @@ struct CategoryView: View {
                    
                 }
                 
-                ToolbarItem(placement: .principal) {
-                    ToolbarTitleItem(title: "Forgotten Realms")
-                        .opacity(newCategory ? 1 : 0)
-                }
+//                ToolbarItem(placement: .principal) {
+//                    ToolbarTitleItem(title: "Forgotten Realms")
+//                        .opacity(newCategory ? 1 : 0)
+//                }
                 
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {

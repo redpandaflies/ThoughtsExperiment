@@ -19,7 +19,7 @@ extension Realm: CategoryProtocol {
     
     var categoryId: UUID {self.id}
     var categoryName: String { self.name }
-    var categoryEmoji: String {self.emoji}
+    var categoryEmoji: String {self.icon}
     var categoryLifeArea: String { self.lifeArea }
 }
 

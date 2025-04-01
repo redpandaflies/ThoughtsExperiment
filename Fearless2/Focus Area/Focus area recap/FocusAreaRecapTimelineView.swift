@@ -43,7 +43,6 @@ struct FocusAreaRecapTimelineView: View {
     
     private func timelineItem(number: Int, text: String) -> some View {
            HStack(spacing: 10) {
-            
                
                Image(systemName: "\(number + 1).circle.fill")
                    .font(.system(size: 19))

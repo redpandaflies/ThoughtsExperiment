@@ -59,9 +59,8 @@ struct FocusAreaBox: View {
                 case 0:
                     LoadingPlaceholderContent(contentType: .focusArea)
                 
-                
                 case 1:
-                SectionListView(topicViewModel: topicViewModel, showFocusAreaRecapView: $showFocusAreaRecapView, selectedSection: $selectedSection, selectedSectionSummary: $selectedSectionSummary, selectedFocusArea: $selectedFocusArea, selectedEndOfTopicSection: $selectedEndOfTopicSection, focusArea: focusArea, focusAreaCompleted: focusArea.focusAreaStatus == FocusAreaStatusItem.completed.rawValue)
+                    SectionListView(topicViewModel: topicViewModel, showFocusAreaRecapView: $showFocusAreaRecapView, selectedSection: $selectedSection, selectedSectionSummary: $selectedSectionSummary, selectedFocusArea: $selectedFocusArea, selectedEndOfTopicSection: $selectedEndOfTopicSection, focusArea: focusArea, focusAreaCompleted: focusArea.focusAreaStatus == FocusAreaStatusItem.completed.rawValue)
                 
                 case 2:
                     SectionListLockedView()

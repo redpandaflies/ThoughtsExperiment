@@ -100,9 +100,8 @@ struct ContextGatherer {
         
         //send sections for focus area recap
         if selectedAssistant == .focusAreaSummary {
-            let lastFocusArea = focusAreas.last
             
-            if let currentFocusArea = lastFocusArea {
+            if let currentFocusArea = focusArea {
                 let focusAreaSections = currentFocusArea.focusAreaSections.sorted { $0.sectionNumber < $1.sectionNumber }
         
                 context += """
@@ -155,9 +154,12 @@ struct ContextGatherer {
         if !topics.isEmpty {
             // Sort topics by creation date string, earliest first
             let sortedTopics = topics.sorted { $0.topicCreatedAt < $1.topicCreatedAt }
+            // filter for topics that user created already, not the locked ones
+            let createdTopics = sortedTopics.filter { $0.topicStatus != TopicStatusItem.locked.rawValue }
+            
             context += "List of quests the user already started and completed, ordered from earliest to latest:\n"
             
-            for topic in sortedTopics {
+            for topic in createdTopics {
                 context += """
                 a) quest title and reasoning: \(topic.topicTitle) – \(topic.topicDefinition)
                 b) paths, their reasoning, and their summary within this quest: \n\n

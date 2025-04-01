@@ -22,17 +22,24 @@ struct TopicSuggestionsList: View {
     @Binding var currentTabBar: TabBarType
     
     let category: Category
-    let frameWidth: CGFloat = 260
+    let frameWidth: CGFloat = 310
     
     var body: some View {
         VStack {
             
-            Text("Choose your next quest")
-                .multilineTextAlignment(.leading)
-                .font(.system(size: 21, design: .serif))
+            Image(systemName: "arrow.triangle.branch")
+                .multilineTextAlignment(.center)
+                .font(.system(size: 50, weight: .light))
                 .foregroundStyle(AppColors.textPrimary)
-                .padding(.bottom, 20)
+                .padding(.bottom, 5)
+            
+            Text("Choose your next quest")
+                .multilineTextAlignment(.center)
+                .font(.system(size: 25, design: .serif))
+                .foregroundStyle(AppColors.textPrimary)
+                .padding(.bottom, 40)
                 .padding(.horizontal)
+              
             
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack (alignment: .center, spacing: 10) {
@@ -183,43 +190,135 @@ struct TopicSuggestionBox: View {
     let frameWidth: CGFloat
     let action: () -> Void
     
+    var totalFocusAreas: Int {
+        return suggestion.focusAreas.count
+    }
+    
     var body: some View {
         VStack (spacing: 20) {
-
+            
+            Text(suggestion.emoji)
+                .multilineTextAlignment(.center)
+                .font(.system(size: 40))
+                .foregroundStyle(AppColors.textPrimary)
+              
+            
             Text(suggestion.content)
                 .multilineTextAlignment(.center)
-                .font(.system(size: 21, design: .serif))
+                .font(.system(size: 21, weight: .semibold, design: .serif))
                 .foregroundStyle(AppColors.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
                 .lineSpacing(1.3)
-                .padding(.top, 30)
                 .padding(.horizontal)
+                .padding(.bottom, 10)
 
-            
-            Text(suggestion.reasoning)
-                .multilineTextAlignment(.center)
-                .font(.system(size: 15, weight: .light))
-                .foregroundStyle(AppColors.textPrimary.opacity(0.8))
-                .lineSpacing(1.4)
-                .fixedSize(horizontal: false, vertical: true)
-                .padding(.horizontal, 25)
+            getFocusAreasList()
+                .padding(.horizontal)
             
             Spacer()
             
-            RoundButton(buttonImage: "checkmark", buttonAction: {
+            RoundButton(buttonImage: "arrow.forward", size: 20, frameSize: 70, buttonAction: {
                 action()
             })
-            .padding(.bottom, 30)
+           
         }
-        .frame(width: frameWidth, height: 300)
+        .frame(width: frameWidth, height: 420)
+        .padding(.top, 30)
+        .padding(.bottom, 40)
         .contentShape(Rectangle())
         .background {
             RoundedRectangle(cornerRadius: 25)
                 .stroke(AppColors.whiteDefault.opacity(0.1), lineWidth: 0.5)
-                .fill(AppColors.boxGrey1.opacity(0.3))
+                .fill(AppColors.boxGrey4.opacity(0.3))
                 .shadow(color: .black.opacity(0.05), radius: 15, x: 0, y: 3)
                 .blendMode(.colorDodge)
         }
         
+    }
+    
+    private func getFocusAreasList() -> some View {
+        
+        VStack (alignment: .leading, spacing: 0) {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 3) {
+                    
+                    
+                    ForEach(Array(suggestion.focusAreas.enumerated()), id: \.element.focusAreaNumber) { index, focusArea in
+                        timelineItem(number: index, text: focusArea.content)
+                        
+                        if index < totalFocusAreas - 1 {
+                            connectingLine()
+                        }
+                    }
+                    
+                }
+                .padding()
+                .mask(
+                    LinearGradient(
+                        gradient: Gradient(stops: [
+                            .init(color: .white.opacity(0.4), location: 0.0),
+                            .init(color: .white.opacity(0.8), location: 0.65),
+                            .init(color: .white, location: 1)
+                        ]),
+                        startPoint: .bottom,
+                        endPoint: .top
+                    )
+                )
+                
+            }
+            .scrollIndicators(.hidden)
+            .frame(height: totalFocusAreas < 3 ? 90 : 130)
+           
+        }
+        .background {
+            getRectangle()
+        }
+        
+    }
+    
+    private func timelineItem(number: Int, text: String) -> some View {
+       HStack(spacing: 10) {
+           
+           Image(systemName: "\(number + 1).circle.fill")
+               .font(.system(size: 15))
+               .foregroundStyle(AppColors.textPrimary)
+               
+            
+           HStack (spacing: 3) {
+               Text(text)
+                   .font(.system(size: 15, weight: .light))
+                   .fontWidth(.condensed)
+                   .foregroundStyle(AppColors.textPrimary)
+               
+               if number == totalFocusAreas {
+               Image(systemName: "arrow.turn.right.down")
+                   .font(.system(size: 19, weight: .light))
+                   .fontWidth(.condensed)
+                   .foregroundStyle(AppColors.textPrimary)
+               }
+           }
+           
+           Spacer()
+            
+       }
+      
+   }
+       
+   private func connectingLine() -> some View {
+       RoundedRectangle(cornerRadius: 30)
+           .fill(Color.white.opacity(0.8))
+           .frame(width: 1, height: 15)
+           .padding(.leading, 8.5)
+           
+   }
+    
+    private func getRectangle() -> some View {
+        RoundedRectangle(cornerRadius: 15)
+            .foregroundStyle(
+                AppColors.boxGrey3.opacity(0.25)
+                    .blendMode(.multiply)
+                    .shadow(.inner(color: .black.opacity(0.5), radius: 5, x: 0, y: 2))
+                    .shadow(.drop(color: .white.opacity(0.2), radius: 0, x: 0, y: 1))
+            )
     }
 }

@@ -58,6 +58,8 @@ struct AppColors {
     static let boxSecondary = Color(.displayP3, red: 0.886, green: 0.886, blue: 0.886, opacity: 1) // #e2e2e2 off white/light grey
     static let boxGrey1 = Color(.displayP3, red: 0.682, green: 0.682, blue: 0.682, opacity: 1) // #aeaeae
     static let boxGrey2 = Color(.displayP3, red: 0.318, green: 0.318, blue: 0.318, opacity: 1) // #515151
+    static let boxGrey3 = Color(.displayP3, red: 0.729, green: 0.729, blue: 0.729, opacity: 1) // #bababa
+    static let boxGrey4 = Color(.displayP3, red: 0.518, green: 0.518, blue: 0.518, opacity: 1) // #848484
     static let boxYellow1 = Color(.displayP3, red: 1, green: 0.831, blue: 0.396, opacity: 1) // #ffd465
     static let boxYellow2 = Color(.displayP3, red: 1, green: 0.722, blue: 0, opacity: 1) // #ffb800
     

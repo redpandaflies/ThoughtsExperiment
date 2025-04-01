@@ -15,6 +15,7 @@ struct InfoPrimaryView: View {
         // Customizable properties
         let useIcon: Bool
         let iconName: String?
+        let iconWeight: Font.Weight?
         let titleText: String
         let descriptionText: String
         let useRectangleButton: Bool
@@ -25,6 +26,7 @@ struct InfoPrimaryView: View {
     init(backgroundColor: Color,
          useIcon: Bool,
          iconName: String? = nil,
+         iconWeight: Font.Weight? = .light,
          titleText: String,
          descriptionText: String,
          useRectangleButton: Bool,
@@ -35,6 +37,7 @@ struct InfoPrimaryView: View {
         self.backgroundColor = backgroundColor
         self.useIcon = useIcon
         self.iconName = iconName
+        self.iconWeight = iconWeight
         self.titleText = titleText
         self.descriptionText = descriptionText
         self.useRectangleButton = useRectangleButton
@@ -49,7 +52,7 @@ struct InfoPrimaryView: View {
                 
                 if useIcon {
                     Image(systemName: iconName ?? "safari.fill")
-                        .font(.system(size: 50, weight: .light))
+                        .font(.system(size: 50, weight: iconWeight))
                         .foregroundStyle(AppColors.textPrimary)
                         .padding(.bottom, 35)
                 } else {
@@ -61,7 +64,7 @@ struct InfoPrimaryView: View {
                     .font(.system(size: 25, design: .serif))
                     .foregroundStyle(AppColors.textPrimary)
                     .lineSpacing(1.4)
-                    .padding(.bottom, 25)
+                    .padding(.bottom, 20)
                 
                 Text(descriptionText)
                     .multilineTextAlignment(.center)
@@ -91,10 +94,10 @@ struct InfoPrimaryView: View {
                 }
             }
             .padding(.horizontal, 30)
-            .padding(.top, 50)
+            .padding(.top, 60)
             .padding(.bottom, 40)
-            .frame(maxWidth: .infinity, maxHeight: screenHeight * 0.65)
-            .backgroundSecondary(backgroundColor: backgroundColor, height: screenHeight * 0.65, yOffset: -(screenHeight * 0.35))
+            .frame(maxWidth: .infinity)
+            .backgroundSecondary(backgroundColor: backgroundColor, height: screenHeight * 0.65, yOffset: -(screenHeight * 0.3))
         }
     
     private func executeButtonAction() {

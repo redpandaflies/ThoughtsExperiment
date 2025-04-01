@@ -81,7 +81,7 @@ struct TopicsListView: View {
 //                switch topicsList {
 //                case .active:
                     ActiveTopicsView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, showCreateNewTopicView: $showCreateNewTopicView, selectedTopic: $selectedTopic, currentTabBar: $currentTabBar, selectedTabTopic: $selectedTabTopic, navigateToTopicDetailView: $navigateToTopicDetailView,
-                                     topicScrollPosition: $topicScrollPosition, categoriesScrollPosition: $categoriesScrollPosition,topics: topics, points: points, totalCategories: totalCategories
+                         topicScrollPosition: $topicScrollPosition, categoriesScrollPosition: $categoriesScrollPosition,topics: topics, points: points, totalCategories: totalCategories
                     )
 //                case .archived:
 //                    ArchivedTopicsView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, selectedTopic: $selectedTopic, currentTabBar: $currentTabBar, selectedTabTopic: $selectedTabTopic, navigateToTopicDetailView: $navigateToTopicDetailView)

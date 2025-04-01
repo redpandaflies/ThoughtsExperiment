@@ -46,7 +46,7 @@ struct ActiveTopicsView: View {
             .scrollTargetLayout()
             .navigationDestination(isPresented: $navigateToTopicDetailView) {
                 if let topic = selectedTopic {
-                    TopicDetailView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, selectedTabTopic: $selectedTabTopic, topic: topic, points: points, totalCategories: totalCategories)
+                    TopicDetailView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, points: points, selectedTabTopic: $selectedTabTopic, topic: topic, totalCategories: totalCategories)
                         .toolbarRole(.editor) //removes the word "back" in the back button
                         
                 }

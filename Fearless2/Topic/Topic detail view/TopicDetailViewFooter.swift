@@ -36,44 +36,45 @@ struct TopicDetailViewFooter: View {
             
             Spacer()
             
-            if topic?.completed != true {
-                Menu {
-                    
-                    
-                    Button (role: .destructive) {
-                        showDeleteTopicAlert = true
-                        
-                    } label: {
-                        
-                        Label("Abandon quest", systemImage: "trash")
-                    }
-                    
-                    //                if let currentTopic = topic, currentTopic.topicStatus == TopicStatusItem.archived.rawValue {
-                    //
-                    //                    Button {
-                    //                        updateTopicStatus(newStatus: .active)
-                    //                    } label: {
-                    //                        Label("Unarchive", systemImage: "arrow.up.bin")
-                    //                    }
-                    //                } else {
-                    //                    Button {
-                    //                        updateTopicStatus(newStatus: .archived)
-                    //
-                    //                    } label: {
-                    //                        Label("Archive", systemImage: "archivebox")
-                    //                    }
-                    //                }
-                    
+           
+            Menu {
+                
+                
+                Button (role: .destructive) {
+                    showDeleteTopicAlert = true
                     
                 } label: {
                     
-                    Image(systemName: "ellipsis")
-                        .font(.system(size: 20))
-                        .foregroundStyle(AppColors.whiteDefault.opacity(0.7))
-                        .frame(width: 30, height: 30)
-                    
+                    Label("Abandon quest", systemImage: "trash")
                 }
+                
+                //                if let currentTopic = topic, currentTopic.topicStatus == TopicStatusItem.archived.rawValue {
+                //
+                //                    Button {
+                //                        updateTopicStatus(newStatus: .active)
+                //                    } label: {
+                //                        Label("Unarchive", systemImage: "arrow.up.bin")
+                //                    }
+                //                } else {
+                //                    Button {
+                //                        updateTopicStatus(newStatus: .archived)
+                //
+                //                    } label: {
+                //                        Label("Archive", systemImage: "archivebox")
+                //                    }
+                //                }
+                
+                
+            } label: {
+                
+                Image(systemName: "ellipsis")
+                    .font(.system(size: 20))
+                    .foregroundStyle(AppColors.whiteDefault.opacity(0.7))
+                    .frame(width: 30, height: 30)
+                    .opacity(topic?.completed != true ? 1 : 0)
+                
             }
+            
             
             
         }//HStack

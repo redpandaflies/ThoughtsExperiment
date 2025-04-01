@@ -302,6 +302,7 @@ extension DataController {
                 
                 //add topic to category
                 category.addToTopics(topic)
+                self.logger.log("added new quest: \(quest.orderIndex) \(quest.questType.rawValue)")
             }
             
         }
@@ -647,12 +648,41 @@ extension DataController {
     //mark topic and section as complete
     func completeTopic(topic: Topic, section: Section) async {
         await context.perform {
+           
             section.completed = true
+            
             topic.completed = true
+            topic.status = TopicStatusItem.completed.rawValue
         }
         
         await self.save()
     }
+    
+    //mark topic as complete using topicId
+    func completeTopic2(id: UUID) async {
+        
+        let request = NSFetchRequest<Topic>(entityName: "Topic")
+        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        
+        await context.perform {
+            do {
+                let fetchedTopic = try self.context.fetch(request)
+                
+                if let topic = fetchedTopic.first {
+                    topic.completed = true
+                    topic.status = TopicStatusItem.completed.rawValue
+                }
+                
+            } catch {
+                self.logger.error("Failed to fetch and update topic in CoreData: \(error.localizedDescription)")
+            }
+            
+        }
+        
+        await self.save()
+        
+    }
+    
 }
 
 //MARK: category (realms)

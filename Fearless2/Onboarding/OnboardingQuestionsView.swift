@@ -250,7 +250,6 @@ struct OnboardingQuestionsView: View {
     }
     
     // MARK: - Handle the back button action
-    
     private func handleBackButton() {
         let answeredQuestionIndex = selectedQuestion
         
@@ -263,7 +262,6 @@ struct OnboardingQuestionsView: View {
     }
     
     private func navigateToPreviousQuestion() {
-        
         focusField = nil
         selectedQuestion -= 1
         withAnimation(.interpolatingSpring) {

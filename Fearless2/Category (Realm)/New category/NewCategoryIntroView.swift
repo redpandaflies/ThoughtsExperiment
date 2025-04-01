@@ -8,6 +8,7 @@ import Mixpanel
 import SwiftUI
 
 struct NewCategoryIntroView: View {
+    @EnvironmentObject var dataController: DataController
     
     @State private var animatedText = ""
     @State private var animator: TextAnimator?
@@ -26,6 +27,7 @@ struct NewCategoryIntroView: View {
     @AppStorage("unlockNewCategory") var newCategory: Bool = false
     @AppStorage("currentCategory") var currentCategory: Int = 0
     @AppStorage("showTopics") var showTopics: Bool = false
+    @AppStorage("selectedTopicId") var selectedTopicId: String = ""
     
     var body: some View {
         VStack (spacing: 10) {
@@ -112,6 +114,7 @@ struct NewCategoryIntroView: View {
             showQuestionsView = true
             
         default:
+            completeTopic()
             transitionToNewRealm()
         }
     }
@@ -146,6 +149,15 @@ struct NewCategoryIntroView: View {
             }
             
         }
+    }
+    
+    private func completeTopic() {
+        Task {
+            if let topicId = UUID(uuidString: selectedTopicId) {
+                await dataController.completeTopic2(id: topicId)
+            }
+        }
+        
     }
     
     private func showXmark() -> some View {

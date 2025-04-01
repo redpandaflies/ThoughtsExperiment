@@ -30,7 +30,9 @@ struct LoadingPlaceholderContent: View {
            
         }
         .frame(maxWidth: .infinity, alignment: .center)
-        
+        .onDisappear {
+            isAnimating = false
+        }
     }
     
     private func loadingBox() -> some View {

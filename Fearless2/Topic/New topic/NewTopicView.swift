@@ -43,7 +43,7 @@ struct NewTopicView: View {
             
                         
         }
-        .backgroundSecondary(forCategory: category.categoryName, height: screenHeight * 0.65, yOffset: -(screenHeight * 0.35))
+        .backgroundSecondary(forCategory: category.categoryName, height: screenHeight * 0.95, yOffset: -(screenHeight * 0.025))
         
     }
     

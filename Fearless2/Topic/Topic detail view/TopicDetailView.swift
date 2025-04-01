@@ -23,8 +23,6 @@ struct TopicDetailView: View {
     @State private var selectedEndOfTopicSection: Section? = nil
     @State private var headerHeight: CGFloat = 0
     @State private var focusAreaScrollPosition: Int?
-    @State private var showTutorialFocusArea: Bool = false
-    @State private var showInfoNewCategory: Bool = false
     @State private var showLaurelInfoSheet: Bool = false
     @State private var showInfoNotifications: Bool = false
     
@@ -34,28 +32,9 @@ struct TopicDetailView: View {
     let totalCategories: Int
     let screenWidth = UIScreen.current.bounds.width
     
-    @FetchRequest(
-        sortDescriptors: []
-    ) var topics: FetchedResults<Topic>
-    
-    @AppStorage("currentAppView") var currentAppView: Int = 0
-    @AppStorage("discoveredFirstFocusArea") var firstFocusArea: Bool = false
-    @AppStorage("unlockNewCategory") var unlockNewCategory: Int = 0
-    @AppStorage("seenNotificationsInfoSheet") var seenNotificationsInfoSheet: Bool = false
-    
-    init(topicViewModel: TopicViewModel, transcriptionViewModel: TranscriptionViewModel, selectedTabTopic: Binding<TopicPickerItem>, topic: Topic, points: Points, totalCategories: Int) {
-        self.topicViewModel = topicViewModel
-        self.transcriptionViewModel = transcriptionViewModel
-        self._selectedTabTopic = selectedTabTopic
-        self.topic = topic
-        self.points = points
-        self.totalCategories = totalCategories
-        
-    }
-    
     var body: some View {
         
-        NavigationStack {
+//        NavigationStack {
             ZStack {
                 
                 VStack {
@@ -106,8 +85,16 @@ struct TopicDetailView: View {
                     selectedTabTopic = .paths
                 }
                 //show notifications sheet
-                if !seenNotificationsInfoSheet {
-                    showInfoNotifications = true
+//                if !seenNotificationsInfoSheet {
+//                    showInfoNotifications = true
+//                }
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    let seenNotificationsInfoSheet = UserDefaults.standard.bool(forKey: "seenNotificationsInfoSheet")
+                    
+                    if !seenNotificationsInfoSheet {
+                        showInfoNotifications = true
+                    }
                 }
                 
                 //show sheet explaining the concept of focus areas(paths)
@@ -122,15 +109,6 @@ struct TopicDetailView: View {
                         showRecordingView = false
                     }
                     selectedEntry = newEntry
-                }
-            }
-            .onChange(of: selectedEndOfTopicSection) {
-                if selectedEndOfTopicSection == nil {
-                    print("Checking eligibility for new realm")
-                    //show unlock category alert
-                    let checker = NewCategoryEligibilityChecker()
-                    showInfoNewCategory = checker.checkEligibility(topics: topics, totalCategories: totalCategories)
-                    
                 }
             }
             .toolbar {
@@ -153,9 +131,9 @@ struct TopicDetailView: View {
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackgroundVisibility(.hidden)
-            .accentColor(AppColors.textPrimary)
-        }//NavigationStack
-        .tint(AppColors.textPrimary)
+//            .accentColor(AppColors.textPrimary)
+//        }//NavigationStack
+//        .tint(AppColors.textPrimary)
         .fullScreenCover(item: $selectedSection, onDismiss: {
             selectedSection = nil
         }) { section in
@@ -172,41 +150,6 @@ struct TopicDetailView: View {
             FocusAreaRecapView(topicViewModel: topicViewModel, focusArea: $selectedFocusArea, focusAreaScrollPosition: $focusAreaScrollPosition, topic: topic)
                 .presentationCornerRadius(20)
                 .presentationBackground(AppColors.black4)
-        }
-//        .sheet(isPresented: $showTutorialFocusArea, onDismiss: {
-//            showTutorialFocusArea = false
-//        }) {
-//            InfoPrimaryView(
-//                backgroundColor: getCategoryBackground(),
-//                useIcon: true,
-//                iconName: "point.bottomleft.forward.to.point.topright.filled.scurvepath",
-//                titleText: "Each quest has a number of paths you need to explore",
-//                descriptionText: "Paths are sets of questions designed to\nhelp you explore certain parts of your life.\nThey are unique to you.",
-//                useRectangleButton: false,
-//                buttonAction: {
-//                    firstFocusArea = true
-//                })
-//                .presentationDetents([.fraction(0.65)])
-//                .presentationCornerRadius(30)
-//                .interactiveDismissDisabled()
-//            
-//        }
-        .sheet(isPresented: $showInfoNewCategory, onDismiss: {
-            showInfoNewCategory = false
-        }) {
-            InfoPrimaryView(
-                backgroundColor: getCategoryBackground(),
-                useIcon: true,
-                iconName: "mountain.2.fill",
-                titleText: "A new realm emerges",
-                descriptionText: "The path ahead is shifting.\nStep forward and see where it leads.",
-                useRectangleButton: true,
-                rectangleButtonText: "Unveil your next realm",
-                buttonAction: {
-                    startNewRealmFlow()
-                })
-                .presentationDetents([.fraction(0.65)])
-                .presentationCornerRadius(30)
         }
         .sheet(isPresented: $showLaurelInfoSheet, onDismiss: {
             showLaurelInfoSheet = false
@@ -279,15 +222,6 @@ struct TopicDetailView: View {
         }
         
         return AppColors.backgroundCareer
-    }
-    
-    private func startNewRealmFlow() {
-       
-        currentAppView = 2
-        
-        DispatchQueue.global(qos: .background).async {
-            Mixpanel.mainInstance().track(event: "Started unveiling a new realm")
-        }
     }
     
 }

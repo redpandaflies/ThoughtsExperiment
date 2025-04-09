@@ -13,7 +13,6 @@ struct CategoriesScrollView: View {
     @Binding var isProgrammaticScroll: Bool
     
     var categories: FetchedResults<Category>
-    let lockedCategories: [Realm]
     let totalTopics: Int
     
     let frameWidth: CGFloat = 100
@@ -28,16 +27,13 @@ struct CategoriesScrollView: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack (alignment: .center, spacing: 12) {
                 
+                getIcon(index: 0, icon: "realm6" )
+                
                 ForEach(Array(categories.enumerated()), id: \.element.categoryId) { index, category in
-                    getIcon(index: index, icon: category.categoryEmoji)
+                    getIcon(index: index + 1, icon: category.categoryEmoji)
                  
                 }
                 
-                if totalTopics > 0 {
-                    ForEach(Array(lockedCategories.enumerated()), id: \.element.orderIndex) { index, category in
-                        getIcon(index: categories.count + index, icon: "lockedDoor")
-                    }
-                }
             }
             .scrollTargetLayout()
         }

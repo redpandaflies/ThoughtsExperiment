@@ -85,7 +85,14 @@ struct FocusAreaBox: View {
                     } else if topicViewModel.createNewFocusArea == .retry {
                         selectedTab = 3
                     } else {
-                        selectedTab = 1
+                        //in the event createNewFoucsArea is not yet == .loading, but a new focuus area is being created
+                       let sections = focusArea.focusAreaSections
+                        
+                        if sections.count > 0 {
+                            selectedTab = 1
+                        } else {
+                            selectedTab = 0
+                        }
                     }
                 case .completed:
                     selectedTab = 1

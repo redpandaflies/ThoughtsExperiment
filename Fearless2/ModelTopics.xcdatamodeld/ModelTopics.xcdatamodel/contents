@@ -143,6 +143,7 @@
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="overview" optional="YES" attributeType="String"/>
         <attribute name="overviewGenerated" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="summary" optional="YES" attributeType="String"/>
         <relationship name="topic" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Topic" inverseName="review" inverseEntity="Topic"/>
     </entity>
     <entity name="Understand" representedClassName="Understand" syncable="YES" codeGenerationType="class">

@@ -15,38 +15,47 @@ struct EndTopicView: View {
     @State private var selectedTab: Int = 0
     @State private var showFragment: Bool = false
     @State private var startRepeatingAnimation: Bool = false
+    @State private var animatedText = ""
     @Binding var section: Section?
     @ObservedObject var topic: Topic
     
     var body: some View {
         NavigationStack {
-            VStack {
+            ZStack {
                 
-                Group {
+                
+                VStack (alignment: (selectedTab == 1) ? .leading : .center, spacing: 5) {
                     switch selectedTab {
-                    case 0:
-                        RecapCelebrationView(title: section?.topic?.topicTitle ?? "", text: "For completing", points: "+5")
-                            .padding(.horizontal)
-                            .padding(.bottom, 30)
-                        
-                    default:
-                        topicRecapView()
-                        
+                        case 0:
+                            RecapCelebrationView(title: section?.topic?.topicTitle ?? "", text: "For completing", points: "+5")
+                                .padding(.horizontal)
+                                .padding(.bottom, 100)
+                            
+                        case 1:
+                            recapView()
+                               
+                            
+                        default:
+                            fragmentView()
+                                .padding(.bottom, 100)
                     }
                 }
-                .padding(.bottom, 90)
                 
-                RectangleButtonPrimary(
-                    buttonText: getButtonText(),
-                    action: {
-                        buttonAction()
-                    },
-                    disableMainButton: disableButton(),
-                    buttonColor: .white
-                )
-                .padding(.bottom, 10)
-                .padding(.horizontal)
-                
+                VStack {
+                    
+                    Spacer()
+                    
+                    RectangleButtonPrimary(
+                        buttonText: getButtonText(),
+                        action: {
+                            buttonAction()
+                        },
+                        disableMainButton: disableButton(),
+                        buttonColor: .white
+                    )
+                    .padding(.bottom, 10)
+                    .padding(.horizontal)
+                }
                 
             }//VStack
             .background {
@@ -78,10 +87,24 @@ struct EndTopicView: View {
     
     
     private func getButtonText() -> String {
-        if selectedTab == 0 {
-            return "Next: restore lost fragment"
-        } else {
-            return getButtonTextFragmentView()
+        switch selectedTab {
+            case 0:
+                return "Next: quest reflection"
+            case 1:
+               return getButtonTextRecapView()
+            default:
+                return getButtonTextFragmentView()
+        }
+    }
+    
+    private func getButtonTextRecapView() -> String {
+        switch topicViewModel.createTopicOverview {
+            case .ready:
+                return "Next: restore lost fragment"
+            case .loading:
+               return "Loading . . ."
+            case .retry:
+                return "Retry"
         }
     }
     
@@ -98,30 +121,37 @@ struct EndTopicView: View {
     
     
     private func buttonAction() {
-        if selectedTab == 0 {
+        
+        switch selectedTab {
+        case 0:
             selectedTab += 1
             Task {
                 //add 5 points for completing topic
                 await dataController.updatePoints(newPoints: 5)
             }
-        } else {
-            
-            if let currentSection = section {
-                Task {
-                    //mark section as complete
-                    await dataController.completeSection(section: currentSection)
-                    
-                    //mark topic as complete
-                    await dataController.completeTopic(topic: topic, section: currentSection)
-                    
-                    //close view
-                    await MainActor.run {
-                        dismiss()
-                    }
-                    
-                    DispatchQueue.global(qos: .background).async {
-                        Mixpanel.mainInstance().track(event: "Completed quest")
-                    }
+        case 1:
+            selectedTab += 1
+        default:
+            completeFlow()
+        }
+    }
+    
+    private func completeFlow() {
+        if let currentSection = section {
+            Task {
+                //mark section as complete
+                await dataController.completeSection(section: currentSection)
+                
+                //mark topic as complete
+                await dataController.completeTopic(topic: topic, section: currentSection)
+                
+                //close view
+                await MainActor.run {
+                    dismiss()
+                }
+                
+                DispatchQueue.global(qos: .background).async {
+                    Mixpanel.mainInstance().track(event: "Completed quest")
                 }
             }
         }
@@ -136,7 +166,31 @@ struct EndTopicView: View {
         }
     }
     
-    @ViewBuilder private func topicRecapView() -> some View {
+    @ViewBuilder private func recapView() -> some View {
+        ScrollView {
+            RecapReflectionView(
+                topicViewModel: topicViewModel,
+                animatedText: $animatedText,
+                feedback: topic.review?.reviewSummary ?? "",
+                retryAction: {
+                    getTopicReview()
+                },
+                topic: topic
+            )
+            .padding(.top, 20)
+            .padding(.horizontal)
+        }
+        .scrollIndicators(.hidden)
+        .scrollDisabled(true)
+        .safeAreaInset(edge: .bottom, content: {
+            Rectangle()
+                .fill(Color.clear)
+                .frame(height: 120)
+        })
+        
+    }
+    
+    @ViewBuilder private func fragmentView() -> some View {
         
         VStack {
                 
@@ -155,10 +209,10 @@ struct EndTopicView: View {
                               )
                     }
                 } else { //happens when user sees this view before API call has been made
-                    LoadingPlaceholderContent(contentType: .topicReview)
+                    LoadingPlaceholderContent(contentType: .topicFragment)
                 }
             case .loading:
-                LoadingPlaceholderContent(contentType: .topicReview)
+                LoadingPlaceholderContent(contentType: .topicFragment)
             case .retry:
                 RetryButton(action: {
                     getTopicReview()
@@ -187,14 +241,15 @@ struct EndTopicView: View {
         }
     }
     
+    
+    
     private func getTopicReview() {
         
         if let _ = topic.review?.reviewOverview {
             selectedTab = 1
         } else {
-            
+            topicViewModel.createTopicOverview = .loading
             Task {
-                
                 //generate review
                 do {
                     try await topicViewModel.manageRun(selectedAssistant: .topicOverview, topicId: topic.topicId)
@@ -222,76 +277,4 @@ struct EndTopicView: View {
     }
 }
 
-struct TopicRecapFragmentBox: View {
-    
-    let fragmentText: String
-    let boxBorder: CGFloat = 10
-    
-    var body: some View {
-       
-        VStack (spacing: 0){
-            
-            HStack {
-                shortLine()
-                
-                Text("Fragment restored")
-                    .font(.system(size: 19, weight: .light).smallCaps())
-                    .fontWidth(.condensed)
-                    .foregroundStyle(AppColors.textBlack)
-                    .tracking(0.3)
-                    .opacity(0.8)
-                    .fixedSize()
-                    .padding(.horizontal, 10)
-                shortLine()
-                
-            }
-            .frame(height: 70, alignment: .bottom)
-          
-            
-            HStack {
-                Text(fragmentText)
-                    .multilineTextAlignment(.center)
-                    .font(.system(size: 20, design: .serif))
-                    .foregroundStyle(AppColors.textBlack)
-                    .lineSpacing(1.3)
-                    .padding(.bottom, 40)
-            }
-            .frame(minHeight: 240)
-           
-            
-        }
-        .padding(.horizontal, 35)
-        .frame(width: 310)
-        .background {
-            RoundedRectangle(cornerRadius: 25)
-                .stroke(Color.white.opacity(0.4), lineWidth: 0.5)
-                .fill(
-                    LinearGradient(colors: [Color.white, AppColors.boxSecondary], startPoint: .top, endPoint: .bottom)
-                )
-                .shadow(color: Color.white.opacity(0.25), radius: 30, x: 0, y: 0)
-                .padding(boxBorder)
-                .background {
-                    RoundedRectangle(cornerRadius: 30)
-                        .stroke(Color.white.opacity(0.2), lineWidth: 0.5)
-                        .fill(AppColors.boxGrey1.opacity(0.2))
-                        .blendMode(.colorDodge)
-                    
-                }
-                
-        }
 
-        
-    }
-    
-    private func shortLine() -> some View {
-        Rectangle()
-            .fill(Color.black.opacity(0.1))
-            .shadow(color: Color.white.opacity(0.5), radius: 0, x: 0, y: 1)
-            .frame(maxWidth: .infinity)
-            .frame(height: 1)
-    }
-}
-
-#Preview {
-    TopicRecapFragmentBox(fragmentText: "You observe the moment, but do you let it transform you?")
-}

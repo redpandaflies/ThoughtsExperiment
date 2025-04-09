@@ -11,7 +11,6 @@ import SwiftUI
 struct TopicDetailView: View {
     @EnvironmentObject var dataController: DataController
     @ObservedObject var topicViewModel: TopicViewModel
-    @ObservedObject var transcriptionViewModel: TranscriptionViewModel
     @ObservedObject var points: Points
     
     @State private var showRecordingView: Bool = false
@@ -114,7 +113,7 @@ struct TopicDetailView: View {
             .toolbar {
                
                 ToolbarItem(placement: .principal) {
-                    ToolbarTitleItem(title: topic.category?.categoryEmoji ?? "", largerFont: true)
+                    ToolbarTitleItemIcon(icon: topic.category?.categoryEmoji ?? "")
                 }
                 
                 ToolbarItem(placement: .topBarTrailing) {

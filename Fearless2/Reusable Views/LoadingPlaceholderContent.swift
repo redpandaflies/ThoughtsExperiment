@@ -11,7 +11,7 @@ import Pow
 enum PlaceholderContent {
     case focusArea
     case suggestions
-    case topicReview
+    case topicFragment
 }
 
 struct LoadingPlaceholderContent: View {
@@ -69,7 +69,7 @@ struct LoadingPlaceholderContent: View {
             return "Uncovering path"
         case .suggestions:
             return "Uncovering suggestions"
-        case .topicReview:
+        case .topicFragment:
             return "Restoring fragment"
         }
     }

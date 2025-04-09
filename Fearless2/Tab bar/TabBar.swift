@@ -12,7 +12,6 @@ enum TabBarType {
 }
 
 struct TabBar: View {
-    @ObservedObject var transcriptionViewModel: TranscriptionViewModel
     @Binding var currentTabBar: TabBarType
     @Binding var selectedTabHome: TabBarItemHome
     @Binding var selectedTabTopic: TopicPickerItem
@@ -45,7 +44,7 @@ struct TabBar: View {
 //                        HomeTabBar(selectedTabHome: $selectedTabHome)
                         //                            .transition(.opacity.combined(with: .scale(0.8)))
                     case .topic:
-                        TopicDetailViewFooter(transcriptionViewModel: transcriptionViewModel, selectedTabTopic: $selectedTabTopic, currentTabBar: $currentTabBar, navigateToTopicDetailView: $navigateToTopicDetailView, topic: topic)
+                        TopicDetailViewFooter(selectedTabTopic: $selectedTabTopic, currentTabBar: $currentTabBar, navigateToTopicDetailView: $navigateToTopicDetailView, topic: topic)
                             .transition(.opacity.combined(with: .scale(0.8)))
                     }
                     

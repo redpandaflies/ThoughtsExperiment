@@ -63,6 +63,22 @@ struct AppColors {
     static let boxYellow1 = Color(.displayP3, red: 1, green: 0.831, blue: 0.396, opacity: 1) // #ffd465
     static let boxYellow2 = Color(.displayP3, red: 1, green: 0.722, blue: 0, opacity: 1) // #ffb800
     
+    // Category gradients
+    static let careerGradient1 = Color(.displayP3, red: 0, green: 0.294, blue: 0.647, opacity: 1) // #004ba5
+    static let careerGradient2 = Color(.displayP3, red: 0, green: 0.118, blue: 0.259, opacity: 1) // #001e42
+
+    static let financesGradient1 = Color(.displayP3, red: 1, green: 0.667, blue: 0, opacity: 1) // #ffaa00
+    static let financesGradient2 = Color(.displayP3, red: 0.365, green: 0.243, blue: 0, opacity: 1) // #5d3e00
+
+    static let relationshipsGradient1 = Color(.displayP3, red: 1, green: 0.373, blue: 0, opacity: 1) // #ff5f00
+    static let relationshipsGradient2 = Color(.displayP3, red: 0.467, green: 0.224, blue: 0.078, opacity: 1) // #773914
+
+    static let passionsGradient1 = Color(.displayP3, red: 0.349, green: 0.176, blue: 0.667, opacity: 1) // #592daa
+    static let passionsGradient2 = Color(.displayP3, red: 0.114, green: 0.067, blue: 0.2, opacity: 1) // #1d1133
+
+    static let wellnessGradient1 = Color(.displayP3, red: 0.78, green: 1, blue: 0, opacity: 1) // #c7ff00
+    static let wellnessGradient2 = Color(.displayP3, red: 0.267, green: 0.341, blue: 0, opacity: 1) // #445700
+    
     // Buttons
     static let buttonPrimary = textSecondary
     static let buttonYellow1 = boxYellow1
@@ -72,13 +88,6 @@ struct AppColors {
 
     // Background
     static let backgroundPrimary = textSecondary
-//    static let backgroundCareer = Color(.displayP3, red: 0.059, green: 0.141, blue: 0.239, opacity: 1) // #0f243d
-//    static let backgroundUncharted = Color(.displayP3, red: 0.29, green: 0.063, blue: 0.067, opacity: 1) // #4a1011
-//    static let backgroundRelationships = Color(.displayP3, red: 0.333, green: 0.149, blue: 0.039, opacity: 1) // #55260a
-//    static let backgroundFinances = Color(.displayP3, red: 0.365, green: 0.243, blue: 0, opacity: 1) // #5d3e00
-//    static let backgroundWellness = Color(.displayP3, red: 0.176, green: 0.22, blue: 0.024, opacity: 1) // #2d3806
-//    static let backgroundPassion = Color(.displayP3, red: 0.055, green: 0.204, blue: 0.188, opacity: 1) // #0e3430
-//    static let backgroundPurpose = Color(.displayP3, red: 0.114, green: 0.067, blue: 0.2, opacity: 1) // #1d1133
     static let backgroundOnboardingIntro = Color(.displayP3, red: 0.082, green: 0.082, blue: 0.09, opacity: 1)
     
     

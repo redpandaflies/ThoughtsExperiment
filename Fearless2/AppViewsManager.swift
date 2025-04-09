@@ -9,8 +9,7 @@ import SwiftUI
 
 struct AppViewsManager: View {
     
-    @EnvironmentObject var dataController: DataController
-    @EnvironmentObject var openAISwiftService: OpenAISwiftService
+    @EnvironmentObject var viewModelFactoryMain: ViewModelFactoryMain
     
     @State private var currentView: Int = 0
     
@@ -21,10 +20,6 @@ struct AppViewsManager: View {
     ) var categories: FetchedResults<Category>
     
     @AppStorage("currentAppView") var currentAppView: Int = 0
-     
-    init(dataController: DataController, openAISwiftService: OpenAISwiftService) {
-        
-    }
 
     var body: some View {
         Group {
@@ -33,7 +28,7 @@ struct AppViewsManager: View {
                 OnboardingMainView()
             case 1:
                 if !categories.isEmpty {
-                    MainAppManager(dataController: dataController, openAISwiftService: openAISwiftService)
+                    MainAppManager(understandViewModel: viewModelFactoryMain.makeUnderstandViewModel(), topicViewModel: viewModelFactoryMain.makeTopicViewModel())
                     
                 } else {
                     //Should never happen, user should always have categories unless they haven't done onboarding, may come up during testing

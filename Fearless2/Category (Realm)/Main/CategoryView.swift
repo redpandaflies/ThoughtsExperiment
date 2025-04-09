@@ -11,7 +11,6 @@ import SwiftUI
 
 struct CategoryView: View {
     @ObservedObject var topicViewModel: TopicViewModel
-    @ObservedObject var transcriptionViewModel: TranscriptionViewModel
     @EnvironmentObject var dataController: DataController
     
     @State private var categoriesScrollPosition: Int?
@@ -59,8 +58,12 @@ struct CategoryView: View {
         return checker.checkEligibility(topics: topics, totalCategories: categories.count)
     }
     
-    var lockedCategories: [Realm] {
-        return getLockedCategories()
+    var currentCategoryScrollPosition: Int {
+        if let scrollPostion = categoriesScrollPosition {
+            return Int(scrollPostion - 1) // subtracting 1 because 0 is mirror realm
+        }
+        
+        return 0
     }
     
     var body: some View {
@@ -69,7 +72,7 @@ struct CategoryView: View {
             VStack {
                 // MARK: - Categories Scroll View
                 ZStack {
-                    CategoriesScrollView(categoriesScrollPosition: $categoriesScrollPosition, isProgrammaticScroll: $isProgrammaticScroll, categories: categories, lockedCategories: lockedCategories, totalTopics: topics.count)
+                    CategoriesScrollView(categoriesScrollPosition: $categoriesScrollPosition, isProgrammaticScroll: $isProgrammaticScroll, categories: categories, totalTopics: topics.count)
                         .opacity((!newCategory) ? 0 : 1)
                     
                     if showNewCategory {
@@ -91,21 +94,18 @@ struct CategoryView: View {
                     }
                 }
                 .frame(height: categoryEmojiSize)
-                
-                
-                if let scrollPosition = categoriesScrollPosition, scrollPosition < categories.count {
-                    
+              
+                if let scrollPosition = categoriesScrollPosition, scrollPosition > 0 {
                     // MARK: - Category description
-                    ///  scrollPosition < categories.count needed for when scroll is on the questionmark
-                    CategoryDescriptionView(animationStage: $animationStage, showNewCategory: $showNewCategory, category: categories[scrollPosition])
+                    CategoryDescriptionView(animationStage: $animationStage, showNewCategory: $showNewCategory, category: categories[currentCategoryScrollPosition])
                         .padding(.vertical, 25)
                         .padding(.horizontal, 30)
-    
+                    
                     
                     // MARK: - To do
-    //                CategoryMissionBox()
-    //                    .padding(.horizontal)
-    //                    .padding(.bottom, 25)
+                    //                CategoryMissionBox()
+                    //                    .padding(.horizontal)
+                    //                    .padding(.bottom, 25)
                     
                     if showTopics {
                         
@@ -117,19 +117,14 @@ struct CategoryView: View {
                                 .padding(.top, 20)
                             
                             // MARK: - Quests map
-                            QuestMapView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, selectedTopic: $selectedTopic, currentTabBar: $currentTabBar, selectedTabTopic: $selectedTabTopic, navigateToTopicDetailView: $navigateToTopicDetailView, categoriesScrollPosition: $categoriesScrollPosition, category: categories[scrollPosition], points: currentPoints, totalCategories: categories.count, backgroundColor: getCategoryBackground())
+                            QuestMapView(topicViewModel: topicViewModel, selectedTopic: $selectedTopic, currentTabBar: $currentTabBar, selectedTabTopic: $selectedTabTopic, navigateToTopicDetailView: $navigateToTopicDetailView, categoriesScrollPosition: $categoriesScrollPosition, category: categories[currentCategoryScrollPosition], points: currentPoints, totalCategories: categories.count, backgroundColor: getCategoryBackground())
                             
                         }
                     }
+                } else {
+                    MirrorMainView(categoriesScrollPosition: $categoriesScrollPosition, categories: categories)
                     
-                } else if topics.count > 0 {
-                    if let scrollPosition = categoriesScrollPosition {
-                        let totalCategories = categories.count
-                        let lockedScrollPosition = scrollPosition - totalCategories
-                        CategoryUndiscoveredView(topics: topics, category: lockedCategories[lockedScrollPosition], showUndiscovered: showUndiscovered, unlockedCategories: totalCategories)
-                    }
                 }
-                
                 
             } //VStack
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -302,25 +297,14 @@ struct CategoryView: View {
             return AppColors.backgroundOnboardingIntro
         }
         
-        if scrollPosition < categories.count {
-            return Realm.getBackgroundColor(forName: categories[scrollPosition].categoryName)
+        if scrollPosition > 0 {
+            
+            return Realm.getBackgroundColor(forName: categories[currentCategoryScrollPosition].categoryName)
+            
         } else {
-            let lockedScrollPosition = scrollPosition - categories.count
-            return Realm.getBackgroundColor(forName: lockedCategories[lockedScrollPosition].name)
+            return AppColors.backgroundOnboardingIntro
         }
 
     }
     
-    private func getLockedCategories() -> [Realm] {
-        let existingCategories = categories.compactMap { category in
-            return category.categoryName
-        }
-        
-        let undiscoveredCategories = Realm.realmsData.filter { realm in
-            !existingCategories.contains(realm.name)
-        }
-        
-        return undiscoveredCategories
-        
-    }
 }

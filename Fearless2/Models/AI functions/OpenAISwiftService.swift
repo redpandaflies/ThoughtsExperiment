@@ -310,6 +310,7 @@ extension OpenAISwiftService {
             review.reviewId = UUID()
             review.reviewCreatedAt = getCurrentTimeString()
             review.reviewOverview = newReview.overview
+            review.reviewSummary = newReview.summary
             review.overviewGenerated = true
             topic.assignReview(review)
               
@@ -648,6 +649,7 @@ struct NewTopic: Codable, Hashable {
 //Create topic overview
 struct NewTopicOverview: Codable, Hashable {
     let overview: String
+    let summary: String
 }
 
 //Create topic suggestions

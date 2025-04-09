@@ -27,3 +27,16 @@ struct ToolbarTitleItem: View {
     }
 }
 
+struct ToolbarTitleItemIcon: View {
+    
+    let icon: String
+    
+    var body: some View {
+        
+        Image(icon)
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(width: 35)
+       
+    }
+}

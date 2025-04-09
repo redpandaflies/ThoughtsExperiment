@@ -10,7 +10,6 @@ import SwiftUI
 struct TopicDetailViewFooter: View {
     
     @EnvironmentObject var dataController: DataController
-    @ObservedObject var transcriptionViewModel: TranscriptionViewModel
     
     @State private var showDeleteTopicAlert: Bool = false
     

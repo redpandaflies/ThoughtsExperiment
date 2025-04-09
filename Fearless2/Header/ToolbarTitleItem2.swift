@@ -15,10 +15,10 @@ struct ToolbarTitleItem2: View {
     var body: some View {
         HStack (spacing: 3) {
             if !emoji.isEmpty {
-                Text(emoji)
-                    .multilineTextAlignment(.leading)
-                    .font(.system(size: 19, weight: .light))
-                    .foregroundStyle(AppColors.textPrimary.opacity(0.7))
+                Image(emoji)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 19)
             }
             
             Text(title)

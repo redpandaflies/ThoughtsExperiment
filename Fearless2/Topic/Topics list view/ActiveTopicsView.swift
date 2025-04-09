@@ -9,7 +9,6 @@ import SwiftUI
 
 struct ActiveTopicsView: View {
     @ObservedObject var topicViewModel: TopicViewModel
-    @ObservedObject var transcriptionViewModel: TranscriptionViewModel
     @Binding var showCreateNewTopicView: Bool
     @Binding var selectedTopic: Topic?
     @Binding var currentTabBar: TabBarType
@@ -46,7 +45,7 @@ struct ActiveTopicsView: View {
             .scrollTargetLayout()
             .navigationDestination(isPresented: $navigateToTopicDetailView) {
                 if let topic = selectedTopic {
-                    TopicDetailView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, points: points, selectedTabTopic: $selectedTabTopic, topic: topic, totalCategories: totalCategories)
+                    TopicDetailView(topicViewModel: topicViewModel, points: points, selectedTabTopic: $selectedTabTopic, topic: topic, totalCategories: totalCategories)
                         .toolbarRole(.editor) //removes the word "back" in the back button
                         
                 }

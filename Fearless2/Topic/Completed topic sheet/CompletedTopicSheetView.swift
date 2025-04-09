@@ -14,12 +14,6 @@ struct CompletedTopicSheetView: View {
     
     let screenHeight = UIScreen.current.bounds.height
     
-    var sortedFocusAreas: [FocusArea] {
-        let focusAreas = topic.topicFocusAreas
-        let orderedList = focusAreas.sorted { $0.focusAreaCreatedAt < $1.focusAreaCreatedAt }
-        return orderedList.filter { $0.endOfTopic != true }
-    }
-
     var body: some View {
         VStack {
             Text(topic.topicEmoji)
@@ -35,7 +29,7 @@ struct CompletedTopicSheetView: View {
                 .padding(.bottom, 40)
             
             
-            FocusAreaSummariesList(sortedFocusAreas: sortedFocusAreas)
+            CompletedTopicSummaryBox(topic: topic)
             
             
             Spacer()
@@ -57,64 +51,26 @@ struct CompletedTopicSheetView: View {
     }
 }
 
-struct FocusAreaSummariesList: View {
+struct CompletedTopicSummaryBox: View {
     @State private var scrollPosition: Int?
     
-    let sortedFocusAreas: [FocusArea]
-    
-    var pageCount: Int {
-        return sortedFocusAreas.count
-    }
-    
-    let screenWidth = UIScreen.current.bounds.width
+    let topic: Topic
     
     let frameWidth: CGFloat = 320
-    
-    var safeAreaPadding: CGFloat {
-        return (screenWidth - frameWidth) / 2
-    }
+  
     
     var body: some View {
-        VStack (spacing: 20) {
-            ScrollView (.horizontal) {
-                
-                HStack (spacing: 35) {
-                    
-                    //Path summaries
-                    ForEach(Array(sortedFocusAreas.enumerated()), id: \.element.focusAreaId) { index, focusArea in
-                        summaryBox(focusArea: focusArea)
-                            .id(index)
-                    }
-                    
-                }
-                .scrollTargetLayout()
-                
-            }
-            .scrollPosition(id: $scrollPosition, anchor: .center)
-            .scrollIndicators(.hidden)
-            .scrollClipDisabled()
-            .contentMargins(.horizontal, safeAreaPadding, for: .scrollContent)
-            .scrollTargetBehavior(.viewAligned(limitBehavior: .alwaysByOne))
-            
-            //Scroll indicators
-            if pageCount > 1 {
-                PageIndicatorView(scrollPosition: $scrollPosition, pagesCount: pageCount)
-            }
-        }
-    }
-    
-    private func summaryBox(focusArea: FocusArea) -> some View {
         VStack (alignment: .leading) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 15) {
-                    Text(DateFormatter.displayString(from: DateFormatter.incomingFormat.date(from: focusArea.focusAreaCompletedAt) ?? Date()))
+                    Text(DateFormatter.displayString(from: DateFormatter.incomingFormat.date(from: topic.topicCreatedAt) ?? Date()))
                         .font(.system(size: 15, weight: .thin).smallCaps())
                         .foregroundStyle(AppColors.textPrimary)
                         .fontWidth(.condensed)
                         .tracking(0.3)
                         .opacity(0.6)
                     
-                    if let summary = focusArea.summary?.summarySummary {
+                    if let summary = topic.review?.reviewSummary {
                         
                         Text(summary)
                             .multilineTextAlignment(.leading)
@@ -135,7 +91,6 @@ struct FocusAreaSummariesList: View {
                 .fill(Color.clear)
         }
     }
-    
 }
 
 //#Preview {

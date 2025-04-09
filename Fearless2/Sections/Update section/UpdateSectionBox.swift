@@ -32,8 +32,10 @@ struct UpdateSectionBox: View {
                 HStack (spacing: 0) {
                     
                     if let categoryEmoji = section?.category?.categoryEmoji {
-                        Text(categoryEmoji)
-                            .font(.system(size: 19))
+                        Image(categoryEmoji)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 19)
                             .padding(.trailing, 5)
                     }
                     

@@ -19,10 +19,13 @@ struct Realm: Identifiable {
     let undiscoveredDescription: String
     let discoveredDescription: String
     let background: Color
+    let gradient1: Color
+    let gradient2: Color
     let category: QuestionCategory
     
     init(orderIndex: Int, icon: String, name: String, lifeArea: String,
-         undiscoveredDescription: String, discoveredDescription: String, background: Color, category: QuestionCategory) {
+         undiscoveredDescription: String, discoveredDescription: String,
+         background: Color, gradient1: Color, gradient2: Color, category: QuestionCategory) {
         self.id = UUID()
         self.orderIndex = orderIndex
         self.icon = icon
@@ -31,6 +34,8 @@ struct Realm: Identifiable {
         self.undiscoveredDescription = undiscoveredDescription
         self.discoveredDescription = discoveredDescription
         self.background = background
+        self.gradient1 = gradient1
+        self.gradient2 = gradient2
         self.category = category
     }
 }
@@ -46,6 +51,8 @@ extension Realm {
             undiscoveredDescription: "Where the air is thin, and something inside you keeps reaching higher.",
             discoveredDescription: "Explore what truly drives you and examine the values behind your pursuit.",
             background: AppColors.backgroundCareer,
+            gradient1: AppColors.careerGradient1,
+            gradient2: AppColors.careerGradient2,
             category: .career
         ),
         Realm(
@@ -56,6 +63,8 @@ extension Realm {
             undiscoveredDescription: "A quiet place that feels warm, even before you step inside.",
             discoveredDescription: "Reflect on the relationships that shape you and what it means to feel connected.",
             background: AppColors.backgroundRelationships,
+            gradient1: AppColors.relationshipsGradient1,
+            gradient2: AppColors.relationshipsGradient2,
             category: .relationships
         ),
         Realm(
@@ -66,6 +75,8 @@ extension Realm {
             undiscoveredDescription: "Echoes of value linger here — some inherited, some earned.",
             discoveredDescription: "Understand how you think about money and what it means to feel secure.",
             background: AppColors.backgroundFinances,
+            gradient1: AppColors.financesGradient1,
+            gradient2: AppColors.financesGradient2,
             category: .finance
         ),
         Realm(
@@ -73,9 +84,11 @@ extension Realm {
             icon: "realm44",
             name: "Garden of Well-Being",
             lifeArea: "Health and wellness",
-            undiscoveredDescription: "Still and alive at once, with rhythms you’ve felt but never named.",
+            undiscoveredDescription: "Still and alive at once, with rhythms you've felt but never named.",
             discoveredDescription: "Look at how you care for yourself and what your habits reveal about your needs.",
             background: AppColors.backgroundWellness,
+            gradient1: AppColors.wellnessGradient1,
+            gradient2: AppColors.wellnessGradient2,
             category: .wellness
         ),
         Realm(
@@ -86,6 +99,8 @@ extension Realm {
             undiscoveredDescription: "Dust floats in the light, and something meaningful rests quietly in the corner.",
             discoveredDescription: "Revisit what excites you and uncover what brings you creative joy.",
             background: AppColors.backgroundPassion,
+            gradient1: AppColors.passionsGradient1,
+            gradient2: AppColors.passionsGradient2,
             category: .passion
         ),
         Realm(
@@ -96,6 +111,8 @@ extension Realm {
             undiscoveredDescription: "You step inside, and everything reflects — some of it familiar, some of it not.",
             discoveredDescription: "Explore how you see yourself and what shapes your sense of identity.",
             background: AppColors.backgroundPurpose,
+            gradient1: Color.white,
+            gradient2: Color.white,
             category: .purpose
         ),
         Realm(
@@ -103,9 +120,11 @@ extension Realm {
             icon: "realm77",
             name: "Palace of Possibility",
             lifeArea: "Uncharted Paths",
-            undiscoveredDescription: "Each corridor feels like a question you haven’t asked yet.",
+            undiscoveredDescription: "Each corridor feels like a question you haven't asked yet.",
             discoveredDescription: "Examine the paths that call to you and what holds you back from exploring them.",
             background: AppColors.backgroundUncharted,
+            gradient1: Color.white,
+            gradient2: Color.white,
             category: .generic
         )
     ]
@@ -118,6 +137,22 @@ extension Realm {
         }
         // Default color if no match is found
         return AppColors.backgroundCareer
+    }
+    
+    static func getGradient1(forName name: String) -> Color {
+        if let realm = realmsData.first(where: { $0.name == name }) {
+            return realm.gradient1
+        }
+        // Default color if no match is found
+        return AppColors.careerGradient1
+    }
+
+    static func getGradient2(forName name: String) -> Color {
+        if let realm = realmsData.first(where: { $0.name == name }) {
+            return realm.gradient2
+        }
+        // Default color if no match is found
+        return AppColors.careerGradient2
     }
     
     static func getIcon(forLifeArea lifeArea: String) -> String {

@@ -15,8 +15,7 @@ enum TopicsList {
 struct TopicsListView: View {
     
     @ObservedObject var topicViewModel: TopicViewModel
-    @ObservedObject var transcriptionViewModel: TranscriptionViewModel
-    
+
     @State private var showSectionRecapView: Bool = false
     @State private var showCreateNewTopicView: Bool = false
     @State private var selectedSection: Section? = nil
@@ -43,7 +42,6 @@ struct TopicsListView: View {
     }
     
     init(topicViewModel: TopicViewModel,
-         transcriptionViewModel: TranscriptionViewModel,
          selectedTopic: Binding<Topic?>,
          currentTabBar: Binding<TabBarType>,
          selectedTabTopic: Binding<TopicPickerItem>,
@@ -55,7 +53,6 @@ struct TopicsListView: View {
     ) {
         
         self.topicViewModel = topicViewModel
-        self.transcriptionViewModel = transcriptionViewModel
         self._selectedTopic = selectedTopic
         self._currentTabBar = currentTabBar
         self._selectedTabTopic = selectedTabTopic
@@ -80,7 +77,7 @@ struct TopicsListView: View {
             VStack (spacing: 12) {
 //                switch topicsList {
 //                case .active:
-                    ActiveTopicsView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, showCreateNewTopicView: $showCreateNewTopicView, selectedTopic: $selectedTopic, currentTabBar: $currentTabBar, selectedTabTopic: $selectedTabTopic, navigateToTopicDetailView: $navigateToTopicDetailView,
+                    ActiveTopicsView(topicViewModel: topicViewModel, showCreateNewTopicView: $showCreateNewTopicView, selectedTopic: $selectedTopic, currentTabBar: $currentTabBar, selectedTabTopic: $selectedTabTopic, navigateToTopicDetailView: $navigateToTopicDetailView,
                          topicScrollPosition: $topicScrollPosition, categoriesScrollPosition: $categoriesScrollPosition,topics: topics, points: points, totalCategories: totalCategories
                     )
 //                case .archived:

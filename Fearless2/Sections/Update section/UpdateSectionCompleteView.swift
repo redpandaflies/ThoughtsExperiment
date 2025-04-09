@@ -30,9 +30,10 @@ struct UpdateSectionCompleteView: View {
         VStack (alignment: .leading, spacing: 10){
             
             HStack {
-                Text(focusArea.category?.categoryEmoji ?? "")
-                    .multilineTextAlignment(.leading)
-                    .font(.system(size: 29))
+                Image(focusArea.category?.categoryEmoji ?? "")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 29)
                 
                 Spacer()
                 
@@ -109,7 +110,6 @@ struct UpdateSectionCompleteView: View {
           
             
         }//HStack
-       
         
     }
     

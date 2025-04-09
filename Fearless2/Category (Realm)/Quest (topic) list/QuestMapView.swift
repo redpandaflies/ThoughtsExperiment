@@ -13,7 +13,6 @@ struct QuestMapView: View {
     @Environment(\.dismiss) var dismiss
    
     @ObservedObject var topicViewModel: TopicViewModel
-    @ObservedObject var transcriptionViewModel: TranscriptionViewModel
     
     @State private var showCreateNewTopicView: Bool = false
     @State private var playHapticEffect: Int = 0
@@ -56,7 +55,6 @@ struct QuestMapView: View {
     }
     
     init(topicViewModel: TopicViewModel,
-         transcriptionViewModel: TranscriptionViewModel,
          selectedTopic: Binding<Topic?>,
          currentTabBar: Binding<TabBarType>,
          selectedTabTopic: Binding<TopicPickerItem>,
@@ -69,7 +67,6 @@ struct QuestMapView: View {
     ) {
         
         self.topicViewModel = topicViewModel
-        self.transcriptionViewModel = transcriptionViewModel
         self._selectedTopic = selectedTopic
         self._currentTabBar = currentTabBar
         self._selectedTabTopic = selectedTabTopic
@@ -104,11 +101,8 @@ struct QuestMapView: View {
                         onQuestTap(topic: topic)
                     }
                     .sensoryFeedback(.selection, trigger: playHapticEffect)
-                    
-                   
                 }
-                
-                
+
             }
             .onAppear {
                 withAnimation(.snappy(duration: 0.2)) {
@@ -131,7 +125,7 @@ struct QuestMapView: View {
             }
             .navigationDestination(isPresented: $navigateToTopicDetailView) {
                 if let topic = selectedTopic {
-                    TopicDetailView(topicViewModel: topicViewModel, transcriptionViewModel: transcriptionViewModel, points: points, selectedTabTopic: $selectedTabTopic, topic: topic, totalCategories: totalCategories)
+                    TopicDetailView(topicViewModel: topicViewModel, points: points, selectedTabTopic: $selectedTabTopic, topic: topic, totalCategories: totalCategories)
                         .toolbarRole(.editor) //removes the word "back" in the back button
                 }
             }
@@ -258,11 +252,14 @@ struct QuestMapView: View {
                 }
                 
             case .completed:
-                //set selected topic to current topic
+//                //set selected topic to current topic
                 selectedTopic = topic
                 
-                //open sheet
+//                //open sheet
                 showCompletedTopicSheet = true
+                
+                //navigate to topic detail view (for testing)
+//                goToTopicDetailView(topic: topic)
             }
             
         } else if questType == .newCategory {

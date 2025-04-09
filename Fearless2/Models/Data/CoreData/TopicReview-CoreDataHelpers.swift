@@ -24,4 +24,9 @@ extension TopicReview {
         set { overview = newValue }
     }
     
+    var reviewSummary: String {
+        get { summary ?? "" }
+        set { summary = newValue }
+    }
+    
 }

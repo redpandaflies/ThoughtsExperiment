@@ -269,13 +269,47 @@ extension OpenAISwiftService {
         }
     }
     
+    func processCreateCategorySummary(messageText: String, goal: Goal) async throws -> NewCreateCategorySummary? {
+        let arguments = messageText
+        let context = self.dataController.container.viewContext
+        // Decode the arguments to get the category summary
+        guard let categorySummary = self.decodeArguments(arguments: arguments, as: NewCreateCategorySummary.self) else {
+            loggerOpenAI.error("Couldn't decode arguments for category summary.")
+            throw ProcessingError.decodingError("category summary")
+        }
+        
+        //add goal attributes
+        try await context.perform {
+            
+            goal.goalTitle = categorySummary.goal.title
+            goal.goalProblem = categorySummary.goal.problem
+            goal.goalResolution = categorySummary.goal.resolution
+            
+            try self.saveCoreDataChanges(context: context, errorDescription: "new goal")
+        }
+        
+        
+        return categorySummary
+    }
+    
+    func processPlanSuggestions(messageText: String) async throws -> NewPlanSuggestions? {
+        let arguments = messageText
+        
+        // Decode the arguments to get the plan suggestions
+        guard let planSuggestions = self.decodeArguments(arguments: arguments, as: NewPlanSuggestions.self) else {
+            loggerOpenAI.error("Couldn't decode arguments for plan suggestions.")
+            throw ProcessingError.decodingError("plan suggestions")
+        }
+        
+        return planSuggestions
+    }
     
     
-    func processTopicSuggestions(messageText: String) async throws -> NewTopicSuggestions? {
+    func processTopicGenerated(messageText: String) async throws -> NewTopicGenerated? {
         let arguments = messageText
         
         // Decode the arguments to get the new topic suggestions
-        guard let newSuggestions = self.decodeArguments(arguments: arguments, as: NewTopicSuggestions.self) else {
+        guard let newSuggestions = self.decodeArguments(arguments: arguments, as: NewTopicGenerated.self) else {
             loggerOpenAI.error("Couldn't decode arguments for topic suggestions.")
             throw ProcessingError.decodingError("topic suggestions")
         }
@@ -639,6 +673,57 @@ enum SenderRole: String, Codable {
     case assistant
 }
 
+// Create new category "hear's what I heard"
+struct NewCreateCategorySummary: Codable, Hashable {
+    let summary: String
+    let goal: NewGoal
+}
+
+struct NewGoal: Codable, Hashable {
+    let title: String
+    let problem: String
+    let resolution: String
+}
+
+struct NewPlanSuggestions: Codable, Hashable {
+    let plans: [NewPlan]
+}
+
+
+struct NewPlan: Codable, Hashable {
+    let title: String
+    let intent: String
+    let explore: [String]
+    let expectations: [NewExpectation]
+    let quests: [NewTopic1]
+}
+
+struct NewExpectation: Codable, Hashable {
+    let expectationsNumber: Int
+    let content: String
+
+    enum CodingKeys: String, CodingKey {
+        case expectationsNumber = "expectations_number"
+        case content
+    }
+}
+
+struct NewTopic1: Codable, Hashable {
+    let questNumber: Int
+    let title: String
+    let objective: String
+    let emoji: String
+    let questType: String
+    
+    enum CodingKeys: String, CodingKey {
+        case questNumber = "quest_number"
+        case title
+        case objective
+        case emoji
+        case questType = "quest_type"
+    }
+}
+
 //Create new focus area
 struct NewTopic: Codable, Hashable {
     let title: String
@@ -653,20 +738,14 @@ struct NewTopicOverview: Codable, Hashable {
 }
 
 //Create topic suggestions
-struct NewTopicSuggestions: Codable, Hashable {
-    let suggestions: [NewTopicSuggestion]
+struct NewTopicGenerated: Codable, Hashable {
+    let suggestion: NewTopicSuggestion
 }
 
 struct NewTopicSuggestion: Codable, Hashable {
-    let content: String
-    let reasoning: String
-    let emoji: String
     let focusAreas: [NewFocusAreaHeading]
     
     enum CodingKeys: String, CodingKey {
-        case content
-        case reasoning
-        case emoji
         case focusAreas = "focus_areas"
     }
 }

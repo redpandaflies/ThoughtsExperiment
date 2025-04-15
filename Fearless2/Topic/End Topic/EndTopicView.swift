@@ -22,8 +22,6 @@ struct EndTopicView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                
-                
                 VStack (alignment: (selectedTab == 1) ? .leading : .center, spacing: 5) {
                     switch selectedTab {
                         case 0:

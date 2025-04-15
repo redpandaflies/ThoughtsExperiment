@@ -10,6 +10,7 @@ import SwiftUI
 enum RectangleButtonColor {
     case yellow
     case white
+    case clear
 }
 
 struct RectangleButtonPrimary: View {
@@ -109,7 +110,7 @@ struct RectangleButtonPrimary: View {
             
             Text(buttonText)
                 .font(.system(size: sizeSmall ? 13 : 15, weight: .medium))
-                .foregroundStyle(Color.black)
+                .foregroundStyle(buttonColor == .clear ? AppColors.textPrimary : .black)
             
             if showChevron {
                 Image(systemName: "chevron.right")
@@ -125,9 +126,10 @@ struct RectangleButtonPrimary: View {
         .contentShape(RoundedRectangle(cornerRadius: 15))
         .background {
             RoundedRectangle(cornerRadius: 15)
+                .stroke(buttonColor == .clear ? AppColors.textPrimary : Color.clear, lineWidth: 0.5)
                 .fill(
                     LinearGradient(
-                        gradient: Gradient(colors: buttonColor == .yellow ? [AppColors.buttonYellow1, AppColors.buttonYellow2] : [Color.white, AppColors.buttonLightGrey1]),
+                        gradient: Gradient(colors: getGradientColors()),
                         startPoint: .top,
                         endPoint: .bottom
                     )
@@ -137,6 +139,17 @@ struct RectangleButtonPrimary: View {
         }
         .opacity(disableMainButton ? 0.3 : 1)
         
+    }
+    
+    func getGradientColors() -> [Color] {
+        switch buttonColor {
+        case .yellow:
+            return [AppColors.buttonYellow1, AppColors.buttonYellow2]
+        case .white:
+            return [Color.white, AppColors.buttonLightGrey1]
+        case .clear:
+            return [Color.clear, Color.clear]
+        }
     }
 }
 

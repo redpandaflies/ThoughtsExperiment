@@ -30,16 +30,17 @@ extension SingleSelectOption: Identifiable {
 
 struct QuestionSingleSelectView: View {
     @Binding var singleSelectAnswer: String
-    @Binding var customItems: [String]
+    @Binding var customItems: [String] //options created by user
     @Binding var showProgressBar: Bool
     let question: String
     let items: [String]
     let answer: String //saved answer for question, used when user navigates to previous question and come back
     let itemsEdited: Bool
+    let subTitle: String
     
     @FocusState private var isFocused: Bool
 
-    init(singleSelectAnswer: Binding<String>, customItems: Binding<[String]> = .constant([]), showProgressBar: Binding<Bool> = .constant(true), question: String, items: [String], answer: String = "", itemsEdited: Bool = false) {
+    init(singleSelectAnswer: Binding<String>, customItems: Binding<[String]> = .constant([]), showProgressBar: Binding<Bool> = .constant(true), question: String, items: [String], answer: String = "", itemsEdited: Bool = false, subTitle: String = "") {
         self._singleSelectAnswer = singleSelectAnswer
         self._customItems = customItems
         self._showProgressBar = showProgressBar
@@ -47,6 +48,7 @@ struct QuestionSingleSelectView: View {
         self.items = items
         self.answer = answer
         self.itemsEdited = itemsEdited
+        self.subTitle = subTitle
     }
     
     // Process the options once to determine which ones are editable
@@ -72,8 +74,16 @@ struct QuestionSingleSelectView: View {
                 .font(.system(size: 22, design: .serif))
                 .foregroundStyle(AppColors.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
-                .padding(.bottom, 15)
+                .padding(.bottom, subTitle.isEmpty ? 15 : 0)
             
+            if !subTitle.isEmpty {
+                Text(subTitle)
+                    .multilineTextAlignment(.leading)
+                    .font(.system(size: 13, weight: .light).smallCaps())
+                    .foregroundStyle(AppColors.textPrimary.opacity(0.7))
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.bottom, 10)
+            }
             
             VStack (spacing: 15) {
                 ForEach(processedOptions, id: \.index) { option in

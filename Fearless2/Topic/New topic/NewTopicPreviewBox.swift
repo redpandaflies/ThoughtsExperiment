@@ -1,5 +1,5 @@
 //
-//  TopicSuggestionsList.swift
+//  NewTopicPreviewBox.swift
 //  Fearless2
 //
 //  Created by Yue Deng-Wu on 10/3/24.
@@ -8,7 +8,7 @@ import Mixpanel
 import SwiftUI
 
 
-struct TopicSuggestionsList: View {
+struct NewTopicPreviewBox: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var dataController: DataController
     @ObservedObject var topicViewModel: TopicViewModel
@@ -45,10 +45,12 @@ struct TopicSuggestionsList: View {
                 HStack (alignment: .center, spacing: 10) {
                     switch selectedTabSuggestionsList {
                     case 0:
-                        LoadingPlaceholderContent(contentType: .suggestions)
+                        LoadingPlaceholderContent(contentType: .newTopic)
                             .frame(width: frameWidth)
                     case 1:
-                        suggestionsList()
+                        if let topic = selectedTopic, let suggestion = topicViewModel.topicGenerated {
+                            newTopic(topic: topic, suggestion: suggestion)
+                        }
                     default:
                         FocusAreaRetryView(action: {
                             retryTopicSuggestions()
@@ -67,10 +69,10 @@ struct TopicSuggestionsList: View {
             Spacer()
         }//VStack
         .onAppear {
-            getTopicSuggestions()
+            getNewTopic()
         }
-        .onChange(of: topicViewModel.topicSuggestions) {
-            if !topicViewModel.topicSuggestions.isEmpty {
+        .onChange(of: topicViewModel.topicGenerated) {
+            if let _ = topicViewModel.topicGenerated {
                 selectedTabSuggestionsList = 1
             }
             
@@ -81,10 +83,9 @@ struct TopicSuggestionsList: View {
         
     }
     
-    private func suggestionsList() -> some View {
-        ForEach(topicViewModel.topicSuggestions, id: \.self) { suggestion in
-            
-            TopicSuggestionBox(suggestion: suggestion, frameWidth: frameWidth, action: {
+    private func newTopic(topic: Topic, suggestion: NewTopicSuggestion) -> some View {
+       
+        TopicSuggestionBox(topic: topic, suggestion: suggestion, frameWidth: frameWidth, action: {
                 selectTopic(suggestion: suggestion)
             })
             .onTapGesture {
@@ -97,14 +98,19 @@ struct TopicSuggestionsList: View {
                     .opacity(phase.isIdentity ? 1 : 0.8)
                     .scaleEffect(x: phase.isIdentity ? 1 : 0.95, y: phase.isIdentity ? 1 : 0.95)
             }
-        }
+        
     }
     
-    private func getTopicSuggestions() {
+    private func getNewTopic() {
+        guard let existingTopicId = selectedTopic?.topicId else {
+            print("No selected topic found. Failed to save topic updates")
+            return
+        }
+        
         Task {
   
             do {
-                try await topicViewModel.manageRun(selectedAssistant: .topicSuggestions2, category: self.category)
+                try await topicViewModel.manageRun(selectedAssistant: .topic, topicId: existingTopicId)
             } catch {
                 selectedTabSuggestionsList = 2
             }
@@ -114,7 +120,7 @@ struct TopicSuggestionsList: View {
     
     private func retryTopicSuggestions() {
         selectedTabSuggestionsList = 0
-        getTopicSuggestions()
+        getNewTopic()
     }
     
     //MARK: Create selected topic and its first focus area
@@ -185,7 +191,7 @@ struct TopicSuggestionsList: View {
 }
 
 struct TopicSuggestionBox: View {
-   
+    let topic: Topic
     let suggestion: NewTopicSuggestion
     let frameWidth: CGFloat
     let action: () -> Void
@@ -197,13 +203,13 @@ struct TopicSuggestionBox: View {
     var body: some View {
         VStack (spacing: 20) {
             
-            Text(suggestion.emoji)
+            Text(topic.topicEmoji)
                 .multilineTextAlignment(.center)
                 .font(.system(size: 40))
                 .foregroundStyle(AppColors.textPrimary)
               
             
-            Text(suggestion.content)
+            Text(topic.topicDefinition)
                 .multilineTextAlignment(.center)
                 .font(.system(size: 21, weight: .semibold, design: .serif))
                 .foregroundStyle(AppColors.textPrimary)

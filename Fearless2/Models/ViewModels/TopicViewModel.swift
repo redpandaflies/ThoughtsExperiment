@@ -11,7 +11,7 @@ import OSLog
 final class TopicViewModel: ObservableObject {
     
     @Published var topicUpdated: Bool = false
-    @Published var topicSuggestions: [NewTopicSuggestion]  = []
+    @Published var topicGenerated: NewTopicSuggestion? = nil
     @Published var createTopicOverview: TopicOverviewState = .ready
     @Published var showPlaceholder: Bool = false
     @Published var generatingImage: Bool = false
@@ -77,7 +77,7 @@ final class TopicViewModel: ObservableObject {
             await MainActor.run {
                 self.threadId = nil
                 self.topicUpdated = false
-                self.topicSuggestions = []
+                self.topicGenerated = nil
                 self.showPlaceholder = false
                 self.generatingImage = false
                 if selectedAssistant == .focusArea {
@@ -127,14 +127,14 @@ final class TopicViewModel: ObservableObject {
             
             switch selectedAssistant {
                 
-            case .topicSuggestions2:
-                guard let newSuggestions = try await openAISwiftService.processTopicSuggestions(messageText: messageText) else {
+            case .topic:
+                guard let newSuggestion = try await openAISwiftService.processTopicGenerated(messageText: messageText) else {
                     loggerOpenAI.error("Failed to process topic suggestions")
                     throw ProcessingError.processingFailed()
                 }
                 
                 await MainActor.run {
-                    self.topicSuggestions = newSuggestions.suggestions
+                    self.topicGenerated = newSuggestion.suggestion
                 }
                 
             case .topicOverview:

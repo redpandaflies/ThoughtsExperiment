@@ -10,6 +10,8 @@ import Foundation
 
 enum AssistantItem: Int, CaseIterable {
     
+    case newCategory
+    case planSuggestion
     case topic
     case topicOverview
     case topicSuggestions
@@ -23,6 +25,10 @@ enum AssistantItem: Int, CaseIterable {
     
     func getAssistantId() -> String? {
         switch self {
+        case .newCategory:
+            return Constants.openAIAssistantIdNewCategory
+        case .planSuggestion:
+            return Constants.openAIAssistantIdPlanSuggestion
         case .topic:
             return Constants.openAIAssistantIdTopic
         case .topicOverview:

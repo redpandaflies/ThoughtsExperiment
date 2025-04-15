@@ -39,7 +39,7 @@ struct NewTopicView: View {
             })
             .padding(.horizontal)
            
-            TopicSuggestionsList(topicViewModel: topicViewModel, selectedTopic: $selectedTopic, navigateToTopicDetailView: $navigateToTopicDetailView, currentTabBar: $currentTabBar, category: category)
+            NewTopicPreviewBox(topicViewModel: topicViewModel, selectedTopic: $selectedTopic, navigateToTopicDetailView: $navigateToTopicDetailView, currentTabBar: $currentTabBar, category: category)
             
                         
         }

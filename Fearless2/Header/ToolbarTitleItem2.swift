@@ -13,7 +13,7 @@ struct ToolbarTitleItem2: View {
     let title: String
     
     var body: some View {
-        HStack (spacing: 3) {
+        HStack (spacing: 8) {
             if !emoji.isEmpty {
                 Image(emoji)
                     .resizable()

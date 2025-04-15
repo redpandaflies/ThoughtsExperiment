@@ -11,7 +11,7 @@ import OSLog
 @MainActor
 struct ContextGatherer {
     
-    static func gatherContextGeneral(dataController: DataController, loggerCoreData: Logger, selectedAssistant: AssistantItem? = nil, topicId: UUID, transcript: String? = nil, userInput: [String]? = nil, focusArea: FocusArea? = nil) async -> String? {
+    static func gatherContextGeneral(dataController: DataController, loggerCoreData: Logger, selectedAssistant: AssistantItem? = nil, topicId: UUID, focusArea: FocusArea? = nil) async -> String? {
         
         guard let assistant = selectedAssistant else {
             loggerCoreData.error("No assistant selected")
@@ -28,6 +28,13 @@ struct ContextGatherer {
             return nil
         }
         
+        guard let goal = category.categoryGoals.first else {
+            loggerCoreData.error("Failed to get related goal")
+            return nil
+        }
+        
+        let sequence = goal.goalSequences.filter { $0.sequenceStatus != SequenceStatusItem.completed.rawValue }
+        
         var context = "Life area: \(category.categoryLifeArea)\n\n"
         
         switch assistant {
@@ -39,6 +46,23 @@ struct ContextGatherer {
                 break
         }
         
+        //goal info
+        context += """
+        The goal the user is working on is: \(goal.goalTitle).
+        a) problem: \(goal.goalProblem)
+        b) user wants help with: \(goal.goalProblemType)
+        c) what resolution of problem looks like in user's mind: \(goal.goalResolution)\n\n
+        """
+        
+        
+        //sequence info
+        if let firstSequence = sequence.first {
+            context += """
+            The sequence (collection of quests) the user is working on is: \(firstSequence.sequenceTitle).
+            a) intent: \(firstSequence.sequenceIntent)
+            b) objectives: \(firstSequence.sequenceObjectives)\n\n
+            """
+        }
         
         //topic info
         context += "Here is what we know so far about the quest this belongs to: \n\n"
@@ -97,7 +121,6 @@ struct ContextGatherer {
             }
         }
         
-        
         //send sections for focus area recap
         if selectedAssistant == .focusAreaSummary {
             
@@ -124,9 +147,6 @@ struct ContextGatherer {
             }
             
         }
-
-        //get questions answered when creating category
-        context += getOnboardingContext(from: category)
         
         //topic focus area limit
         context += "\nThis quest will have exactly \(topic.focusAreasLimit) paths (focus areas)."
@@ -135,18 +155,12 @@ struct ContextGatherer {
        
     }
     
-    //for topic suggestions
-    static func gatherContextTopicSuggestions(dataController: DataController, loggerCoreData: Logger, category: Category) async -> String? {
+    // for new category flow
+    static func gatherContextNewCategory(dataController: DataController, loggerCoreData: Logger, category: Category, goal: Goal) async -> String? {
         var context = "Current life area: \(category.categoryLifeArea).\n\n"
         
-        // Get focus areas limit
-        let highestFocusAreaTopic = category.categoryTopics.max(by: { $0.focusAreasLimit < $1.focusAreasLimit })
-        let highestFocusAreasLimit = highestFocusAreaTopic?.focusAreasLimit ?? 0
-        let focusAreasLimit = min(max(highestFocusAreasLimit + 1, 2), 5)
-        context += "Please generate exactly \(focusAreasLimit) focus areas for each quest.\n\n"
-        
         //get questions answered when creating category
-        context += getOnboardingContext(from: category)
+        context += getNewGoalContext(goal: goal)
         
         // Get all topics
         let topics = category.categoryTopics
@@ -162,21 +176,94 @@ struct ContextGatherer {
             for topic in createdTopics {
                 context += """
                 a) quest title and reasoning: \(topic.topicTitle) – \(topic.topicDefinition)
-                b) paths, their reasoning, and their summary within this quest: \n\n
+                b) quest summary: \(topic.review?.reviewSummary ?? "No summary, quest still in progress") \n\n
                 """
+            }
+        }
+
+        return context
+    }
+    
+    //for new topic
+    static func gatherContextNewTopic(dataController: DataController, loggerCoreData: Logger, topicId: UUID) async -> String? {
+        guard let topic = await dataController.fetchTopic(id: topicId) else {
+               loggerCoreData.error("Failed to fetch topic with ID: \(topicId.uuidString)")
+               return nil
+        }
+        
+        guard let category = topic.category else {
+            loggerCoreData.error("Failed to get related cateogry")
+            return nil
+        }
+        guard let goal = category.categoryGoals.first else {
+            loggerCoreData.error("Failed to get related goal")
+            return nil
+        }
+        
+        let sequence = goal.goalSequences.filter { $0.sequenceStatus != SequenceStatusItem.completed.rawValue }
+        
+        var context = """
+            Please create focus areas for this quest: \(topic.topicTitle).
+            a) quest objective: \(topic.topicDefinition)
+            b) quest type: \(topic.topicQuestType). 
+            c) quest number: \(topic.orderIndex). \n\n
+        """
+        
+        context += "The quest belongs to this life area: \(category.categoryLifeArea).\n\n"
+        
+        //goal info
+        context += """
+        The quest should help the user work on this goal: \(goal.goalTitle).
+        a) problem: \(goal.goalProblem)
+        b) user wants help with: \(goal.goalProblemType)
+        c) what resolution of problem looks like in user's mind: \(goal.goalResolution)\n\n
+        """
+        
+        //sequence info
+        if let firstSequence = sequence.first {
+            context += """
+            The quest belongs to this sequence (collection of quests): \(firstSequence.sequenceTitle).
+            a) intent: \(firstSequence.sequenceIntent)
+            b) objectives: \(firstSequence.sequenceObjectives)\n\n
+            """
+            
+            let sequenceTopics = firstSequence.sequenceTopics
+            let completedTopics = sequenceTopics.filter { $0.topicStatus == TopicStatusItem.completed.rawValue }.sorted { $0.orderIndex < $1.orderIndex }
+            let lockedTopics = sequenceTopics.filter {
+                $0.topicStatus == TopicStatusItem.locked.rawValue &&
+                $0.topicTitle != topic.topicTitle
+            }.sorted { $0.orderIndex < $1.orderIndex }
+            
+            // Get focus areas limit
+            let highestFocusAreaTopic = sequenceTopics.max(by: { $0.focusAreasLimit < $1.focusAreasLimit })
+            let highestFocusAreasLimit = highestFocusAreaTopic?.focusAreasLimit ?? 0
+            let focusAreasLimit = min(max(highestFocusAreasLimit + 1, 2), 5)
+            context += "Please generate exactly \(focusAreasLimit) focus areas for this quest.\n\n"
+            
+            //list locked topics
+            if lockedTopics.count > 0 {
+                context += "Here are the upcoming topics in this sequence:\n\n"
                 
-                let focusAreas = topic.topicFocusAreas
-                
-                for focusArea in focusAreas {
+                for topic in lockedTopics {
                     context += """
-                    - Path title: \(focusArea.focusAreaTitle)
-                    - Path reasoning: \(focusArea.focusAreaReasoning)\n
+                        Title: \(topic.topicTitle)
+                        Objective: \(topic.topicDefinition)\n\n
                     """
-                    if let summary = focusArea.summary?.summarySummary {
-                        context += "- Path summary: \(summary)\n\n"
-                    }
                 }
             }
+            
+            //list completed topics
+            if completedTopics.count > 0 {
+                context += "Here are the completed topics for this sequence:\n\n"
+                
+                for topic in completedTopics {
+                    context += """
+                        Title: \(topic.topicTitle)
+                        Summary: \(topic.review?.reviewSummary ?? "")\n\n
+                    """
+                }
+            }
+            
         }
 
         return context
@@ -272,6 +359,18 @@ extension ContextGatherer {
             .sorted { $0.questionCreatedAt < $1.questionCreatedAt }
         
         context += getQuestions(categoryQuestions)
+        
+        return context
+    }
+    
+    private static func getNewGoalContext(goal: Goal) -> String {
+        var context = "User's answers to questions about a problem in this area of their life: \n"
+        
+        let goalQuestions = goal.goalQuestions
+            .filter { $0.categoryStarter == true }
+            .sorted { $0.questionCreatedAt < $1.questionCreatedAt }
+        
+        context += getQuestions(goalQuestions)
         
         return context
     }

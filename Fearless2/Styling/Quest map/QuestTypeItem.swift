@@ -8,6 +8,7 @@ import Foundation
 import SwiftUI
 
 enum QuestTypeItem: String, CaseIterable {
+    case expectations
     case guided
     case newCategory
     case context
@@ -16,6 +17,8 @@ enum QuestTypeItem: String, CaseIterable {
     // get SF symbol name
     func getIconName() -> String {
         switch self {
+            case .expectations:
+                return "list.clipboard.fill"
             case .guided:
                 return "questionmark"
             case .newCategory:

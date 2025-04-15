@@ -8,12 +8,17 @@ import CoreData
 import SwiftUI
 
 struct MirrorActiveGoalsList: View {
+    @EnvironmentObject var viewModelFactoryMain: ViewModelFactoryMain
     @State private var playHapticEffect: Int = 0
     @State private var goalsScrollPosition: Int?
+    @State private var showNewGoalSheet: Bool = false
+    @State private var cancelledCreateNewCategory: Bool = false //prevents scroll if user exits create new category flow
     
     @Binding var categoriesScrollPosition: Int?
     
     var categories: FetchedResults<Category>
+    
+    @AppStorage("currentCategory") var currentCategory: Int = 0
     
     var body: some View {
         
@@ -34,6 +39,14 @@ struct MirrorActiveGoalsList: View {
                                 goToCategory(index: index)
                             }
                             .sensoryFeedback(.selection, trigger: playHapticEffect)
+                        
+                    }
+                    AddGoalButton(buttonAction: {
+                        // none
+                    })
+                    .id(categories.count)
+                    .onTapGesture {
+                        showNewGoalSheet = true
                     }
                 }
                 .scrollTargetLayout()
@@ -48,8 +61,30 @@ struct MirrorActiveGoalsList: View {
         .onAppear {
             playHapticEffect = 0
             goalsScrollPosition = 0
-            
+            currentCategory = 0
         }
+        .fullScreenCover(isPresented: $showNewGoalSheet, onDismiss: {
+            showNewGoalSheet = false
+        }) {
+            NewCategoryView(
+                newCategoryViewModel: viewModelFactoryMain.makeNewCategoryViewModel(),
+                showNewGoalSheet: $showNewGoalSheet,
+                cancelledCreateNewCategory: $cancelledCreateNewCategory,
+                    categories: categories
+            )
+        }
+        .onChange(of: showNewGoalSheet) {
+            if !showNewGoalSheet && !cancelledCreateNewCategory {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    withAnimation(.snappy(duration: 0.25)) {
+                        categoriesScrollPosition = categories.count
+                    }
+                }
+            } else {
+                cancelledCreateNewCategory = false
+            }
+        }
+        
     }
     
     private func goToCategory(index: Int) {
@@ -63,6 +98,10 @@ struct MirrorActiveGoalsList: View {
 struct ActiveGoalBox: View {
     
     let category: Category
+    
+    var categoryGoal: Goal? {
+        return category.categoryGoals.first
+    }
     
     var categoryTopics: [Topic] {
        return category.categoryTopics
@@ -82,7 +121,7 @@ struct ActiveGoalBox: View {
                 .frame(height: 50)
                 .blendMode(.luminosity)
             
-            Text("Make a Decision")
+            Text(categoryGoal?.goalProblemType ?? "Feel more content")
                 .multilineTextAlignment(.center)
                 .font(.system(size: 13, weight: .light).smallCaps())
                 .foregroundStyle(AppColors.textPrimary.opacity(0.7))
@@ -91,7 +130,7 @@ struct ActiveGoalBox: View {
             
             GoalProgressBar(totalTopics: categoryTopics.count, totalCompletedTopics: totalCompletedTopics)
             
-            Text("Startup versus 9-to-5")
+            Text(categoryGoal?.goalTitle ?? "")
                 .multilineTextAlignment(.center)
                 .font(.system(size: 16, weight: .semibold, design: .serif))
                 .foregroundStyle(AppColors.textPrimary)
@@ -176,6 +215,55 @@ struct GoalProgressBar: View {
         }//ZStack
        
 
+    }
+}
+
+struct AddGoalButton: View {
+    
+ 
+    let buttonAction: () -> Void
+    
+    var body: some View {
+
+            
+        VStack {
+            
+            Text("Add new goal")
+                .multilineTextAlignment(.center)
+                .foregroundStyle(AppColors.textBlack)
+                .font(.system(size: 21))
+                .fontWidth(.condensed)
+                .lineSpacing(1.3)
+                .padding(.horizontal)
+            
+            
+            Spacer()
+            
+            RoundButton(buttonImage: "plus", buttonAction: {
+                buttonAction()
+            })
+            .disabled(true)
+            
+            
+        }
+        .padding(.vertical, 30)
+        .frame(width: 200, height: 260)
+        .contentShape(RoundedRectangle(cornerRadius: 25))
+        .background {
+            RoundedRectangle(cornerRadius: 15)
+                .stroke(AppColors.strokePrimary.opacity(0.50), lineWidth: 0.5)
+                .fill(
+                    LinearGradient(
+                        gradient: Gradient(colors: [AppColors.boxYellow1, AppColors.boxYellow2]),
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .shadow(color: Color.black.opacity(0.30), radius: 15, x: 0, y: 3)
+        }
+            
+           
+   
     }
 }
 

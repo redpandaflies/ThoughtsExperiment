@@ -42,6 +42,11 @@ extension Category: CategoryProtocol {
         set { undiscovered = newValue }
     }
     
+    var categoryGoals: [Goal] {
+        let result = goals?.allObjects as? [Goal] ?? []
+        return result
+    }
+    
     var categoryTopics: [Topic] {
         let result = topics?.allObjects as? [Topic] ?? []
         return result

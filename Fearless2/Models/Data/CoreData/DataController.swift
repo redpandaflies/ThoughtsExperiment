@@ -8,6 +8,7 @@
 import CoreData
 import Foundation
 import OSLog
+import SwiftUI
 
 
 final class DataController: ObservableObject {
@@ -173,7 +174,7 @@ final class DataController: ObservableObject {
     }
     
     //save answer onboarding
-    func saveAnswerOnboarding(questionType: QuestionType, question: QuestionsNewCategory, userAnswer: Any, categoryLifeArea: String, category: Category) async {
+    func saveAnswerOnboarding(questionType: QuestionType, question: QuestionsNewCategory, userAnswer: Any, categoryLifeArea: String, category: Category, goal: Goal? = nil) async {
         await context.perform {
             // create a new question
             let newQuestion = Question(context: self.context)
@@ -183,6 +184,7 @@ final class DataController: ObservableObject {
             self.logger.info("Question type being saved: \(newQuestion.questionType) ")
             newQuestion.questionContent = question.content
             newQuestion.categoryStarter = true
+            newQuestion.goalStarter = true
             
             // set the answer based on the question type
             switch questionType {
@@ -206,6 +208,11 @@ final class DataController: ObservableObject {
             
             // add question to category
             category.addToQuestions(newQuestion)
+            
+            // add question to goal
+            if let goal = goal {
+                goal.addToQuestions(newQuestion)
+            }
                     
         }
         
@@ -334,9 +341,6 @@ extension DataController {
                 // Update the existing topic with suggestion data
                 existingTopic.topicStatus = TopicStatusItem.active.rawValue
                 existingTopic.topicCreatedAt = getCurrentTimeString()
-                existingTopic.topicTitle = suggestion.content
-                existingTopic.topicDefinition = suggestion.reasoning
-                existingTopic.topicEmoji = suggestion.emoji
                
                 let focusAreasTotal = suggestion.focusAreas.count
                 existingTopic.focusAreasLimit = Int16(focusAreasTotal)
@@ -370,9 +374,7 @@ extension DataController {
             } catch {
                 self.logger.error("Error fetching topic: \(error.localizedDescription)")
             }
-            
-            
-            
+
         }
         
         await self.save()
@@ -646,11 +648,11 @@ extension DataController {
     }
     
     //mark topic and section as complete
-    func completeTopic(topic: Topic, section: Section) async {
+    func completeTopic(topic: Topic, section: Section? = nil) async {
         await context.perform {
-           
-            section.completed = true
-            
+            if let section = section {
+                section.completed = true
+            }
             topic.completed = true
             topic.status = TopicStatusItem.completed.rawValue
         }
@@ -765,13 +767,13 @@ extension DataController {
                 
                 newCategory = category
                 
+                try self.context.save()
+                
             } catch {
                 self.logger.error("Error creating single category: \(error)")
                 newCategory = nil
             }
         }
-        
-        await self.save()
         
         return newCategory
     }
@@ -986,3 +988,114 @@ extension DataController {
     
 }
 
+// MARK: Goals and sequences
+
+extension DataController {
+    
+    //Create a new goal
+    func createNewGoal(category: Category?, problemType: String) async -> Goal? {
+        
+        var newGoal: Goal?
+        
+        await context.perform {
+           
+                // Create the new category
+            let goal = Goal(context: self.context)
+            goal.goalId = UUID()
+            goal.goalCreatedAt = getCurrentTimeString()
+            goal.goalProblemType = problemType
+            self.logger.log("Created new goal, type: \(problemType)")
+            
+            if let category = category {
+                self.logger.log("Adding new goal to category: \(category.categoryName)")
+                category.addToGoals(goal)
+            }
+  
+            newGoal = goal
+        }
+        
+        await self.save()
+        
+        return newGoal
+    }
+    
+    // save selected plan & create sequence
+    func saveSelectedPlan(plan: NewPlan, category: Category, goal: Goal) async {
+        
+        await context.perform {
+            
+            let newSequence = Sequence(context: self.context)
+            newSequence.sequenceId = UUID()
+            newSequence.sequenceCreatedAt = getCurrentTimeString()
+            newSequence.sequenceTitle = plan.title
+            newSequence.sequenceIntent = plan.intent
+            newSequence.sequenceStatus = SequenceStatusItem.active.rawValue
+            
+            let newObjectives = plan.explore.joined(separator: ";")
+            newSequence.sequenceObjectives = newObjectives
+            
+            category.addToSequences(newSequence)
+            goal.addToSequences(newSequence)
+            
+            for quest in plan.quests {
+                
+                let topic = Topic(context: self.context)
+                topic.topicId = UUID()
+                topic.topicCreatedAt = getCurrentTimeString()
+                topic.topicTitle = quest.title
+                topic.topicStatus = TopicStatusItem.locked.rawValue
+                topic.orderIndex = Int16(quest.questNumber)
+                topic.topicEmoji = quest.emoji
+                topic.topicDefinition = quest.objective
+                topic.topicQuestType = quest.questType
+                
+                category.addToTopics(topic)
+                goal.addToTopics(topic)
+                newSequence.addToTopics(topic)
+                
+                if quest.questType == QuestTypeItem.expectations.rawValue {
+                    self.logger.log("Adding expectations to first quest")
+                    
+                    for item in plan.expectations {
+                        let expectation = TopicExpectation(context: self.context)
+                        expectation.expectationId = UUID()
+                        expectation.orderIndex = Int16(item.expectationsNumber)
+                        expectation.expectationContent = item.content
+                        topic.addToExpectations(expectation)
+                    }
+                }
+
+            }
+            
+        }
+        
+        await self.save()
+    }
+    
+    func deleteLastCategory() async {
+        let request = NSFetchRequest<Category>(entityName: "Category")
+        
+        // Sort by createdAt, with most recent last
+        let sortDescriptor = NSSortDescriptor(key: "createdAt", ascending: true)
+        request.sortDescriptors = [sortDescriptor]
+        
+        await context.perform {
+            do {
+                let categories = try self.context.fetch(request)
+                
+                // Check if there are any categories
+                if let lastCategory = categories.last {
+                    self.context.delete(lastCategory)
+                    self.logger.log("Latest category deleted")
+                } else {
+                    self.logger.log("No categories found to delete")
+                }
+                
+            } catch {
+                self.logger.error("Failed to fetch or delete category from Core Data: \(error.localizedDescription)")
+            }
+        }
+        
+        await self.save()
+    }
+}

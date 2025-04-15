@@ -28,6 +28,14 @@ class ViewModelFactoryMain: ObservableObject {
         )
     }
     
+    func makeNewCategoryViewModel() -> NewCategoryViewModel {
+        return NewCategoryViewModel(
+            dataController: dataController,
+            openAISwiftService: openAISwiftService,
+            assistantRunManager: assistantRunManager
+        )
+    }
+    
     func makeTopicViewModel() -> TopicViewModel {
         return TopicViewModel(
             dataController: dataController,

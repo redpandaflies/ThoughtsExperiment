@@ -23,6 +23,7 @@ final class AssistantRunManager {
     func runAssistant (
         selectedAssistant: AssistantItem,
         category: Category? = nil,
+        goal: Goal? = nil,
         topicId: UUID? = nil,
         focusArea: FocusArea? = nil
     ) async throws -> String {
@@ -34,7 +35,7 @@ final class AssistantRunManager {
         }
         
         //get context to send to OpenAI
-        try await sendFirstMessage(selectedAssistant: selectedAssistant, threadId: threadId, category: category, topicId: topicId, focusArea: focusArea)
+        try await sendFirstMessage(selectedAssistant: selectedAssistant, threadId: threadId, category: category, goal: goal, topicId: topicId, focusArea: focusArea)
         
         var messageText: String?
         
@@ -84,6 +85,7 @@ final class AssistantRunManager {
         selectedAssistant: AssistantItem,
         threadId: String,
         category: Category? = nil,
+        goal: Goal? = nil,
         topicId: UUID? = nil,
         focusArea: FocusArea? = nil
     ) async throws {
@@ -91,6 +93,7 @@ final class AssistantRunManager {
         let userContext = try await gatherUserContext(
             selectedAssistant: selectedAssistant,
             category: category,
+            goal: goal,
             topicId: topicId,
             focusArea: focusArea
         )
@@ -101,41 +104,64 @@ final class AssistantRunManager {
     private func gatherUserContext(
         selectedAssistant: AssistantItem,
         category: Category? = nil,
+        goal: Goal? = nil,
         topicId: UUID? = nil,
         focusArea: FocusArea? = nil
     ) async throws -> String {
         
         //topic suggestion assistant only
-        if selectedAssistant == .topicSuggestions2 {
+        switch selectedAssistant {
+        case .newCategory, .planSuggestion:
             guard let currentCategory = category else {
                 loggerCoreData.error("Failed to get current category")
                 throw ContextError.missingRequiredField("Category")
             }
             
-            guard let gatheredContext = await ContextGatherer.gatherContextTopicSuggestions(dataController: dataController, loggerCoreData: loggerCoreData, category: currentCategory) else {
-                loggerCoreData.error("Failed to get topic suggestions")
-                throw ContextError.noContextFound("topic suggestions")
+            guard let currentGoal = goal else {
+                loggerCoreData.error("Failed to get current goal")
+                throw ContextError.missingRequiredField("Goal")
+            }
+            
+            guard let gatheredContext = await ContextGatherer.gatherContextNewCategory(dataController: dataController, loggerCoreData: loggerCoreData, category: currentCategory, goal: currentGoal) else {
+                loggerCoreData.error("Failed to get context ")
+                throw ContextError.noContextFound("Context")
             }
             return gatheredContext
+        
+        case .topic:
+            guard let currentTopic = topicId else {
+                loggerCoreData.error("Failed to get new topic ID")
+                throw ContextError.missingRequiredField("Topic ID")
+            }
+            
+            guard let gatheredContext = await ContextGatherer.gatherContextNewTopic(dataController: dataController, loggerCoreData: loggerCoreData, topicId: currentTopic) else {
+                loggerCoreData.error("Failed to get context ")
+                throw ContextError.noContextFound("Context")
+            }
+            
+            return gatheredContext
+        
+        default:
+            guard let currentTopic = topicId else {
+                loggerCoreData.error("Failed to get new topic ID")
+                throw ContextError.missingRequiredField("Topic ID")
+            }
+            
+            guard let context = await ContextGatherer.gatherContextGeneral(
+                        dataController: dataController,
+                        loggerCoreData: loggerCoreData,
+                        selectedAssistant: selectedAssistant,
+                        topicId: currentTopic,
+                        focusArea: focusArea
+                    ) else {
+                    loggerCoreData.error("Failed to gather context for assistant: \(selectedAssistant.rawValue)")
+                        throw ContextError.noContextFound("\(selectedAssistant)")
+                    }
+            
+            
+            return context
+            
         }
-        
-        guard let currentTopic = topicId else {
-            loggerCoreData.error("Failed to get new topic ID")
-            throw ContextError.missingRequiredField("Topic ID")
-        }
-        
-        guard let context = await ContextGatherer.gatherContextGeneral(
-                    dataController: dataController,
-                    loggerCoreData: loggerCoreData,
-                    selectedAssistant: selectedAssistant,
-                    topicId: currentTopic,
-                    focusArea: focusArea
-                ) else {
-                loggerCoreData.error("Failed to gather context for assistant: \(selectedAssistant.rawValue)")
-                    throw ContextError.noContextFound("\(selectedAssistant)")
-                }
-        
-        return context
         
     }
     

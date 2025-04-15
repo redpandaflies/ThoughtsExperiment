@@ -10,6 +10,7 @@ import Pow
 
 enum PlaceholderContent {
     case focusArea
+    case newTopic
     case suggestions
     case topicFragment
 }
@@ -71,6 +72,8 @@ struct LoadingPlaceholderContent: View {
             return "Uncovering suggestions"
         case .topicFragment:
             return "Restoring fragment"
+        case .newTopic:
+            return "Creating new quest"
         }
     }
     

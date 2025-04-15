@@ -127,11 +127,10 @@ struct SettingsView: View {
         
         //reset all appstorage and cloudstorage vars
         currentCategory = 0
-        currentAppView = 0
-        newCategory = false
-        showTopics = false
-        discoveredFirstCategory = false
-        firstFocusArea = false
+//        newCategory = false
+//        showTopics = false
+//        discoveredFirstCategory = false // commented out temporarily, allow users to start over elegantly without going through onboarding
+//        firstFocusArea = false
         
         //delete all data
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {

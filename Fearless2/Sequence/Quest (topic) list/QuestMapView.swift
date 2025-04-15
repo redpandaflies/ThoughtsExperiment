@@ -21,6 +21,7 @@ struct QuestMapView: View {
     @State private var showCreateNewCategory: Bool = false
     @State private var showLockedNewCategory: Bool = false
     @State private var showDiscoveredNewCategory: Bool = false
+    @State private var showTopicExpecationsSheet: Bool = false
     
     @Binding var selectedTopic: Topic?
     @Binding var currentTabBar: TabBarType
@@ -52,6 +53,10 @@ struct QuestMapView: View {
         let nextTopic = topics.first(where: { $0.topicStatus == TopicStatusItem.locked.rawValue })?.orderIndex ?? -1
         return activeTopics == 0 ? Int(nextTopic) : -1
         
+    }
+    
+    var goal: Goal? {
+        return category.categoryGoals.first
     }
     
     init(topicViewModel: TopicViewModel,
@@ -224,7 +229,17 @@ struct QuestMapView: View {
                 .presentationDetents([.fraction(0.65)])
                 .presentationCornerRadius(30)
             }
-        
+            .fullScreenCover(isPresented: $showTopicExpecationsSheet, onDismiss: {
+                showTopicExpecationsSheet = false
+            }) {
+                
+                TopicExpectationsView(
+                    showTopicExpecationsSheet: $showTopicExpecationsSheet,
+                    topic: selectedTopic,
+                    goal: goal?.goalTitle ?? "",
+                    expectations: selectedTopic?.topicExpectations ?? [],
+                    backgroundColor: backgroundColor)
+            }
     
     }
     
@@ -236,7 +251,7 @@ struct QuestMapView: View {
         let questType = QuestTypeItem(rawValue: topic.topicQuestType) ?? .guided
         let questStatus = TopicStatusItem.init(rawValue: topic.topicStatus) ?? .locked
         
-        if questType == .guided {
+        if questType == .guided || questType == .context {
             switch questStatus {
             case .active, .archived:
                 //navigate to topic detail view
@@ -244,8 +259,8 @@ struct QuestMapView: View {
                 
             case .locked:
                 if nextQuest == topic.orderIndex {
-                    //get topic suggestions
-                    getTopicSuggestions(topic: topic)
+                    // start create topic flow
+                    getTopic(topic: topic)
                 } else {
                     // show sheet for locked quests
                      showLockedQuestInfoSheet = true
@@ -262,28 +277,12 @@ struct QuestMapView: View {
 //                goToTopicDetailView(topic: topic)
             }
             
-        } else if questType == .newCategory {
-            switch questStatus {
-                
-                case .locked:
-                    if nextQuest == topic.orderIndex {
-                        //set selected topic to current topic
-                        selectedTopic = topic
-                        //open sheet for discovering new category/realm
-                        showCreateNewCategory = true
-                    } else {
-                        //show sheet for locked quests
-                        showLockedNewCategory = true
-                    }
-                    
-                case .completed:
-                    //open sheet
-                    showDiscoveredNewCategory = true
-                    
-                default:
-                    break
-                
-            }
+        } else if questType == .expectations {
+            //set selected topic to current topic
+            selectedTopic = topic
+            //open sheet for discovering new category/realm
+            showTopicExpecationsSheet = true
+             
         }
         
     }
@@ -314,7 +313,7 @@ struct QuestMapView: View {
         }
     }
     
-    private func getTopicSuggestions(topic: Topic) {
+    private func getTopic(topic: Topic) {
         //set selected topic ID so that delete topic works
         selectedTopic = topic
         

@@ -8,43 +8,44 @@
 import SwiftUI
 
 struct NewCategoryQuestionsView: View {
-    @Environment(\.dismiss) var dismiss
     @EnvironmentObject var dataController: DataController
+    @ObservedObject var newCategoryViewModel: NewCategoryViewModel
     
-    @State private var selectedQuestion: Int = 0
-    @State private var progressBarQuestionIndex: Int = 0
-    @State private var answerSingleSelect: String = ""
-    
-    @State private var questions: [QuestionsNewCategory] = []
-    // Array to store all open question answers
-    @State private var answersOpen: [String] = Array(repeating: "", count: 3)
     // Manage when to show alert for exiting create new category flow
     @State private var showExitFlowAlert: Bool = false
     
+    @Binding var showNewGoalSheet: Bool
+    @Binding var mainSelectedTab: Int
     @Binding var selectedCategory: String
-    @Binding var selectedIntroPage: Int
+    @Binding var selectedQuestion: Int
+    @Binding  var progressBarQuestionIndex: Int
+    @Binding var questions: [QuestionsNewCategory]
+    // Array to store all open question answers
+    @Binding var answersOpen: [String]
+    // Array to store all single-select question answers
+    @Binding var answersSingleSelect: [String]
+    @Binding var newCategorySaved: Bool
     
     let categories: FetchedResults<Category>
     
     var currentQuestion: QuestionsNewCategory {
-        let firstQuestion = QuestionsNewCategory.initialQuestionNewCategory(from: categories)
+        let firstQuestion = QuestionsNewCategory.initialQuestionNewCategory(from: categories)[0]
             
         if questions.isEmpty {
-            return firstQuestion[0]
+            return firstQuestion
         } else {
             return questions[selectedQuestion]
         }
     }
     
     @FocusState var focusField: NewCategoryFocusField?
-    @AppStorage("currentAppView") var currentAppView: Int = 0
     
     var body: some View {
         VStack (spacing: 10){
             // MARK: Header
             QuestionsProgressBar(
                 currentQuestionIndex: $progressBarQuestionIndex,
-                totalQuestions: 3,
+                totalQuestions: 5,
                 showXmark: true,
                 xmarkAction: {
                     showExitFlowAlert = true
@@ -54,12 +55,13 @@ struct NewCategoryQuestionsView: View {
             )
                 
             // MARK: Title
-            getTitle()
+            if selectedQuestion > 0 {
+                getTitle()
+            }
                
             // MARK: Question
             switch currentQuestion.questionType {
                 case .open:
-                
                     NewCategoryQuestionOpenView(
                         topicText: $answersOpen[selectedQuestion],
                         focusField: $focusField,
@@ -70,11 +72,18 @@ struct NewCategoryQuestionsView: View {
        
                 default:
                     if selectedQuestion == 0 {
-                        QuestionSingleSelectView(singleSelectAnswer: $selectedCategory, question: currentQuestion.content, items: currentQuestion.options ?? [])
+                        NewCategorySelectCategoryQuestion(
+                            selectedCategory: $selectedCategory,
+                            question: currentQuestion.content,
+                            items: currentQuestion.options ?? [])
                            
                     } else {
-                        QuestionSingleSelectView(singleSelectAnswer: $answerSingleSelect, question: currentQuestion.content, items: currentQuestion.options ?? [])
-                            
+                        QuestionSingleSelectView(
+                            singleSelectAnswer: $answersSingleSelect[selectedQuestion],
+                            question: currentQuestion.content,
+                            items: currentQuestion.options ?? [],
+                            subTitle: "Choose your primary goal"
+                        )
                     }
             }
            
@@ -86,46 +95,36 @@ struct NewCategoryQuestionsView: View {
                 buttonText: "Continue",
                 action: {
                 nextButtonAction()
-                }, disableMainButton: disableButton(),
+                },
+                disableMainButton: disableButton(),
                 buttonColor: .white)
             
         }//VStack
         .padding(.horizontal)
         .padding(.bottom)
-        .background {
-            BackgroundPrimary(backgroundColor: AppColors.backgroundOnboardingIntro)
-        }
         .alert("Are you sure you exit?", isPresented: $showExitFlowAlert) {
             Button("Cancel", role: .cancel) {}
             Button("Yes", role: .destructive) {
                 exitCreateNewCategory()
             }
         } message: {
-            Text("You'll lose your progress towards unlocking a new realm.")
+            Text("You'll lose your progress towards adding a new question.")
         }
     }
     
     private func getTitle() -> some View {
         HStack (spacing: 5){
-            if selectedQuestion == 0 {
-                
-                Text("💭")
-                    .font(.system(size: 40, design: .serif))
-                
-                
-            } else {
-                
-                Image(Realm.getIcon(forLifeArea: selectedCategory))
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 19)
-                
-                Text(selectedCategory)
-                    .font(.system(size: 19, weight: .light).smallCaps())
-                    .fontWidth(.condensed)
-                    .foregroundStyle(AppColors.textPrimary.opacity(0.7))
+            Image(Realm.getIcon(forLifeArea: selectedCategory))
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 19)
+            
+            Text(selectedCategory)
+                .font(.system(size: 19, weight: .light).smallCaps())
+                .fontWidth(.condensed)
+                .foregroundStyle(AppColors.textPrimary.opacity(0.7))
           
-            }
+            
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         
@@ -140,12 +139,10 @@ struct NewCategoryQuestionsView: View {
             if selectedQuestion == 0 {
                 return selectedCategory.isEmpty
             } else {
-                return answerSingleSelect.isEmpty
+                return answersSingleSelect[selectedQuestion].isEmpty
             }
         }
     }
-    
-   
     
     private func nextButtonAction() {
         //capture current state
@@ -153,67 +150,86 @@ struct NewCategoryQuestionsView: View {
         
         switch answeredQuestionIndex {
         case 0:
-            let categoryQuestions = QuestionsNewCategory.initialQuestionNewCategory(from: categories)
+            questions = [currentQuestion]
             
-            questions = categoryQuestions
+            let categoryQuestions = QuestionsNewCategory.remainingQuestionsNewCategory()
+            
+            questions += categoryQuestions
+            
+            print("questions: \(questions.count)")
             
         default:
             break
         }
         
+        
+        //navigate to next view
+        handleUIAndNavigation(answeredQuestionIndex: answeredQuestionIndex)
+        
         //Save question answer to coredata on the last question
-        if answeredQuestionIndex == 2 {
+        if answeredQuestionIndex == 4 {
             Task {
                await saveAnswersForCategory()
             }
         }
-        
-        //navigate to next view
-        handleUIAndNavigation(answeredQuestionIndex: answeredQuestionIndex)
-       
-       
     }
     
     private func exitCreateNewCategory() {
         if focusField != nil {
             focusField = nil
         }
-        currentAppView = 1
-        
+        showNewGoalSheet = false
     }
     
     private func saveAnswersForCategory() async {
 
         // Create the category
         let savedCategory = await dataController.createSingleCategory(lifeArea: selectedCategory)
+        //Create new goal
+        /// need to make sure questions are related to the right goal when saved
+        let savedGoal = await dataController.createNewGoal(category: savedCategory, problemType: answersSingleSelect[1])
         
-        if let category = savedCategory {
+        if let category = savedCategory, let goal = savedGoal {
+            
+          
             
             for (index, answer) in answersOpen.enumerated() where !answer.isEmpty {
-                // Skip the single-select question (index 1)
-                if index > 0 {
+             
+                await dataController.saveAnswerOnboarding(
+                    questionType: .open,
+                    question: questions[index],
+                    userAnswer: answer,
+                    categoryLifeArea: selectedCategory,
+                    category: category,
+                    goal: goal
+                )
+                
+            }
+            
+            for (index, answer) in answersSingleSelect.enumerated() where !answer.isEmpty {
+                   
                     await dataController.saveAnswerOnboarding(
-                        questionType: .open,
+                        questionType: .singleSelect,
                         question: questions[index],
                         userAnswer: answer,
                         categoryLifeArea: selectedCategory,
-                        category: category
+                        category: category,
+                        goal: goal
                     )
-                }
+                
             }
             
-            //create first set of topics for the realm based on a quest map
-            await dataController.createTopics(questMap: QuestMapItem.questMap1, category: category)
+            await manageRun(category: category, goal: goal)
             
         }
     }
     
     private func handleUIAndNavigation(answeredQuestionIndex index: Int) {
-        if index < 2 {
+        if index < 4 {
             navigateToNextQuestion()
             updateFocusState(answeredQuestionIndex: index)
         } else {
-            finishOnboarding()
+            finishQuestions()
         }
     }
 
@@ -227,23 +243,44 @@ struct NewCategoryQuestionsView: View {
     }
 
     private func updateFocusState(answeredQuestionIndex index: Int) {
-        if index == 1 {
+        if index == 1 || index == 3 {
+            focusField = nil
+        } else {
             focusField = .question(index + 1)
         }
     }
 
-    private func finishOnboarding() {
+    private func finishQuestions() {
         focusField = nil
-        
-        dismiss()
-        
-        withAnimation {
-            selectedIntroPage += 1
+        mainSelectedTab += 1
+        if !newCategorySaved {
+            newCategorySaved = true
         }
     }
     
-    // MARK: - Handle the back button action
     
+    private func manageRun(category: Category, goal: Goal) async {
+        
+        Task {
+            do {
+                try await newCategoryViewModel.manageRun(selectedAssistant: .newCategory, category: category, goal: goal)
+                
+            } catch {
+                newCategoryViewModel.createNewCategorySummary = .retry
+            }
+            
+            do {
+                try await newCategoryViewModel.manageRun(selectedAssistant: .planSuggestion, category: category, goal: goal)
+                
+            } catch {
+                newCategoryViewModel.createPlanSuggestions = .retry
+            }
+            
+        }
+        
+    }
+    
+    // MARK: - Handle the back button action
     private func handleBackButton() {
         let answeredQuestionIndex = selectedQuestion
         

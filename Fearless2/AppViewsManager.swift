@@ -26,19 +26,14 @@ struct AppViewsManager: View {
             switch currentAppView {
             case 0:
                 OnboardingMainView()
-            case 1:
-                if !categories.isEmpty {
+            default:
+//                if !categories.isEmpty {
                     MainAppManager(understandViewModel: viewModelFactoryMain.makeUnderstandViewModel(), topicViewModel: viewModelFactoryMain.makeTopicViewModel())
                     
-                } else {
-                    //Should never happen, user should always have categories unless they haven't done onboarding, may come up during testing
-                    OnboardingMainView()
-                }
-            default:
-                if currentView == 2 {
-                    NewCategoryView()
-                        .transition(.asymmetric(insertion: .opacity, removal: .identity))
-                }
+//                } else {
+//                    //Should never happen, user should always have categories unless they haven't done onboarding, may come up during testing
+//                    OnboardingMainView()
+//                }
             }
         }
         .environment(\.colorScheme, .dark)

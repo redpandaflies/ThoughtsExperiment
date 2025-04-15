@@ -27,7 +27,7 @@ struct CategoriesScrollView: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack (alignment: .center, spacing: 12) {
                 
-                getIcon(index: 0, icon: "realm6" )
+                getIcon(index: 0, icon: "realm66" )
                 
                 ForEach(Array(categories.enumerated()), id: \.element.categoryId) { index, category in
                     getIcon(index: index + 1, icon: category.categoryEmoji)

@@ -80,6 +80,11 @@ extension Topic {
         return result
     }
     
+    var topicExpectations: [TopicExpectation] {
+        let result = expectations?.allObjects as? [TopicExpectation] ?? []
+        return result
+    }
+    
     func assignReview(_ review: TopicReview) {
         self.review = review
         review.topic = self

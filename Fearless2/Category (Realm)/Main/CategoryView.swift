@@ -214,9 +214,9 @@ struct CategoryView: View {
         //needed in case user deletes and reinstalls app, and appstorage vars reset
         
         /// new user shouldn't have any topics that are active yet, because they haven't picked their first topic
-        let createdTopics = topics.filter { $0.status == TopicStatusItem.active.rawValue }.count
+//        let createdTopics = topics.filter { $0.status == TopicStatusItem.active.rawValue }.count
         
-        if (!discoveredFirstCategory && createdTopics > 0) {
+        if discoveredFirstCategory {
             //restore app to its state before deletion
             setupViewForExistingUser()
         } else if !newCategory {

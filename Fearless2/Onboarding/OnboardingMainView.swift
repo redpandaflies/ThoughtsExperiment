@@ -23,7 +23,7 @@ struct OnboardingMainView: View {
     ) var categories: FetchedResults<Category>
     
     var newCategory: Realm {
-        return QuestionCategory.getCategoryData(for: selectedCategory) ?? Realm.realmsData[6]
+        return QuestionCategory.getCategoryData(for: selectedCategory) ?? Realm.realmsData[5]
     }
     
     @AppStorage("currentAppView") var currentAppView: Int = 0

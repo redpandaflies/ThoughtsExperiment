@@ -66,24 +66,25 @@ struct NewCategoryIntroView: View {
             
             switch selectedIntroPage {
             case 0:
-                RoundButton(buttonImage: "arrow.right",
-                            size: 30,
-                            frameSize: 100,
-                            buttonAction: {
-                                introViewButtonAction()
-                            },
-                            disableButton: (animatedText != content.description)
+                RoundButton(
+                    buttonImage: "arrow.right",
+                    size: 30,
+                    frameSize: 100,
+                    buttonAction: {
+                        introViewButtonAction()
+                    },
+                    disableButton: (animatedText != content.description)
                 )
             default:
                 RectangleButtonPrimary(
-                    buttonText: "Discover your next realm",
-                    action: {
-                        introViewButtonAction()
-                    },
-                    disableMainButton: (animatedText != content.description),
-                    buttonColor: .white
-                )
-                .padding(.horizontal)
+                        buttonText: "Discover your next realm",
+                        action: {
+                            introViewButtonAction()
+                        },
+                        disableMainButton: (animatedText != content.description),
+                        buttonColor: .white
+                    )
+                    .padding(.horizontal)
                 
             }
         }//VStack

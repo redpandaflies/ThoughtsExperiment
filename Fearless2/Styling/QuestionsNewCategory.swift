@@ -79,25 +79,57 @@ extension QuestionsNewCategory {
         ]
     }
     
-    //get initial question new category
+    //get questions new category
     static func initialQuestionNewCategory(from categories: FetchedResults<Category>) -> [QuestionsNewCategory] {
         return [
             QuestionsNewCategory(
             id: 0,
-            content: "What's been on your mind the most lately?",
+            content: "It’s late. You’re trying to fall asleep, but your mind is wandering. What are you thinking about?",
             questionType: .singleSelect,
             category: .generic,
             options: getRemainingLifeAreas(from: categories)
-            ),
+            )
+        ]
+    }
+    
+    static func remainingQuestionsNewCategory() -> [QuestionsNewCategory] {
+        return [
+           
             QuestionsNewCategory(
                 id: 1,
-                content: "What’s keeping you up at night about this part of your life?",
+                content: "What kind of question are you facing?",
+                questionType: .singleSelect,
+                category: .generic,
+                options: [
+                    "Make a decision",
+                    "Feel more content",
+                    "Get clarity",
+                    "Resolve a conflict",
+                    "Reduce anxiety",
+                    "Feel more confident"
+                ]
+            ),
+            QuestionsNewCategory(
+                id: 2,
+                content: "Please tell me more about what's bothering you.",
                 questionType: .open,
                 category: .generic
             ),
             QuestionsNewCategory(
-                id: 2,
-                content: "What would make you feel better about this?",
+                id: 3,
+                content: "How long has this been weighing on you?",
+                questionType: .singleSelect,
+                category: .generic,
+                options: [
+                    "It's a recent thing",
+                    "For a few weeks",
+                    "For several months",
+                    "For a year or more"
+                ]
+            ),
+            QuestionsNewCategory(
+                id: 4,
+                content: "What have you already tried or learned?",
                 questionType: .open,
                 category: .generic
             )

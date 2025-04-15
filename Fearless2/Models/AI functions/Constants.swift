@@ -166,4 +166,28 @@ enum Constants {
         return stabilityPartialKey
     }()
     
+    
+    static let openAIAssistantIdNewCategory: String = {
+        guard let infoDict = infoDictionary,
+              let openAIId = infoDict["OPENAI_ASSISTANT_ID_NEW_CATEGORY"] as? String else {
+            logger.error("OpenAI new category assistant ID not available, using placeholder")
+            return ""
+        }
+       
+        logger.info("Retrieved OpenAI new category assistant ID: \(openAIId)")
+       
+        return openAIId
+    }()
+    
+    static let openAIAssistantIdPlanSuggestion: String = {
+        guard let infoDict = infoDictionary,
+              let openAIId = infoDict["OPENAI_ASSISTANT_ID_PLAN_SUGGESTION"] as? String else {
+            logger.error("OpenAI plan suggestion assistant ID not available, using placeholder")
+            return ""
+        }
+       
+        logger.info("Retrieved OpenAI plan suggestion assistant ID: \(openAIId)")
+       
+        return openAIId
+    }()
 }

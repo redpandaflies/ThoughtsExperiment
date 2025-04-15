@@ -60,6 +60,7 @@ struct AppColors {
     static let boxGrey2 = Color(.displayP3, red: 0.318, green: 0.318, blue: 0.318, opacity: 1) // #515151
     static let boxGrey3 = Color(.displayP3, red: 0.729, green: 0.729, blue: 0.729, opacity: 1) // #bababa
     static let boxGrey4 = Color(.displayP3, red: 0.518, green: 0.518, blue: 0.518, opacity: 1) // #848484
+    static let boxGrey5 = Color(.displayP3, red: 0.620, green: 0.620, blue: 0.620, opacity: 1) // #9E9E9E
     static let boxYellow1 = Color(.displayP3, red: 1, green: 0.831, blue: 0.396, opacity: 1) // #ffd465
     static let boxYellow2 = Color(.displayP3, red: 1, green: 0.722, blue: 0, opacity: 1) // #ffb800
     

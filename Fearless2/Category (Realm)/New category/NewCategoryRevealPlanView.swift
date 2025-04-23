@@ -14,7 +14,7 @@ struct NewCategoryRevealPlanView: View {
     @State private var planSelectedTab: Int = 0
     @State private var suggestionsScrollPosition: Int?
     
-    @Binding var showNewGoalSheet: Bool
+    @Binding var showSheet: Bool
     
     let screenWidth: CGFloat = UIScreen.current.bounds.width
     let frameWidth: CGFloat = 300
@@ -130,7 +130,7 @@ struct NewCategoryRevealPlanView: View {
                 await dataController.saveSelectedPlan(plan: plan, category: category, goal: goal)
                 
                 await MainActor.run {
-                    showNewGoalSheet = false
+                    showSheet = false
                 }
             }
             

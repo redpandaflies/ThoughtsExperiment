@@ -67,18 +67,16 @@ struct UpdateSectionView: View {
             
             //Question
             switch selectedTab {
-            case 0:
-                UpdateSectionBox(topicViewModel: topicViewModel, showProgressBar: $showProgressBar, selectedQuestion: $selectedQuestion, topicText: $topicText, singleSelectAnswer: $singleSelectAnswer, multiSelectAnswers: $multiSelectAnswers, singleSelectCustomItems: $singleSelectCustomItems, multiSelectCustomItems: $multiSelectCustomItems, isFocused: $isFocused, section: section, questions: questions)
-                    .padding(.top)
+                case 0:
+                    UpdateSectionBox(topicViewModel: topicViewModel, showProgressBar: $showProgressBar, selectedQuestion: $selectedQuestion, topicText: $topicText, singleSelectAnswer: $singleSelectAnswer, multiSelectAnswers: $multiSelectAnswers, singleSelectCustomItems: $singleSelectCustomItems, multiSelectCustomItems: $multiSelectCustomItems, isFocused: $isFocused, section: section, questions: questions)
+                        .padding(.top)
+                    
+                default:
+                    if let currentFocusArea = focusArea {
+                        UpdateSectionCompleteView(focusArea: currentFocusArea)
+                    }
                 
-            default:
-                if let currentFocusArea = focusArea {
-                    UpdateSectionCompleteView(focusArea: currentFocusArea)
-                }
             }//switch
-            
-           
-            
                 
         }//VStack
         .padding(.horizontal)

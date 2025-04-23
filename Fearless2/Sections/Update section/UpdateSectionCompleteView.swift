@@ -56,7 +56,6 @@ struct UpdateSectionCompleteView: View {
                 getContent(index: index, text: sortedSections[index].sectionTitle)
                 
             }//ForEach
-            
            
             getContent(index: sortedSections.count, text: "Recap")
             

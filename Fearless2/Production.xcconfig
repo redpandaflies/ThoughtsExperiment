@@ -8,8 +8,5 @@
 // Configuration settings file format documentation can be found at:
 // https://help.apple.com/xcode/#/dev745c5c974
 
-PRODUCT_BUNDLE_IDENTIFIER = app.spacenotes.burrow
-BUNDLE_DISPLAY_NAME = Forgotten Realms
-
 
   

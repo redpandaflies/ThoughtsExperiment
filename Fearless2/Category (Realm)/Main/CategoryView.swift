@@ -53,11 +53,6 @@ struct CategoryView: View {
         return (UIScreen.main.bounds.width - categoryEmojiSize)/2
     }
     
-    var showUndiscovered: Bool {
-        let checker = NewCategoryEligibilityChecker()
-        return checker.checkEligibility(topics: topics, totalCategories: categories.count)
-    }
-    
     var currentCategoryScrollPosition: Int {
         if let scrollPostion = categoriesScrollPosition {
             return Int(scrollPostion - 1) // subtracting 1 because 0 is mirror realm
@@ -109,15 +104,10 @@ struct CategoryView: View {
                     
                     if showTopics {
                         
-                        if let currentPoints = points.first {
-                            // MARK: - Quest header
-                            CategoryQuestsHeading()
-                                .padding(.horizontal)
-                                .padding(.bottom, 25)
-                                .padding(.top, 20)
+                        if let currentPoints = points.first, let goal = categories[currentCategoryScrollPosition].categoryGoals.first {
                             
                             // MARK: - Quests map
-                            QuestMapView(topicViewModel: topicViewModel, selectedTopic: $selectedTopic, currentTabBar: $currentTabBar, selectedTabTopic: $selectedTabTopic, navigateToTopicDetailView: $navigateToTopicDetailView, categoriesScrollPosition: $categoriesScrollPosition, category: categories[currentCategoryScrollPosition], points: currentPoints, totalCategories: categories.count, backgroundColor: getCategoryBackground())
+                            QuestMapView(topicViewModel: topicViewModel, selectedTopic: $selectedTopic, currentTabBar: $currentTabBar, selectedTabTopic: $selectedTabTopic, navigateToTopicDetailView: $navigateToTopicDetailView, categoriesScrollPosition: $categoriesScrollPosition, category: categories[currentCategoryScrollPosition], points: currentPoints, totalCategories: categories.count, backgroundColor: getCategoryBackground(), goal: goal)
                             
                         }
                     }
@@ -128,7 +118,7 @@ struct CategoryView: View {
                 
             } //VStack
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            .padding(.top, 30)
+            .padding(.top, 10)
             .background {
                 BackgroundPrimary(backgroundColor: getCategoryBackground())
             }

@@ -49,4 +49,13 @@ extension Sequence {
         return result
     }
     
+    var sequenceSummaries: [SequenceSummary] {
+        let result = summaries?.allObjects as? [SequenceSummary] ?? []
+        return result
+    }
+    
+    var sequenceQuestions: [Question] {
+        let result = questions?.allObjects as? [Question] ?? []
+        return result
+    }
 }

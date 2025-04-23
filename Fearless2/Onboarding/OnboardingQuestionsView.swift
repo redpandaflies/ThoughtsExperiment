@@ -7,7 +7,7 @@
 import Mixpanel
 import SwiftUI
 
-enum NewCategoryFocusField: Hashable {
+enum DefaultFocusField: Hashable {
     case none
     case question(Int)
 }
@@ -19,7 +19,7 @@ struct OnboardingQuestionsView: View {
     @State private var selectedQuestion: Int = 0
     @State private var progressBarQuestionIndex: Int = 0
     @State private var answerSingleSelect: String = ""
-    @State private var questions: [QuestionsNewCategory] = QuestionsNewCategory.initialQuestionsOnboarding
+    @State private var questions: [QuestionNewCategory] = QuestionNewCategory.initialQuestionsOnboarding
     
     // Array to store all open question answers
     @State private var answersOpen: [String] = Array(repeating: "", count: 4)
@@ -28,11 +28,11 @@ struct OnboardingQuestionsView: View {
     @Binding var selectedIntroPage: Int
     @Binding var imagesScrollPosition: Int?
     
-    var currentQuestion: QuestionsNewCategory {
+    var currentQuestion: QuestionNewCategory {
         return questions[selectedQuestion]
     }
     
-    @FocusState var focusField: NewCategoryFocusField?
+    @FocusState var focusField: DefaultFocusField?
     
     var body: some View {
         VStack (spacing: 10){
@@ -50,8 +50,7 @@ struct OnboardingQuestionsView: View {
             // MARK: Question
             switch currentQuestion.questionType {
                 case .open:
-                
-                    NewCategoryQuestionOpenView(
+                    QuestionOpenView2(
                         topicText: $answersOpen[selectedQuestion],
                         focusField: $focusField,
                         focusValue: .question(selectedQuestion),
@@ -181,11 +180,10 @@ struct OnboardingQuestionsView: View {
             for (index, answer) in answersOpen.enumerated() where !answer.isEmpty {
                 // Skip the single-select question (index 1)
                 if index != 1 && index > 0 {
-                    await dataController.saveAnswerOnboarding(
+                    await dataController.saveAnswerDefaultQuestions(
                         questionType: .open,
                         question: questions[index],
                         userAnswer: answer,
-                        categoryLifeArea: selectedCategory,
                         category: category
                     )
                 }

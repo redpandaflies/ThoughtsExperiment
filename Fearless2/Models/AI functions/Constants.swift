@@ -190,4 +190,16 @@ enum Constants {
        
         return openAIId
     }()
+    
+    static let openAIAssistantIdSequenceSummary: String = {
+        guard let infoDict = infoDictionary,
+              let openAIId = infoDict["OPENAI_ASSISTANT_ID_SEQUENCE_SUMMARY"] as? String else {
+            logger.error("OpenAI plan/sequence summary assistant ID not available, using placeholder")
+            return ""
+        }
+       
+        logger.info("Retrieved OpenAI plan/sequence summary assistant ID: \(openAIId)")
+       
+        return openAIId
+    }()
 }

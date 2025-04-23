@@ -31,10 +31,10 @@ struct RecapReflectionView: View {
     
     var body: some View {
         
-        VStack {
+        VStack (alignment: .leading) {
             switch recapStatus {
                 case 0:
-                    loadingView()
+                LoadingAnimationEllipsis(animationValue: $animationValue)
                 
                 case 1:
                     recapText()
@@ -115,25 +115,6 @@ struct RecapReflectionView: View {
             .font(.system(size: 19, design: .serif))
             .foregroundStyle(AppColors.textPrimary.opacity(0.9))
             .lineSpacing(1.5)
-        
-    }
-    
-    private func loadingView() -> some View {
-        HStack {
-            Image(systemName: "ellipsis")
-                .font(.system(size: 25, weight: .regular))
-                .foregroundStyle(AppColors.textPrimary.opacity(0.9))
-                .symbolEffect(.wiggle.byLayer, options: animationValue ? .repeating : .nonRepeating, value: animationValue)
-            
-            Spacer()
-        }
-        .transition(.asymmetric(insertion: .opacity, removal: .identity))
-        .onAppear {
-            animationValue = true
-        }
-        .onDisappear {
-            animationValue = false
-        }
         
     }
 

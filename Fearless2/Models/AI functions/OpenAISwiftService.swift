@@ -269,6 +269,7 @@ extension OpenAISwiftService {
         }
     }
     
+    // MARK: New Category summary
     func processCreateCategorySummary(messageText: String, goal: Goal) async throws -> NewCreateCategorySummary? {
         let arguments = messageText
         let context = self.dataController.container.viewContext
@@ -291,7 +292,7 @@ extension OpenAISwiftService {
         
         return categorySummary
     }
-    
+    // MARK: Plan suggestions
     func processPlanSuggestions(messageText: String) async throws -> NewPlanSuggestions? {
         let arguments = messageText
         
@@ -304,7 +305,7 @@ extension OpenAISwiftService {
         return planSuggestions
     }
     
-    
+    // MARK: Create focus areas for a topic
     func processTopicGenerated(messageText: String) async throws -> NewTopicGenerated? {
         let arguments = messageText
         
@@ -316,7 +317,47 @@ extension OpenAISwiftService {
         
         return newSuggestions
     }
-
+    
+    // MARK: Plan/sequence summary
+    @MainActor
+    func processSequenceSummary(messageText: String, sequence: Sequence?) async throws {
+        let arguments = messageText
+        let context = self.dataController.container.viewContext
+        
+       try await context.perform {
+            // Decode the arguments to get the new section data
+           guard let summaries = self.decodeArguments(arguments: arguments, as: NewSequenceSummaries.self) else {
+                self.loggerOpenAI.error("Couldn't decode arguments for sequence summaries.")
+                throw ProcessingError.decodingError("sequence summaries")
+            }
+           
+           guard let sequence = sequence else {
+               self.loggerOpenAI.error("Couldn't find sequence to update.")
+               throw ProcessingError.missingRequiredField("sequence")
+           }
+        
+           //update sequence status
+           sequence.status = SequenceStatusItem.completed.rawValue
+           
+           for summary in summaries.summaries {
+               let newSummary = SequenceSummary(context: context)
+               newSummary.summaryId = UUID()
+               newSummary.summaryCreatedAt = getCurrentTimeString()
+               newSummary.summaryContent = summary.content
+               newSummary.orderIndex = Int16(summary.summaryNumber)
+            
+               sequence.addToSummaries(newSummary)
+               if let category = sequence.category {
+                   category.addToSequenceSummaries(newSummary)
+               }
+               
+           }
+            // Save to coredata
+           try self.saveCoreDataChanges(context: context, errorDescription: "sequence summaries")
+            
+        }
+    }
+    
     
     @MainActor
     func processTopicOverview(messageText: String, topicId: UUID) async throws {
@@ -349,7 +390,7 @@ extension OpenAISwiftService {
             topic.assignReview(review)
               
           
-            // Save the context after processing each section and its questions
+            // Save to coredata
            try self.saveCoreDataChanges(context: context, errorDescription: "new topic review")
             
         }
@@ -673,7 +714,7 @@ enum SenderRole: String, Codable {
     case assistant
 }
 
-// Create new category "hear's what I heard"
+// MARK: Create new category "hear's what I heard"
 struct NewCreateCategorySummary: Codable, Hashable {
     let summary: String
     let goal: NewGoal
@@ -685,6 +726,7 @@ struct NewGoal: Codable, Hashable {
     let resolution: String
 }
 
+// MARK: Plan suggestions
 struct NewPlanSuggestions: Codable, Hashable {
     let plans: [NewPlan]
 }
@@ -696,16 +738,6 @@ struct NewPlan: Codable, Hashable {
     let explore: [String]
     let expectations: [NewExpectation]
     let quests: [NewTopic1]
-}
-
-struct NewExpectation: Codable, Hashable {
-    let expectationsNumber: Int
-    let content: String
-
-    enum CodingKeys: String, CodingKey {
-        case expectationsNumber = "expectations_number"
-        case content
-    }
 }
 
 struct NewTopic1: Codable, Hashable {
@@ -724,6 +756,32 @@ struct NewTopic1: Codable, Hashable {
     }
 }
 
+// MARK: Plan expectations
+struct NewExpectation: Codable, Hashable {
+    let expectationsNumber: Int
+    let content: String
+
+    enum CodingKeys: String, CodingKey {
+        case expectationsNumber = "expectations_number"
+        case content
+    }
+}
+
+// MARK: Plan/sequence summary
+struct NewSequenceSummaries: Codable, Hashable {
+    let summaries: [NewSequenceSummary]
+}
+
+struct NewSequenceSummary: Codable, Hashable {
+    let summaryNumber: Int
+    let content: String
+
+    enum CodingKeys: String, CodingKey {
+        case summaryNumber = "summary_number"
+        case content
+    }
+}
+
 //Create new focus area
 struct NewTopic: Codable, Hashable {
     let title: String
@@ -739,10 +797,6 @@ struct NewTopicOverview: Codable, Hashable {
 
 //Create topic suggestions
 struct NewTopicGenerated: Codable, Hashable {
-    let suggestion: NewTopicSuggestion
-}
-
-struct NewTopicSuggestion: Codable, Hashable {
     let focusAreas: [NewFocusAreaHeading]
     
     enum CodingKeys: String, CodingKey {

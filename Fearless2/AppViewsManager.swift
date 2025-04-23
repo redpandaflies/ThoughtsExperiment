@@ -28,7 +28,7 @@ struct AppViewsManager: View {
                 OnboardingMainView()
             default:
 //                if !categories.isEmpty {
-                    MainAppManager(understandViewModel: viewModelFactoryMain.makeUnderstandViewModel(), topicViewModel: viewModelFactoryMain.makeTopicViewModel())
+                    MainAppManager(topicViewModel: viewModelFactoryMain.makeTopicViewModel())
                     
 //                } else {
 //                    //Should never happen, user should always have categories unless they haven't done onboarding, may come up during testing

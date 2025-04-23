@@ -173,8 +173,8 @@ final class DataController: ObservableObject {
         //        await self.save()
     }
     
-    //save answer onboarding
-    func saveAnswerOnboarding(questionType: QuestionType, question: QuestionsNewCategory, userAnswer: Any, categoryLifeArea: String, category: Category, goal: Goal? = nil) async {
+    //save answer for predefined questions
+    func saveAnswerDefaultQuestions(questionType: QuestionType, question: any QuestionProtocol, userAnswer: Any, category: Category? = nil, goal: Goal? = nil, sequence: Sequence? = nil) async {
         await context.perform {
             // create a new question
             let newQuestion = Question(context: self.context)
@@ -207,11 +207,16 @@ final class DataController: ObservableObject {
             newQuestion.completed = true
             
             // add question to category
-            category.addToQuestions(newQuestion)
-            
+            if let category = category {
+                category.addToQuestions(newQuestion)
+            }
             // add question to goal
             if let goal = goal {
                 goal.addToQuestions(newQuestion)
+            }
+            //add question to sequence
+            if let sequence = sequence {
+                sequence.addToQuestions(newQuestion)
             }
                     
         }
@@ -319,7 +324,7 @@ extension DataController {
     }
     
     //create new topic
-    func createTopic(suggestion: NewTopicSuggestion, topicId: UUID, category: Category) async -> (topicId: UUID?, focusArea: FocusArea?) {
+    func createTopic(suggestion: NewTopicGenerated, topicId: UUID, category: Category) async -> (topicId: UUID?, focusArea: FocusArea?) {
        
         var createdFocusArea: FocusArea? = nil
         
@@ -648,10 +653,13 @@ extension DataController {
     }
     
     //mark topic and section as complete
-    func completeTopic(topic: Topic, section: Section? = nil) async {
+    func completeTopic(topic: Topic, section: Section? = nil, sequence: Sequence? = nil) async {
         await context.perform {
             if let section = section {
                 section.completed = true
+            }
+            if let sequence = sequence {
+                sequence.sequenceStatus = SequenceStatusItem.completed.rawValue
             }
             topic.completed = true
             topic.status = TopicStatusItem.completed.rawValue

@@ -49,7 +49,7 @@ struct RecapCelebrationView: View {
                 .opacity((animationStage > 1) ? 1 : 0)
             
         }//VStack
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 withAnimation {

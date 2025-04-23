@@ -33,7 +33,7 @@ struct NewTopicPreviewBox: View {
                 .foregroundStyle(AppColors.textPrimary)
                 .padding(.bottom, 5)
             
-            Text("Choose your next quest")
+            Text("Your next quest")
                 .multilineTextAlignment(.center)
                 .font(.system(size: 25, design: .serif))
                 .foregroundStyle(AppColors.textPrimary)
@@ -83,7 +83,7 @@ struct NewTopicPreviewBox: View {
         
     }
     
-    private func newTopic(topic: Topic, suggestion: NewTopicSuggestion) -> some View {
+    private func newTopic(topic: Topic, suggestion: NewTopicGenerated) -> some View {
        
         TopicSuggestionBox(topic: topic, suggestion: suggestion, frameWidth: frameWidth, action: {
                 selectTopic(suggestion: suggestion)
@@ -124,7 +124,7 @@ struct NewTopicPreviewBox: View {
     }
     
     //MARK: Create selected topic and its first focus area
-    private func selectTopic(suggestion: NewTopicSuggestion) {
+    private func selectTopic(suggestion: NewTopicGenerated) {
         Task {
            
             
@@ -140,7 +140,7 @@ struct NewTopicPreviewBox: View {
         }
     }
     
-    private func createTopic(suggestion: NewTopicSuggestion, category: Category) async -> (topicId: UUID?, focusArea: FocusArea?) {
+    private func createTopic(suggestion: NewTopicGenerated, category: Category) async -> (topicId: UUID?, focusArea: FocusArea?) {
         
         guard let existingTopicId = selectedTopic?.topicId else {
             print("No selected topic found. Failed to save topic updates")
@@ -192,7 +192,7 @@ struct NewTopicPreviewBox: View {
 
 struct TopicSuggestionBox: View {
     let topic: Topic
-    let suggestion: NewTopicSuggestion
+    let suggestion: NewTopicGenerated
     let frameWidth: CGFloat
     let action: () -> Void
     
@@ -209,7 +209,7 @@ struct TopicSuggestionBox: View {
                 .foregroundStyle(AppColors.textPrimary)
               
             
-            Text(topic.topicDefinition)
+            Text(topic.topicTitle)
                 .multilineTextAlignment(.center)
                 .font(.system(size: 21, weight: .semibold, design: .serif))
                 .foregroundStyle(AppColors.textPrimary)

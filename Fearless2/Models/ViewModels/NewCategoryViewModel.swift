@@ -41,7 +41,7 @@ final class NewCategoryViewModel: ObservableObject {
         case retry
     }
     
-    func manageRun(selectedAssistant: AssistantItem, category: Category, goal: Goal) async throws {
+    func manageRun(selectedAssistant: AssistantItem, category: Category, goal: Goal, sequence: Sequence? = nil) async throws {
     
         //reset published vars
         await MainActor.run {
@@ -65,7 +65,8 @@ final class NewCategoryViewModel: ObservableObject {
             let messageText = try await assistantRunManager.runAssistant(
                 selectedAssistant: selectedAssistant,
                 category: category,
-                goal: goal
+                goal: goal,
+                sequence: sequence
             )
 
             switch selectedAssistant {

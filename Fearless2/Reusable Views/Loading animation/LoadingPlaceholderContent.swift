@@ -12,6 +12,7 @@ enum PlaceholderContent {
     case focusArea
     case newTopic
     case suggestions
+    case recap
     case topicFragment
 }
 
@@ -74,6 +75,8 @@ struct LoadingPlaceholderContent: View {
             return "Restoring fragment"
         case .newTopic:
             return "Creating new quest"
+        case .recap:
+            return "Getting reflections"
         }
     }
     

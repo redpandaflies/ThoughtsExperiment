@@ -1,5 +1,5 @@
 //
-//  QuestionsNewCategory.swift
+//  QuestionNewCategory.swift
 //  Fearless2
 //
 //  Created by Yue Deng-Wu on 10/7/24.
@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 
-struct QuestionsNewCategory: Identifiable, Codable {
+struct QuestionNewCategory: Identifiable, Codable, QuestionProtocol {
     let id: Int
     var content: String
     var questionType: QuestionType
@@ -43,18 +43,18 @@ enum QuestionCategory: String, Codable, CaseIterable {
     }
 }
 
-extension QuestionsNewCategory {
+extension QuestionNewCategory {
     
     //initial question onboarding
-    static var initialQuestionsOnboarding: [QuestionsNewCategory] {
+    static var initialQuestionsOnboarding: [QuestionNewCategory] {
         return [
-            QuestionsNewCategory(
+            QuestionNewCategory(
                 id: 0,
                 content: "What should I call you?",
                 questionType: .open,
                 category: .generic
             ),
-            QuestionsNewCategory(
+            QuestionNewCategory(
                 id: 1,
                 content: "It's late. You're trying to fall asleep, but your mind is wandering. What are you thinking about?",
                 questionType: .singleSelect,
@@ -63,13 +63,13 @@ extension QuestionsNewCategory {
                     .dropLast()
                     .map { $0.lifeArea }
             ),
-            QuestionsNewCategory(
+            QuestionNewCategory(
                 id: 2,
                 content: "What’s keeping you up at night about this part of your life?",
                 questionType: .open,
                 category: .generic
             ),
-            QuestionsNewCategory(
+            QuestionNewCategory(
                 id: 3,
                 content: "What would make you feel better about this?",
                 questionType: .open,
@@ -80,9 +80,9 @@ extension QuestionsNewCategory {
     }
     
     //get questions new category
-    static func initialQuestionNewCategory(from categories: FetchedResults<Category>) -> [QuestionsNewCategory] {
+    static func initialQuestionNewCategory(from categories: FetchedResults<Category>) -> [QuestionNewCategory] {
         return [
-            QuestionsNewCategory(
+            QuestionNewCategory(
             id: 0,
             content: "It’s late. You’re trying to fall asleep, but your mind is wandering. What are you thinking about?",
             questionType: .singleSelect,
@@ -92,10 +92,10 @@ extension QuestionsNewCategory {
         ]
     }
     
-    static func remainingQuestionsNewCategory() -> [QuestionsNewCategory] {
+    static func remainingQuestionsNewCategory() -> [QuestionNewCategory] {
         return [
            
-            QuestionsNewCategory(
+            QuestionNewCategory(
                 id: 1,
                 content: "What kind of question are you facing?",
                 questionType: .singleSelect,
@@ -109,13 +109,13 @@ extension QuestionsNewCategory {
                     "Feel more confident"
                 ]
             ),
-            QuestionsNewCategory(
+            QuestionNewCategory(
                 id: 2,
                 content: "Please tell me more about what's bothering you.",
                 questionType: .open,
                 category: .generic
             ),
-            QuestionsNewCategory(
+            QuestionNewCategory(
                 id: 3,
                 content: "How long has this been weighing on you?",
                 questionType: .singleSelect,
@@ -127,7 +127,7 @@ extension QuestionsNewCategory {
                     "For a year or more"
                 ]
             ),
-            QuestionsNewCategory(
+            QuestionNewCategory(
                 id: 4,
                 content: "What have you already tried or learned?",
                 questionType: .open,
@@ -155,7 +155,7 @@ extension QuestionsNewCategory {
         return remainingRealms.map { $0.lifeArea }
     }
     
-    static func getQuestionFlow(for categoryChoice: String?) -> [QuestionsNewCategory] {
+    static func getQuestionFlow(for categoryChoice: String?) -> [QuestionNewCategory] {
         
         
         // If no choice has been made yet, just return empty array
@@ -164,7 +164,7 @@ extension QuestionsNewCategory {
         }
         
         // Determine which follow-up questions to show based on the first choice
-        var questions: [QuestionsNewCategory] = []
+        var questions: [QuestionNewCategory] = []
         
         switch categoryChoice {
             case Realm.realmsData[0].lifeArea:
@@ -188,7 +188,7 @@ extension QuestionsNewCategory {
     }
     
     // Career-related questions
-        static var careerQuestions: [QuestionsNewCategory] {
+        static var careerQuestions: [QuestionNewCategory] {
             [
                 .init(
                     id: 2,
@@ -253,7 +253,7 @@ extension QuestionsNewCategory {
         }
         
         // Relationship-related questions
-        static var relationshipsQuestions: [QuestionsNewCategory] {
+        static var relationshipsQuestions: [QuestionNewCategory] {
             [
                 .init(
                     id: 2,
@@ -318,7 +318,7 @@ extension QuestionsNewCategory {
         }
         
         // Finance-related questions
-        static var financeQuestions: [QuestionsNewCategory] {
+        static var financeQuestions: [QuestionNewCategory] {
             [
                 .init(
                     id: 2,
@@ -383,7 +383,7 @@ extension QuestionsNewCategory {
         }
         
         // Wellness-related questions
-        static var wellnessQuestions: [QuestionsNewCategory] {
+        static var wellnessQuestions: [QuestionNewCategory] {
             [
                 .init(
                     id: 2,
@@ -448,7 +448,7 @@ extension QuestionsNewCategory {
         }
         
         // Passion-related questions
-        static var passionQuestions: [QuestionsNewCategory] {
+        static var passionQuestions: [QuestionNewCategory] {
             [
                 .init(
                     id: 2,
@@ -513,7 +513,7 @@ extension QuestionsNewCategory {
         }
         
         // Purpose-related questions
-        static var purposeQuestions: [QuestionsNewCategory] {
+        static var purposeQuestions: [QuestionNewCategory] {
             [
                 .init(
                     id: 2,

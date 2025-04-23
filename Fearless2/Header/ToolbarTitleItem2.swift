@@ -12,6 +12,11 @@ struct ToolbarTitleItem2: View {
     let emoji: String
     let title: String
     
+    init(emoji: String = "", title: String) {
+        self.emoji = emoji
+        self.title = title
+    }
+    
     var body: some View {
         HStack (spacing: 8) {
             if !emoji.isEmpty {

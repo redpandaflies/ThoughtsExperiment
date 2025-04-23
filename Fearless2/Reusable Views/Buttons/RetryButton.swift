@@ -37,7 +37,3 @@ struct RetryButton: View {
        
     }
 }
-
-//#Preview {
-//    WhyBox()
-//}

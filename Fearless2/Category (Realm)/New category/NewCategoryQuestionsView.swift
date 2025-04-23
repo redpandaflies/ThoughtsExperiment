@@ -19,7 +19,7 @@ struct NewCategoryQuestionsView: View {
     @Binding var selectedCategory: String
     @Binding var selectedQuestion: Int
     @Binding  var progressBarQuestionIndex: Int
-    @Binding var questions: [QuestionsNewCategory]
+    @Binding var questions: [QuestionNewCategory]
     // Array to store all open question answers
     @Binding var answersOpen: [String]
     // Array to store all single-select question answers
@@ -28,8 +28,8 @@ struct NewCategoryQuestionsView: View {
     
     let categories: FetchedResults<Category>
     
-    var currentQuestion: QuestionsNewCategory {
-        let firstQuestion = QuestionsNewCategory.initialQuestionNewCategory(from: categories)[0]
+    var currentQuestion: QuestionNewCategory {
+        let firstQuestion = QuestionNewCategory.initialQuestionNewCategory(from: categories)[0]
             
         if questions.isEmpty {
             return firstQuestion
@@ -38,7 +38,7 @@ struct NewCategoryQuestionsView: View {
         }
     }
     
-    @FocusState var focusField: NewCategoryFocusField?
+    @FocusState var focusField: DefaultFocusField?
     
     var body: some View {
         VStack (spacing: 10){
@@ -62,7 +62,7 @@ struct NewCategoryQuestionsView: View {
             // MARK: Question
             switch currentQuestion.questionType {
                 case .open:
-                    NewCategoryQuestionOpenView(
+                    QuestionOpenView2(
                         topicText: $answersOpen[selectedQuestion],
                         focusField: $focusField,
                         focusValue: .question(selectedQuestion),
@@ -152,7 +152,7 @@ struct NewCategoryQuestionsView: View {
         case 0:
             questions = [currentQuestion]
             
-            let categoryQuestions = QuestionsNewCategory.remainingQuestionsNewCategory()
+            let categoryQuestions = QuestionNewCategory.remainingQuestionsNewCategory()
             
             questions += categoryQuestions
             
@@ -195,11 +195,10 @@ struct NewCategoryQuestionsView: View {
             
             for (index, answer) in answersOpen.enumerated() where !answer.isEmpty {
              
-                await dataController.saveAnswerOnboarding(
+                await dataController.saveAnswerDefaultQuestions(
                     questionType: .open,
                     question: questions[index],
                     userAnswer: answer,
-                    categoryLifeArea: selectedCategory,
                     category: category,
                     goal: goal
                 )
@@ -208,11 +207,10 @@ struct NewCategoryQuestionsView: View {
             
             for (index, answer) in answersSingleSelect.enumerated() where !answer.isEmpty {
                    
-                    await dataController.saveAnswerOnboarding(
+                    await dataController.saveAnswerDefaultQuestions(
                         questionType: .singleSelect,
                         question: questions[index],
                         userAnswer: answer,
-                        categoryLifeArea: selectedCategory,
                         category: category,
                         goal: goal
                     )

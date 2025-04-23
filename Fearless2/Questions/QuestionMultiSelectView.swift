@@ -1,15 +1,14 @@
 //
-//  QuestionMultipleChoiceView.swift
+//  QuestionMultiSelectView.swift
 //  Fearless2
 //
 //  Created by Yue Deng-Wu on 10/5/24.
 //
 
 import SwiftUI
-import WrappingHStack
 
 
-struct MultiSelectOption {
+struct MultiSelectOption: Hashable {
     let text: String
     let isEditable: Bool
     let index: Int
@@ -24,19 +23,21 @@ struct QuestionMultiSelectView: View {
     @Binding var multiSelectAnswers: [String]
     @Binding var customItems: [String]
     @Binding var showProgressBar: Bool
+    @Binding var itemsEditedInMemory: Bool //for questions that aren't saved yet to coredata
     let question: String
     let items: [String]
-    let answers: String
+    let answers: String //existing answers for question
     let itemsEdited: Bool
     
     @FocusState private var isFocused: Bool
     
     let screenWidth = UIScreen.current.bounds.width
     
-    init(multiSelectAnswers: Binding<[String]>, customItems: Binding<[String]> = .constant([]), showProgressBar: Binding<Bool> = .constant(true), question: String, items: [String], answers: String = "", itemsEdited: Bool = false) {
+    init(multiSelectAnswers: Binding<[String]>, customItems: Binding<[String]> = .constant([]), showProgressBar: Binding<Bool> = .constant(true), itemsEditedInMemory: Binding<Bool> = .constant(false), question: String, items: [String], answers: String = "", itemsEdited: Bool = false) {
         self._multiSelectAnswers = multiSelectAnswers
         self._customItems = customItems
         self._showProgressBar = showProgressBar
+        self._itemsEditedInMemory = itemsEditedInMemory
         self.question = question
         self.items = items
         self.answers = answers
@@ -48,7 +49,7 @@ struct QuestionMultiSelectView: View {
        return Array(items.enumerated()).map { index, option in
            let isCustomOptionType = CustomOptionType.isCustomOption(option)
            let isLastItem = index == items.count - 1
-           let isEditable = isCustomOptionType || (itemsEdited && isLastItem)
+           let isEditable = isCustomOptionType || (itemsEdited && isLastItem) || (itemsEditedInMemory && isLastItem)
            
            return MultiSelectOption(
                text: option,
@@ -59,7 +60,7 @@ struct QuestionMultiSelectView: View {
    }
     
     var body: some View {
-        VStack (alignment: .leading, spacing: 10) {
+        VStack (alignment: .leading, spacing: isFocused ? 5 : 10) {
             
             Text(question)
                 .multilineTextAlignment(.leading)
@@ -74,12 +75,13 @@ struct QuestionMultiSelectView: View {
                 .foregroundStyle(AppColors.textPrimary.opacity(0.7))
                 .textCase(.uppercase)
             
-            WrappingHStack(processedOptions.filter { $0.isEditable == false }, id: \.self, alignment: .leading, spacing: .constant(14), lineSpacing: 14) { option in
+            ForEach(processedOptions.filter { $0.isEditable == false }, id: \.self) { option in
                 
                 MultiSelectQuestionBubble(
                     multiSelectAnswers: $multiSelectAnswers,
                     customItems: $customItems,
                     showProgressBar: $showProgressBar,
+                    itemsEditedInMemory: $itemsEditedInMemory,
                     selected: multiSelectAnswers.contains(option.text),
                     option: option.text,
                     items: items,
@@ -96,6 +98,7 @@ struct QuestionMultiSelectView: View {
                     multiSelectAnswers: $multiSelectAnswers,
                     customItems: $customItems,
                     showProgressBar: $showProgressBar,
+                    itemsEditedInMemory: $itemsEditedInMemory,
                     selected: multiSelectAnswers.contains(editableOption.text),
                     option: editableOption.text,
                     items: items,
@@ -138,9 +141,7 @@ struct QuestionMultiSelectView: View {
             }
         }
     }
-    
-   
-    
+
     private func enableEditing() {
         // show keyboard
         if !isFocused {
@@ -156,6 +157,7 @@ struct MultiSelectQuestionBubble: View {
     @Binding var multiSelectAnswers: [String]
     @Binding var customItems: [String]
     @Binding var showProgressBar: Bool
+    @Binding var itemsEditedInMemory: Bool
     
     let selected: Bool
     let option: String
@@ -172,23 +174,22 @@ struct MultiSelectQuestionBubble: View {
     }
     
     var body: some View {
-        HStack (spacing: 0) {
+        HStack (spacing: 10) {
+            
+            Image(systemName: showPlusSign ? "plus" : ( selected || customTextIsSelected ? "checkmark.square" : "square"))
+                .multilineTextAlignment(.leading)
+                .font(.system(size: 19, weight: .light))
+                .fontWidth(.condensed)
+                .foregroundStyle(selected || customTextIsSelected ? AppColors.textBlack : AppColors.textPrimary)
+                .transition(.opacity)
+                
             if isEditable {
                 
-                if showPlusSign {
-                    Image(systemName: "plus")
-                        .multilineTextAlignment(.leading)
-                        .font(.system(size: 15, weight: .light))
-                        .foregroundStyle(AppColors.textPrimary)
-                        .transition(.opacity)
-                }
-                
-                
-                TextField("", text: $editableOption.max(30))
+                TextField("", text: $editableOption.max(50))
                     .multilineTextAlignment(.leading)
                     .font(.system(size: 15, weight: .light))
                     .foregroundStyle(selected || customTextIsSelected ? AppColors.textBlack : AppColors.textPrimary)
-                    .fixedSize(horizontal: true, vertical: true)
+                    .fixedSize(horizontal: false, vertical: true)
                     .focused($isFocused)
                     .keyboardType(.alphabet)
                     .submitLabel(.done)
@@ -210,6 +211,9 @@ struct MultiSelectQuestionBubble: View {
                         } else {
                             multiSelectAnswers.append(editableOption)
                             createCustomItems()
+                            if !itemsEditedInMemory {
+                                itemsEditedInMemory = true
+                            }
                         }
                     }
                     .onAppear {
@@ -229,7 +233,6 @@ struct MultiSelectQuestionBubble: View {
                             if editableOption.isEmpty {
                                 showPlusSign = false
                             }
-                       
                         }
                     }
             } else {
@@ -237,13 +240,14 @@ struct MultiSelectQuestionBubble: View {
                 Text(option)
                     .font(.system(size: 15, weight: .light))
                     .foregroundStyle(selected ? AppColors.textBlack : AppColors.textPrimary)
-                    .fixedSize(horizontal: true, vertical: true)
+                    .fixedSize(horizontal: false, vertical: true)
                 
             }
+            
+            Spacer()
         }
-        .padding(.leading, 18)
-        .padding(.trailing, showPlusSign ? 15 : 18)
-        .frame(height: 35)
+        .padding(.vertical, isFocused ? 10 : 15)
+        .padding(.horizontal, 15)
         .contentShape(Rectangle())
         .background {
             RoundedRectangle(cornerRadius: 10)

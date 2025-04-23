@@ -128,7 +128,7 @@ struct ActiveGoalBox: View {
                 .fixedSize(horizontal: false, vertical: true)
                 
             
-            GoalProgressBar(totalTopics: categoryTopics.count, totalCompletedTopics: totalCompletedTopics)
+            GoalProgressBar(totalTopics: categoryTopics.count, totalCompletedTopics: totalCompletedTopics, wholeBarWidth: 160)
             
             Text(categoryGoal?.goalTitle ?? "")
                 .multilineTextAlignment(.center)
@@ -157,8 +157,8 @@ struct ActiveGoalBox: View {
                 .fill(
                     LinearGradient(
                     stops: [
-                        Gradient.Stop(color: getGradient1(), location: 0.00),
-                    Gradient.Stop(color: getGradient2(), location: 1.00),
+                        Gradient.Stop(color: getGradient1().opacity(0.5), location: 0.00),
+                        Gradient.Stop(color: getGradient2().opacity(0.5), location: 1.00),
                     ],
                     startPoint: UnitPoint(x: 0.03, y: 0.01),
                     endPoint: UnitPoint(x: 0.92, y: 1)
@@ -186,15 +186,16 @@ struct GoalProgressBar: View {
     let totalTopics: Int
     let totalCompletedTopics: Int
     
-    let wholeBarWidth: CGFloat = 160
+    let wholeBarWidth: CGFloat
    
     var progressBarWidth: CGFloat {
+        let defaultWidth: CGFloat =  wholeBarWidth * 0.05
         if totalTopics > 0 {
-            var barWidth: CGFloat = wholeBarWidth * 0.1
+            var barWidth: CGFloat = defaultWidth
             barWidth = (wholeBarWidth/CGFloat (totalTopics)) * CGFloat(totalCompletedTopics)
-            return barWidth
+            return max(barWidth, defaultWidth)
         } else {
-            return wholeBarWidth * 0.1
+            return defaultWidth
         }
     }
     
@@ -230,9 +231,8 @@ struct AddGoalButton: View {
             
             Text("Add new goal")
                 .multilineTextAlignment(.center)
+                .font(.system(size: 16, weight: .semibold, design: .serif))
                 .foregroundStyle(AppColors.textBlack)
-                .font(.system(size: 21))
-                .fontWidth(.condensed)
                 .lineSpacing(1.3)
                 .padding(.horizontal)
             
@@ -246,7 +246,8 @@ struct AddGoalButton: View {
             
             
         }
-        .padding(.vertical, 30)
+        .padding(.top, 40)
+        .padding(.bottom, 20)
         .frame(width: 200, height: 260)
         .contentShape(RoundedRectangle(cornerRadius: 25))
         .background {
@@ -254,12 +255,16 @@ struct AddGoalButton: View {
                 .stroke(AppColors.strokePrimary.opacity(0.50), lineWidth: 0.5)
                 .fill(
                     LinearGradient(
-                        gradient: Gradient(colors: [AppColors.boxYellow1, AppColors.boxYellow2]),
-                        startPoint: .top,
-                        endPoint: .bottom
+                    stops: [
+                        Gradient.Stop(color: .white, location: 0.00),
+                        Gradient.Stop(color: AppColors.boxSecondary, location: 1.00),
+                    ],
+                    startPoint: UnitPoint(x: 0.03, y: 0.01),
+                    endPoint: UnitPoint(x: 0.92, y: 1)
                     )
                 )
-                .shadow(color: Color.black.opacity(0.30), radius: 15, x: 0, y: 3)
+                .shadow(color: .black.opacity(0.15), radius: 5, x: 0, y: 3)
+               
         }
             
            

@@ -94,7 +94,6 @@ struct ContextGatherer {
             
             var focusAreasList: [FocusArea] {
                 switch selectedAssistant {
-               
                 case .focusAreaSuggestions:
                     return focusAreas
                 case .focusArea, .topicOverview:
@@ -156,14 +155,25 @@ struct ContextGatherer {
     }
     
     // for new category flow
-    static func gatherContextNewCategory(dataController: DataController, loggerCoreData: Logger, category: Category, goal: Goal) async -> String? {
+    static func gatherContext2(dataController: DataController, loggerCoreData: Logger, selectedAssistant: AssistantItem, category: Category, goal: Goal, sequence: Sequence? = nil) async -> String? {
         var context = "Current life area: \(category.categoryLifeArea).\n\n"
         
         //get questions answered when creating category
         context += getNewGoalContext(goal: goal)
         
         // Get all topics
-        let topics = category.categoryTopics
+        var topics: [Topic] = []
+        
+        
+        if selectedAssistant == .sequenceSummary {
+            if let sequence = sequence {
+                // for sequence summary
+                topics = sequence.sequenceTopics
+            }
+        } else {
+            // for new category, plan suggestions
+           topics = category.categoryTopics
+        }
         
         if !topics.isEmpty {
             // Sort topics by creation date string, earliest first
@@ -180,6 +190,13 @@ struct ContextGatherer {
                 """
             }
         }
+        
+        if selectedAssistant == .planSuggestion {
+            if let sequence = sequence {
+              context +=  getSequenceRecapAnswers(sequence: sequence)
+            }
+        }
+        
 
         return context
     }
@@ -200,7 +217,7 @@ struct ContextGatherer {
             return nil
         }
         
-        let sequence = goal.goalSequences.filter { $0.sequenceStatus != SequenceStatusItem.completed.rawValue }
+        let sequence = topic.sequence
         
         var context = """
             Please create focus areas for this quest: \(topic.topicTitle).
@@ -220,14 +237,14 @@ struct ContextGatherer {
         """
         
         //sequence info
-        if let firstSequence = sequence.first {
+        if let sequence = sequence {
             context += """
-            The quest belongs to this sequence (collection of quests): \(firstSequence.sequenceTitle).
-            a) intent: \(firstSequence.sequenceIntent)
-            b) objectives: \(firstSequence.sequenceObjectives)\n\n
+            The quest belongs to this sequence (collection of quests): \(sequence.sequenceTitle).
+            a) intent: \(sequence.sequenceIntent)
+            b) objectives: \(sequence.sequenceObjectives)\n\n
             """
             
-            let sequenceTopics = firstSequence.sequenceTopics
+            let sequenceTopics = sequence.sequenceTopics
             let completedTopics = sequenceTopics.filter { $0.topicStatus == TopicStatusItem.completed.rawValue }.sorted { $0.orderIndex < $1.orderIndex }
             let lockedTopics = sequenceTopics.filter {
                 $0.topicStatus == TopicStatusItem.locked.rawValue &&
@@ -235,9 +252,10 @@ struct ContextGatherer {
             }.sorted { $0.orderIndex < $1.orderIndex }
             
             // Get focus areas limit
-            let highestFocusAreaTopic = sequenceTopics.max(by: { $0.focusAreasLimit < $1.focusAreasLimit })
-            let highestFocusAreasLimit = highestFocusAreaTopic?.focusAreasLimit ?? 0
-            let focusAreasLimit = min(max(highestFocusAreasLimit + 1, 2), 5)
+//            let highestFocusAreaTopic = sequenceTopics.max(by: { $0.focusAreasLimit < $1.focusAreasLimit })
+//            let highestFocusAreasLimit = highestFocusAreaTopic?.focusAreasLimit ?? 0
+//            let focusAreasLimit = min(max(highestFocusAreasLimit + 1, 2), 5)
+            let focusAreasLimit: Int = 1
             context += "Please generate exactly \(focusAreasLimit) focus areas for this quest.\n\n"
             
             //list locked topics
@@ -371,6 +389,17 @@ extension ContextGatherer {
             .sorted { $0.questionCreatedAt < $1.questionCreatedAt }
         
         context += getQuestions(goalQuestions)
+        
+        return context
+    }
+    
+    private static func getSequenceRecapAnswers(sequence: Sequence) -> String {
+        var context = "User's answers to questions during the sequence recap flow: \n"
+        
+        let sequenceQuestions = sequence.sequenceQuestions
+            .sorted { $0.questionCreatedAt < $1.questionCreatedAt }
+        
+        context += getQuestions(sequenceQuestions)
         
         return context
     }

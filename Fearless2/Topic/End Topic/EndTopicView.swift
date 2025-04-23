@@ -27,11 +27,10 @@ struct EndTopicView: View {
                         case 0:
                             RecapCelebrationView(title: section?.topic?.topicTitle ?? "", text: "For completing", points: "+5")
                                 .padding(.horizontal)
-                                .padding(.bottom, 100)
+                                .padding(.top, 80)
                             
                         case 1:
                             recapView()
-                               
                             
                         default:
                             fragmentView()

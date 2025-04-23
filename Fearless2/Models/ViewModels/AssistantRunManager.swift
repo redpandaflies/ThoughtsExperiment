@@ -24,6 +24,7 @@ final class AssistantRunManager {
         selectedAssistant: AssistantItem,
         category: Category? = nil,
         goal: Goal? = nil,
+        sequence: Sequence? = nil,
         topicId: UUID? = nil,
         focusArea: FocusArea? = nil
     ) async throws -> String {
@@ -35,7 +36,7 @@ final class AssistantRunManager {
         }
         
         //get context to send to OpenAI
-        try await sendFirstMessage(selectedAssistant: selectedAssistant, threadId: threadId, category: category, goal: goal, topicId: topicId, focusArea: focusArea)
+        try await sendFirstMessage(selectedAssistant: selectedAssistant, threadId: threadId, category: category, goal: goal, sequence: sequence, topicId: topicId, focusArea: focusArea)
         
         var messageText: String?
         
@@ -80,12 +81,13 @@ final class AssistantRunManager {
         
     }
     
-    //for creating a set of questions to gather context on a topic
+    // for sending first message and gathering context to send to AI
     private func sendFirstMessage(
         selectedAssistant: AssistantItem,
         threadId: String,
         category: Category? = nil,
         goal: Goal? = nil,
+        sequence: Sequence? = nil,
         topicId: UUID? = nil,
         focusArea: FocusArea? = nil
     ) async throws {
@@ -94,6 +96,7 @@ final class AssistantRunManager {
             selectedAssistant: selectedAssistant,
             category: category,
             goal: goal,
+            sequence: sequence,
             topicId: topicId,
             focusArea: focusArea
         )
@@ -105,13 +108,14 @@ final class AssistantRunManager {
         selectedAssistant: AssistantItem,
         category: Category? = nil,
         goal: Goal? = nil,
+        sequence: Sequence? = nil,
         topicId: UUID? = nil,
         focusArea: FocusArea? = nil
     ) async throws -> String {
         
         //topic suggestion assistant only
         switch selectedAssistant {
-        case .newCategory, .planSuggestion:
+        case .newCategory, .planSuggestion, .sequenceSummary:
             guard let currentCategory = category else {
                 loggerCoreData.error("Failed to get current category")
                 throw ContextError.missingRequiredField("Category")
@@ -122,7 +126,7 @@ final class AssistantRunManager {
                 throw ContextError.missingRequiredField("Goal")
             }
             
-            guard let gatheredContext = await ContextGatherer.gatherContextNewCategory(dataController: dataController, loggerCoreData: loggerCoreData, category: currentCategory, goal: currentGoal) else {
+            guard let gatheredContext = await ContextGatherer.gatherContext2(dataController: dataController, loggerCoreData: loggerCoreData, selectedAssistant: selectedAssistant, category: currentCategory, goal: currentGoal, sequence: sequence) else {
                 loggerCoreData.error("Failed to get context ")
                 throw ContextError.noContextFound("Context")
             }

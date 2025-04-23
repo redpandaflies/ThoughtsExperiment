@@ -11,6 +11,7 @@ struct TopicExpectationsView: View {
     @EnvironmentObject var dataController: DataController
     
     @State private var expectationsScrollPosition: Int?
+    @State private var disableButton: Bool = true
     
     @Binding var showTopicExpecationsSheet: Bool
     
@@ -21,6 +22,10 @@ struct TopicExpectationsView: View {
     
     let screenWidth = UIScreen.current.bounds.width
     
+    var sortedExpectations: [TopicExpectation] {
+        return expectations.sorted { $0.orderIndex < $1.orderIndex }
+    }
+    
     var body: some View {
         
         VStack (alignment: .leading, spacing: 10) {
@@ -29,14 +34,18 @@ struct TopicExpectationsView: View {
                 //dismiss
                 showTopicExpecationsSheet = false
             })
+            .padding(.bottom)
             
             Text("What to expect")
                 .multilineTextAlignment(.leading)
                 .font(.system(size: 25, design: .serif))
                 .foregroundStyle(AppColors.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
+                .padding(.bottom)
             
-            getContent()
+            CarouselView(items: sortedExpectations, scrollPosition: $expectationsScrollPosition, pagesCount: sortedExpectations.count) { index, expectation in
+                CarouselBox(orderIndex: index + 1, content: expectation.expectationContent)
+            }
             
             Spacer()
             
@@ -46,15 +55,29 @@ struct TopicExpectationsView: View {
                 action: {
                     completeQuest()
                 },
+                disableMainButton: disableButton,
                 buttonColor: .white)
             
         }//VStack
         .padding(.bottom)
+        .padding(.horizontal)
         .frame(maxHeight: .infinity, alignment: .top)
         .background {
             BackgroundPrimary(backgroundColor: backgroundColor)
         }
         .environment(\.colorScheme, .dark )
+        .onAppear {
+            if topic?.topicStatus == TopicStatusItem.completed.rawValue {
+                disableButton = false
+            }
+        }
+        .onChange(of: expectationsScrollPosition) {
+            if (expectationsScrollPosition == sortedExpectations.count - 1) && (topic?.topicStatus != TopicStatusItem.completed.rawValue) {
+                if disableButton {
+                    disableButton = false
+                }
+            }
+        }
     }
     
     
@@ -75,32 +98,13 @@ struct TopicExpectationsView: View {
             }
     
         }//HStack
-        .frame(width: screenWidth - 32)
+        .frame(maxWidth: .infinity)
         .padding(.top)
         .padding(.bottom, 15)
         
     }
     
-    private func getContent() -> some View {
-        VStack (alignment: .leading, spacing: 15) {
-            ScrollView (.horizontal) {
-                HStack (alignment: .center, spacing: 15) {
-                    ForEach(Array(expectations.enumerated()), id: \.element.expectationId) { index, expectation in
-                        TopicExpectationBox(expectation: expectation)
-                            .id(index)
-                    }
-                }
-                .scrollTargetLayout()
-            }
-            .scrollPosition(id: $expectationsScrollPosition, anchor: .leading)
-            .scrollClipDisabled(true)
-            .scrollTargetBehavior(.viewAligned(limitBehavior: .alwaysByOne))
-            .scrollIndicators(.hidden)
-            
-            PageIndicatorView(scrollPosition: $expectationsScrollPosition, pagesCount: expectations.count)
-            
-        }
-    }
+   
     
     private func completeQuest() {
         Task {
@@ -115,39 +119,3 @@ struct TopicExpectationsView: View {
 }
 
 
-struct TopicExpectationBox: View {
-    
-    let expectation: TopicExpectation
-    
-    var body: some View {
-        VStack {
-            Text("\(Int(expectation.orderIndex))")
-                .multilineTextAlignment(.leading)
-                .font(.system(size: 30, weight: .light))
-                .foregroundStyle(AppColors.textPrimary)
-                .opacity(0.5)
-                .fixedSize(horizontal: false, vertical: true)
-                .padding(.top, 20)
-             
-            
-            Text(expectation.expectationContent)
-                .multilineTextAlignment(.leading)
-                .font(.system(size: 20, design: .serif))
-                .foregroundStyle(AppColors.textPrimary)
-                .lineSpacing(1.4)
-                .fixedSize(horizontal: false, vertical: true)
-                
-               
-        }
-        .padding(.horizontal)
-        .frame(width: 300, height: 420, alignment: .top)
-        .background {
-            RoundedRectangle(cornerRadius: 25)
-                .stroke(AppColors.textSecondary.opacity(0.1), lineWidth: 0.5)
-                .fill(AppColors.boxGrey1.opacity(0.3))
-                .blendMode(.colorDodge)
-                .shadow(color: .black.opacity(0.05), radius: 15, x: 0, y: 3)
-        }
-        .clipShape(RoundedRectangle(cornerRadius: 20))
-    }
-}

@@ -61,6 +61,7 @@ struct AppColors {
     static let boxGrey3 = Color(.displayP3, red: 0.729, green: 0.729, blue: 0.729, opacity: 1) // #bababa
     static let boxGrey4 = Color(.displayP3, red: 0.518, green: 0.518, blue: 0.518, opacity: 1) // #848484
     static let boxGrey5 = Color(.displayP3, red: 0.620, green: 0.620, blue: 0.620, opacity: 1) // #9E9E9E
+    static let boxGrey6 = Color(.displayP3, red: 0.498, green: 0.498, blue: 0.498, opacity: 1) // #7F7F7F
     static let boxYellow1 = Color(.displayP3, red: 1, green: 0.831, blue: 0.396, opacity: 1) // #ffd465
     static let boxYellow2 = Color(.displayP3, red: 1, green: 0.722, blue: 0, opacity: 1) // #ffb800
     
@@ -85,6 +86,8 @@ struct AppColors {
     static let buttonYellow1 = boxYellow1
     static let buttonYellow2 = boxYellow2
     static let buttonLightGrey1 = Color(.displayP3, red: 0.89, green: 0.89, blue: 0.89, opacity: 1) // #e3e3e3
+    static let buttonBlack1 = Color(.displayP3, red: 0.216, green: 0.216, blue: 0.216, opacity: 1) // #373737
+    static let buttonBlack2 = Color(.displayP3, red: 0.075, green: 0.075, blue: 0.075, opacity: 1) // #131313
    
 
     // Background

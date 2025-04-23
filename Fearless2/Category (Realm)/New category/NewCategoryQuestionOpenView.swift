@@ -1,5 +1,5 @@
 //
-//  NewCategoryQuestionOpenView.swift
+//  QuestionOpenView2.swift
 //  Fearless2
 //
 //  Created by Yue Deng-Wu on 10/7/24.
@@ -7,11 +7,11 @@
 
 import SwiftUI
 
-struct NewCategoryQuestionOpenView: View {
+struct QuestionOpenView2: View {
     
     @Binding var topicText: String
-    @FocusState.Binding var focusField: NewCategoryFocusField?
-    let focusValue: NewCategoryFocusField
+    @FocusState.Binding var focusField: DefaultFocusField?
+    let focusValue: DefaultFocusField
     
     let question: String
     let placeholderText: String
@@ -19,8 +19,8 @@ struct NewCategoryQuestionOpenView: View {
     let disableNewLine: Bool
     
     init(topicText: Binding<String>,
-         focusField: FocusState<NewCategoryFocusField?>.Binding,
-         focusValue: NewCategoryFocusField,
+         focusField: FocusState<DefaultFocusField?>.Binding,
+         focusValue: DefaultFocusField,
          question: String = "",
          placeholderText: String = "Type your answer",
          answer: String = "",

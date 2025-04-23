@@ -62,7 +62,15 @@ struct UpdateSectionBox: View {
                     case .multiSelect:
                         let optionsString = currentQuestion.questionMultiSelectOptions
                         let optionsArray = optionsString.components(separatedBy: ";")
-                    QuestionMultiSelectView(multiSelectAnswers: $multiSelectAnswers, customItems: $multiSelectCustomItems, showProgressBar: $showProgressBar, question: currentQuestion.questionContent, items: optionsArray, answers: currentQuestion.questionAnswerMultiSelect, itemsEdited: currentQuestion.editedMultiSelect)
+                    QuestionMultiSelectView(
+                        multiSelectAnswers: $multiSelectAnswers,
+                        customItems: $multiSelectCustomItems,
+                        showProgressBar: $showProgressBar,
+                        question: currentQuestion.questionContent,
+                        items: optionsArray,
+                        answers: currentQuestion.questionAnswerMultiSelect,
+                        itemsEdited: currentQuestion.editedMultiSelect
+                    )
                     
                     default:
                     QuestionOpenView(topicText: $topicText, isFocused: $isFocused, question: currentQuestion.questionContent, answer: currentQuestion.questionAnswerOpen)

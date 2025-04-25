@@ -11,7 +11,6 @@ import OSLog
 final class TopicViewModel: ObservableObject {
     
     @Published var topicUpdated: Bool = false
-    @Published var topicGenerated: NewTopicGenerated? = nil
     @Published var createTopicOverview: TopicOverviewState = .ready
     @Published var showPlaceholder: Bool = false
     @Published var generatingImage: Bool = false
@@ -20,7 +19,8 @@ final class TopicViewModel: ObservableObject {
     @Published var createNewFocusArea: NewFocusAreaState = .ready
     @Published var focusAreaCreationFailed: Bool = false //when run fails
     @Published var createFocusAreaSummary: FocusAreaSummaryState = .ready
-    @Published var createFocusAreaSuggestions: FocusAreaSuggestionsState = .ready
+    @Published var createTopicQuestions: NewTopicQuestionsState = .ready
+   
     @Published var sectionSummaryCreated: Bool = false
     @Published var scrollToAddTopic: Bool = false
   
@@ -55,13 +55,13 @@ final class TopicViewModel: ObservableObject {
         case retry
     }
     
-    enum FocusAreaSuggestionsState {
+    enum NewFocusAreaState {
         case ready
         case loading
         case retry
     }
     
-    enum NewFocusAreaState {
+    enum NewTopicQuestionsState {
         case ready
         case loading
         case retry
@@ -70,14 +70,13 @@ final class TopicViewModel: ObservableObject {
     //MARK: create new topic
     //note: send the full name of category to GPT as context, save the short name to CoreData
     //note: kept the optionals for userInput and question for now, in case we want to add back in the follow-up questions and summary
-    func manageRun(selectedAssistant: AssistantItem, userInput: [String]? = nil, topicId: UUID? = nil, entryId: UUID? = nil, transcript: String? = nil, focusArea: FocusArea? = nil, section: Section? = nil, question: String? = nil, review: TopicReview? = nil, category: Category? = nil) async throws {
+    func manageRun(selectedAssistant: AssistantItem, userInput: [String]? = nil, topicId: UUID? = nil, entryId: UUID? = nil, transcript: String? = nil, topic: Topic? = nil, focusArea: FocusArea? = nil, section: Section? = nil, question: String? = nil, review: TopicReview? = nil, category: Category? = nil) async throws {
         
         do {
             //reset published vars
             await MainActor.run {
                 self.threadId = nil
                 self.topicUpdated = false
-                self.topicGenerated = nil
                 self.showPlaceholder = false
                 self.generatingImage = false
                 if selectedAssistant == .focusArea {
@@ -92,20 +91,22 @@ final class TopicViewModel: ObservableObject {
                 } else {
                     self.createFocusAreaSummary = .ready
                 }
-                if selectedAssistant == .focusAreaSuggestions {
-                    self.createFocusAreaSuggestions = .loading
-                } else {
-                    self.createFocusAreaSuggestions = .ready
-                }
                 if selectedAssistant == .topicOverview {
                     self.createTopicOverview = .loading
+                }
+                if selectedAssistant == .topic {
+                    if self.createTopicQuestions != .loading {
+                        self.createTopicQuestions = .loading
+                    }
+                } else {
+                    self.createTopicQuestions = .ready
                 }
                 self.sectionSummaryCreated = false
                 self.updatedEntry = nil
                 
             }
             
-            try await manageRunWithStreaming(selectedAssistant: selectedAssistant, userInput: userInput, topicId: topicId, entryId: entryId, transcript: transcript, focusArea: focusArea, section: section, question: question, review: review,  category: category)
+            try await manageRunWithStreaming(selectedAssistant: selectedAssistant, userInput: userInput, topicId: topicId, entryId: entryId, transcript: transcript, topic: topic, focusArea: focusArea, section: section, question: question, review: review,  category: category)
             
         } catch {
             loggerOpenAI.error("Failed to complete OpenAI run: \(error.localizedDescription), \(error)")
@@ -115,26 +116,29 @@ final class TopicViewModel: ObservableObject {
         
     }
     
-    func manageRunWithStreaming(selectedAssistant: AssistantItem, userInput: [String]? = nil, topicId: UUID? = nil, entryId: UUID? = nil, transcript: String? = nil, focusArea: FocusArea? = nil, section: Section? = nil, question: String? = nil, review: TopicReview? = nil, category: Category? = nil) async throws {
+    func manageRunWithStreaming(selectedAssistant: AssistantItem, userInput: [String]? = nil, topicId: UUID? = nil, entryId: UUID? = nil, transcript: String? = nil, topic: Topic? = nil, focusArea: FocusArea? = nil, section: Section? = nil, question: String? = nil, review: TopicReview? = nil, category: Category? = nil) async throws {
         
         do {
             let messageText = try await assistantRunManager.runAssistant(
                 selectedAssistant: selectedAssistant,
                 category: category,
                 topicId: topicId,
-                focusArea: focusArea
+                focusArea: focusArea,
+                topic: topic
             )
             
             switch selectedAssistant {
                 
             case .topic:
-                guard let newTopic = try await openAISwiftService.processTopicGenerated(messageText: messageText) else {
-                    loggerOpenAI.error("Failed to process topic suggestions")
-                    throw ProcessingError.processingFailed()
+                guard let topic = topic else {
+                    loggerCoreData.error("Failed to get topic")
+                    return
                 }
                 
+                try await openAISwiftService.processNewTopicQuestions(messageText: messageText, topic: topic)
+                
                 await MainActor.run {
-                    self.topicGenerated = newTopic
+                    self.createTopicQuestions = .ready
                 }
                 
             case .topicOverview:
@@ -148,35 +152,6 @@ final class TopicViewModel: ObservableObject {
                 
                 await MainActor.run {
                     self.createTopicOverview = .ready
-                }
-                
-            case .focusAreaSuggestions:
-                
-                guard let currentTopic = topicId else {
-                    loggerCoreData.error("Failed to get topic ID")
-                    throw OpenAIError.missingRequiredField("Topic ID")
-                }
-                
-                try await openAISwiftService.processFocusAreaSuggestions(messageText: messageText, topicId: currentTopic)
-                
-                await MainActor.run {
-                    self.createFocusAreaSuggestions = .ready
-                }
-                
-                
-            case .focusArea:
-                
-                guard let currentFocusArea = focusArea else {
-                    loggerCoreData.error("Failed to get new focus area")
-                    throw OpenAIError.missingRequiredField("Focus area")
-                }
-                
-                try await openAISwiftService.processFocusArea(messageText: messageText, focusArea: currentFocusArea)
-                
-                loggerOpenAI.log("Added new focus area to topic")
-                
-                await MainActor.run {
-                    self.createNewFocusArea = .ready
                 }
                 
             case .focusAreaSummary:

@@ -200,7 +200,6 @@ struct GoalProgressBar: View {
     }
     
     var body: some View {
-        
       
         ZStack (alignment: .leading) {
             RoundedRectangle(cornerRadius: 50)

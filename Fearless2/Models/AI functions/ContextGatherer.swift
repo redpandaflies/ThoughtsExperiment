@@ -202,9 +202,9 @@ struct ContextGatherer {
     }
     
     //for new topic
-    static func gatherContextNewTopic(dataController: DataController, loggerCoreData: Logger, topicId: UUID) async -> String? {
-        guard let topic = await dataController.fetchTopic(id: topicId) else {
-               loggerCoreData.error("Failed to fetch topic with ID: \(topicId.uuidString)")
+    static func gatherContextNewTopic(dataController: DataController, loggerCoreData: Logger, topic: Topic) async -> String? {
+        guard let topic = await dataController.fetchTopic(id: topic.topicId) else {
+            loggerCoreData.error("Failed to fetch topic with ID: \(topic.topicId.uuidString)")
                return nil
         }
         

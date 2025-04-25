@@ -397,70 +397,34 @@ extension OpenAISwiftService {
     }
     
     @MainActor
-    func processFocusArea(messageText: String, focusArea: FocusArea) async throws {
+    func processNewTopicQuestions(messageText: String, topic: Topic) async throws {
         let arguments = messageText
         let context = self.dataController.container.viewContext
 
         try await context.perform {
             
-            guard let topic = focusArea.topic else {
-                self.loggerOpenAI.log("No topic found for focus area: \(focusArea.focusAreaTitle)")
-                throw ProcessingError.missingRequiredField("Related topic not found")
-            }
+           
             
             guard let category = topic.category else {
-                self.loggerOpenAI.log("No category found for focus area: \(focusArea.focusAreaTitle)")
+                self.loggerOpenAI.log("No category found for topic: \(topic.topicTitle)")
                 throw ProcessingError.missingRequiredField("Related category not found")
             }
             
             // decode the arguments to get the new section data
-            guard let newFocusArea = self.decodeArguments(arguments: arguments, as: NewFocusArea.self) else {
-                self.loggerOpenAI.log("Failed to decode new sections for focus area: \(focusArea.focusAreaTitle)")
-                throw ProcessingError.decodingError("New focus area sections")
+            guard let newQuestions = self.decodeArguments(arguments: arguments, as: NewTopicQuestions.self) else {
+                self.loggerOpenAI.log("Failed to decode new questions for topic: \(topic.topicTitle)")
+                throw ProcessingError.decodingError("New topic questions")
             }
             
-            // add sections to focus area
-            self.processSections(newFocusArea: newFocusArea, focusArea: focusArea, topic: topic, category: category, context: context)
+            // add sections to topic
+            self.processQuestions(newQuestions.questions, for: topic, in: context)
             
-            
-            try self.saveCoreDataChanges(context: context, errorDescription: "new focus area sections")
+            try self.saveCoreDataChanges(context: context, errorDescription: "New topic questions")
             
         }
     }
     
-    private func processSections(newFocusArea: NewFocusArea, focusArea: FocusArea, topic: Topic, category: Category, context: NSManagedObjectContext) {
-        
-        
-        for newSection in newFocusArea.sections {
-            // Skip if section already exists (AI sometimes hallucinates)
-            if focusArea.focusAreaSections.contains(where: { $0.sectionNumber == newSection.sectionNumber }) {
-                self.loggerOpenAI.log("Skipping duplicate section: \(newSection.sectionNumber)")
-                continue
-            }
-            
-            // Create a new section
-            let section = createSection(from: newSection, in: context)
-            
-            // Add new questions to the section
-            processQuestions(newSection.questions, for: section, in: context)
-            
-            // Add relationships
-            topic.addToSections(section)
-            focusArea.addToSections(section)
-            category.addToSections(section)
-           
-        }
-    }
-    
-    private func createSection(from newSection: NewSection, in context: NSManagedObjectContext) -> Section {
-        let section = Section(context: context)
-        section.sectionId = UUID()
-        section.sectionTitle = newSection.title
-        section.sectionNumber = Int16(newSection.sectionNumber)
-        return section
-    }
-    
-    private func processQuestions(_ newQuestions: [SectionQuestion], for section: Section, in context: NSManagedObjectContext) {
+    private func processQuestions(_ newQuestions: [NewQuestion], for topic: Topic, in context: NSManagedObjectContext) {
            for newQuestion in newQuestions {
                let question = Question(context: context)
                question.questionId = UUID()
@@ -477,7 +441,7 @@ extension OpenAISwiftService {
                }
                
                // Add the question to the section
-               section.addToQuestions(question)
+               topic.addToQuestions(question)
            }
        }
     
@@ -782,7 +746,6 @@ struct NewSequenceSummary: Codable, Hashable {
     }
 }
 
-//Create new focus area
 struct NewTopic: Codable, Hashable {
     let title: String
     let definition: String
@@ -819,24 +782,14 @@ struct NewFocusAreaHeading: Codable, Hashable {
     }
 }
 
-struct NewFocusArea: Codable, Hashable {
-    let sections: [NewSection]
-}
 
-struct NewSection: Codable, Hashable {
-    let title: String
-    let sectionNumber: Int
-    let questions: [SectionQuestion]
-    
-    enum CodingKeys: String, CodingKey {
-        case title
-        case sectionNumber = "section_number"
-        case questions
-    }
+// MARK: Create topic questions
+struct NewTopicQuestions: Codable, Hashable {
+    let questions: [NewQuestion]
 }
 
 //question belongs to a section
-struct SectionQuestion: Codable, Hashable {
+struct NewQuestion: Codable, Hashable {
     let content: String
     let questionNumber: Int
     let questionType: QuestionType

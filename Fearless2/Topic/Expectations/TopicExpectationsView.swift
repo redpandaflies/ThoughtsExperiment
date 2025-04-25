@@ -4,19 +4,21 @@
 //
 //  Created by Yue Deng-Wu on 4/14/25.
 //
-
+import OSLog
 import SwiftUI
 
 struct TopicExpectationsView: View {
     @EnvironmentObject var dataController: DataController
+    @ObservedObject var topicViewModel: TopicViewModel
     
     @State private var expectationsScrollPosition: Int?
     @State private var disableButton: Bool = true
     
-    @Binding var showTopicExpecationsSheet: Bool
+    @Binding var showTopicExpectationsSheet: Bool
     
     let topic: Topic?
     let goal: String
+    let sequence: Sequence?
     let expectations: [TopicExpectation]
     let backgroundColor: Color
     
@@ -26,13 +28,15 @@ struct TopicExpectationsView: View {
         return expectations.sorted { $0.orderIndex < $1.orderIndex }
     }
     
+    let logger = Logger.uiEvents
+    
     var body: some View {
         
         VStack (alignment: .leading, spacing: 10) {
             
             getHeader(xmarkAction: {
                 //dismiss
-                showTopicExpecationsSheet = false
+                showTopicExpectationsSheet = false
             })
             .padding(.bottom)
             
@@ -69,6 +73,8 @@ struct TopicExpectationsView: View {
         .onAppear {
             if topic?.topicStatus == TopicStatusItem.completed.rawValue {
                 disableButton = false
+            } else {
+                getTopicQuestions()
             }
         }
         .onChange(of: expectationsScrollPosition) {
@@ -112,9 +118,40 @@ struct TopicExpectationsView: View {
                 await dataController.completeTopic(topic: topic)
             }
             await MainActor.run {
-                showTopicExpecationsSheet = false
+                showTopicExpectationsSheet = false
             }
         }
+    }
+    
+    private func getTopicQuestions() {
+        topicViewModel.createTopicQuestions = .loading
+        
+        // get the next topic
+        
+        guard let sequenceTopics = sequence?.sequenceTopics else {
+            logger.log("No sequence topics found")
+            return
+        }
+        
+        guard let topic = topic else {
+            logger.log("No selected topic found")
+            return
+        }
+        
+       let nextTopic = sequenceTopics.filter { $0.topicId == topic.topicId }
+            
+        Task {
+            do {
+                
+                try await topicViewModel.manageRun(selectedAssistant: .topic, topic: nextTopic.first)
+                
+                
+            } catch {
+                topicViewModel.createTopicQuestions = .retry
+            }
+            
+        }
+        
     }
 }
 

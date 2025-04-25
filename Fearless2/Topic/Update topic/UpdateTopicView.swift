@@ -1,5 +1,5 @@
 //
-//  UpdateSectionView.swift
+//  UpdateTopicView.swift
 //  Fearless2
 //
 //  Created by Yue Deng-Wu on 10/3/24.
@@ -8,8 +8,7 @@ import CoreData
 import Mixpanel
 import SwiftUI
 
-struct UpdateSectionView: View {
-    @Environment(\.dismiss) var dismiss
+struct UpdateTopicView: View {
     @EnvironmentObject var dataController: DataController
     @ObservedObject var topicViewModel: TopicViewModel
     
@@ -17,31 +16,39 @@ struct UpdateSectionView: View {
     @State private var selectedTab: Int = 0
     @State private var showWarningSheet: Bool = false
     @State private var selectedQuestion: Int = 0
-    @State private var topicText: String = ""//user's definition of the new topic
+    @State private var answersOpen: [String] = [] // open ended answer
     @State private var singleSelectAnswer: String = "" //single-select answer
     @State private var multiSelectAnswers: [String] = [] //answers user choose for muti-select questions
     @State private var currentQuestionIndex: Int = 0 //for the progress bar
     @State private var singleSelectCustomItems: [String] = []//stores updated array when user inputs their own answer for single select
     @State private var multiSelectCustomItems: [String] = []//stores updated array when user inputs their own answer for multi select
     
-    @Binding var selectedSectionSummary: SectionSummary?
+    @Binding var showUpdateTopicView: Bool //dismiss sheet
     
-    let topicId: UUID?
-    let focusArea: FocusArea?
-    let section: Section
+    let topic: Topic
+    let sequence: Sequence
+    let backgroundColor: Color
     
-    var questions: [Question] {
-        return section.sectionQuestions.sorted { $0.questionNumber < $1.questionNumber }
-    }
+    @FetchRequest var questions: FetchedResults<Question>
+        
+    @FocusState var focusField: DefaultFocusField?
     
-    @FocusState var isFocused: Bool
-    
-    init(topicViewModel: TopicViewModel, selectedSectionSummary: Binding<SectionSummary?>, topicId: UUID?, focusArea: FocusArea?, section: Section) {
+    init(topicViewModel: TopicViewModel,
+         showUpdateTopicView: Binding<Bool>,
+         topic: Topic,
+         sequence: Sequence,
+         backgroundColor: Color
+    ) {
         self.topicViewModel = topicViewModel
-        self._selectedSectionSummary = selectedSectionSummary
-        self.topicId = topicId
-        self.focusArea = focusArea
-        self.section = section
+        self._showUpdateTopicView = showUpdateTopicView
+        self.topic = topic
+        self.sequence = sequence
+        self.backgroundColor = backgroundColor
+        
+        let request: NSFetchRequest<Question> = Question.fetchRequest()
+        request.sortDescriptors = [NSSortDescriptor(key: "questionNumber", ascending: true)]
+        request.predicate = NSPredicate(format: "topic == %@", topic)
+        self._questions = FetchRequest(fetchRequest: request)
         
     }
     
@@ -49,11 +56,11 @@ struct UpdateSectionView: View {
         
         VStack {
             
-            if showProgressBar {
+            if selectedTab == 1 && showProgressBar {
                 //Header
                 QuestionsProgressBar(
                     currentQuestionIndex: $currentQuestionIndex,
-                    totalQuestions: section.sectionQuestions.count,
+                    totalQuestions: topic.topicQuestions.count,
                     showXmark: true,
                     xmarkAction: {
                         dismiss()
@@ -63,31 +70,66 @@ struct UpdateSectionView: View {
                         backButtonAction()
                     })
                     .transition(.opacity)
+                
+            } else if selectedTab != 1 {
+                SheetHeader(
+                    emoji: topic.topicEmoji,
+                    title: topic.topicTitle,
+                    xmarkAction: {
+                        dismiss()
+                    })
             }
             
             //Question
             switch selectedTab {
-              
                 case 0:
-                    UpdateSectionBox(topicViewModel: topicViewModel, showProgressBar: $showProgressBar, selectedQuestion: $selectedQuestion, topicText: $topicText, singleSelectAnswer: $singleSelectAnswer, multiSelectAnswers: $multiSelectAnswers, singleSelectCustomItems: $singleSelectCustomItems, multiSelectCustomItems: $multiSelectCustomItems, isFocused: $isFocused, section: section, questions: questions)
-                        .padding(.top)
-                    
+                    UpdateTopicIntroView(
+                        topicViewModel: topicViewModel,
+                        topic: topic,
+                        sequence: sequence
+                    )
+                    .padding(.horizontal)
+                
+                case 1:
+                    UpdateTopicQuestionsView(
+                        topicViewModel: topicViewModel,
+                        showProgressBar: $showProgressBar,
+                        selectedQuestion: $selectedQuestion,
+                        answersOpen: $answersOpen,
+                        singleSelectAnswer: $singleSelectAnswer,
+                        multiSelectAnswers: $multiSelectAnswers,
+                        singleSelectCustomItems: $singleSelectCustomItems,
+                        multiSelectCustomItems: $multiSelectCustomItems,
+                        focusField: $focusField,
+                        topic: topic,
+                        questions: questions
+                    )
+                    .padding(.top)
+                    .padding(.horizontal)
+                
+                case 2:
+                    RecapCelebrationView(title: topic.topicTitle, text: "For completing", points: "+1")
+                        .padding(.horizontal)
+                        .padding(.top, 80)
+                        .onAppear {
+                            getRecapAndNextTopicQuestions()
+                        }
+                
                 default:
-                    if let currentFocusArea = focusArea {
-                        UpdateSectionCompleteView(focusArea: currentFocusArea)
-                    }
+                    UpdateTopicRecapView(
+                        topicViewModel: topicViewModel,
+                        topic: topic,
+                        retryAction: {
+                            getRecapAndNextTopicQuestions()
+                        })
                 
             }//switch
                 
         }//VStack
-        .padding(.horizontal)
-        .padding(.bottom)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background {
-            if let category = focusArea?.category {
-                BackgroundPrimary(backgroundColor: Realm.getBackgroundColor(forName: category.categoryName))
-            } else {
-                BackgroundPrimary(backgroundColor: AppColors.backgroundCareer)
-            }
+            BackgroundPrimary(backgroundColor:backgroundColor)
+      
         }
         .overlay {
             getViewButton()
@@ -106,6 +148,10 @@ struct UpdateSectionView: View {
         }
     }
     
+    private func dismiss() {
+        showUpdateTopicView = false
+    }
+    
     private func getViewButton() -> some View {
         VStack {
             //Next button
@@ -118,44 +164,78 @@ struct UpdateSectionView: View {
                 skipAction: {
                     skipButtonAction()
                 },
-                disableMainButton: showSkipButton()
+                disableMainButton: showSkipButton(),
+                buttonColor: .white
             )
         }
         .frame(maxHeight: .infinity, alignment: .bottom)
         .padding(.bottom)
-        .ignoresSafeArea(QuestionType(rawValue: questions[selectedQuestion].questionType) == .open ? [] : .keyboard)
+        .ignoresSafeArea(getSafeAreaProperty(for: selectedQuestion))
+    }
+    
+    private func getSafeAreaProperty(for index: Int) ->  SafeAreaRegions {
+        if questions.isEmpty {
+            return []
+        } else if QuestionType(rawValue: questions[selectedQuestion].questionType) != .open {
+            return .keyboard
+        }
+        
+        return []
     }
     
     private func getButtonText() -> String {
         switch selectedTab {
         case 0:
-            if selectedQuestion < section.sectionQuestions.count - 1 {
+            return "Start"
+        case 1:
+            if selectedQuestion < questions.count - 1 {
                 return "Next question"
             } else {
                
-                return "Complete section"
+                return "Complete topic"
             }
+        case 2:
+            return "Next: Reflection"
+            
         default:
-            return "Done"
+            return getButtonTextRecapView()
         }
         
     }
     
+    private func getButtonTextRecapView() -> String {
+        switch topicViewModel.createTopicOverview {
+            case .ready:
+                return "Done"
+            case .loading:
+               return "Loading . . ."
+            case .retry:
+                return "Retry"
+        }
+    }
+    
     private func getMainButtonAction() {
         switch selectedTab {
+       
         case 0:
+            goToQuestions()
+            
+        case 1:
             saveAnswer()
+            
+        case 3:
+            completeTopic()
         default:
-            completeSection()
+           selectedTab += 1
         }
     }
     
     private func showSkipButton() -> Bool {
-        if selectedTab == 0 {
+        if selectedTab == 1 {
             if let answeredQuestionType =  QuestionType(rawValue: questions[selectedQuestion].questionType) {
                 switch answeredQuestionType {
                 case .open:
-                    return topicText.isEmpty
+                    return answersOpen[selectedQuestion].isEmpty
                 case .singleSelect:
                     return singleSelectAnswer.isEmpty
                 case .multiSelect:
@@ -172,19 +252,21 @@ struct UpdateSectionView: View {
         let numberOfQuestions = questions.count
         
         if answeredQuestionIndex + 1 == numberOfQuestions {
-            submitForm()
+            completeQuestions()
         }
         
         goToNextquestion(totalQuestions: numberOfQuestions)
-        
-        Task {
-            await completeSection(totalQuestions: numberOfQuestions, answeredQuestionIndex: answeredQuestionIndex)
-            
-            DispatchQueue.global(qos: .background).async {
-                Mixpanel.mainInstance().track(event: "Skipped question")
-            }
-            
+
+        DispatchQueue.global(qos: .background).async {
+            Mixpanel.mainInstance().track(event: "Skipped question")
         }
+    }
+    
+    private func goToQuestions() {
+        let count = topic.topicQuestions.count
+        answersOpen = Array(repeating: "", count: count)
+        
+        selectedTab += 1
     }
     
     private func saveAnswer() {
@@ -206,11 +288,11 @@ struct UpdateSectionView: View {
                 if answeredQuestionIndex < numberOfQuestions - 1 {
                     let nextQuestion = questions[answeredQuestionIndex + 1]
                     if nextQuestion.questionType != QuestionType.open.rawValue {
-                        isFocused = false
+                        focusField = nil
                     }
                 }
                 
-                answeredQuestionTopicText = topicText
+                answeredQuestionTopicText = answersOpen[answeredQuestionIndex]
             case .singleSelect:
                 answeredQuestionSingleSelect = singleSelectAnswer
                 customItemsSingleSelect = singleSelectCustomItems
@@ -223,7 +305,6 @@ struct UpdateSectionView: View {
         
         //reset the value of @State vars managing answers, and custom answers for single and multi select
         if answeredQuestionIndex + 1 < numberOfQuestions {
-            topicText = ""
             singleSelectAnswer = ""
             multiSelectAnswers = []
             singleSelectCustomItems = []
@@ -247,13 +328,15 @@ struct UpdateSectionView: View {
                    multiSelectCustomItems: customItemsMultiSelect
                )
             
-            print("SelectedQuestion: \(selectedQuestion)")
-            
             DispatchQueue.global(qos: .background).async {
                 Mixpanel.mainInstance().track(event: "Answered question")
             }
             
-            await completeSection(totalQuestions: numberOfQuestions, answeredQuestionIndex: answeredQuestionIndex)
+            if numberOfQuestions == answeredQuestionIndex + 1 {
+                await MainActor.run {
+                    completeQuestions()
+                }
+            }
         }
             
     }
@@ -311,42 +394,28 @@ struct UpdateSectionView: View {
         }
     }
     
-    private func completeSection(totalQuestions: Int, answeredQuestionIndex: Int) async {
+    private func completeTopic() {
         
-        if answeredQuestionIndex + 1 == totalQuestions {
-           
-            await dataController.completeSection(section: section)
-            
-            print("Answered question index is \(answeredQuestionIndex), number of questions is \(totalQuestions)")
-            
-            await MainActor.run {
-                submitForm()
-                
-                DispatchQueue.global(qos: .background).async {
-                    Mixpanel.mainInstance().track(event: "Completed section")
-                }
-            }
-        }
-        
-    }
-    
-    private func submitForm() {
-        if isFocused {
-            isFocused = false
-        }
-        
-        if selectedTab < 1 {
-            selectedTab += 1
-        }
-    }
-    
-    private func completeSection() {
         dismiss()
-        let completedSections = focusArea?.focusAreaSections.filter { $0.completed == true }.count
-        if completedSections == focusArea?.focusAreaSections.count {
+        
+        Task {
+            
+            await dataController.completeTopic(topic: topic)
+            
             DispatchQueue.global(qos: .background).async {
-                Mixpanel.mainInstance().track(event: "Completed path")
+                Mixpanel.mainInstance().track(event: "Completed section")
             }
+            
+        }
+    }
+    
+    private func completeQuestions() {
+        if focusField != nil {
+            focusField = nil
+        }
+        
+        if selectedTab < 2 {
+            selectedTab += 1
         }
     }
     
@@ -365,7 +434,7 @@ struct UpdateSectionView: View {
         if let answeredQuestionType =  QuestionType(rawValue: answeredQuestion.questionType){
             switch answeredQuestionType {
             case .open:
-                answeredQuestionTopicText = topicText
+                answeredQuestionTopicText = answersOpen[answeredQuestionIndex]
             case .singleSelect:
                 answeredQuestionSingleSelect = singleSelectAnswer
                 customItemsSingleSelect = singleSelectCustomItems
@@ -379,13 +448,12 @@ struct UpdateSectionView: View {
         let previousQuestionIndex = selectedQuestion - 1
         
         if let questionType = QuestionType(rawValue: questions[previousQuestionIndex].questionType), questionType != .open {
-            if isFocused {
-                isFocused = false
+            if focusField != nil {
+                focusField = nil
             }
         }
         
         //reset the value of @State vars managing answers, and custom answers for single and multi select
-        topicText = ""
         singleSelectAnswer = ""
         multiSelectAnswers = []
         singleSelectCustomItems = []
@@ -412,9 +480,33 @@ struct UpdateSectionView: View {
             )
         }
     }
+    
+    private func getRecapAndNextTopicQuestions() {
+        topicViewModel.createTopicOverview = .loading
+        
+        //get the next topic
+        let nextTopic = sequence.sequenceTopics.filter { $0.topicId == topic.topicId }
+        
+        Task {
+            //generate recap
+            do {
+                try await topicViewModel.manageRun(selectedAssistant: .topicOverview, topicId: topic.topicId)
+            } catch {
+                topicViewModel.createTopicOverview = .retry
+            }
+            
+           
+            do {
+                
+                try await topicViewModel.manageRun(selectedAssistant: .topic, topic: nextTopic.first)
+                
+                
+            } catch {
+                topicViewModel.createTopicQuestions = .retry
+            }
+        }
+    }
 }
 
-//#Preview {
-//    UpdateSectionView()
-//}
+
 

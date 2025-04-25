@@ -11,8 +11,7 @@ import SwiftUI
 struct TopicDetailView: View {
     @EnvironmentObject var dataController: DataController
     @ObservedObject var topicViewModel: TopicViewModel
-    @ObservedObject var points: Points
-    
+
     @State private var showRecordingView: Bool = false
     @State private var selectedEntry: Entry? = nil
     @State private var showFocusAreaRecapView: Bool = false
@@ -28,7 +27,7 @@ struct TopicDetailView: View {
     @Binding var selectedTabTopic: TopicPickerItem
     
     let topic: Topic
-    let totalCategories: Int
+    let points: Int
     let screenWidth = UIScreen.current.bounds.width
     
     var body: some View {
@@ -124,7 +123,7 @@ struct TopicDetailView: View {
                             Mixpanel.mainInstance().track(event: "Tapped laurel counter")
                         }
                     } label: {
-                        LaurelItem(size: 15, points: "\(Int(points.total))")
+                        LaurelItem(size: 15, points: "\(points)")
                     }
                 }
             }

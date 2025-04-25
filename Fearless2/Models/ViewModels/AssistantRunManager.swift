@@ -26,7 +26,8 @@ final class AssistantRunManager {
         goal: Goal? = nil,
         sequence: Sequence? = nil,
         topicId: UUID? = nil,
-        focusArea: FocusArea? = nil
+        focusArea: FocusArea? = nil,
+        topic: Topic? = nil
     ) async throws -> String {
         
         //create new thread
@@ -36,7 +37,7 @@ final class AssistantRunManager {
         }
         
         //get context to send to OpenAI
-        try await sendFirstMessage(selectedAssistant: selectedAssistant, threadId: threadId, category: category, goal: goal, sequence: sequence, topicId: topicId, focusArea: focusArea)
+        try await sendFirstMessage(selectedAssistant: selectedAssistant, threadId: threadId, category: category, goal: goal, sequence: sequence, topicId: topicId, focusArea: focusArea, topic: topic)
         
         var messageText: String?
         
@@ -89,7 +90,8 @@ final class AssistantRunManager {
         goal: Goal? = nil,
         sequence: Sequence? = nil,
         topicId: UUID? = nil,
-        focusArea: FocusArea? = nil
+        focusArea: FocusArea? = nil,
+        topic: Topic? = nil
     ) async throws {
         
         let userContext = try await gatherUserContext(
@@ -98,7 +100,8 @@ final class AssistantRunManager {
             goal: goal,
             sequence: sequence,
             topicId: topicId,
-            focusArea: focusArea
+            focusArea: focusArea,
+            topic: topic
         )
         
         try await sendMessageWithContext(threadId: threadId, userContext: userContext)
@@ -110,7 +113,8 @@ final class AssistantRunManager {
         goal: Goal? = nil,
         sequence: Sequence? = nil,
         topicId: UUID? = nil,
-        focusArea: FocusArea? = nil
+        focusArea: FocusArea? = nil,
+        topic: Topic? = nil
     ) async throws -> String {
         
         //topic suggestion assistant only
@@ -133,12 +137,15 @@ final class AssistantRunManager {
             return gatheredContext
         
         case .topic:
-            guard let currentTopic = topicId else {
-                loggerCoreData.error("Failed to get new topic ID")
-                throw ContextError.missingRequiredField("Topic ID")
-            }
             
-            guard let gatheredContext = await ContextGatherer.gatherContextNewTopic(dataController: dataController, loggerCoreData: loggerCoreData, topicId: currentTopic) else {
+           
+            guard let currentTopic = topic else {
+                loggerCoreData.error("Failed to get new topic")
+                throw ContextError.missingRequiredField("Topic")
+            }
+         
+            
+            guard let gatheredContext = await ContextGatherer.gatherContextNewTopic(dataController: dataController, loggerCoreData: loggerCoreData, topic: currentTopic) else {
                 loggerCoreData.error("Failed to get context ")
                 throw ContextError.noContextFound("Context")
             }

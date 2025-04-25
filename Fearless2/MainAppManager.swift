@@ -30,7 +30,7 @@ struct MainAppManager: View {
         ZStack {
             switch selectedTabHome {
             default:
-                CategoryView(topicViewModel: topicViewModel, selectedTopic: $selectedTopic, currentTabBar: $currentTabBar, selectedTabTopic: $selectedTabTopic, navigateToTopicDetailView: $navigateToTopicDetailView)
+                GoalsView(topicViewModel: topicViewModel, selectedTopic: $selectedTopic, currentTabBar: $currentTabBar, selectedTabTopic: $selectedTabTopic)
             }
             
             

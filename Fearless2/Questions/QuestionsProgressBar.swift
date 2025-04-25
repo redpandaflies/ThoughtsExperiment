@@ -69,8 +69,6 @@ struct QuestionsProgressBar: View {
                 Spacer()
             }
             
-      
-            
             ZStack (alignment: .leading) {
                 RoundedRectangle(cornerRadius: 50)
                     .fill(AppColors.progressBarPrimary.opacity(0.3))

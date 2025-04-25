@@ -102,15 +102,15 @@ struct CategoryView: View {
                     //                    .padding(.horizontal)
                     //                    .padding(.bottom, 25)
                     
-                    if showTopics {
-                        
-                        if let currentPoints = points.first, let goal = categories[currentCategoryScrollPosition].categoryGoals.first {
-                            
-                            // MARK: - Quests map
-                            QuestMapView(topicViewModel: topicViewModel, selectedTopic: $selectedTopic, currentTabBar: $currentTabBar, selectedTabTopic: $selectedTabTopic, navigateToTopicDetailView: $navigateToTopicDetailView, categoriesScrollPosition: $categoriesScrollPosition, category: categories[currentCategoryScrollPosition], points: currentPoints, totalCategories: categories.count, backgroundColor: getCategoryBackground(), goal: goal)
-                            
-                        }
-                    }
+//                    if showTopics {
+//                        
+//                        if let currentPoints = points.first, let goal = categories[currentCategoryScrollPosition].categoryGoals.first {
+//                            
+//                            // MARK: - Quests map
+//                            QuestMapView(topicViewModel: topicViewModel, selectedTopic: $selectedTopic, currentTabBar: $currentTabBar, selectedTabTopic: $selectedTabTopic, navigateToTopicDetailView: $navigateToTopicDetailView, categoriesScrollPosition: $categoriesScrollPosition, category: categories[currentCategoryScrollPosition], points: currentPoints, totalCategories: categories.count, backgroundColor: getCategoryBackground(), goal: goal)
+//                            
+//                        }
+//                    }
                 } else {
                     MirrorMainView(categoriesScrollPosition: $categoriesScrollPosition, categories: categories)
                     

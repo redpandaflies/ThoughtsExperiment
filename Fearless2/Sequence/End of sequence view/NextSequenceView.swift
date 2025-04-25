@@ -276,7 +276,6 @@ struct NextSequenceView: View {
             completeSequence()
             if let category = goal.category {
               createPlanSuggestions(category: category, goal: goal)
-
             }
             
         }

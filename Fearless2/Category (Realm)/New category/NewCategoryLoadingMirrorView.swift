@@ -18,17 +18,13 @@ struct NewCategoryLoadingView: View {
     
     var body: some View {
         VStack {
-            Image("realm66")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(height: 110)
-                .padding(.top, 150)
-            
+          
             getTextView()
                 .padding(.horizontal)
 
                 
         }
+        .padding(.top, 150)
         .ignoresSafeArea(.keyboard)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .onAppear {

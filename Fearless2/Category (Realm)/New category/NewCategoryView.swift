@@ -18,7 +18,7 @@ struct NewCategoryView: View {
     //State vars that retain user's answers in memory
     @State private var selectedQuestion: Int = 0
     @State private var progressBarQuestionIndex: Int = 0
-    @State private var questions: [QuestionNewCategory] = []
+    @State private var questions: [QuestionNewCategory] = QuestionNewCategory.initialQuestionsNewCategory()
     // Array to store all open question answers
     @State private var answersOpen: [String] = Array(repeating: "", count: 5)
     // Array to store all single-select question answers

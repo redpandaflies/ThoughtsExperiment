@@ -16,6 +16,7 @@ final class DataController: ObservableObject {
     @Published var newTopic: Topic? = nil
     @Published var newFocusArea: Bool = false
     @Published var onboardingCategory: Category? = nil
+    @Published var deletedAllData: Bool = false
     
     let container: NSPersistentCloudKitContainer
     var context: NSManagedObjectContext
@@ -470,6 +471,11 @@ extension DataController {
     
     //delete all
     func deleteAll() async {
+        
+        await MainActor.run {
+            deletedAllData = false
+        }
+        
         // 1. First delete categories (which should cascade delete related topics)
         let categoryFetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Category")
         let categoryBatchDeleteRequest = NSBatchDeleteRequest(fetchRequest: categoryFetchRequest)
@@ -520,12 +526,16 @@ extension DataController {
                
                // Final save to ensure all changes are persisted
                try self.context.save()
-               
+            
                self.logger.info("Successfully deleted all categories, orphaned topics, and user profile")
                 
             } catch {
                 self.logger.error("Error during deletion process: \(error.localizedDescription)")
             }
+        }
+        
+        await MainActor.run {
+            deletedAllData = true
         }
     }
     
@@ -1029,56 +1039,76 @@ extension DataController {
     
     // save selected plan & create sequence
     func saveSelectedPlan(plan: NewPlan, category: Category, goal: Goal) async {
-        
         await context.perform {
-            
+            // build sequence
             let newSequence = Sequence(context: self.context)
             newSequence.sequenceId = UUID()
             newSequence.sequenceCreatedAt = getCurrentTimeString()
             newSequence.sequenceTitle = plan.title
             newSequence.sequenceIntent = plan.intent
             newSequence.sequenceStatus = SequenceStatusItem.active.rawValue
+            newSequence.sequenceObjectives = plan.explore.joined(separator: ";")
             
-            let newObjectives = plan.explore.joined(separator: ";")
-            newSequence.sequenceObjectives = newObjectives
-            
+            // create relationships with Category and Goal
             category.addToSequences(newSequence)
             goal.addToSequences(newSequence)
             
-            for quest in plan.quests {
-                
-                let topic = Topic(context: self.context)
-                topic.topicId = UUID()
-                topic.topicCreatedAt = getCurrentTimeString()
-                topic.topicTitle = quest.title
-                topic.topicStatus = TopicStatusItem.locked.rawValue
-                topic.orderIndex = Int16(quest.questNumber)
-                topic.topicEmoji = quest.emoji
-                topic.topicDefinition = quest.objective
-                topic.topicQuestType = quest.questType
-                
-                category.addToTopics(topic)
-                goal.addToTopics(topic)
-                newSequence.addToTopics(topic)
-                
-                if quest.questType == QuestTypeItem.expectations.rawValue {
-                    self.logger.log("Adding expectations to first quest")
-                    
-                    for item in plan.expectations {
-                        let expectation = TopicExpectation(context: self.context)
-                        expectation.expectationId = UUID()
-                        expectation.orderIndex = Int16(item.expectationsNumber)
-                        expectation.expectationContent = item.content
-                        topic.addToExpectations(expectation)
-                    }
-                }
-
-            }
             
+            let totalQuests = plan.quests.count
+            
+            // combine static topics and AI generated ones
+            let allTopics: [NewTopic1] = NewTopic1.samples + plan.quests
+            
+            // save all topics to CoreData
+            for newTopic in allTopics {
+                self.insertTopic(
+                    plan: plan,
+                    newTopic: newTopic,
+                    sequence: newSequence,
+                    category: category,
+                    goal: goal,
+                    totalQuests: totalQuests
+                )
+            }
         }
-        
-        await self.save()
+        await save()
     }
+    
+    
+    private func insertTopic(
+            plan: NewPlan,
+            newTopic: NewTopic1,
+            sequence: Sequence,
+            category: Category,
+            goal: Goal,
+            totalQuests: Int
+        ) {
+            let topic = Topic(context: context)
+            topic.topicId = UUID()
+            topic.topicCreatedAt = getCurrentTimeString()
+            topic.topicTitle = newTopic.title
+            topic.topicStatus = TopicStatusItem.locked.rawValue
+            topic.orderIndex = Int16(newTopic.questType == QuestTypeItem.retro.rawValue ? totalQuests : newTopic.questNumber)
+            topic.topicEmoji = newTopic.emoji
+            topic.topicDefinition = newTopic.objective
+            topic.topicQuestType = newTopic.questType
+            
+            // create relationships
+            sequence.addToTopics(topic)
+            category.addToTopics(topic)
+            goal.addToTopics(topic)
+            
+            // if this is the “expectations” topic, add its expectations
+            if newTopic.questType == QuestTypeItem.expectations.rawValue {
+                for item in plan.expectations {
+                    let expectation = TopicExpectation(context: context)
+                    expectation.expectationId = UUID()
+                    expectation.orderIndex = Int16(item.expectationsNumber)
+                    expectation.expectationContent = item.content
+                    topic.addToExpectations(expectation)
+                }
+            }
+        }
     
     func deleteLastCategory() async {
         let request = NSFetchRequest<Category>(entityName: "Category")

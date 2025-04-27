@@ -18,13 +18,13 @@ enum QuestTypeItem: String, CaseIterable {
     func getIconName() -> String {
         switch self {
             case .expectations:
-                return "list.clipboard.fill"
+                return "book.pages.fill"
             case .guided:
                 return "questionmark"
             case .newCategory:
                 return "mountain.2.fill"
             case .context:
-                return "book.pages.fill"
+                return "questionmark"
             case .retro:
                 return "clock.arrow.circlepath"
         }

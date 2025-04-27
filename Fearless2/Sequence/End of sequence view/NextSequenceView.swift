@@ -44,12 +44,11 @@ struct NextSequenceView: View {
         let count = QuestionNextSequence.questions.count
 
         // intialize every state var for storing question answers in memory
-        _answersOpen              = State(initialValue: Array(repeating: "",      count: count))
-        _answersSingleSelect      = State(initialValue: Array(repeating: "",      count: count))
-        _answersMultiSelect       = State(initialValue: Array(repeating: [],      count: count))
-        _multiSelectCustomItems   = State(initialValue: Array(repeating: [],      count: count))
+        _answersOpen = State(initialValue: Array(repeating: "",      count: count))
+        _answersSingleSelect = State(initialValue: Array(repeating: "",      count: count))
+        _answersMultiSelect = State(initialValue: Array(repeating: [],      count: count))
+        _multiSelectCustomItems = State(initialValue: Array(repeating: [],      count: count))
         _multiSelectOptionsEdited = State(initialValue: Array(repeating: false,   count: count))
-        
         
         self.goal = goal
         self.sequence = sequence
@@ -234,6 +233,7 @@ struct NextSequenceView: View {
         Task {
             do {
                 try await sequenceViewModel.manageRun(selectedAssistant: .sequenceSummary, category: goal.category, goal: goal, sequence: sequence)
+                
             } catch {
                 sequenceViewModel.createSequenceSummary = .retry
             }

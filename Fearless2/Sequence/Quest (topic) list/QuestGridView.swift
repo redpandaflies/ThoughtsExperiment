@@ -22,7 +22,7 @@ struct QuestGridView: View {
     @Binding var currentTabBar: TabBarType
     @Binding var selectedTabTopic: TopicPickerItem
     
-    let sequence: Sequence
+    let sequence: Sequence?
     let backgroundColor: Color
     let frameWidth: CGFloat
     
@@ -42,7 +42,7 @@ struct QuestGridView: View {
      }
     
     init(
-    showUpdateTopicView: Binding<Bool>,
+       showUpdateTopicView: Binding<Bool>,
        showLockedQuestInfoSheet: Binding<Bool>,
        showCompletedTopicSheet: Binding<Bool>,
        showTopicExpectationsSheet: Binding<Bool>,
@@ -52,12 +52,12 @@ struct QuestGridView: View {
        currentTabBar: Binding<TabBarType>,
        selectedTabTopic: Binding<TopicPickerItem>,
        
-      sequence: Sequence,
+      sequence: Sequence?,
       backgroundColor: Color,
       frameWidth: CGFloat
       
     ) {
-        self._showUpdateTopicView = showUpdateTopicView
+       self._showUpdateTopicView = showUpdateTopicView
        self._showLockedQuestInfoSheet = showLockedQuestInfoSheet
        self._showCompletedTopicSheet = showCompletedTopicSheet
        self._showTopicExpectationsSheet = showTopicExpectationsSheet
@@ -77,10 +77,11 @@ struct QuestGridView: View {
       request.sortDescriptors = [
         NSSortDescriptor(key: "orderIndex", ascending: true)
       ]
-      request.predicate = NSPredicate(format: "sequence == %@", sequence)
+        if let sequence = sequence {
+            request.predicate = NSPredicate(format: "sequence == %@", sequence)
+        }
       self._topics = FetchRequest(fetchRequest: request)
     }
-    
     
     var body: some View {
         LazyVGrid(columns: columns, spacing: 25) {
@@ -117,7 +118,7 @@ struct QuestGridView: View {
                     getTopic(topic: topic)
                 } else {
                     // show sheet for locked quests
-                     showLockedQuestInfoSheet = true
+                    showLockedQuestInfoSheet = true
                 }
                 
             default:
@@ -139,7 +140,6 @@ struct QuestGridView: View {
              
         } else if questType == .retro {
             selectedTopic = topic
-            
             showNextSequenceView = true
         }
         

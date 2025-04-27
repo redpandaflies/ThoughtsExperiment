@@ -1,21 +1,21 @@
+////
+////  MirrorMainView.swift
+////  Fearless2
+////
+////  Created by Yue Deng-Wu on 4/8/25.
+////
 //
-//  MirrorMainView.swift
-//  Fearless2
+//import SwiftUI
 //
-//  Created by Yue Deng-Wu on 4/8/25.
+//struct MirrorMainView: View {
+//    
+//    @Binding var categoriesScrollPosition: Int?
+//    var categories: FetchedResults<Category>
+//    
+//    var body: some View {
+//        MirrorActiveGoalsList(categoriesScrollPosition: $categoriesScrollPosition, categories: categories)
+//            .padding(.top, 20)
+//    }
+//}
 //
-
-import SwiftUI
-
-struct MirrorMainView: View {
-    
-    @Binding var categoriesScrollPosition: Int?
-    var categories: FetchedResults<Category>
-    
-    var body: some View {
-        MirrorActiveGoalsList(categoriesScrollPosition: $categoriesScrollPosition, categories: categories)
-            .padding(.top, 20)
-    }
-}
-
-
+//

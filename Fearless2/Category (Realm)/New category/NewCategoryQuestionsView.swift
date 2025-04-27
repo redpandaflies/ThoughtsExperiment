@@ -29,13 +29,8 @@ struct NewCategoryQuestionsView: View {
     let categories: FetchedResults<Category>
     
     var currentQuestion: QuestionNewCategory {
-        let firstQuestion = QuestionNewCategory.initialQuestionNewCategory(from: categories)[0]
-            
-        if questions.isEmpty {
-            return firstQuestion
-        } else {
-            return questions[selectedQuestion]
-        }
+        return questions[selectedQuestion]
+       
     }
     
     @FocusState var focusField: DefaultFocusField?
@@ -55,7 +50,7 @@ struct NewCategoryQuestionsView: View {
             )
                 
             // MARK: Title
-            if selectedQuestion > 0 {
+            if selectedQuestion > 1 {
                 getTitle()
             }
                
@@ -82,12 +77,12 @@ struct NewCategoryQuestionsView: View {
                             singleSelectAnswer: $answersSingleSelect[selectedQuestion],
                             question: currentQuestion.content,
                             items: currentQuestion.options ?? [],
-                            subTitle: "Choose your primary goal"
+                            subTitle: selectedQuestion == 1 ? "Choose your primary goal" : "",
+                            showSymbol: selectedQuestion == 1 ? true : false
                         )
                     }
             }
-           
-            
+
             Spacer()
             
             // MARK: Next button
@@ -114,12 +109,7 @@ struct NewCategoryQuestionsView: View {
     
     private func getTitle() -> some View {
         HStack (spacing: 5){
-            Image(Realm.getIcon(forLifeArea: selectedCategory))
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 19)
-            
-            Text(selectedCategory)
+            Text(selectedQuestion == 4 ? selectedCategory : answersSingleSelect[1])
                 .font(.system(size: 19, weight: .light).smallCaps())
                 .fontWidth(.condensed)
                 .foregroundStyle(AppColors.textPrimary.opacity(0.7))
@@ -149,12 +139,12 @@ struct NewCategoryQuestionsView: View {
         let answeredQuestionIndex = selectedQuestion
         
         switch answeredQuestionIndex {
-        case 0:
-            questions = [currentQuestion]
+        case 1:
             
-            let categoryQuestions = QuestionNewCategory.remainingQuestionsNewCategory()
             
-            questions += categoryQuestions
+            let remainingQuestions = QuestionNewCategory.remainingQuestionsNewCategory(userAnswer: answersSingleSelect[answeredQuestionIndex])
+            
+            questions += remainingQuestions
             
             print("questions: \(questions.count)")
             

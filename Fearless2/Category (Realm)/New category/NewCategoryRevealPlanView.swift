@@ -29,15 +29,15 @@ struct NewCategoryRevealPlanView: View {
         VStack {
             switch planSelectedTab {
                 
-            case 0:
-                NewCategoryLoadingView(texts: loadingTexts)
-            case 1:
-                getPlanSuggestions()
-                
-            default:
-                FocusAreaRetryView(action: {
-                    retryAction()
-                })
+                case 0:
+                    NewCategoryLoadingView(texts: loadingTexts)
+                case 1:
+                    getPlanSuggestions()
+                    
+                default:
+                    FocusAreaRetryView(action: {
+                        retryAction()
+                    })
             }
             
         }
@@ -68,11 +68,18 @@ struct NewCategoryRevealPlanView: View {
     
     private func getPlanSuggestions() -> some View {
         VStack {
-            Text("I came up with two personalized plans to help you move forward. Choose the one that feels right to you.")
+            Text("I came up with two personalized plans to help you move forward.")
                 .multilineTextAlignment(.leading)
                 .font(.system(size: 19, design: .serif))
                 .foregroundStyle(AppColors.textPrimary.opacity(0.8))
-                .lineSpacing(1.7)
+                .lineSpacing(1.5)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.horizontal)
+            
+            Text("Choose the one that feels right")
+                .multilineTextAlignment(.leading)
+                .font(.system(size: 15, weight: .light).smallCaps())
+                .foregroundStyle(AppColors.textPrimary.opacity(0.5))
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.bottom, 20)
                 .padding(.horizontal)
@@ -133,9 +140,7 @@ struct NewCategoryRevealPlanView: View {
                     showSheet = false
                 }
             }
-            
         }
-        
     }
     
 }

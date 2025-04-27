@@ -40,6 +40,8 @@
 		8A2C370F2D2C5B5F00C37315 /* loadingAnimation.json in Resources */ = {isa = PBXBuildFile; fileRef = 8A2C370E2D2C5B5F00C37315 /* loadingAnimation.json */; };
 		8A2C37112D2D36BC00C37315 /* WhyBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A2C37102D2D36BC00C37315 /* WhyBox.swift */; };
 		8A2C37132D2FF05900C37315 /* LoadingPlaceholderContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A2C37122D2FF05900C37315 /* LoadingPlaceholderContent.swift */; };
+		8A49389B2DBC2AA3006FCCF3 /* StaticTopics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A49389A2DBC2A73006FCCF3 /* StaticTopics.swift */; };
+		8A49389D2DBCCA43006FCCF3 /* ProgressBarThin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A49389C2DBCCA43006FCCF3 /* ProgressBarThin.swift */; };
 		8A4B27492D6A9B6900FEAC44 /* CategoryQuestsHeading.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4B27482D6A9B6900FEAC44 /* CategoryQuestsHeading.swift */; };
 		8A5881B32D3456E60019C785 /* Mixpanel in Frameworks */ = {isa = PBXBuildFile; productRef = 8A5881B22D3456E60019C785 /* Mixpanel */; };
 		8A6332492CD8257A00EF34FA /* FocusArea-CoreDataHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A6332482CD8257A00EF34FA /* FocusArea-CoreDataHelpers.swift */; };
@@ -248,6 +250,8 @@
 		8A2C370E2D2C5B5F00C37315 /* loadingAnimation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = loadingAnimation.json; sourceTree = "<group>"; };
 		8A2C37102D2D36BC00C37315 /* WhyBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhyBox.swift; sourceTree = "<group>"; };
 		8A2C37122D2FF05900C37315 /* LoadingPlaceholderContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingPlaceholderContent.swift; sourceTree = "<group>"; };
+		8A49389A2DBC2A73006FCCF3 /* StaticTopics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StaticTopics.swift; sourceTree = "<group>"; };
+		8A49389C2DBCCA43006FCCF3 /* ProgressBarThin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressBarThin.swift; sourceTree = "<group>"; };
 		8A4B27482D6A9B6900FEAC44 /* CategoryQuestsHeading.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryQuestsHeading.swift; sourceTree = "<group>"; };
 		8A6332482CD8257A00EF34FA /* FocusArea-CoreDataHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FocusArea-CoreDataHelpers.swift"; sourceTree = "<group>"; };
 		8A63324B2CD8415600EF34FA /* FocusAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusAreaView.swift; sourceTree = "<group>"; };
@@ -562,6 +566,7 @@
 		8A6A99662D932A070069CAE0 /* Quest map */ = {
 			isa = PBXGroup;
 			children = (
+				8A49389A2DBC2A73006FCCF3 /* StaticTopics.swift */,
 				8A6A99692D932DBB0069CAE0 /* QuestMapItem.swift */,
 				8A6A99672D932A120069CAE0 /* QuestTypeItem.swift */,
 			);
@@ -1058,6 +1063,7 @@
 			isa = PBXGroup;
 			children = (
 				8ADCEAF02DB8820D008D4FEA /* GoalsView.swift */,
+				8A49389C2DBCCA43006FCCF3 /* ProgressBarThin.swift */,
 			);
 			path = Goal;
 			sourceTree = "<group>";
@@ -1230,6 +1236,7 @@
 				8A74F4A62CE6A90F008A33B0 /* DateFormatter.swift in Sources */,
 				8A2A7E802DA6029700DFDD34 /* MirrorMainView.swift in Sources */,
 				8A74F4992CE58ACB008A33B0 /* RecordingView.swift in Sources */,
+				8A49389B2DBC2AA3006FCCF3 /* StaticTopics.swift in Sources */,
 				8ADCEAC32DA73E11008D4FEA /* NewCategorySelectCategoryQuestion.swift in Sources */,
 				8A6332602CDEB0B100EF34FA /* FocusAreaHeader.swift in Sources */,
 				8A74F4AC2CE7F451008A33B0 /* TextLimitMax.swift in Sources */,
@@ -1339,6 +1346,7 @@
 				8A26DFDB2CEFC4FF002C4F60 /* UnderstandLoadingView.swift in Sources */,
 				8A6332532CDD66B700EF34FA /* ActiveTopicsView.swift in Sources */,
 				8A26DFD12CEF0224002C4F60 /* UnderstandViewModel.swift in Sources */,
+				8A49389D2DBCCA43006FCCF3 /* ProgressBarThin.swift in Sources */,
 				8A2C36FC2D22CA2100C37315 /* RectangleButtonPrimary.swift in Sources */,
 				8ADCEAD02DAB196C008D4FEA /* Sequence-CoreDataHelpers.swift in Sources */,
 				8A26DFE42CF0181A002C4F60 /* UnderstandQuestionAnswer.swift in Sources */,

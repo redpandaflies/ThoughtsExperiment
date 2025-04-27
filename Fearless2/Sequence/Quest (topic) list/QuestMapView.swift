@@ -28,7 +28,6 @@ struct QuestMapView: View {
     @Binding var currentTabBar: TabBarType
     @Binding var selectedTabTopic: TopicPickerItem
     
-    let category: Category
     let points: Int
     let backgroundColor: Color
     let goal: Goal
@@ -38,7 +37,14 @@ struct QuestMapView: View {
     @AppStorage("currentAppView") var currentAppView: Int = 0
     @AppStorage("selectedTopicId") var selectedTopicId: String = ""
     
-   
+    private var currentSequence: Sequence? {
+        sequences.first
+    }
+    
+    private var totalTopics: Int {
+      currentSequence?.sequenceTopics.count ?? 0
+    }
+    
     var totalCompletedTopics: Int {
         guard sequences.indices.contains(currentSequenceIndex) else {
             return 0
@@ -62,7 +68,6 @@ struct QuestMapView: View {
          selectedTopic: Binding<Topic?>,
          currentTabBar: Binding<TabBarType>,
          selectedTabTopic: Binding<TopicPickerItem>,
-         category: Category,
          points: Int,
          backgroundColor: Color,
          goal: Goal
@@ -72,7 +77,6 @@ struct QuestMapView: View {
         self._selectedTopic = selectedTopic
         self._currentTabBar = currentTabBar
         self._selectedTabTopic = selectedTabTopic
-        self.category = category
         self.points = points
         self.backgroundColor = backgroundColor
         self.goal = goal
@@ -87,7 +91,7 @@ struct QuestMapView: View {
     
     var body: some View {
         VStack (spacing: 15) {
-
+           
                 getBoxHeader(goalType: goal.goalProblemType)
                     .padding(.bottom, 10)
                 
@@ -104,11 +108,11 @@ struct QuestMapView: View {
                     .fixedSize(horizontal: false, vertical: true)
                     .lineSpacing(1.4)
                 
-                //            GoalProgressBar(totalTopics: topics.count, totalCompletedTopics: totalCompletedTopics, wholeBarWidth: frameWidth + 32)
-                //                .padding(.vertical)
-                
                 // show only the latest sequence
-                if let firstSequence = sequences.first {
+                if !sequences.isEmpty {
+                    sequenceProgressBar()
+                        .padding(.vertical)
+                    
                     QuestGridView(
                         // sheet‐presentation bindings
                         showUpdateTopicView: $showUpdateTopicView,
@@ -122,11 +126,12 @@ struct QuestMapView: View {
                         currentTabBar: $currentTabBar,
                         selectedTabTopic: $selectedTabTopic,
                         
-                        sequence: firstSequence,
+                        sequence: currentSequence ?? nil,
                         backgroundColor: backgroundColor,
                         frameWidth: frameWidth
                     )
                 }
+            
            
         }//VStack
         .padding(.horizontal)
@@ -152,7 +157,7 @@ struct QuestMapView: View {
             showUpdateTopicView = false
         }) {
             //create new topic/quest
-            if let topic = selectedTopic, let sequence = sequences.first {
+            if let topic = selectedTopic, let sequence = currentSequence {
                 UpdateTopicView(
                     topicViewModel: topicViewModel,
                     showUpdateTopicView: $showUpdateTopicView,
@@ -199,7 +204,7 @@ struct QuestMapView: View {
                 showTopicExpectationsSheet: $showTopicExpectationsSheet,
                 topic: selectedTopic,
                 goal: goal.goalTitle,
-                sequence: sequences.first,
+                sequence: currentSequence,
                 expectations: selectedTopic?.topicExpectations ?? [],
                 backgroundColor: backgroundColor)
         }
@@ -244,6 +249,21 @@ struct QuestMapView: View {
             }
             
             
+        }
+    }
+    
+    private func sequenceProgressBar() -> some View {
+        HStack (alignment: .center) {
+            Text("Part \(sequences.count). \(currentSequence?.sequenceTitle ?? "")")
+                .multilineTextAlignment(.leading)
+                .font(.system(size: 15, weight: .light).smallCaps())
+                .fontWidth(.condensed)
+                .fixedSize(horizontal: true, vertical: true)
+                .foregroundStyle(AppColors.textPrimary.opacity(0.5))
+            
+            ProgressBarThin(
+                totalTopics: totalTopics,
+                totalCompletedTopics: totalCompletedTopics)
         }
     }
     

@@ -37,10 +37,20 @@ struct QuestionSingleSelectView: View {
     let answer: String //saved answer for question, used when user navigates to previous question and come back
     let itemsEdited: Bool
     let subTitle: String
+    let showSymbol: Bool
     
     @FocusState private var isFocused: Bool
+    
+    private let problemSymbols: [String: String] = [
+      "Make a decision": "arrow.triangle.branch",
+      "Solve a problem": "checkmark.seal",
+      "Resolve a conflict": "bubble.left.and.bubble.right",
+      "Get clarity": "magnifyingglass",
+      "Reduce anxiety": "slowmo",
+      "Feel more confident": "figure.dance"
+    ]
 
-    init(singleSelectAnswer: Binding<String>, customItems: Binding<[String]> = .constant([]), showProgressBar: Binding<Bool> = .constant(true), question: String, items: [String], answer: String = "", itemsEdited: Bool = false, subTitle: String = "") {
+    init(singleSelectAnswer: Binding<String>, customItems: Binding<[String]> = .constant([]), showProgressBar: Binding<Bool> = .constant(true), question: String, items: [String], answer: String = "", itemsEdited: Bool = false, subTitle: String = "", showSymbol: Bool = false) {
         self._singleSelectAnswer = singleSelectAnswer
         self._customItems = customItems
         self._showProgressBar = showProgressBar
@@ -49,6 +59,7 @@ struct QuestionSingleSelectView: View {
         self.answer = answer
         self.itemsEdited = itemsEdited
         self.subTitle = subTitle
+        self.showSymbol = showSymbol
     }
     
     // Process the options once to determine which ones are editable
@@ -95,6 +106,7 @@ struct QuestionSingleSelectView: View {
                         option: option.text,
                         items: items,
                         isEditable: option.isEditable,
+                        symbol: problemSymbols[option.text] ?? "",
                         isFocused: $isFocused
                     )
                     .onTapGesture {
@@ -145,7 +157,8 @@ struct SingleSelectQuestionBubble: View {
     let option: String
     let items: [String]
     let isEditable: Bool
-    
+    let symbol: String
+
     @FocusState.Binding var isFocused: Bool
     
     var customTextIsSelected: Bool {
@@ -221,11 +234,15 @@ struct SingleSelectQuestionBubble: View {
                 
             } else {
                 
+                Image(systemName: symbol)
+                    .font(.system(size: 15, weight: .light))
+                    .foregroundStyle(selected ? AppColors.textBlack : AppColors.textPrimary)
+                
                 Text(option)
                     .font(.system(size: 15, weight: .light))
                     .foregroundStyle(selected ? AppColors.textBlack : AppColors.textPrimary)
                     .fixedSize(horizontal: false, vertical: true)
-                
+
             }
             
             Spacer()

@@ -9,6 +9,7 @@ import SwiftUI
 
 struct GoalsView: View {
     @EnvironmentObject var viewModelFactoryMain: ViewModelFactoryMain
+    @EnvironmentObject var dataController: DataController
     @ObservedObject var topicViewModel: TopicViewModel
     
     @State private var showSettingsView: Bool = false
@@ -75,21 +76,18 @@ struct GoalsView: View {
                     ScrollView (.horizontal) {
                         HStack (spacing: 32) {
                             ForEach(Array(goals.enumerated()), id: \.element.goalId) { index, goal in
-                                // MARK: - Quests map
-                                if let category = goal.category {
-                                    if !goal.goalSequences.isEmpty {
-                                        QuestMapView(
-                                            topicViewModel: topicViewModel,
-                                            selectedTopic: $selectedTopic,
-                                            currentTabBar: $currentTabBar,
-                                            selectedTabTopic: $selectedTabTopic,
-                                            category: category,
-                                            points: currentPoints,
-                                            backgroundColor: getCategoryBackground(goal: goal),
-                                            goal: goal)
-                                        .id(index)
-                                    }
-                                }
+                                // MARK: - Quests map 
+                                QuestMapView(
+                                    topicViewModel: topicViewModel,
+                                    selectedTopic: $selectedTopic,
+                                    currentTabBar: $currentTabBar,
+                                    selectedTabTopic: $selectedTabTopic,
+                                    points: currentPoints,
+                                    backgroundColor: getCategoryBackground(goal: goal),
+                                    goal: goal)
+                                    .id(index)
+                                
+                                
                             }//ForEach
                         }//HStack
                         .scrollTargetLayout()
@@ -113,6 +111,16 @@ struct GoalsView: View {
                 addGoalButton(buttonAction: {
                     showNewGoalSheet = true
                 })
+            }
+            .onAppear {
+                print("Number of goals: \(goals.count)")
+            }
+            .onChange(of: dataController.deletedAllData) {
+                print("Number of goals: \(goals.count)")
+//                if dataController.deletedAllData {
+//                    selectedTopic = nil
+//                    goalScrollPosition = nil
+//                }
             }
             .background {
                 BackgroundPrimary(backgroundColor: getCategoryBackground(goal: displayedGoal))

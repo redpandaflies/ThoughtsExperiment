@@ -32,7 +32,7 @@ struct QuestMapCircle: View {
         Group {
             
             switch questType {
-            case .guided:
+            case .guided, .context:
                 if questStatus == .active || questStatus == .completed {
                     getEmoji()
                 } else {

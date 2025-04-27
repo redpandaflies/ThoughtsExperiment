@@ -80,21 +80,15 @@ extension QuestionNewCategory {
     }
     
     //get questions new category
-    static func initialQuestionNewCategory(from categories: FetchedResults<Category>) -> [QuestionNewCategory] {
+    static func initialQuestionsNewCategory() -> [QuestionNewCategory] {
         return [
             QuestionNewCategory(
             id: 0,
             content: "It’s late. You’re trying to fall asleep, but your mind is wandering. What are you thinking about?",
             questionType: .singleSelect,
             category: .generic,
-            options: getRemainingLifeAreas(from: categories)
-            )
-        ]
-    }
-    
-    static func remainingQuestionsNewCategory() -> [QuestionNewCategory] {
-        return [
-           
+            options: getLifeAreas()
+            ),
             QuestionNewCategory(
                 id: 1,
                 content: "What kind of question are you facing?",
@@ -102,16 +96,33 @@ extension QuestionNewCategory {
                 category: .generic,
                 options: [
                     "Make a decision",
-                    "Feel more content",
-                    "Get clarity",
+                    "Solve a problem",
                     "Resolve a conflict",
+                    "Get clarity",
                     "Reduce anxiety",
                     "Feel more confident"
                 ]
-            ),
+            )
+        ]
+    }
+    
+    static func remainingQuestionsNewCategory(userAnswer: String) -> [QuestionNewCategory] {
+        
+        let followUpMap: [String: String] = [
+              "Make a decision":    "What decision do you need to make?",
+              "Get clarity":         "What do you need clarity on?",
+              "Reduce anxiety":      "What’s making you feel anxious?",
+              "Feel more confident": "Where are you doubting yourself?",
+              "Resolve a conflict":  "What conflict do you need to resolve?",
+              "Solve a problem":     "What problem are you trying to solve?"
+            ]
+        
+        let secondQuestionContent = followUpMap[userAnswer] ?? "Please tell me more about what's bothering you."
+        
+        return [
             QuestionNewCategory(
                 id: 2,
-                content: "Please tell me more about what's bothering you.",
+                content:  secondQuestionContent,
                 questionType: .open,
                 category: .generic
             ),
@@ -137,22 +148,12 @@ extension QuestionNewCategory {
     }
     
     
-    static func getRemainingLifeAreas(from categories: FetchedResults<Category>) -> [String] {
-        // Get all life areas from existing categories
-        let existingLifeAreas = categories.compactMap { category in
-            return category.categoryLifeArea
-        }
-        
+    static func getLifeAreas() -> [String] {
         // Filter realmsData to exclude:
-        // 1. Realms whose lifeArea is already in categories
-        // 2. Realms with lifeArea "Uncharted Paths"
-        let remainingRealms = Realm.realmsData.filter { realm in
-            !existingLifeAreas.contains(realm.lifeArea) &&
-            realm.lifeArea != Realm.realmsData.last?.lifeArea
-        }
+        let realms = Realm.realmsData
         
         // Extract and return the lifeArea values from the remaining realms
-        return remainingRealms.map { $0.lifeArea }
+        return realms.map { $0.lifeArea }
     }
     
     static func getQuestionFlow(for categoryChoice: String?) -> [QuestionNewCategory] {

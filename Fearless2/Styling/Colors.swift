@@ -92,7 +92,7 @@ struct AppColors {
 
     // Background
     static let backgroundPrimary = textSecondary
-    static let backgroundOnboardingIntro = Color(.displayP3, red: 0.082, green: 0.082, blue: 0.09, opacity: 1)
+    static let backgroundOnboardingIntro = Color(.displayP3, red: 0.059, green: 0.075, blue: 0.169, opacity: 1) // #0F132B
     
     
     static let backgroundUncharted = Color(.displayP3, red: 0.427, green: 0.090, blue: 0.094, opacity: 1) // #6D1718

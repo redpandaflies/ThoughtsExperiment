@@ -19,12 +19,8 @@ struct QuestionsProgressBar: View {
     
     let screenWidth = UIScreen.current.bounds.width
     
-    var frame: CGFloat {
-        return screenWidth - 64
-    }
-    
     var wholeBarWidth: CGFloat {
-        return frame * 0.85
+        return showBackButton ? (screenWidth - 112) : (screenWidth - 72)
     }
    
     var progressBarWidth: CGFloat {

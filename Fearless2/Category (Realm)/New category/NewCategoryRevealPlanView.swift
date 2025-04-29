@@ -67,22 +67,15 @@ struct NewCategoryRevealPlanView: View {
     }
     
     private func getPlanSuggestions() -> some View {
-        VStack {
-            Text("I came up with two personalized plans to help you move forward.")
+        VStack (alignment: .leading, spacing: 10) {
+            Text("Choose one of these two personalized plans I created for you")
                 .multilineTextAlignment(.leading)
                 .font(.system(size: 19, design: .serif))
                 .foregroundStyle(AppColors.textPrimary.opacity(0.8))
                 .lineSpacing(1.5)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.horizontal)
-            
-            Text("Choose the one that feels right")
-                .multilineTextAlignment(.leading)
-                .font(.system(size: 15, weight: .light).smallCaps())
-                .foregroundStyle(AppColors.textPrimary.opacity(0.5))
-                .fixedSize(horizontal: false, vertical: true)
                 .padding(.bottom, 20)
-                .padding(.horizontal)
             
             ScrollView(.horizontal) {
                 HStack (alignment: .center, spacing: 15) {
@@ -90,6 +83,10 @@ struct NewCategoryRevealPlanView: View {
                     ForEach(Array(newCategoryViewModel.newPlanSuggestions.enumerated()), id: \.element.self) { index, suggestion in
                         PlanSuggestionBox(suggestion: suggestion, index: index, frameWidth: frameWidth)
                             .id(index)
+                            .scrollTransition { content, phase in
+                                content
+                                .opacity(phase.isIdentity ? 1 : 0.3)
+                            }
                             .onTapGesture {
                                 saveChosenPlan(plan: suggestion)
                             }
@@ -103,6 +100,7 @@ struct NewCategoryRevealPlanView: View {
             .contentMargins(.horizontal, 16, for: .scrollContent)
             .scrollIndicators(.hidden)
         }
+    
     }
     
     private func retryAction() {
@@ -153,30 +151,30 @@ struct PlanSuggestionBox: View {
     let frameWidth: CGFloat
     
     var body: some View {
-        VStack (spacing: 10) {
+        VStack (alignment: .leading, spacing: 5) {
             
             Text("Plan \(index + 1)")
-                .multilineTextAlignment(.center)
-                .font(.system(size: 19, weight: .light).smallCaps())
+                .multilineTextAlignment(.leading)
+                .font(.system(size: 17, weight: .light).smallCaps())
                 .fontWidth(.condensed)
                 .foregroundStyle(AppColors.textPrimary.opacity(0.8))
+                .padding(.bottom, 15)
             
             
             Text(suggestion.title)
-                .multilineTextAlignment(.center)
-                .font(.system(size: 21, weight: .semibold, design: .serif))
+                .multilineTextAlignment(.leading)
+                .font(.system(size: 20, weight: .medium, design: .serif))
                 .foregroundStyle(AppColors.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
                 .lineSpacing(1.3)
-                .padding(.bottom, 5)
             
             Text(suggestion.intent)
-                .multilineTextAlignment(.center)
-                .font(.system(size: 17, weight: .light))
+                .multilineTextAlignment(.leading)
+                .font(.system(size: 15, weight: .light))
                 .foregroundStyle(AppColors.textPrimary.opacity(0.8))
                 .fixedSize(horizontal: false, vertical: true)
                 .lineSpacing(1.4)
-                .padding(.bottom, 30)
+                .padding(.bottom, 25)
             
             getObjectivesList()
             
@@ -192,7 +190,7 @@ struct PlanSuggestionBox: View {
             .disabled(true)
             
         }
-        .frame(width: frameWidth, height: 490)
+        .frame(width: frameWidth, height: 450)
         .padding(.horizontal, 20)
         .padding(.top, 20)
         .padding(.bottom, 20)
@@ -208,7 +206,7 @@ struct PlanSuggestionBox: View {
     
     private func getObjectivesList() -> some View {
         
-        VStack (alignment: .leading, spacing: 10) {
+        VStack (alignment: .leading, spacing: 15) {
         
 //            VStack(alignment: .leading, spacing: 3) {
                 
@@ -230,7 +228,7 @@ struct PlanSuggestionBox: View {
 //                )
 //            )
         }
-        .padding()
+        .padding(20)
         .background {
             getRectangle()
         }
@@ -238,7 +236,7 @@ struct PlanSuggestionBox: View {
     }
     
     private func checklistItem(text: String) -> some View {
-       HStack(spacing: 10) {
+        HStack(alignment: .firstTextBaseline, spacing: 10) {
            
            Image(systemName: "checkmark")
                .font(.system(size: 15, weight: .light))
@@ -251,6 +249,7 @@ struct PlanSuggestionBox: View {
                .font(.system(size: 15, weight: .light))
                .fontWidth(.condensed)
                .foregroundStyle(AppColors.textPrimary)
+               .lineSpacing(1.3)
             
        }
        .frame(alignment: .leading)

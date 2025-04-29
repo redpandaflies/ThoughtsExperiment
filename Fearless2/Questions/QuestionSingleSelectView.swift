@@ -40,15 +40,6 @@ struct QuestionSingleSelectView: View {
     let showSymbol: Bool
     
     @FocusState private var isFocused: Bool
-    
-    private let problemSymbols: [String: String] = [
-      "Make a decision": "arrow.triangle.branch",
-      "Solve a problem": "checkmark.seal",
-      "Resolve a conflict": "bubble.left.and.bubble.right",
-      "Get clarity": "magnifyingglass",
-      "Reduce anxiety": "slowmo",
-      "Feel more confident": "figure.dance"
-    ]
 
     init(singleSelectAnswer: Binding<String>, customItems: Binding<[String]> = .constant([]), showProgressBar: Binding<Bool> = .constant(true), question: String, items: [String], answer: String = "", itemsEdited: Bool = false, subTitle: String = "", showSymbol: Bool = false) {
         self._singleSelectAnswer = singleSelectAnswer
@@ -106,7 +97,7 @@ struct QuestionSingleSelectView: View {
                         option: option.text,
                         items: items,
                         isEditable: option.isEditable,
-                        symbol: problemSymbols[option.text] ?? "",
+                        symbol: GoalTypeSymbol.symbolName(for: option.text, default: ""),
                         isFocused: $isFocused
                     )
                     .onTapGesture {
@@ -234,9 +225,13 @@ struct SingleSelectQuestionBubble: View {
                 
             } else {
                 
-                Image(systemName: symbol)
-                    .font(.system(size: 15, weight: .light))
-                    .foregroundStyle(selected ? AppColors.textBlack : AppColors.textPrimary)
+                if !symbol.isEmpty {
+                    Image(systemName: symbol)
+                        .font(.system(size: 15, weight: .light))
+                        .foregroundStyle(selected ? AppColors.textBlack : AppColors.textPrimary)
+                        .frame(width: 15, height: 15)
+                        .padding(.trailing, 5)
+                }
                 
                 Text(option)
                     .font(.system(size: 15, weight: .light))

@@ -24,9 +24,7 @@ struct NewCategoryQuestionsView: View {
     @Binding var answersOpen: [String]
     // Array to store all single-select question answers
     @Binding var answersSingleSelect: [String]
-    @Binding var newCategorySaved: Bool
-    
-    let categories: FetchedResults<Category>
+    @Binding var newGoalSaved: Bool
     
     var currentQuestion: QuestionNewCategory {
         return questions[selectedQuestion]
@@ -180,9 +178,7 @@ struct NewCategoryQuestionsView: View {
         let savedGoal = await dataController.createNewGoal(category: savedCategory, problemType: answersSingleSelect[1])
         
         if let category = savedCategory, let goal = savedGoal {
-            
-          
-            
+
             for (index, answer) in answersOpen.enumerated() where !answer.isEmpty {
              
                 await dataController.saveAnswerDefaultQuestions(
@@ -241,8 +237,8 @@ struct NewCategoryQuestionsView: View {
     private func finishQuestions() {
         focusField = nil
         mainSelectedTab += 1
-        if !newCategorySaved {
-            newCategorySaved = true
+        if !newGoalSaved {
+            newGoalSaved = true
         }
     }
     

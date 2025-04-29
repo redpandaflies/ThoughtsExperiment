@@ -59,6 +59,16 @@ struct GoalsView: View {
         return "goal\(imageIndex)"
     }
     
+    let screenWidth = UIScreen.current.bounds.width
+    
+    var frameWidth: CGFloat {
+        return screenWidth * 0.85
+    }
+    
+    var safeAreaPadding: CGFloat {
+        return (screenWidth - frameWidth)/2
+    }
+    
     var body: some View {
         NavigationStack {
             
@@ -74,7 +84,7 @@ struct GoalsView: View {
                     
                     
                     ScrollView (.horizontal) {
-                        HStack (spacing: 32) {
+                        HStack (spacing: 15) {
                             ForEach(Array(goals.enumerated()), id: \.element.goalId) { index, goal in
                                 // MARK: - Quests map 
                                 QuestMapView(
@@ -84,29 +94,35 @@ struct GoalsView: View {
                                     selectedTabTopic: $selectedTabTopic,
                                     points: currentPoints,
                                     backgroundColor: getCategoryBackground(goal: goal),
-                                    goal: goal)
+                                    goal: goal,
+                                    frameWidth: frameWidth
+                                )
                                     .id(index)
-                                
+                                    .scrollTransition { content, phase in
+                                        content
+                                        .opacity(phase.isIdentity ? 1 : 0.3)
+                                    }
                                 
                             }//ForEach
                         }//HStack
                         .scrollTargetLayout()
                     }//ScrollView
                     .scrollPosition(id: $goalScrollPosition, anchor: .center)
-                    .contentMargins(.horizontal, 16, for: .scrollContent)
                     .scrollClipDisabled(true)
-                    .scrollTargetBehavior(.viewAligned)
+                    .scrollTargetBehavior(.viewAligned(limitBehavior: .alwaysByOne))
                     .scrollIndicators(.hidden)
+                    .contentMargins(.horizontal, safeAreaPadding, for: .scrollContent)
                     
                     if goals.count > 1 {
                         PageIndicatorView(scrollPosition: $goalScrollPosition, pagesCount: goals.count)
-                        
+                            .padding(.top)
                     }
                     
                 }
                 
             }//VStack
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .ignoresSafeArea(.keyboard)
             .overlay {
                 addGoalButton(buttonAction: {
                     showNewGoalSheet = true
@@ -151,8 +167,7 @@ struct GoalsView: View {
                 NewCategoryView(
                     newCategoryViewModel: viewModelFactoryMain.makeNewCategoryViewModel(),
                     showNewGoalSheet: $showNewGoalSheet,
-                    cancelledCreateNewCategory: $cancelledCreateNewCategory,
-                    categories: categories
+                    cancelledCreateNewCategory: $cancelledCreateNewCategory
                 )
             }
         }
@@ -176,15 +191,13 @@ struct GoalsView: View {
     
     private func addGoalButton(buttonAction: @escaping () -> Void) -> some View {
         VStack {
-            RoundButton(
+            SquareButton(
                 buttonImage: "plus",
-                size: 23,
-                frameSize: 60,
                 buttonAction: {
                     buttonAction()
                 }
             )
-            .padding(.horizontal)
+            .padding(.horizontal, safeAreaPadding)
             .padding(.bottom, 20)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)

@@ -71,7 +71,7 @@ struct TopicExpectationsView: View {
         }
         .environment(\.colorScheme, .dark )
         .onAppear {
-            if topic?.topicStatus == TopicStatusItem.completed.rawValue {
+            if let topic = topic, topic.topicStatus == TopicStatusItem.completed.rawValue {
                 disableButton = false
             } else {
                 getTopicQuestions()
@@ -114,7 +114,7 @@ struct TopicExpectationsView: View {
     
     private func completeQuest() {
         Task {
-            if let topic = topic {
+            if let topic = topic, topic.topicStatus != TopicStatusItem.completed.rawValue {
                 await dataController.completeTopic(topic: topic)
             }
             await MainActor.run {
@@ -138,13 +138,14 @@ struct TopicExpectationsView: View {
             return
         }
         
-       let nextTopic = sequenceTopics.filter { $0.topicId == topic.topicId }
+        let nextTopicIndex = topic.orderIndex + 1
+        
+        let nextTopic = sequenceTopics
+            .filter { $0.orderIndex == nextTopicIndex }
             
         Task {
             do {
-                
                 try await topicViewModel.manageRun(selectedAssistant: .topic, topic: nextTopic.first)
-                
                 
             } catch {
                 topicViewModel.createTopicQuestions = .retry

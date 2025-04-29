@@ -143,12 +143,12 @@ final class TopicViewModel: ObservableObject {
                 
             case .topicOverview:
                 
-                guard let currentTopicId = topicId else {
-                    loggerCoreData.error("Failed to get new topic ID")
-                    throw OpenAIError.missingRequiredField("Topic ID")
+                guard let topic = topic else {
+                    loggerCoreData.error("Failed to get topic")
+                    return
                 }
                 
-                try await openAISwiftService.processTopicOverview(messageText: messageText, topicId: currentTopicId)
+                try await openAISwiftService.processTopicOverview(messageText: messageText, topic: topic)
                 
                 await MainActor.run {
                     self.createTopicOverview = .ready

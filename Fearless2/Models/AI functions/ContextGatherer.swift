@@ -8,201 +8,90 @@
 import Foundation
 import OSLog
 
+/// use """ so that the text shows up as markdown in the openAI assistant dashboard
+
 @MainActor
 struct ContextGatherer {
     
-    static func gatherContextGeneral(dataController: DataController, loggerCoreData: Logger, selectedAssistant: AssistantItem? = nil, topicId: UUID, focusArea: FocusArea? = nil) async -> String? {
+    // for creating new goal, plan suggestions, plan summary
+    static func gatherContext(dataController: DataController, loggerCoreData: Logger, selectedAssistant: AssistantItem, category: Category, goal: Goal, sequence: Sequence? = nil) async -> String? {
         
-        guard let assistant = selectedAssistant else {
-            loggerCoreData.error("No assistant selected")
-            return nil
-        }
-        
-        guard let topic = await dataController.fetchTopic(id: topicId) else {
-               loggerCoreData.error("Failed to fetch topic with ID: \(topicId.uuidString)")
-               return nil
-        }
-        
-        guard let category = topic.category else {
-            loggerCoreData.error("Failed to get related cateogry")
-            return nil
-        }
-        
-        guard let goal = category.categoryGoals.first else {
-            loggerCoreData.error("Failed to get related goal")
-            return nil
-        }
-        
-        let sequence = goal.goalSequences.filter { $0.sequenceStatus != SequenceStatusItem.completed.rawValue }
-        
-        var context = "Life area: \(category.categoryLifeArea)\n\n"
-        
-        switch assistant {
-           
-           case .focusArea:
-                context += "Current path (focus area): \(focusArea?.focusAreaTitle ?? "").\n\n"
-
-           default:
-                break
-        }
-        
-        //goal info
-        context += """
-        The goal the user is working on is: \(goal.goalTitle).
-        a) problem: \(goal.goalProblem)
-        b) user wants help with: \(goal.goalProblemType)
-        c) what resolution of problem looks like in user's mind: \(goal.goalResolution)\n\n
-        """
-        
-        
-        //sequence info
-        if let firstSequence = sequence.first {
+        var context = ""
+    
+        // current goal info, with problem statement from new goal flow
+        if !goal.goalTitle.isEmpty {
             context += """
-            The sequence (collection of quests) the user is working on is: \(firstSequence.sequenceTitle).
-            a) intent: \(firstSequence.sequenceIntent)
-            b) objectives: \(firstSequence.sequenceObjectives)\n\n
+                Current topic:\n
             """
+            context += addGoalInfo(goal: goal)
         }
+
+        //get questions answered when creating goal
+        context += getNewGoalContext(goal: goal, category: category)
         
-        //topic info
-        context += "Here is what we know so far about the quest this belongs to: \n\n"
-
-        context += """
-        a) quest title and reasoning: \(topic.topicTitle) – \(topic.topicDefinition)\n\n
-        """
-
-        //get focus areas for topic
-        let focusAreas = topic.topicFocusAreas
-            .sorted { $0.focusAreaCreatedAt < $1.focusAreaCreatedAt }
-        
-        let completedFocusAreas = focusAreas
-            .filter { $0.focusAreaStatus == FocusAreaStatusItem.completed.rawValue }
-    
-        if selectedAssistant == .focusArea || selectedAssistant == .focusAreaSuggestions || selectedAssistant == .topicOverview {
+      
+        if selectedAssistant == .planSuggestion || selectedAssistant == .sequenceSummary {
+            // get plans and steps for the goal
+            /// get plan summaries
+            let sequences = goal.goalSequences
             
-            var totalFocusAreas: Int {
-                switch selectedAssistant {
-               
-                case .focusAreaSuggestions:
-                    return focusAreas.count
-                case .focusArea, .topicOverview:
-                    return completedFocusAreas.count
-                default:
-                    return 0
-                }
-            }
-            
-            var focusAreasList: [FocusArea] {
-                switch selectedAssistant {
-                case .focusAreaSuggestions:
-                    return focusAreas
-                case .focusArea, .topicOverview:
-                    return completedFocusAreas //new focus area will have been created in CoreData, but there will be no content for it yet or it's the quest complete focus area which we don't need to send
-                default:
-                    return focusAreas
-                }
-            }
-            
-            if totalFocusAreas > 0 {
-                context += "b) completed paths, their reasoning, and their summary within this quest: \n\n"
-
-                for focusArea in focusAreasList {
-                    context += """
-                    - Path title: \(focusArea.focusAreaTitle)
-                    - Path reasoning: \(focusArea.focusAreaReasoning)\n
-                    """
+            if !sequences.isEmpty {
+                let planSummaries = goal.goalSequenceSummaries
                 
-                    if let summary = focusArea.summary?.summarySummary {
-                        context += "- Path summary: \(summary)\n\n"
-                    }
+                context += getSequenceSummaries(summaries: planSummaries)
+            }
+            
+            /// current plan (for plan recap only)
+            if let sequence = sequence {
+                
+                context += """
+                    The user needs the retrospective for this plan: \(sequence.sequenceTitle).
+                    a) description: \(sequence.sequenceIntent)
+                    b) objectives: \(sequence.sequenceObjectives)\n\n
+                """
+            
+                // get answers from plan recap flow
+                context +=  getSequenceRecapAnswers(sequence: sequence)
+                
+                // get steps
+                context += getTopicsList(topics: sequence.sequenceTopics)
+                
+                // other plans for the current goal
+                context += getOtherSequences(currentSequence: sequence, goalSequences: goal.goalSequences)
+                
+            }
+            
+            // Other completed and ongoing goals
+            let fetchedGoals = await dataController.fetchAllGoals()
+            //filter out current goal
+            let remainingGoals = fetchedGoals.filter { $0.goalId != goal.goalId }
+            
+            if remainingGoals.isEmpty {
+                context += """
+                    Here are the user's other completed and ongoing goals:\n
+                """
+                
+                for goal in remainingGoals {
+                    context += """
+                        a) goal: \(goal.goalTitle)
+                        b) type: \(goal.goalProblemType)
+                        c) problem: \(goal.goalProblem)
+                        d) resolution: \(goal.goalResolution)\n 
+                    """
+                    
+                    let planSummaries = goal.goalSequenceSummaries
+                    
+                    context += getSequenceSummaries(summaries: planSummaries)
                     
                 }
             }
         }
-        
-        //send sections for focus area recap
-        if selectedAssistant == .focusAreaSummary {
-            
-            if let currentFocusArea = focusArea {
-                let focusAreaSections = currentFocusArea.focusAreaSections.sorted { $0.sectionNumber < $1.sectionNumber }
-        
-                context += """
-                Current path (focus area):
-                - Path title: \(currentFocusArea.focusAreaTitle)
-                - Path reasoning: \(currentFocusArea.focusAreaReasoning)\n
-                """
-                        
-
-                if !focusAreaSections.isEmpty {
-                    
-                    context += "- Questions answered by the user:\n"
-                    
-                    for section in focusAreaSections {
-                        context += getQuestions(section.sectionQuestions)
-                    }
-                    
-                    context += "\n"
-                }
-            }
-            
-        }
-        
-        //topic focus area limit
-        context += "\nThis quest will have exactly \(topic.focusAreasLimit) paths (focus areas)."
-        
-        return context
-       
-    }
-    
-    // for new category flow
-    static func gatherContext2(dataController: DataController, loggerCoreData: Logger, selectedAssistant: AssistantItem, category: Category, goal: Goal, sequence: Sequence? = nil) async -> String? {
-        var context = "Current life area: \(category.categoryLifeArea).\n\n"
-        
-        //get questions answered when creating category
-        context += getNewGoalContext(goal: goal)
-        
-        // Get all topics
-        var topics: [Topic] = []
-        
-        
-        if selectedAssistant == .sequenceSummary {
-            if let sequence = sequence {
-                // for sequence summary
-                topics = sequence.sequenceTopics
-            }
-        } else {
-            // for new category, plan suggestions
-           topics = category.categoryTopics
-        }
-        
-        if !topics.isEmpty {
-            // Sort topics by creation date string, earliest first
-            let sortedTopics = topics.sorted { $0.topicCreatedAt < $1.topicCreatedAt }
-            // filter for topics that user created already, not the locked ones
-            let createdTopics = sortedTopics.filter { $0.topicStatus != TopicStatusItem.locked.rawValue }
-            
-            context += "List of quests the user already started and completed, ordered from earliest to latest:\n"
-            
-            for topic in createdTopics {
-                context += """
-                a) quest title and reasoning: \(topic.topicTitle) – \(topic.topicDefinition)
-                b) quest summary: \(topic.review?.reviewSummary ?? "No summary, quest still in progress") \n\n
-                """
-            }
-        }
-        
-        if selectedAssistant == .planSuggestion {
-            if let sequence = sequence {
-              context +=  getSequenceRecapAnswers(sequence: sequence)
-            }
-        }
-        
 
         return context
     }
     
     //for new topic
-    static func gatherContextNewTopic(dataController: DataController, loggerCoreData: Logger, topic: Topic) async -> String? {
+    static func gatherContextTopic(dataController: DataController, loggerCoreData: Logger, topic: Topic) async -> String? {
         guard let topic = await dataController.fetchTopic(id: topic.topicId) else {
             loggerCoreData.error("Failed to fetch topic with ID: \(topic.topicId.uuidString)")
                return nil
@@ -219,150 +108,167 @@ struct ContextGatherer {
         
         let sequence = topic.sequence
         
+        // Step the user is requesting questions for
         var context = """
-            Please create focus areas for this quest: \(topic.topicTitle).
-            a) quest objective: \(topic.topicDefinition)
-            b) quest type: \(topic.topicQuestType). 
-            c) quest number: \(topic.orderIndex). \n\n
+            Current step: \(topic.topicTitle).
+            a) objective: \(topic.topicDefinition)
+            b) type: \(topic.topicQuestType). \n\n
         """
         
-        context += "The quest belongs to this life area: \(category.categoryLifeArea).\n\n"
-        
+        // step questions for topic/step summary
+        let questions = topic.topicQuestions
+        if !questions.isEmpty {
+            context += """
+                Answers for questions in this step:\n
+            """
+            context += getQuestions(questions)
+        }
+
         //goal info
         context += """
-        The quest should help the user work on this goal: \(goal.goalTitle).
-        a) problem: \(goal.goalProblem)
-        b) user wants help with: \(goal.goalProblemType)
-        c) what resolution of problem looks like in user's mind: \(goal.goalResolution)\n\n
+            This step is related to this topic: \n
         """
+        context += addGoalInfo(goal: goal)
         
         //sequence info
         if let sequence = sequence {
+            
+            //plan details
             context += """
-            The quest belongs to this sequence (collection of quests): \(sequence.sequenceTitle).
-            a) intent: \(sequence.sequenceIntent)
-            b) objectives: \(sequence.sequenceObjectives)\n\n
+                This step belongs to this plan: \n
             """
+            context += getSequenceDetails(sequence: sequence)
             
-            let sequenceTopics = sequence.sequenceTopics
-            let completedTopics = sequenceTopics.filter { $0.topicStatus == TopicStatusItem.completed.rawValue }.sorted { $0.orderIndex < $1.orderIndex }
-            let lockedTopics = sequenceTopics.filter {
-                $0.topicStatus == TopicStatusItem.locked.rawValue &&
-                $0.topicTitle != topic.topicTitle
-            }.sorted { $0.orderIndex < $1.orderIndex }
+            // other plan topics
+            let sequenceTopics = sequence.sequenceTopics.filter { $0.topicId != topic.topicId}
+            context += """
+                Completed and locked steps in this plan are:\n
+            """
+            context += getTopicsList(topics: sequenceTopics)
             
-            // Get focus areas limit
-//            let highestFocusAreaTopic = sequenceTopics.max(by: { $0.focusAreasLimit < $1.focusAreasLimit })
-//            let highestFocusAreasLimit = highestFocusAreaTopic?.focusAreasLimit ?? 0
-//            let focusAreasLimit = min(max(highestFocusAreasLimit + 1, 2), 5)
-            let focusAreasLimit: Int = 1
-            context += "Please generate exactly \(focusAreasLimit) focus areas for this quest.\n\n"
-            
-            //list locked topics
-            if lockedTopics.count > 0 {
-                context += "Here are the upcoming topics in this sequence:\n\n"
-                
-                for topic in lockedTopics {
-                    context += """
-                        Title: \(topic.topicTitle)
-                        Objective: \(topic.topicDefinition)\n\n
-                    """
-                }
-            }
-            
-            //list completed topics
-            if completedTopics.count > 0 {
-                context += "Here are the completed topics for this sequence:\n\n"
-                
-                for topic in completedTopics {
-                    context += """
-                        Title: \(topic.topicTitle)
-                        Summary: \(topic.review?.reviewSummary ?? "")\n\n
-                    """
-                }
-            }
-            
+            // other plans for the current goal
+            context += getOtherSequences(currentSequence: sequence, goalSequences: goal.goalSequences)
         }
 
         return context
     }
     
     //for understand
-    static func gatherContextUnderstand(dataController: DataController, loggerCoreData: Logger, question: String) async -> String? {
-        var context = "The user would like to know this about themselves: \(question)\n Please provide an answer based on the context provided below about the user.\n\n"
-        
-        //get all active topics
-       let topics = await dataController.fetchAllTopics()
-        
-        if !topics.isEmpty {
-            
-            for topic in topics {
-                context += """
-                - topic title: \(topic.title ?? "No title available")\n
-                - topic relates to this part of the user's life: \(topic.category?.categoryLifeArea ?? "none, no category found")\n\n
-                """
-                
-                //all saved insights
-                context += "Here are the user's saved insights for this topic: \n"
-                let topicInsights = topic.topicInsights.filter { $0.markedSaved == true }
-                for insight in topicInsights {
-                    context += "-\(insight.insightContent)"
-                }
-                
-                //all completed section summaries
-                context += "\n\nHere are the summaries and insights from the sections that have been completed. A section is a series of questions the user answers about the topic.\n\n"
-                let sections = topic.topicSections.filter { $0.completed == true }
-                for section in sections {
-                    if let summary = section.summary {
-                        context += """
-                            section title: \(section.sectionTitle)\n
-                            section summary: \(summary.summarySummary)\n
-                        """
-                        context += "here are the section insights: \n"
-                        for insight in summary.summaryInsights {
-                            context += "-\(insight.insightContent)\n"
-                        }
-                    }
-                }
-                
-                //all entry summaries
-                context += "\n\nHere are the summaries every entry related to this topic.\n\n"
-                for entry in topic.topicEntries {
-                    context += """
-                        \(entry.entryTitle)\n
-                        \(entry.entrySummary)\n\n
-                    """
-                }
-            }//topic
-            
-            
-        }
-
-        return context
-    }
+//    static func gatherContextUnderstand(dataController: DataController, loggerCoreData: Logger, question: String) async -> String? {
+//        var context = "The user would like to know this about themselves: \(question)\n Please provide an answer based on the context provided below about the user.\n\n"
+//        
+//        //get all active topics
+//       let topics = await dataController.fetchAllTopics()
+//        
+//        if !topics.isEmpty {
+//            
+//            for topic in topics {
+//                context += """
+//                - topic title: \(topic.title ?? "No title available")\n
+//                - topic relates to this part of the user's life: \(topic.category?.categoryLifeArea ?? "none, no category found")\n\n
+//                """
+//                
+//                //all saved insights
+//                context += "Here are the user's saved insights for this topic: \n"
+//                let topicInsights = topic.topicInsights.filter { $0.markedSaved == true }
+//                for insight in topicInsights {
+//                    context += "-\(insight.insightContent)"
+//                }
+//                
+//                //all completed section summaries
+//                context += "\n\nHere are the summaries and insights from the sections that have been completed. A section is a series of questions the user answers about the topic.\n\n"
+//                let sections = topic.topicSections.filter { $0.completed == true }
+//                for section in sections {
+//                    if let summary = section.summary {
+//                        context += """
+//                            section title: \(section.sectionTitle)\n
+//                            section summary: \(summary.summarySummary)\n
+//                        """
+//                        context += "here are the section insights: \n"
+//                        for insight in summary.summaryInsights {
+//                            context += "-\(insight.insightContent)\n"
+//                        }
+//                    }
+//                }
+//                
+//                //all entry summaries
+//                context += "\n\nHere are the summaries every entry related to this topic.\n\n"
+//                for entry in topic.topicEntries {
+//                    context += """
+//                        \(entry.entryTitle)\n
+//                        \(entry.entrySummary)\n\n
+//                    """
+//                }
+//            }//topic
+//            
+//            
+//        }
+//
+//        return context
+//    }
     
 }
 
 
 // MARK: reusable code
 extension ContextGatherer {
+    
+    
+    private static func addGoalInfo(goal: Goal) -> String {
+        return """
+            a) title: \(goal.goalTitle)
+            b) type: \(goal.goalProblemType)
+            c) goal: \(goal.goalResolution)
+            d) problem statement: \(goal.goalProblemLong)\n\n
+        """
+    }
+    
+    // questions answered when creating goal
+    private static func getNewGoalContext(goal: Goal, category: Category) -> String {
+        var context = """
+            What user said about the topic: \n
+        """
+        
+        let goalQuestions = goal.goalQuestions
+            .filter { $0.categoryStarter == true }
+            .sorted { $0.questionCreatedAt < $1.questionCreatedAt }
+        
+        context += """
+            The topic is about this area of the user's life: \(category.categoryLifeArea)\n
+        """
+        
+        context += getQuestions(goalQuestions)
+        
+        return context
+    }
+    
     // Helper function to format questions and answers
     private static func getQuestions(_ questions: [Question]) -> String {
         var result = ""
         for question in questions {
-            result += "Q: \(question.questionContent)\n"
+            result += """
+                Q: \(question.questionContent)\n
+            """
             if question.completed {
                 if let questionType = QuestionType(rawValue: question.questionType) {
                     switch questionType {
                     case .singleSelect:
-                        result += "A: \(question.questionAnswerSingleSelect)\n"
+                        result += """
+                            A: \(question.questionAnswerSingleSelect)\n
+                        """
                     case .multiSelect:
-                        result += "A: \(question.questionAnswerMultiSelect)\n"
+                        result += """
+                            A: \(question.questionAnswerMultiSelect)\n
+                        """
                     case .open:
-                        result += "A: \(question.questionAnswerOpen)\n"
+                        result += """
+                            A: \(question.questionAnswerOpen)\n
+                        """
                     }
                 } else {
-                    result += "Answer not found for this question\n"
+                    result += """
+                        Answer not found for this question\n
+                    """
                 }
             }
         }
@@ -381,20 +287,104 @@ extension ContextGatherer {
         return context
     }
     
-    private static func getNewGoalContext(goal: Goal) -> String {
-        var context = "User's answers to questions about a problem in this area of their life: \n"
+    private static func getTopicsList(topics: [Topic]) -> String {
+        let sortedTopics = topics.sorted { $0.topicCreatedAt < $1.topicCreatedAt }
         
-        let goalQuestions = goal.goalQuestions
-            .filter { $0.categoryStarter == true }
-            .sorted { $0.questionCreatedAt < $1.questionCreatedAt }
+        let completedTopics = sortedTopics.filter { $0.topicStatus == TopicStatusItem.completed.rawValue }
         
-        context += getQuestions(goalQuestions)
+        let lockedTopics = sortedTopics.filter { $0.topicStatus == TopicStatusItem.locked.rawValue }
+        
+        var context = ""
+        
+        if completedTopics.isEmpty {
+            context += """
+                Complete topics: \n
+            """
+            context += getTopicsDetails(topics: topics)
+        }
+        
+        if lockedTopics.isEmpty {
+            context += """
+                Locked topics: \n
+            """
+            context += getTopicsDetails(topics: topics)
+        }
         
         return context
     }
     
+    
+    // get info on each topic
+    private static func getTopicsDetails(topics: [Topic]) -> String {
+        var topicsText = ""
+            
+        for topic in topics {
+            topicsText += """
+                a) title: \(topic.topicTitle)
+                b) status: \(topic.topicStatus)
+                c) summary: \(topic.review?.reviewSummary ?? "No summary, step still in progress")\n
+            """
+        }
+        
+        return topicsText
+    }
+    
+    // sequence summary list
+    private static func getSequenceSummaries(summaries: [SequenceSummary]) -> String {
+        guard !summaries.isEmpty else {
+            return ""
+        }
+        var context = """
+            Plan summaries:\n
+        """
+        for summary in summaries {
+            context += """
+                \(summary.summaryContent)\n
+            """
+        }
+        
+        return context
+    }
+    
+    // sequence details
+    private static func getSequenceDetails(sequence: Sequence) -> String {
+        return """
+            a) title: \(sequence.sequenceTitle)
+            b) description: \(sequence.sequenceIntent)
+            c) objectives: \(sequence.sequenceObjectives)\n\n
+        """
+    }
+    
+    // other plans/sequences for same goal
+   private static func getOtherSequences(currentSequence: Sequence, goalSequences: [Sequence]) -> String {
+        
+        let otherPlans = goalSequences.filter { $0.sequenceId != currentSequence.sequenceId}
+       
+        var context = ""
+        
+        if !otherPlans.isEmpty {
+            
+            context += """
+                Completed plans for the same topic:\n
+            """
+            
+            for plan in otherPlans {
+                context += getSequenceDetails(sequence: plan)
+                context += """
+                    d) summary: \(plan.sequenceSummaries.first?.summaryContent ?? "No summary available")\n\n
+                """
+                context += getSequenceRecapAnswers(sequence: plan)
+            }
+        }
+        
+       return context
+        
+    }
+    
     private static func getSequenceRecapAnswers(sequence: Sequence) -> String {
-        var context = "User's answers to questions during the sequence recap flow: \n"
+        var context = """
+            User's answers to questions during the plan retrospective flow: \n
+        """
         
         let sequenceQuestions = sequence.sequenceQuestions
             .sorted { $0.questionCreatedAt < $1.questionCreatedAt }

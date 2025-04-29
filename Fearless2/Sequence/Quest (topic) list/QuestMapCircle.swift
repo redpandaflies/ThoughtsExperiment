@@ -4,7 +4,7 @@
 //
 //  Created by Yue Deng-Wu on 4/23/25.
 //
-
+import Pow
 import SwiftUI
 
 struct QuestMapCircle: View {
@@ -36,26 +36,26 @@ struct QuestMapCircle: View {
                 if questStatus == .active || questStatus == .completed {
                     getEmoji()
                 } else {
-                    getSFSymbol(size: nextQuest ? 30 : 25)
+                    getSFSymbol(size: 25)
                 }
             default:
                 getSFSymbol(size: getSFSymbolSize())
             }
           
         }
-        .frame(width: questStatus == .active || nextQuest ? 80 : 60, height: questStatus == .active || nextQuest ? 80 : 60)
+        .frame(width: 60, height: 60)
         .background(
             Circle()
                 .stroke(getStrokeColor(), lineWidth: 0.5)
                 .fill(getFillStyle())
                 .shadow(color: Color.black.opacity(0.05), radius: 15, x: 0, y: 3)
                 .blendMode(questStatus == .completed ? .colorDodge : .normal)
-                .padding(questStatus == .active || nextQuest ? 7 : 0)
-                .background {
-                    Circle()
-                        .stroke(questStatus == .active || nextQuest ? .white.opacity(0.4) : .clear, lineWidth: 0.5)
-                        .fill(Color.clear)
-                }
+//                .padding(questStatus == .active || nextQuest ? 7 : 0)
+//                .background {
+//                    Circle()
+//                        .stroke(questStatus == .active || nextQuest ? .white.opacity(0.4) : .clear, lineWidth: 0.5)
+//                        .fill(Color.clear)
+//                }
         )
         .conditionalEffect(
               .repeat(
@@ -69,7 +69,7 @@ struct QuestMapCircle: View {
                 playAnimation = true
             }
         }
-        .onChange(of: questStatus) {
+        .onChange(of: nextQuest) {
             if questStatus == .completed {
                 playAnimation = false
             } else if questStatus == .active || nextQuest {
@@ -107,7 +107,7 @@ struct QuestMapCircle: View {
     
     private func getEmoji() -> some View {
         Text(topic.topicEmoji)
-            .font(.system(size: questStatus == .active || nextQuest ? 30 : 20))
+            .font(.system(size: 20))
     }
     
     private func getFillStyle() -> AnyShapeStyle {
@@ -157,9 +157,9 @@ struct QuestMapCircle: View {
     private func getSFSymbolSize() -> CGFloat {
         switch questType {
             case .newCategory, .context:
-                return questStatus == .active || nextQuest ? 25: 20
+                return 20
             default:
-            return questStatus == .active || nextQuest ? 30 : 25
+            return 25
         }
     }
   

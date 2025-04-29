@@ -37,7 +37,7 @@ struct ProgressBarThin: View {
                     .contentTransition(.interpolate)
                 
             }//ZStack
-            .frame(height: 15, alignment: .center)
+            .frame(maxHeight: .infinity, alignment: .center)
             
         }
     }

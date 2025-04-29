@@ -63,6 +63,7 @@
         <attribute name="createdAt" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="problem" optional="YES" attributeType="String"/>
+        <attribute name="problemLong" optional="YES" attributeType="String"/>
         <attribute name="problemType" optional="YES" attributeType="String"/>
         <attribute name="resolution" optional="YES" attributeType="String"/>
         <attribute name="title" optional="YES" attributeType="String"/>

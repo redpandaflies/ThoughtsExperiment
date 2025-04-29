@@ -43,6 +43,8 @@
 		8A49389B2DBC2AA3006FCCF3 /* StaticTopics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A49389A2DBC2A73006FCCF3 /* StaticTopics.swift */; };
 		8A49389D2DBCCA43006FCCF3 /* ProgressBarThin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A49389C2DBCCA43006FCCF3 /* ProgressBarThin.swift */; };
 		8A4B27492D6A9B6900FEAC44 /* CategoryQuestsHeading.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A4B27482D6A9B6900FEAC44 /* CategoryQuestsHeading.swift */; };
+		8A573B9F2DC00A8D0027F636 /* GoalTypeSymbol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A573B9E2DC00A6A0027F636 /* GoalTypeSymbol.swift */; };
+		8A573BA12DC00EB80027F636 /* SquareButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A573BA02DC00EB80027F636 /* SquareButton.swift */; };
 		8A5881B32D3456E60019C785 /* Mixpanel in Frameworks */ = {isa = PBXBuildFile; productRef = 8A5881B22D3456E60019C785 /* Mixpanel */; };
 		8A6332492CD8257A00EF34FA /* FocusArea-CoreDataHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A6332482CD8257A00EF34FA /* FocusArea-CoreDataHelpers.swift */; };
 		8A63324C2CD8415600EF34FA /* FocusAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A63324B2CD8415600EF34FA /* FocusAreaView.swift */; };
@@ -253,6 +255,8 @@
 		8A49389A2DBC2A73006FCCF3 /* StaticTopics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StaticTopics.swift; sourceTree = "<group>"; };
 		8A49389C2DBCCA43006FCCF3 /* ProgressBarThin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressBarThin.swift; sourceTree = "<group>"; };
 		8A4B27482D6A9B6900FEAC44 /* CategoryQuestsHeading.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryQuestsHeading.swift; sourceTree = "<group>"; };
+		8A573B9E2DC00A6A0027F636 /* GoalTypeSymbol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalTypeSymbol.swift; sourceTree = "<group>"; };
+		8A573BA02DC00EB80027F636 /* SquareButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SquareButton.swift; sourceTree = "<group>"; };
 		8A6332482CD8257A00EF34FA /* FocusArea-CoreDataHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FocusArea-CoreDataHelpers.swift"; sourceTree = "<group>"; };
 		8A63324B2CD8415600EF34FA /* FocusAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusAreaView.swift; sourceTree = "<group>"; };
 		8A63324E2CDAB84000EF34FA /* TabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBar.swift; sourceTree = "<group>"; };
@@ -674,28 +678,28 @@
 		8A8B63E52D1F00CA00BA57D0 /* CoreData */ = {
 			isa = PBXGroup;
 			children = (
-				8A81D4582D800321008C8DA9 /* Profile-CoreDataHelpers.swift */,
-				8ADCEACD2DA9B167008D4FEA /* Goal-CoreDataHelpers.swift */,
-				8ADCEACF2DAB196C008D4FEA /* Sequence-CoreDataHelpers.swift */,
-				8ADCEAD32DAE2FF3008D4FEA /* TopicExpectation-CoreDataHelpers.swift */,
 				8AB2DF422D54329C0069E914 /* Category-CoreDataHelpers.swift */,
-				8AC1D59E2D62B275000DD8E6 /* Points-CoreDataHelpers.swift */,
-				8A9CC1BD2CAD26E7007C2AA9 /* Topic-CoreDataHelpers.swift */,
-				8A827BA02D414A4400D0204E /* TopicStatusItem.swift */,
-				8ADCEAD12DACEABE008D4FEA /* SequenceStatusItem.swift */,
-				8A827B912D380CCA00D0204E /* TopicReview-CoreDataHelpers.swift */,
+				8A9CC1C82CAE0F9F007C2AA9 /* DataController.swift */,
+				8ACE0DD22CD03A0000718B9E /* Entry-CoreDataHelpers.swift */,
 				8A6332482CD8257A00EF34FA /* FocusArea-CoreDataHelpers.swift */,
 				8A6A99702D961E9A0069CAE0 /* FocusAreaStatusItem.swift */,
 				8A8ED72E2CF26E9900780384 /* FocusAreaSuggestion-CoreDataHelpers.swift */,
 				8A8ED7322CF2EE2A00780384 /* FocusAreaSummary-CoreDataHelpers.swift */,
-				8ADCEAEB2DB2E023008D4FEA /* SequenceSummary-CoreDataHelpers.swift */,
-				8A9191F62CBDA392007E17A0 /* Section-CoreDataHelpers.swift */,
-				8A9CC1BF2CAD26F6007C2AA9 /* Question-CoreDataHelpers.swift */,
+				8ADCEACD2DA9B167008D4FEA /* Goal-CoreDataHelpers.swift */,
 				8ACE0DD42CD03A1500718B9E /* Insight-CoreDataHelpers.swift */,
-				8A26DFCE2CEEF395002C4F60 /* Understand-CoreDataHelpers.swift */,
-				8ACE0DD22CD03A0000718B9E /* Entry-CoreDataHelpers.swift */,
+				8AC1D59E2D62B275000DD8E6 /* Points-CoreDataHelpers.swift */,
+				8A81D4582D800321008C8DA9 /* Profile-CoreDataHelpers.swift */,
+				8A9CC1BF2CAD26F6007C2AA9 /* Question-CoreDataHelpers.swift */,
+				8A9191F62CBDA392007E17A0 /* Section-CoreDataHelpers.swift */,
 				8A74F4AF2CE83A2A008A33B0 /* SectionSummary-CoreDataHelpers.swift */,
-				8A9CC1C82CAE0F9F007C2AA9 /* DataController.swift */,
+				8ADCEACF2DAB196C008D4FEA /* Sequence-CoreDataHelpers.swift */,
+				8ADCEAD12DACEABE008D4FEA /* SequenceStatusItem.swift */,
+				8ADCEAEB2DB2E023008D4FEA /* SequenceSummary-CoreDataHelpers.swift */,
+				8A9CC1BD2CAD26E7007C2AA9 /* Topic-CoreDataHelpers.swift */,
+				8ADCEAD32DAE2FF3008D4FEA /* TopicExpectation-CoreDataHelpers.swift */,
+				8A827B912D380CCA00D0204E /* TopicReview-CoreDataHelpers.swift */,
+				8A827BA02D414A4400D0204E /* TopicStatusItem.swift */,
+				8A26DFCE2CEEF395002C4F60 /* Understand-CoreDataHelpers.swift */,
 			);
 			path = CoreData;
 			sourceTree = "<group>";
@@ -807,6 +811,7 @@
 		8A9CC1962CAB66B3007C2AA9 /* Styling */ = {
 			isa = PBXGroup;
 			children = (
+				8A573B9E2DC00A6A0027F636 /* GoalTypeSymbol.swift */,
 				8A6A99662D932A070069CAE0 /* Quest map */,
 				8AE398332D7575B100F76AAC /* ButtonStylePushDown.swift */,
 				8A9CC1B32CAC6ABE007C2AA9 /* CategoryItem.swift */,
@@ -864,13 +869,13 @@
 		8A9CC1AD2CAC681C007C2AA9 /* Topic */ = {
 			isa = PBXGroup;
 			children = (
-				8ADCEAF82DB9E566008D4FEA /* Update topic */,
-				8ADCEAD52DAE3797008D4FEA /* Expectations */,
-				8A6332542CDD66BE00EF34FA /* Topics list view */,
-				8A79EAB32CE45B03000A966B /* Topic detail view */,
-				8A9CC1DF2CAF1B9C007C2AA9 /* New topic */,
-				8AC1D5A62D6582BE000DD8E6 /* End Topic */,
 				8AA484292D9B20ED002F34E9 /* Completed topic sheet */,
+				8AC1D5A62D6582BE000DD8E6 /* End Topic */,
+				8ADCEAD52DAE3797008D4FEA /* Expectations */,
+				8A9CC1DF2CAF1B9C007C2AA9 /* New topic */,
+				8A79EAB32CE45B03000A966B /* Topic detail view */,
+				8A6332542CDD66BE00EF34FA /* Topics list view */,
+				8ADCEAF82DB9E566008D4FEA /* Update topic */,
 			);
 			path = Topic;
 			sourceTree = "<group>";
@@ -1044,6 +1049,7 @@
 				8A2C36FB2D22CA2100C37315 /* RectangleButtonPrimary.swift */,
 				8A6332592CDDA01300EF34FA /* RectangleButton.swift */,
 				8AFCCCD52D5D4BFC0079732C /* RoundButton.swift */,
+				8A573BA02DC00EB80027F636 /* SquareButton.swift */,
 				8A63A1BD2D486DBF00712B27 /* RetryButton.swift */,
 				8ABE9AE12CB2597300483CFD /* NextButton.swift */,
 			);
@@ -1242,6 +1248,7 @@
 				8A74F4AC2CE7F451008A33B0 /* TextLimitMax.swift in Sources */,
 				8A63325C2CDDCA7E00EF34FA /* FocusAreaRecapPreviewBox.swift in Sources */,
 				8A827BA12D414A4C00D0204E /* TopicStatusItem.swift in Sources */,
+				8A573B9F2DC00A8D0027F636 /* GoalTypeSymbol.swift in Sources */,
 				8A26DFCD2CEEC076002C4F60 /* UnderstandView.swift in Sources */,
 				8A6A99712D961E9A0069CAE0 /* FocusAreaStatusItem.swift in Sources */,
 				8AE398222D70FC0300F76AAC /* InfoFirstCategory.swift in Sources */,
@@ -1282,6 +1289,7 @@
 				8A9CC1D12CAE4325007C2AA9 /* TopicViewModel.swift in Sources */,
 				8A827B9F2D413C3100D0204E /* ArchivedTopicsView.swift in Sources */,
 				8AA4842B2D9B2118002F34E9 /* CompletedTopicSheetView.swift in Sources */,
+				8A573BA12DC00EB80027F636 /* SquareButton.swift in Sources */,
 				8A6332582CDD9E0000EF34FA /* ToolbarTitleItem.swift in Sources */,
 				8ADCEAE72DB1C93A008D4FEA /* LoadingAnimationEllipsis.swift in Sources */,
 				8AB2DF4C2D57236B0069E914 /* CategoryDescriptionView.swift in Sources */,

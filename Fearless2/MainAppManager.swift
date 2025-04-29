@@ -34,8 +34,8 @@ struct MainAppManager: View {
             }
             
             
-            TabBar(currentTabBar: $currentTabBar, selectedTabHome: $selectedTabHome, selectedTabTopic: $selectedTabTopic, navigateToTopicDetailView: $navigateToTopicDetailView, topic: selectedTopic)
-                .transition(.move(edge: .bottom))
+//            TabBar(currentTabBar: $currentTabBar, selectedTabHome: $selectedTabHome, selectedTabTopic: $selectedTabTopic, navigateToTopicDetailView: $navigateToTopicDetailView, topic: selectedTopic)
+//                .transition(.move(edge: .bottom))
             
         } //ZStack
         .ignoresSafeArea(.all)

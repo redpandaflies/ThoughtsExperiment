@@ -111,7 +111,7 @@ struct NextSequenceView: View {
                 
                 VStack {
                   
-                    if selectedQuestion != 2 && selectedTab < 4 {
+                    if selectedTab < 4 && !(selectedTab == 2 && selectedQuestion == 2) {
                         RectangleButtonPrimary(
                             buttonText: getButtonText(),
                             action: {
@@ -191,15 +191,31 @@ struct NextSequenceView: View {
             } else {
                 return false
             }
+        case 2:
+           return disableButtonQuestions()
         default:
             return false
         }
     }
     
+    private func disableButtonQuestions() -> Bool {
+       
+        switch questions[selectedQuestion].questionType {
+        case .open:
+            return answersOpen[selectedQuestion].isEmpty
+        case .singleSelect:
+            return answersSingleSelect[selectedQuestion].isEmpty
+        case .multiSelect:
+            return answersMultiSelect[selectedQuestion].isEmpty
+        }
+        
+        
+    }
+    
     private func getButtonText() -> String {
         switch selectedTab {
             case 0:
-                return "Next: Reflection"
+                return "Get started"
             case 1:
                return getButtonTextRecapView()
             case 2:

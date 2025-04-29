@@ -247,9 +247,7 @@ final class DataController: ObservableObject {
             }
         }
     }
-    
-    
-    
+
     //delete all suggestions
     func deleteTopicSuggestions(topicId: UUID) async throws -> Topic? {
         
@@ -672,7 +670,7 @@ extension DataController {
                 sequence.sequenceStatus = SequenceStatusItem.completed.rawValue
             }
             topic.completed = true
-            topic.status = TopicStatusItem.completed.rawValue
+            topic.topicStatus = TopicStatusItem.completed.rawValue
         }
         
         await self.save()
@@ -1037,6 +1035,49 @@ extension DataController {
         return newGoal
     }
     
+    // get goals
+    func fetchAllGoals() async -> [Goal] {
+        let request: NSFetchRequest<Goal> = Goal.fetchRequest()
+        var goals: [Goal] = []
+        await context.perform {
+            
+            do {
+                goals = try self.context.fetch(request)
+            } catch {
+                self.logger.log("Error fetching goals: \(error)")
+            }
+        }
+        
+        return goals
+    }
+    
+    func deleteLastGoal() async {
+        let request = NSFetchRequest<Goal>(entityName: "Goal")
+        
+        // Sort by createdAt, with most recent last
+        let sortDescriptor = NSSortDescriptor(key: "createdAt", ascending: true)
+        request.sortDescriptors = [sortDescriptor]
+        
+        await context.perform {
+            do {
+                let goals = try self.context.fetch(request)
+                
+                // Check if there are any categories
+                if let lastGoal = goals.last {
+                    self.context.delete(lastGoal)
+                    self.logger.log("Latest goal deleted")
+                } else {
+                    self.logger.log("No goals found to delete")
+                }
+                
+            } catch {
+                self.logger.error("Failed to fetch or delete goal from Core Data: \(error.localizedDescription)")
+            }
+        }
+        
+        await self.save()
+    }
+    
     // save selected plan & create sequence
     func saveSelectedPlan(plan: NewPlan, category: Category, goal: Goal) async {
         await context.perform {
@@ -1052,7 +1093,6 @@ extension DataController {
             // create relationships with Category and Goal
             category.addToSequences(newSequence)
             goal.addToSequences(newSequence)
-            
             
             let totalQuests = plan.quests.count
             
@@ -1088,7 +1128,7 @@ extension DataController {
             topic.topicCreatedAt = getCurrentTimeString()
             topic.topicTitle = newTopic.title
             topic.topicStatus = TopicStatusItem.locked.rawValue
-            topic.orderIndex = Int16(newTopic.questType == QuestTypeItem.retro.rawValue ? totalQuests : newTopic.questNumber)
+            topic.orderIndex = Int16(newTopic.questType == QuestTypeItem.retro.rawValue ? totalQuests + 1 : newTopic.questNumber)
             topic.topicEmoji = newTopic.emoji
             topic.topicDefinition = newTopic.objective
             topic.topicQuestType = newTopic.questType
@@ -1109,31 +1149,5 @@ extension DataController {
                 }
             }
         }
-    
-    func deleteLastCategory() async {
-        let request = NSFetchRequest<Category>(entityName: "Category")
-        
-        // Sort by createdAt, with most recent last
-        let sortDescriptor = NSSortDescriptor(key: "createdAt", ascending: true)
-        request.sortDescriptors = [sortDescriptor]
-        
-        await context.perform {
-            do {
-                let categories = try self.context.fetch(request)
-                
-                // Check if there are any categories
-                if let lastCategory = categories.last {
-                    self.context.delete(lastCategory)
-                    self.logger.log("Latest category deleted")
-                } else {
-                    self.logger.log("No categories found to delete")
-                }
-                
-            } catch {
-                self.logger.error("Failed to fetch or delete category from Core Data: \(error.localizedDescription)")
-            }
-        }
-        
-        await self.save()
-    }
+
 }

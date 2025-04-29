@@ -20,13 +20,6 @@ class ViewModelFactoryMain: ObservableObject {
             dataController: dataController
         )
     }
-
-    func makeUnderstandViewModel() -> UnderstandViewModel {
-        return UnderstandViewModel(
-            openAISwiftService: openAISwiftService,
-            dataController: dataController
-        )
-    }
     
     func makeNewCategoryViewModel() -> NewCategoryViewModel {
         return NewCategoryViewModel(

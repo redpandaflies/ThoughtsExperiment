@@ -16,7 +16,7 @@ struct UpdateTopicView: View {
     @State private var selectedTab: Int = 0
     @State private var showWarningSheet: Bool = false
     @State private var selectedQuestion: Int = 0
-    @State private var answersOpen: [String] = [] // open ended answer
+    @State private var answersOpen: [String] = Array(repeating: "", count: 3) // open ended answer
     @State private var singleSelectAnswer: String = "" //single-select answer
     @State private var multiSelectAnswers: [String] = [] //answers user choose for muti-select questions
     @State private var currentQuestionIndex: Int = 0 //for the progress bar
@@ -58,7 +58,7 @@ struct UpdateTopicView: View {
             
             if selectedTab == 1 && showProgressBar {
                 //Header
-                QuestionsProgressBar(
+                QuestionsProgressBar (
                     currentQuestionIndex: $currentQuestionIndex,
                     totalQuestions: topic.topicQuestions.count,
                     showXmark: true,
@@ -85,6 +85,7 @@ struct UpdateTopicView: View {
                 case 0:
                     UpdateTopicIntroView(
                         topicViewModel: topicViewModel,
+                        answersOpen: $answersOpen,
                         topic: topic,
                         sequence: sequence
                     )
@@ -164,7 +165,7 @@ struct UpdateTopicView: View {
                 skipAction: {
                     skipButtonAction()
                 },
-                disableMainButton: showSkipButton(),
+                disableMainButton: disableButton(),
                 buttonColor: .white
             )
         }
@@ -191,7 +192,6 @@ struct UpdateTopicView: View {
             if selectedQuestion < questions.count - 1 {
                 return "Next question"
             } else {
-               
                 return "Complete topic"
             }
         case 2:
@@ -260,6 +260,29 @@ struct UpdateTopicView: View {
         DispatchQueue.global(qos: .background).async {
             Mixpanel.mainInstance().track(event: "Skipped question")
         }
+    }
+    
+    private func disableButton() -> Bool {
+        switch selectedTab {
+            case 1:
+                return showSkipButton()
+            
+            case 3:
+                if topicViewModel.createTopicOverview == .loading {
+                    return true
+                } else {
+//                    if let feedback = topic.review?.reviewSummary {
+//                       return animatedText != feedback
+//                    } else {
+                        return false
+//                    }
+                }
+            
+            default:
+                return false
+            
+        }
+        
     }
     
     private func goToQuestions() {
@@ -396,16 +419,22 @@ struct UpdateTopicView: View {
     
     private func completeTopic() {
         
-        dismiss()
-        
-        Task {
+        if topicViewModel.createTopicOverview == .retry {
+            getRecapAndNextTopicQuestions()
             
-            await dataController.completeTopic(topic: topic)
+        } else {
             
-            DispatchQueue.global(qos: .background).async {
-                Mixpanel.mainInstance().track(event: "Completed section")
+            dismiss()
+            
+            Task {
+                
+                await dataController.completeTopic(topic: topic)
+                
+                DispatchQueue.global(qos: .background).async {
+                    Mixpanel.mainInstance().track(event: "Completed section")
+                }
+                
             }
-            
         }
     }
     
@@ -485,12 +514,13 @@ struct UpdateTopicView: View {
         topicViewModel.createTopicOverview = .loading
         
         //get the next topic
-        let nextTopic = sequence.sequenceTopics.filter { $0.topicId == topic.topicId }
+        let nextTopicIndex = topic.orderIndex + 1
+        let nextTopic = sequence.sequenceTopics.filter { $0.orderIndex == nextTopicIndex }
         
         Task {
             //generate recap
             do {
-                try await topicViewModel.manageRun(selectedAssistant: .topicOverview, topicId: topic.topicId)
+                try await topicViewModel.manageRun(selectedAssistant: .topicOverview, topic: topic)
             } catch {
                 topicViewModel.createTopicOverview = .retry
             }

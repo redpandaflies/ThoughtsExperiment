@@ -23,6 +23,7 @@ struct QuestMapView: View {
     @State private var showNextSequenceView: Bool = false
     @State private var sequenceScrollPosition: Int?
     @State private var currentSequenceIndex: Int = 0 // to manage which sequence is being displayed
+    @State private var selectedSequenceIndex: Int = 0
     
     @Binding var selectedTopic: Topic?
     @Binding var currentTabBar: TabBarType
@@ -31,18 +32,19 @@ struct QuestMapView: View {
     let points: Int
     let backgroundColor: Color
     let goal: Goal
-
+    let frameWidth: CGFloat
+    
     @FetchRequest var sequences: FetchedResults<Sequence>
     
     @AppStorage("currentAppView") var currentAppView: Int = 0
     @AppStorage("selectedTopicId") var selectedTopicId: String = ""
     
     private var currentSequence: Sequence? {
-        sequences.first
+        sequences[selectedSequenceIndex]
     }
     
     private var totalTopics: Int {
-      currentSequence?.sequenceTopics.count ?? 0
+        currentSequence?.sequenceTopics.count ?? 0
     }
     
     var totalCompletedTopics: Int {
@@ -58,11 +60,6 @@ struct QuestMapView: View {
         return completedTopics.count
     }
     
-    let screenWidth = UIScreen.current.bounds.width
-    
-    var frameWidth: CGFloat {
-        return screenWidth - 96
-    }
     
     init(topicViewModel: TopicViewModel,
          selectedTopic: Binding<Topic?>,
@@ -70,7 +67,8 @@ struct QuestMapView: View {
          selectedTabTopic: Binding<TopicPickerItem>,
          points: Int,
          backgroundColor: Color,
-         goal: Goal
+         goal: Goal,
+         frameWidth: CGFloat
     ) {
         
         self.topicViewModel = topicViewModel
@@ -80,6 +78,7 @@ struct QuestMapView: View {
         self.points = points
         self.backgroundColor = backgroundColor
         self.goal = goal
+        self.frameWidth = frameWidth
         
         let request: NSFetchRequest<Sequence> = Sequence.fetchRequest()
         request.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: false)]
@@ -90,51 +89,56 @@ struct QuestMapView: View {
     
     
     var body: some View {
-        VStack (spacing: 15) {
-           
-                getBoxHeader(goalType: goal.goalProblemType)
-                    .padding(.bottom, 10)
-                
-                Text(goal.goalTitle)
-                    .multilineTextAlignment(.center)
-                    .font(.system(size: 20, weight: .medium, design: .serif))
-                    .foregroundStyle(AppColors.textPrimary)
-                    .fixedSize(horizontal: false, vertical: true)
-                
-                Text(goal.goalProblem)
-                    .multilineTextAlignment(.center)
-                    .font(.system(size: 15, weight: .light))
-                    .foregroundStyle(AppColors.textPrimary.opacity(0.8))
-                    .fixedSize(horizontal: false, vertical: true)
-                    .lineSpacing(1.4)
-                
-                // show only the latest sequence
-                if !sequences.isEmpty {
-                    sequenceProgressBar()
-                        .padding(.vertical)
-                    
-                    QuestGridView(
-                        // sheet‐presentation bindings
-                        showUpdateTopicView: $showUpdateTopicView,
-                        showLockedQuestInfoSheet: $showLockedQuestInfoSheet,
-                        showCompletedTopicSheet: $showCompletedTopicSheet,
-                        showTopicExpectationsSheet: $showTopicExpectationsSheet,
-                        showNextSequenceView: $showNextSequenceView,
-                        
-                        // navigation bindings
-                        selectedTopic: $selectedTopic,
-                        currentTabBar: $currentTabBar,
-                        selectedTabTopic: $selectedTabTopic,
-                        
-                        sequence: currentSequence ?? nil,
-                        backgroundColor: backgroundColor,
-                        frameWidth: frameWidth
-                    )
-                }
+        VStack (alignment: .leading, spacing: 15) {
             
-           
+            getBoxHeader(goalType: goal.goalProblemType)
+                .padding(.bottom, 10)
+                .padding(.horizontal)
+            
+            Text(goal.goalTitle)
+                .multilineTextAlignment(.leading)
+                .font(.system(size: 20, weight: .medium, design: .serif))
+                .foregroundStyle(AppColors.textPrimary)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.horizontal)
+            
+            Text(goal.goalResolution)
+                .multilineTextAlignment(.leading)
+                .font(.system(size: 15, weight: .light))
+                .foregroundStyle(AppColors.textPrimary.opacity(0.8))
+                .fixedSize(horizontal: false, vertical: true)
+                .lineSpacing(1.4)
+                .padding(.horizontal)
+            
+            // show only the latest sequence
+            if !sequences.isEmpty {
+                sequenceProgressBar()
+                    .padding(.vertical)
+                    .padding(.horizontal)
+                
+                QuestGridView(
+                    // sheet‐presentation bindings
+                    showUpdateTopicView: $showUpdateTopicView,
+                    showLockedQuestInfoSheet: $showLockedQuestInfoSheet,
+                    showCompletedTopicSheet: $showCompletedTopicSheet,
+                    showTopicExpectationsSheet: $showTopicExpectationsSheet,
+                    showNextSequenceView: $showNextSequenceView,
+                    
+                    // navigation bindings
+                    selectedTopic: $selectedTopic,
+                    currentTabBar: $currentTabBar,
+                    selectedTabTopic: $selectedTabTopic,
+                    
+                    sequence: currentSequence ?? nil,
+                    backgroundColor: backgroundColor,
+                    frameWidth: frameWidth - 32
+                )
+                .frame(width: frameWidth, alignment: .center)
+            }
+            
+            
         }//VStack
-        .padding(.horizontal)
+        
         .padding(.vertical, 20)
         .background {
             RoundedRectangle(cornerRadius: 25)
@@ -143,7 +147,7 @@ struct QuestMapView: View {
                 .shadow(color: .black.opacity(0.05), radius: 15, x: 0, y: 3)
                 .blendMode(.colorDodge)
         }
-        .frame(width: (screenWidth - 32), height: 407)
+        .frame(width: frameWidth, height: 410)
         .onAppear {
             withAnimation(.snappy(duration: 0.2)) {
                 currentTabBar = .home
@@ -151,7 +155,7 @@ struct QuestMapView: View {
             if playHapticEffect != 0 {
                 playHapticEffect = 0
             }
-        
+            
         }
         .fullScreenCover(isPresented: $showUpdateTopicView, onDismiss: {
             showUpdateTopicView = false
@@ -226,20 +230,27 @@ struct QuestMapView: View {
     private func getBoxHeader(goalType: String) -> some View {
         
         HStack {
-            Image(systemName: "ellipsis.circle")
-                .font(.system(size: 23, weight: .light).smallCaps())
-                .opacity(0)
+            
+            HStack (spacing: 3){
+                Image(systemName: GoalTypeSymbol.symbolName(for: goalType, default: ""))
+                    .font(.system(size: 15, weight: .light).smallCaps())
+                    .fontWidth(.condensed)
+                    .foregroundStyle(AppColors.textPrimary.opacity(0.7))
+                
+                Text(goalType)
+                    .font(.system(size: 15, weight: .light).smallCaps())
+                    .fontWidth(.condensed)
+                    .foregroundStyle(AppColors.textPrimary.opacity(0.7))
+                
+            }
             
             Spacer()
             
-            Text(goalType)
-                .font(.system(size: 15, weight: .light).smallCaps())
-                .fontWidth(.condensed)
-                .foregroundStyle(AppColors.textPrimary.opacity(0.7))
-            
-            Spacer()
-            
-            Button {
+            Menu {
+                
+                ForEach(Array(sequences.enumerated()), id: \.element.sequenceId) { index, sequence in
+                    menuButton(text: sequence.sequenceTitle, index: index)
+                }
                 
                 
             } label: {
@@ -252,23 +263,36 @@ struct QuestMapView: View {
         }
     }
     
+    private func menuButton(text: String, index: Int) -> some View {
+        Button {
+            if selectedSequenceIndex != index {
+                selectedSequenceIndex = index
+            }
+        } label: {
+            Label(text, systemImage: selectedSequenceIndex == index ? "checkmark" : "")
+                .font(.system(size: 14))
+        }
+        
+    }
+    
     private func sequenceProgressBar() -> some View {
-        HStack (alignment: .center) {
+        HStack (alignment: .center, spacing: 5) {
             Text("Part \(sequences.count). \(currentSequence?.sequenceTitle ?? "")")
                 .multilineTextAlignment(.leading)
-                .font(.system(size: 15, weight: .light).smallCaps())
+                .font(.system(size: 15, weight: .light))
                 .fontWidth(.condensed)
                 .fixedSize(horizontal: true, vertical: true)
-                .foregroundStyle(AppColors.textPrimary.opacity(0.5))
+                .foregroundStyle(AppColors.textPrimary.opacity(0.7))
             
             ProgressBarThin(
                 totalTopics: totalTopics,
                 totalCompletedTopics: totalCompletedTopics)
+                .frame(height: 15)
         }
+        
     }
     
 }
-
 
 
 extension View {

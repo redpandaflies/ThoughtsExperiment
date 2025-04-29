@@ -32,6 +32,10 @@ struct CarouselView<Item, Content: View>: View {
           ForEach(Array(items.enumerated()), id: \.offset) { index, item in
               content(index, item)
               .id(index)
+              .scrollTransition { content, phase in
+                  content
+                  .opacity(phase.isIdentity ? 1 : 0.3)
+              }
           }
         }
         .scrollTargetLayout()

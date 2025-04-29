@@ -81,7 +81,7 @@ struct NextSequenceWhereToNext: View {
             
         }
         .padding(.horizontal)
-        .padding(.vertical, 20)
+        .padding(.vertical, 30)
         .frame(width: screenWidth * 0.43, height: 240)
         .contentShape(RoundedRectangle(cornerRadius: 20))
         .background {
@@ -104,8 +104,8 @@ struct NextSequenceWhereToNext: View {
         case .light:
             return LinearGradient(
                 gradient: Gradient(colors: [Color.white, AppColors.boxSecondary]),
-                startPoint: .bottom,
-                endPoint: .top
+                startPoint: .top,
+                endPoint: .bottom
             )
 
         case .dark:

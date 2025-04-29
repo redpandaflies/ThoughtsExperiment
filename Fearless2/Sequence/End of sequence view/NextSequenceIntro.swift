@@ -27,17 +27,18 @@ struct NextSequenceIntro: View {
                 .font(.system(size: 25, design: .serif))
                 .foregroundStyle(AppColors.textPrimary)
             
-            Text(goal.goalProblem)
+            Text(goal.goalResolution)
                 .multilineTextAlignment(.leading)
-                .font(.system(size: 16, weight: .light))
+                .font(.system(size: 17, weight: .light))
                 .foregroundStyle(AppColors.textPrimary.opacity(0.7))
-                .padding(.bottom, 15)
+                .lineSpacing(1.4)
+                .padding(.bottom, 18)
             
             ForEach(content.indices, id: \.self) { index in
                getContent(text: content[index])
                    .opacity(currentIndex >= index ? 1 : 0)
                    .animation(.easeIn(duration: 0.25), value: currentIndex)
-           }
+            }
             
             
         }
@@ -68,6 +69,8 @@ struct NextSequenceIntro: View {
                 .foregroundStyle(AppColors.textPrimary)
             
         }
+        .padding(.horizontal)
+        .padding(.bottom, 10)
     }
 }
 

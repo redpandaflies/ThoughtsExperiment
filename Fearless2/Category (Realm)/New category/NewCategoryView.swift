@@ -24,26 +24,11 @@ struct NewCategoryView: View {
     // Array to store all single-select question answers
     @State private var answersSingleSelect: [String] = Array(repeating: "", count: 5)
     // flag for tracking if new category has been saved, and needs to be deleted when user exits this flow early
-    @State private var newCategorySaved: Bool = false
+    @State private var newGoalSaved: Bool = false
     
     @Binding var showNewGoalSheet: Bool
     @Binding var cancelledCreateNewCategory: Bool
-    
-    var categories: FetchedResults<Category>
-    
-    init(
-        newCategoryViewModel: NewCategoryViewModel,
-        showNewGoalSheet: Binding<Bool>,
-        cancelledCreateNewCategory: Binding<Bool>,
-        categories: FetchedResults<Category>
-        
-    ) {
-        _newCategoryViewModel = StateObject(wrappedValue: newCategoryViewModel)
-        self._showNewGoalSheet = showNewGoalSheet
-        self._cancelledCreateNewCategory = cancelledCreateNewCategory
-        self.categories = categories
-    }
-    
+
     var body: some View {
         
         VStack (spacing: 10) {
@@ -70,8 +55,7 @@ struct NewCategoryView: View {
                         questions: $questions,
                         answersOpen: $answersOpen,
                         answersSingleSelect: $answersSingleSelect,
-                        newCategorySaved: $newCategorySaved,
-                        categories: categories
+                        newGoalSaved: $newGoalSaved
                     )
                     .padding(.horizontal)
                 
@@ -102,9 +86,9 @@ struct NewCategoryView: View {
         //dismiss
         cancelledCreateNewCategory = true
         showNewGoalSheet = false
-        if newCategorySaved {
+        if newGoalSaved {
             Task {
-                await dataController.deleteLastCategory()
+                await dataController.deleteLastGoal()
             }
         }
     }

@@ -10,7 +10,11 @@ import SwiftUI
 struct UpdateTopicIntroView: View {
     @ObservedObject var topicViewModel: TopicViewModel
     @State private var selectedTabTopicsList: Int = 0
-   
+    @State private var lastCompleteSectionIndex: Int? = nil
+    @State private var nextTopicIndex: Int? = nil
+    
+    @Binding var answersOpen: [String]
+    
     let topic: Topic
     let sequence: Sequence
     
@@ -22,11 +26,8 @@ struct UpdateTopicIntroView: View {
         return topics.filter { $0.status == TopicStatusItem.completed.rawValue }.count
     }
     
-    var nextTopicIndex: Int {
-        return topicsComplete
-    }
-    
     let frameWidth: CGFloat = 310
+    private let hapticImpact = UIImpactFeedbackGenerator(style: .medium)
     
     var body: some View {
         VStack (alignment: .leading, spacing: 10){
@@ -48,6 +49,10 @@ struct UpdateTopicIntroView: View {
                     .padding(.top, 20)
             case 1:
                 topicsList()
+                    .padding(.horizontal)
+                    .onAppear {
+                        startAnimating()
+                    }
             default:
                 FocusAreaRetryView(action: {
                     getTopicQuestions()
@@ -63,9 +68,11 @@ struct UpdateTopicIntroView: View {
             if topic.topicQuestions.isEmpty && topicViewModel.createTopicQuestions == .ready {
                 // ensures that API has been made and there are questions for this topic
                 getTopicQuestions()
+                
             } else {
                 switch topicViewModel.createTopicQuestions {
                 case .ready:
+                    updateOpenQuestionVariable(count: topic.topicQuestions.count)
                     selectedTabTopicsList = 1
                 case .loading:
                     selectedTabTopicsList = 0
@@ -101,10 +108,21 @@ struct UpdateTopicIntroView: View {
         
         HStack (alignment: .firstTextBaseline, spacing: 15) {
             
-            Image(systemName: getIcon(index: index))
-                .multilineTextAlignment(.leading)
-                .font(.system(size: 19))
-                .foregroundStyle(getColor(index: index))
+            if lastCompleteSectionIndex == index {
+                Image(systemName: getIcon(index: index))
+                    .multilineTextAlignment(.leading)
+                    .font(.system(size: 19))
+                    .foregroundStyle(getColor(index: index))
+                    .transition(
+                        .movingParts.pop(AppColors.textPrimary)
+                    )
+            } else {
+                Image(systemName: getIcon(index: index))
+                    .multilineTextAlignment(.leading)
+                    .font(.system(size: 19))
+                    .foregroundStyle(getColor(index: index))
+                    .contentTransition(.symbolEffect(.replace.offUp.byLayer))
+            }
                
             
             VStack (alignment: .leading, spacing: 5) {
@@ -116,9 +134,9 @@ struct UpdateTopicIntroView: View {
                 if !subtitle.isEmpty {
                     Text(subtitle)
                         .multilineTextAlignment(.leading)
-                        .font(.system(size: 19, weight: .thin))
-                        .fontWidth(.condensed)
+                        .font(.system(size: 17, weight: .light))
                         .foregroundStyle(getColor(index: index))
+                        .fixedSize(horizontal: false, vertical: true)
                 }
             }
             
@@ -129,7 +147,9 @@ struct UpdateTopicIntroView: View {
     
     private func getIcon(index: Int) -> String {
         
-        if index < topicsComplete {
+        if index < topicsComplete - 1 {
+            return "checkmark"
+        } else if lastCompleteSectionIndex == index {
             return "checkmark"
         } else if nextTopicIndex == index {
             return "arrow.forward"
@@ -140,11 +160,15 @@ struct UpdateTopicIntroView: View {
     }
     
     private func getColor(index: Int) -> Color {
-        if nextTopicIndex == index {
-            return AppColors.textPrimary
-        } else {
+        if index < topicsComplete - 1 {
             return AppColors.textPrimary.opacity(0.5)
+        } else if lastCompleteSectionIndex == index {
+            return AppColors.textPrimary.opacity(0.5)
+        } else if nextTopicIndex == index {
+            return AppColors.textPrimary
         }
+        
+        return AppColors.textPrimary.opacity(0.2)
     }
     
     private func getTopicQuestions() {
@@ -160,7 +184,37 @@ struct UpdateTopicIntroView: View {
                 topicViewModel.createTopicQuestions = .retry
             }
             
+            await MainActor.run {
+                updateOpenQuestionVariable(count: topic.topicQuestions.count)
+            }
         }
+    }
+    
+    private func updateOpenQuestionVariable(count: Int) {
+        answersOpen = Array(repeating: "", count: count)
+    }
+    
+    private func startAnimating() {
+        
+        print("Topics complete: \(topicsComplete)")
+        hapticImpact.prepare()
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
+            withAnimation(.snappy(duration: 0.7)) {
+                let currentIndex = topicsComplete - 1
+                hapticImpact.impactOccurred(intensity: 0.5)
+                lastCompleteSectionIndex = currentIndex
+            }
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                withAnimation(.smooth(duration: 0.2)) {
+                    let nextIndex = topicsComplete
+                    hapticImpact.impactOccurred(intensity: 0.7)
+                    nextTopicIndex = nextIndex
+                }
+            }
+        }
+       
     }
     
 }

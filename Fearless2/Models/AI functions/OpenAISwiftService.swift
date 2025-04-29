@@ -281,7 +281,7 @@ extension OpenAISwiftService {
         
         //add goal attributes
         try await context.perform {
-            
+            goal.goalProblemLong = categorySummary.summary
             goal.goalTitle = categorySummary.goal.title
             goal.goalProblem = categorySummary.goal.problem
             goal.goalResolution = categorySummary.goal.resolution
@@ -335,6 +335,11 @@ extension OpenAISwiftService {
                self.loggerOpenAI.error("Couldn't find sequence to update.")
                throw ProcessingError.missingRequiredField("sequence")
            }
+           
+           guard let goal = sequence.goal else {
+               self.loggerOpenAI.error("Couldn't find goal to update.")
+               throw ProcessingError.missingRequiredField("goal")
+           }
         
            //update sequence status
            sequence.status = SequenceStatusItem.completed.rawValue
@@ -347,6 +352,7 @@ extension OpenAISwiftService {
                newSummary.orderIndex = Int16(summary.summaryNumber)
             
                sequence.addToSummaries(newSummary)
+               goal.addToSequenceSummaries(newSummary)
                if let category = sequence.category {
                    category.addToSequenceSummaries(newSummary)
                }
@@ -360,26 +366,17 @@ extension OpenAISwiftService {
     
     
     @MainActor
-    func processTopicOverview(messageText: String, topicId: UUID) async throws {
+    func processTopicOverview(messageText: String, topic: Topic) async throws {
         let arguments = messageText
         let context = self.dataController.container.viewContext
         
-       try await context.perform {
-            // Fetch the topic with the provided topicId
-            let request = NSFetchRequest<Topic>(entityName: "Topic")
-            request.predicate = NSPredicate(format: "id == %@", topicId as CVarArg)
+        // Decode the arguments to get the new section data
+        guard let newReview = self.decodeArguments(arguments: arguments, as: NewTopicOverview.self) else {
+            self.loggerOpenAI.error("Couldn't decode arguments for topic review.")
+            throw ProcessingError.decodingError("topic review")
+        }
 
-   
-            guard let topic = try context.fetch(request).first else {
-                self.loggerCoreData.error("No topic found with topicId: \(topicId)")
-                throw ProcessingError.missingRequiredField("Topic not found")
-            }
-            
-            // Decode the arguments to get the new section data
-            guard let newReview = self.decodeArguments(arguments: arguments, as: NewTopicOverview.self) else {
-                self.loggerOpenAI.error("Couldn't decode arguments for topic review.")
-                throw ProcessingError.decodingError("topic review")
-            }
+       try await context.perform {
 
             let review = TopicReview(context: context)
             review.reviewId = UUID()
@@ -402,13 +399,6 @@ extension OpenAISwiftService {
         let context = self.dataController.container.viewContext
 
         try await context.perform {
-            
-           
-            
-            guard let category = topic.category else {
-                self.loggerOpenAI.log("No category found for topic: \(topic.topicTitle)")
-                throw ProcessingError.missingRequiredField("Related category not found")
-            }
             
             // decode the arguments to get the new section data
             guard let newQuestions = self.decodeArguments(arguments: arguments, as: NewTopicQuestions.self) else {

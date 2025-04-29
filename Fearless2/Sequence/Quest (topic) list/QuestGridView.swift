@@ -27,18 +27,17 @@ struct QuestGridView: View {
     let frameWidth: CGFloat
     
     let columns = [
-        GridItem(.fixed(88), spacing: 0),
-        GridItem(.fixed(88), spacing: 0),
-        GridItem(.fixed(88), spacing: 0),
-        GridItem(.fixed(88), spacing: 0)
+        GridItem(.fixed(80), spacing: 0),
+        GridItem(.fixed(80), spacing: 0),
+        GridItem(.fixed(80), spacing: 0),
+        GridItem(.fixed(80), spacing: 0)
     ]
     
     @FetchRequest var topics: FetchedResults<Topic>
     
     private var nextQuest: Int {
-       let activeCount = topics.filter { $0.topicStatus == TopicStatusItem.active.rawValue }.count
        let nextIndex = topics.first(where: { $0.topicStatus == TopicStatusItem.locked.rawValue })?.orderIndex ?? -1
-       return activeCount == 0 ? Int(nextIndex) : -1
+       return Int(nextIndex)
      }
     
     init(
@@ -84,7 +83,7 @@ struct QuestGridView: View {
     }
     
     var body: some View {
-        LazyVGrid(columns: columns, spacing: 25) {
+        LazyVGrid(columns: columns, spacing: 20) {
             if !topics.isEmpty {
                 ForEach(Array(topics), id: \.topicId) { topic in
                     QuestMapCircle(

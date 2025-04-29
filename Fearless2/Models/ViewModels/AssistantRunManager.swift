@@ -130,22 +130,20 @@ final class AssistantRunManager {
                 throw ContextError.missingRequiredField("Goal")
             }
             
-            guard let gatheredContext = await ContextGatherer.gatherContext2(dataController: dataController, loggerCoreData: loggerCoreData, selectedAssistant: selectedAssistant, category: currentCategory, goal: currentGoal, sequence: sequence) else {
-                loggerCoreData.error("Failed to get context ")
+            guard let gatheredContext = await ContextGatherer.gatherContext(dataController: dataController, loggerCoreData: loggerCoreData, selectedAssistant: selectedAssistant, category: currentCategory, goal: currentGoal, sequence: sequence) else {
+                loggerCoreData.error("Failed to get context")
                 throw ContextError.noContextFound("Context")
             }
             return gatheredContext
         
-        case .topic:
-            
-           
+        case .topic, .topicOverview:
             guard let currentTopic = topic else {
                 loggerCoreData.error("Failed to get new topic")
                 throw ContextError.missingRequiredField("Topic")
             }
          
             
-            guard let gatheredContext = await ContextGatherer.gatherContextNewTopic(dataController: dataController, loggerCoreData: loggerCoreData, topic: currentTopic) else {
+            guard let gatheredContext = await ContextGatherer.gatherContextTopic(dataController: dataController, loggerCoreData: loggerCoreData, topic: currentTopic) else {
                 loggerCoreData.error("Failed to get context ")
                 throw ContextError.noContextFound("Context")
             }
@@ -153,24 +151,7 @@ final class AssistantRunManager {
             return gatheredContext
         
         default:
-            guard let currentTopic = topicId else {
-                loggerCoreData.error("Failed to get new topic ID")
-                throw ContextError.missingRequiredField("Topic ID")
-            }
-            
-            guard let context = await ContextGatherer.gatherContextGeneral(
-                        dataController: dataController,
-                        loggerCoreData: loggerCoreData,
-                        selectedAssistant: selectedAssistant,
-                        topicId: currentTopic,
-                        focusArea: focusArea
-                    ) else {
-                    loggerCoreData.error("Failed to gather context for assistant: \(selectedAssistant.rawValue)")
-                        throw ContextError.noContextFound("\(selectedAssistant)")
-                    }
-            
-            
-            return context
+            return ""
             
         }
         

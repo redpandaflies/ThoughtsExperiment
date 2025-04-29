@@ -34,9 +34,16 @@ extension Goal {
         set { completedAt = newValue }
     }
     
+    //short description
     var goalProblem: String {
         get { problem ?? "" }
         set { problem = newValue }
+    }
+    
+    //reflection in new category flow
+    var goalProblemLong: String {
+        get { problemLong ?? "" }
+        set { problemLong = newValue }
     }
     
     var goalResolution: String {
@@ -46,6 +53,11 @@ extension Goal {
     
     var goalSequences: [Sequence] {
         let result = sequences?.allObjects as? [Sequence] ?? []
+        return result
+    }
+    
+    var goalSequenceSummaries: [SequenceSummary] {
+        let result = sequenceSummaries?.allObjects as? [SequenceSummary] ?? []
         return result
     }
     

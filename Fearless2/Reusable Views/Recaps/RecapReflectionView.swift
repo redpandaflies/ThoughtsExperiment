@@ -12,7 +12,7 @@ struct RecapReflectionView: View {
     @State private var animationValue: Bool = false
     @State private var animator: TextAnimator?
     @State private var startedAnimation: Bool = false
-    @State private var recapStatus: Int = 0 //manage the UI changes when recap is ready
+    @State private var recapSelectedTab: Int = 0 //manage the UI changes when recap is ready
     @Binding var animatedText: String
     
     let feedback: String
@@ -32,9 +32,10 @@ struct RecapReflectionView: View {
     var body: some View {
         
         VStack (alignment: .leading) {
-            switch recapStatus {
+            switch recapSelectedTab {
                 case 0:
-                LoadingAnimationEllipsis(animationValue: $animationValue)
+                    LoadingAnimationEllipsis(animationValue: $animationValue)
+                    .padding(.top, 5)
                 
                 case 1:
                     recapText()
@@ -47,63 +48,64 @@ struct RecapReflectionView: View {
             
         }//VStack
         .onAppear {
-            if animator == nil {
-                animator = TextAnimator(text: feedback, animatedText: $animatedText, speed: 0.04)
-            }
-            
-            if let focusArea = focusArea {
-                manageFocusAreaRecapView(focusArea: focusArea)
-            }
+//            if animator == nil {
+//                animator = TextAnimator(text: feedback, animatedText: $animatedText, speed: 0.04)
+//            }
             
             if let topic = topic {
                 manageTopicRecapView(topic: topic)
             }
             
         }
-        .onChange(of: recapStatus) {
-            if recapStatus == 1 && !startedAnimation {
-                print("recap ready, starting typewriter animation")
-                if animator == nil {
-                    animator = TextAnimator(text: feedback, animatedText: $animatedText, speed: 0.02)
-                } else {
-                    animator?.updateText(feedback)
-                }
-                animator?.animate()
-            }
-        }
-        .onChange(of: topicViewModel.createFocusAreaSummary) {
-            
-            switch topicViewModel.createFocusAreaSummary {
-                case .ready:
-                    animationValue = false
-                    withAnimation (.snappy(duration: 0.2)) {
-                        recapStatus = 1
-                    }
-                case .retry:
-                    withAnimation (.snappy(duration: 0.2)) {
-                        recapStatus = 2
-                    }
-                default:
-                withAnimation (.snappy(duration: 0.2)) {
-                    recapStatus = 0
+        .onChange(of: recapSelectedTab) {
+//            if recapStatus == 1 && !startedAnimation {
+//                print("recap ready, starting typewriter animation")
+//                if animator == nil {
+//                    animator = TextAnimator(text: feedback, animatedText: $animatedText, speed: 0.02)
+//                } else {
+//                    animator?.updateText(feedback)
+//                }
+//                animator?.animate()
+//            }
+            if recapSelectedTab == 1 {
+                if let topic = topic {
+                    manageTopicRecapView(topic: topic)
                 }
             }
         }
+//        .onChange(of: topicViewModel.createFocusAreaSummary) {
+//            
+//            switch topicViewModel.createFocusAreaSummary {
+//                case .ready:
+//                    animationValue = false
+//                    withAnimation (.snappy(duration: 0.2)) {
+//                        recapStatus = 1
+//                    }
+//                case .retry:
+//                    withAnimation (.snappy(duration: 0.2)) {
+//                        recapStatus = 2
+//                    }
+//                default:
+//                withAnimation (.snappy(duration: 0.2)) {
+//                    recapStatus = 0
+//                }
+//            }
+//        }
         .onChange(of: topicViewModel.createTopicOverview) {
             
             switch topicViewModel.createTopicOverview {
                 case .ready:
                     animationValue = false
                     withAnimation (.snappy(duration: 0.2)) {
-                        recapStatus = 1
+                        recapSelectedTab = 1
                     }
                 case .retry:
                     withAnimation (.snappy(duration: 0.2)) {
-                        recapStatus = 2
+                        recapSelectedTab = 2
                     }
                 default:
                 withAnimation (.snappy(duration: 0.2)) {
-                    recapStatus = 0
+                    recapSelectedTab = 0
                 }
             }
         }
@@ -118,41 +120,41 @@ struct RecapReflectionView: View {
         
     }
 
-    private func manageFocusAreaRecapView(focusArea: FocusArea) {
-        switch  topicViewModel.createFocusAreaSummary  {
-            case .ready:
-                if focusArea.focusAreaStatus == FocusAreaStatusItem.completed.rawValue {
-                    animatedText = feedback //no animation if use has already seen the feedback once
-                    startedAnimation = true //prevent triggering animation when recapReady is set to true
-                    recapStatus = 1
-                } else {
-                    startedAnimation = true
-                    recapStatus = 1
-                    animator?.animate()
-                }
-            case .loading:
-                recapStatus = 0
-            case .retry:
-                recapStatus = 2
-        }
-    }
+//    private func manageFocusAreaRecapView(focusArea: FocusArea) {
+//        switch  topicViewModel.createFocusAreaSummary  {
+//            case .ready:
+//                if focusArea.focusAreaStatus == FocusAreaStatusItem.completed.rawValue {
+//                    animatedText = feedback //no animation if use has already seen the feedback once
+//                    startedAnimation = true //prevent triggering animation when recapReady is set to true
+//                    recapStatus = 1
+//                } else {
+//                    startedAnimation = true
+//                    recapStatus = 1
+//                    animator?.animate()
+//                }
+//            case .loading:
+//                recapStatus = 0
+//            case .retry:
+//                recapStatus = 2
+//        }
+//    }
     
     private func manageTopicRecapView(topic: Topic) {
         switch  topicViewModel.createTopicOverview  {
             case .ready:
-                if topic.topicStatus == TopicStatusItem.completed.rawValue {
+//                if topic.topicStatus == TopicStatusItem.completed.rawValue {
                     animatedText = feedback //no animation if use has already seen the feedback once
                     startedAnimation = true //prevent triggering animation when recapReady is set to true
-                    recapStatus = 1
-                } else {
-                    startedAnimation = true
-                    recapStatus = 1
-                    animator?.animate()
-                }
+                    recapSelectedTab = 1
+//                } else {
+//                    startedAnimation = true
+//                    recapStatus = 1
+//                    animator?.animate()
+//                }
             case .loading:
-                recapStatus = 0
+                recapSelectedTab = 0
             case .retry:
-                recapStatus = 2
+                recapSelectedTab = 2
         }
     }
 

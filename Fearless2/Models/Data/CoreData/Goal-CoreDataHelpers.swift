@@ -34,6 +34,11 @@ extension Goal {
         set { completedAt = newValue }
     }
     
+    var goalStatus: String {
+        get { status ?? "" }
+        set { status = newValue }
+    }
+    
     //short description
     var goalProblem: String {
         get { problem ?? "" }

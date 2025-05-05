@@ -15,6 +15,7 @@ struct QuestGridView: View {
     @Binding var showLockedQuestInfoSheet: Bool
     @Binding var showCompletedTopicSheet: Bool
     @Binding var showTopicExpectationsSheet: Bool
+    @Binding var showTopicBreakView: Bool
     @Binding var showNextSequenceView: Bool
 
     // navigation
@@ -45,6 +46,7 @@ struct QuestGridView: View {
        showLockedQuestInfoSheet: Binding<Bool>,
        showCompletedTopicSheet: Binding<Bool>,
        showTopicExpectationsSheet: Binding<Bool>,
+       showTopicBreakView: Binding<Bool>,
        showNextSequenceView: Binding<Bool>,
         
        selectedTopic: Binding<Topic?>,
@@ -60,6 +62,7 @@ struct QuestGridView: View {
        self._showLockedQuestInfoSheet = showLockedQuestInfoSheet
        self._showCompletedTopicSheet = showCompletedTopicSheet
        self._showTopicExpectationsSheet = showTopicExpectationsSheet
+       self._showTopicBreakView = showTopicBreakView
        self._showNextSequenceView = showNextSequenceView
 
        self._selectedTopic = selectedTopic
@@ -102,52 +105,78 @@ struct QuestGridView: View {
     }
     
     private func onQuestTap(topic: Topic) {
-        //play haptic
+        // Play haptic
         playHapticEffect += 1
-        
-        let questType = QuestTypeItem(rawValue: topic.topicQuestType) ?? .guided
-        let questStatus = TopicStatusItem.init(rawValue: topic.topicStatus) ?? .locked
-        
-        if questType == .guided || questType == .context {
-            switch questStatus {
 
+        let questType = QuestTypeItem(rawValue: topic.topicQuestType) ?? .guided
+
+        switch questType {
+       
+            
+        case .expectations:
+            selectedTopic = topic
+            showTopicExpectationsSheet = true
+        
+        case .break1:
+            break1Action(for: topic)
+            
+        case .retro:
+            selectedTopic = topic
+            showNextSequenceView = true
+            
+        default:
+            handleDefaultQuestTap(for: topic)
+        }
+    }
+
+    private func handleDefaultQuestTap(for topic: Topic) {
+        let questStatus = TopicStatusItem(rawValue: topic.topicStatus) ?? .locked
+
+        switch questStatus {
+        case .locked:
+            if nextQuest == topic.orderIndex {
+                getTopicDefault(topic: topic) // start create topic flow
+            } else {
+                showLockedQuestInfoSheet = true
+            }
+
+        default:
+            selectedTopic = topic
+            showCompletedTopicSheet = true
+        }
+    }
+    
+    private func break1Action(for topic: Topic) {
+        let questStatus = TopicStatusItem(rawValue: topic.topicStatus) ?? .locked
+        
+        switch questStatus {
+       
             case .locked:
                 if nextQuest == topic.orderIndex {
-                    // start create topic flow
-                    getTopic(topic: topic)
+                    getTopicBreak(topic: topic) // start create topic flow
                 } else {
-                    // show sheet for locked quests
                     showLockedQuestInfoSheet = true
                 }
                 
             default:
-//                //set selected topic to current topic
-                selectedTopic = topic
-                
-//                //open sheet
-                showCompletedTopicSheet = true
-                
-                //navigate to topic detail view (for testing)
-//                goToTopicDetailView(topic: topic)
-            }
+               selectedTopic = topic
             
-        } else if questType == .expectations {
-            //set selected topic to current topic
-            selectedTopic = topic
-            //open sheet for discovering new category/realm
-            showTopicExpectationsSheet = true
-             
-        } else if questType == .retro {
-            selectedTopic = topic
-            showNextSequenceView = true
         }
+        
         
     }
     
-    private func getTopic(topic: Topic) {
+    private func getTopicDefault(topic: Topic) {
         //set selected topic ID so that delete topic works
         selectedTopic = topic
         
         showUpdateTopicView = true
+    }
+    
+    private func getTopicBreak(topic: Topic) {
+        //set selected topic ID so that delete topic works
+        selectedTopic = topic
+        
+        showTopicBreakView = true
     }
 }

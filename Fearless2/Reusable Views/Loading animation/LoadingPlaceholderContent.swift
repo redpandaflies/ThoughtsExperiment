@@ -74,7 +74,7 @@ struct LoadingPlaceholderContent: View {
         case .topicFragment:
             return "Restoring fragment"
         case .newTopic:
-            return "Loading topic"
+            return "Loading content"
         case .recap:
             return "Getting reflections"
         }

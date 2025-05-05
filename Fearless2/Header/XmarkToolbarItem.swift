@@ -8,11 +8,11 @@
 import SwiftUI
 
 struct XmarkToolbarItem: View {
-    @Environment(\.dismiss) var dismiss
+    let action: () -> Void
     
     var body: some View {
         Button {
-            dismiss()
+            action()
         } label: {
             Image(systemName: "xmark.circle.fill")
                 .font(.system(size: 20))
@@ -21,6 +21,4 @@ struct XmarkToolbarItem: View {
     }
 }
 
-#Preview {
-    XmarkToolbarItem()
-}
+

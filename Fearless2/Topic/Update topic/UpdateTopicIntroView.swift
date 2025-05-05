@@ -17,6 +17,7 @@ struct UpdateTopicIntroView: View {
     
     let topic: Topic
     let sequence: Sequence
+    let questions: FetchedResults<Question>
     
     var topics: [Topic] {
         return sequence.sequenceTopics.sorted { $0.orderIndex < $1.orderIndex }
@@ -45,7 +46,7 @@ struct UpdateTopicIntroView: View {
             switch selectedTabTopicsList {
             case 0:
                 LoadingPlaceholderContent(contentType: .newTopic)
-                    .frame(width: frameWidth)
+                    .frame(maxWidth: .infinity, alignment: .center)
                     .padding(.top, 20)
             case 1:
                 topicsList()
@@ -72,7 +73,7 @@ struct UpdateTopicIntroView: View {
             } else {
                 switch topicViewModel.createTopicQuestions {
                 case .ready:
-                    updateOpenQuestionVariable(count: topic.topicQuestions.count)
+                    updateQuestionVariables(count: topic.topicQuestions.count)
                     selectedTabTopicsList = 1
                 case .loading:
                     selectedTabTopicsList = 0
@@ -185,13 +186,15 @@ struct UpdateTopicIntroView: View {
             }
             
             await MainActor.run {
-                updateOpenQuestionVariable(count: topic.topicQuestions.count)
+                updateQuestionVariables(count: topic.topicQuestions.count)
             }
         }
     }
     
-    private func updateOpenQuestionVariable(count: Int) {
+    private func updateQuestionVariables(count: Int) {
         answersOpen = Array(repeating: "", count: count)
+        
+        print("updated answer variables: \(count)")
     }
     
     private func startAnimating() {

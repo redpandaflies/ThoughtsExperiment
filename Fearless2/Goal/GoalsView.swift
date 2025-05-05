@@ -5,6 +5,8 @@
 //  Created by Yue Deng-Wu on 4/22/25.
 //
 import CoreData
+import Mixpanel
+import Pow
 import SwiftUI
 
 struct GoalsView: View {
@@ -16,6 +18,8 @@ struct GoalsView: View {
     @State private var goalScrollPosition: Int?
     @State private var showNewGoalSheet: Bool = false
     @State private var cancelledCreateNewCategory: Bool = false //prevents scroll if user exits create new category flow
+    @State private var showLaurelInfoSheet: Bool = false
+    @State private var animatedGoalIDs: Set<UUID> = []
     
     @Binding var selectedTopic: Topic?
     @Binding var currentTabBar: TabBarType
@@ -30,7 +34,9 @@ struct GoalsView: View {
     @FetchRequest(
         sortDescriptors: [
             NSSortDescriptor(key: "createdAt", ascending: true)
-        ]
+        ],
+        predicate: NSPredicate(format: "status == %@", GoalStatusItem.active.rawValue),
+        animation: .default
     ) var goals: FetchedResults<Goal>
     
     @FetchRequest(
@@ -72,40 +78,48 @@ struct GoalsView: View {
     var body: some View {
         NavigationStack {
             
-            
             VStack (spacing: 15){
                 if !goals.isEmpty {
-          
+                    
                     Image(headerImageName)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .frame(height: 160)
                         .blendMode(.screen)
                     
-                    
                     ScrollView (.horizontal) {
                         HStack (spacing: 15) {
                             ForEach(Array(goals.enumerated()), id: \.element.goalId) { index, goal in
-                                // MARK: - Quests map 
-                                QuestMapView(
-                                    topicViewModel: topicViewModel,
-                                    selectedTopic: $selectedTopic,
-                                    currentTabBar: $currentTabBar,
-                                    selectedTabTopic: $selectedTabTopic,
-                                    points: currentPoints,
-                                    backgroundColor: getCategoryBackground(goal: goal),
-                                    goal: goal,
-                                    frameWidth: frameWidth
-                                )
+                                // MARK: - Quests map
+                                if animatedGoalIDs.contains(goal.goalId) {
+                                
+                                    QuestMapView(
+                                        topicViewModel: topicViewModel,
+                                        selectedTopic: $selectedTopic,
+                                        currentTabBar: $currentTabBar,
+                                        selectedTabTopic: $selectedTabTopic,
+                                        animatedGoalIDs: $animatedGoalIDs,
+                                        goal: goal,
+                                        points: currentPoints,
+                                        backgroundColor: getCategoryBackground(goal: goal),
+                                        frameWidth: frameWidth
+                                    )
                                     .id(index)
-                                    .scrollTransition { content, phase in
-                                        content
-                                        .opacity(phase.isIdentity ? 1 : 0.3)
-                                    }
+//                                        .scrollTransition { content, phase in
+//                                            content
+//                                                .opacity(phase.isIdentity ? 1 : 0.3)
+//                                        }
+                                    .transition( .movingParts.poof)
+                                }
                                 
                             }//ForEach
                         }//HStack
                         .scrollTargetLayout()
+                        .onAppear {
+                            if animatedGoalIDs.isEmpty {
+                                animatedGoalIDs = Set(goals.map(\.goalId))
+                            }
+                        }
                     }//ScrollView
                     .scrollPosition(id: $goalScrollPosition, anchor: .center)
                     .scrollClipDisabled(true)
@@ -123,6 +137,9 @@ struct GoalsView: View {
             }//VStack
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .ignoresSafeArea(.keyboard)
+            .background {
+                BackgroundPrimary(backgroundColor: getCategoryBackground(goal: displayedGoal))
+            }
             .overlay {
                 addGoalButton(buttonAction: {
                     showNewGoalSheet = true
@@ -133,14 +150,35 @@ struct GoalsView: View {
             }
             .onChange(of: dataController.deletedAllData) {
                 print("Number of goals: \(goals.count)")
-//                if dataController.deletedAllData {
-//                    selectedTopic = nil
-//                    goalScrollPosition = nil
+                //                if dataController.deletedAllData {
+                //                    selectedTopic = nil
+                //                    goalScrollPosition = nil
+                //                }
+            }
+//            .onChange(of:  goals.map(\.goalId)) { oldValue, newValue in
+//                let newSet = Set(newValue)
+//                let removed = animatedGoalIDs.subtracting(newSet)  // IDs to animate‐away
+//                let added = newSet.subtracting(animatedGoalIDs)  // IDs to bring in
+//
+//                // Animate removals
+//                withAnimation {
+//                    animatedGoalIDs.subtract(removed)
 //                }
+//
+//                // Immediately add any new ones
+//                animatedGoalIDs.formUnion(added)
+//                
+//            }
+            .onChange(of: showNewGoalSheet) {
+                if !cancelledCreateNewCategory && goals.count > 1 {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        
+                        goalScrollPosition = goals.count - 1
+                   
+                    }
+                }
             }
-            .background {
-                BackgroundPrimary(backgroundColor: getCategoryBackground(goal: displayedGoal))
-            }
+            
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     SettingsToolbarItem(action: {
@@ -148,6 +186,20 @@ struct GoalsView: View {
                     })
                    
                 }
+                
+                ToolbarItem(placement: .topBarTrailing) {
+                       Button {
+                           //tbd
+                           showLaurelInfoSheet = true
+
+                           DispatchQueue.global(qos: .background).async {
+                               Mixpanel.mainInstance().track(event: "Tapped laurel counter")
+                           }
+
+                       } label: {
+                           LaurelItem(size: 15, points: "\(Int(points.first?.total ?? 0))")
+                       }
+                   }
                 
             }
             .sheet(isPresented: $showSettingsView, onDismiss: {
@@ -158,7 +210,6 @@ struct GoalsView: View {
                     .presentationBackground {
                         Color.clear
                             .background(.regularMaterial)
-                            .environment(\.colorScheme, .dark )
                     }
             })
             .fullScreenCover(isPresented: $showNewGoalSheet, onDismiss: {
@@ -170,8 +221,22 @@ struct GoalsView: View {
                     cancelledCreateNewCategory: $cancelledCreateNewCategory
                 )
             }
+            .sheet(isPresented: $showLaurelInfoSheet, onDismiss: {
+                   showLaurelInfoSheet = false
+               }) {
+
+                   InfoPrimaryView(
+                    backgroundColor: getCategoryBackground(goal: displayedGoal),
+                       useIcon: false,
+                       titleText: "You earn laurels by exploring paths and completing quests.",
+                       descriptionText: "You’ll be able to use them to unlock new abilities.",
+                       useRectangleButton: false,
+                       buttonAction: {}
+                   )
+                   .presentationDetents([.fraction(0.65)])
+                   .presentationCornerRadius(30)
+               }
         }
-        .environment(\.colorScheme, .dark)
         .tint(AppColors.textPrimary)
         
        

@@ -4,34 +4,53 @@
 //
 //  Created by Yue Deng-Wu on 3/30/25.
 //
-
+import Pow
 import SwiftUI
 
+enum DefaultAnimationState: Hashable {
+    case animation(Int)
+}
+
 struct TestRectangle: View {
-    let topic: Topic
+    @State private var animationSet: [Int] = [0, 1, 2]
+    
+    let texts = ["Hello", "Bye", "Oh no!"]
     
     var body: some View {
         
-        VStack {
-            RoundedRectangle(cornerRadius: 15)
-                .foregroundStyle(
-                    AppColors.boxGrey3.opacity(0.25)
-                        .blendMode(.multiply)
-                        .shadow(.inner(color: .black.opacity(0.7), radius: 5, x: 0, y: 2))
-                        .shadow(.drop(color: .white.opacity(0.2), radius: 0, x: 0, y: 1))
-                )
-            //            .shadow(color: .white.opacity(0.12), radius: 0, x: 0, y: 1)
-//                .blendMode(.multiply)
-                .frame(width: 300, height: 300)
+        
+        ScrollView {
+            VStack {
+                ForEach(Array(texts.enumerated()), id: \.offset) { index, text in
+                    if animationSet.contains(index) {
+                        HelloView(text: text)
+                            .transition(.movingParts.poof)
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                withAnimation {
+                                    animationSet.removeAll { $0 == index }
+                                }
+                            }
+                    }
+                }
+            }
         }
-        .frame(width: 300, height: 300)
-        .padding(30)
-        .background(
-            AppColors.backgroundCareer
-        )
+       
+   
+    }
+    
+    private func HelloView(text: String) -> some View {
+        VStack {
+        Text(text)
+        }
+        .frame(width: 200, height: 200)
+        .background {
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.blue)
+        }
     }
 }
 
-//#Preview {
-//    TestRectangle()
-//}
+#Preview {
+    TestRectangle()
+}

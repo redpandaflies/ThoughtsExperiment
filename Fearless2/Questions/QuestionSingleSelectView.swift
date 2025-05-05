@@ -208,6 +208,10 @@ struct SingleSelectQuestionBubble: View {
                             editableOption = option
                         }
                     }
+                    .onChange(of: items) {
+                        // when there are two multi select questions in a row, ensures that custom answer of a question isn't displayed for the question after/before it
+                        setupTextfield()
+                    }
                     .onChange(of: isFocused) {
                         if isFocused {
                             withAnimation(.snappy(duration: 0.2)) {
@@ -253,12 +257,21 @@ struct SingleSelectQuestionBubble: View {
         .animation(.smooth(duration: 0.2), value: isFocused)
     }
     
+    private func setupTextfield() {
+        if CustomOptionType.isCustomOption(option) {
+            editableOption = ""
+            showPlusSign = true
+        } else {
+            editableOption = option
+        }
+    }
+    
     private func createCustomItems() {
         var newOptions: [String] = items
         //remove the last item, which should be either something else/other
         newOptions.removeLast()
         newOptions.append(editableOption)
-        //set custom items equal to new options. custom items will be saved to coredata
+        //set custom items equal to new options. custom items will be saved to CoreData
         customItems = newOptions
         
     }

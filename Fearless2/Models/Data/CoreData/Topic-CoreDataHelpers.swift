@@ -29,6 +29,12 @@ extension Topic {
         set { questType = newValue }
     }
     
+    var topicBreakType: String {
+        get { breakType ?? "" }
+        set { breakType = newValue }
+    }
+    
+    
     var topicEmoji: String {
         get { emoji ?? "" }
         set { emoji = newValue }
@@ -82,6 +88,11 @@ extension Topic {
     
     var topicExpectations: [TopicExpectation] {
         let result = expectations?.allObjects as? [TopicExpectation] ?? []
+        return result
+    }
+    
+    var topicBreaks: [TopicBreak] {
+        let result = breaks?.allObjects as? [TopicBreak] ?? []
         return result
     }
     

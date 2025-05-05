@@ -46,7 +46,7 @@ extension Realm {
         Realm(
             orderIndex: 0,
             icon: "realm11",
-            name: "Peak of Ambition",
+            name: "Work & Career",
             lifeArea: "Career",
             undiscoveredDescription: "Where the air is thin, and something inside you keeps reaching higher.",
             discoveredDescription: "Explore what truly drives you and examine the values behind your pursuit.",
@@ -58,7 +58,7 @@ extension Realm {
         Realm(
             orderIndex: 1,
             icon: "realm22",
-            name: "Nest of Belonging",
+            name: "Life & Relationships",
             lifeArea: "Relationships",
             undiscoveredDescription: "A quiet place that feels warm, even before you step inside.",
             discoveredDescription: "Reflect on the relationships that shape you and what it means to feel connected.",
@@ -69,51 +69,15 @@ extension Realm {
         ),
         Realm(
             orderIndex: 2,
-            icon: "realm33",
-            name: "Chamber of Fortune",
-            lifeArea: "Money",
+            icon: "realm44",
+            name: "A Mix of Both",
+            lifeArea: "All",
             undiscoveredDescription: "Echoes of value linger here — some inherited, some earned.",
             discoveredDescription: "Understand how you think about money and what it means to feel secure.",
-            background: AppColors.backgroundFinances,
-            gradient1: AppColors.financesGradient1,
-            gradient2: AppColors.financesGradient2,
-            category: .finance
-        ),
-        Realm(
-            orderIndex: 3,
-            icon: "realm44",
-            name: "Garden of Well-Being",
-            lifeArea: "Wellness",
-            undiscoveredDescription: "Still and alive at once, with rhythms you've felt but never named.",
-            discoveredDescription: "Look at how you care for yourself and what your habits reveal about your needs.",
             background: AppColors.backgroundWellness,
             gradient1: AppColors.wellnessGradient1,
             gradient2: AppColors.wellnessGradient2,
-            category: .wellness
-        ),
-        Realm(
-            orderIndex: 4,
-            icon: "realm55",
-            name: "Attic of Fulfillment",
-            lifeArea: "Passion",
-            undiscoveredDescription: "Dust floats in the light, and something meaningful rests quietly in the corner.",
-            discoveredDescription: "Revisit what excites you and uncover what brings you creative joy.",
-            background: AppColors.backgroundPassion,
-            gradient1: AppColors.passionsGradient1,
-            gradient2: AppColors.passionsGradient2,
-            category: .passion
-        ),
-        Realm(
-            orderIndex: 5,
-            icon: "realm66",
-            name: "Room of Mirrors",
-            lifeArea: "Identity and purpose",
-            undiscoveredDescription: "You step inside, and everything reflects — some of it familiar, some of it not.",
-            discoveredDescription: "Explore how you see yourself and what shapes your sense of identity.",
-            background: AppColors.backgroundPurpose,
-            gradient1: Color.white,
-            gradient2: Color.white,
-            category: .purpose
+            category: .mixed
         )
     ]
 }
@@ -157,8 +121,8 @@ extension Realm {
         return ""
     }
     
-    static func getRealm(forLifeArea lifeArea: String) -> Realm? {
-        if let realm = realmsData.first(where: { $0.lifeArea == lifeArea }) {
+    static func getRealm(forName name: String) -> Realm? {
+        if let realm = realmsData.first(where: { $0.name == name }) {
             return realm
         }
         return nil

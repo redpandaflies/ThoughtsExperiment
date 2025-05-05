@@ -394,6 +394,34 @@ extension OpenAISwiftService {
     }
     
     @MainActor
+    func processTopicBreak(messageText: String, topic: Topic) async throws {
+        let arguments = messageText
+        let context = self.dataController.container.viewContext
+        
+        // Decode the arguments to get the new section data
+        guard let newBreak = self.decodeArguments(arguments: arguments, as: NewTopicBreak.self) else {
+            self.loggerOpenAI.error("Couldn't decode arguments for topic break.")
+            throw ProcessingError.decodingError("topic break")
+        }
+
+       try await context.perform {
+            topic.topicBreakType = newBreak.breakType
+            
+           for card in newBreak.cards {
+               let topicBreak = TopicBreak(context: context)
+               topicBreak.breakId = UUID()
+               topicBreak.breakContent = card.cardContent
+               topicBreak.orderIndex = Int16(card.cardNumber)
+               topic.addToBreaks(topicBreak)
+               
+           }
+            // Save to coredata
+           try self.saveCoreDataChanges(context: context, errorDescription: "new topic break")
+            
+        }
+    }
+    
+    @MainActor
     func processNewTopicQuestions(messageText: String, topic: Topic) async throws {
         let arguments = messageText
         let context = self.dataController.container.viewContext
@@ -803,6 +831,28 @@ struct Option: Codable, Hashable {
     let text: String
 }
 
+// MARK: Create topic break
+struct NewTopicBreak: Codable, Hashable {
+    let breakType: String
+    let cards: [NewBreakCard]
+    
+    enum CodingKeys: String, CodingKey {
+        case breakType = "break_type"
+        case cards
+    }
+}
+
+struct NewBreakCard: Codable, Hashable {
+    let cardNumber: Int
+    let cardContent: String
+
+    enum CodingKeys: String, CodingKey {
+        case cardNumber = "card_number"
+        case cardContent = "card_content"
+    }
+}
+
+// MARK: - Not in use
 //focus area summary
 struct NewFocusAreaSummary: Codable, Hashable {
     let summary: String

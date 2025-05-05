@@ -24,8 +24,6 @@ struct AppViewsManager: View {
     var body: some View {
         Group {
             switch currentAppView {
-            case 0:
-                OnboardingMainView()
             default:
 //                if !categories.isEmpty {
                     MainAppManager(topicViewModel: viewModelFactoryMain.makeTopicViewModel())
@@ -36,7 +34,6 @@ struct AppViewsManager: View {
 //                }
             }
         }
-        .environment(\.colorScheme, .dark)
         .onAppear {
             if currentAppView == 2 {
                 withAnimation(.smooth) {

@@ -230,7 +230,7 @@ extension ContextGatherer {
         """
         
         let goalQuestions = goal.goalQuestions
-            .filter { $0.categoryStarter == true }
+            .filter { $0.goalStarter == true }
             .sorted { $0.questionCreatedAt < $1.questionCreatedAt }
         
         context += """

@@ -77,7 +77,6 @@ struct NotificationSettingsView: View {
         .background {
             BackgroundPrimary(backgroundColor: backgroundColor)
         }
-        .environment(\.colorScheme, .dark)
         .navigationTitle("Reminders")
         .navigationBarTitleDisplayMode(.inline)
         

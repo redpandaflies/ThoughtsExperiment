@@ -136,7 +136,7 @@ final class AssistantRunManager {
             }
             return gatheredContext
         
-        case .topic, .topicOverview:
+        case .topic, .topicOverview, .topicBreak:
             guard let currentTopic = topic else {
                 loggerCoreData.error("Failed to get new topic")
                 throw ContextError.missingRequiredField("Topic")

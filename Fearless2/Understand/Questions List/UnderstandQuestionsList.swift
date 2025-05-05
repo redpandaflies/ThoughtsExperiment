@@ -8,7 +8,7 @@ import CoreData
 import SwiftUI
 
 struct UnderstandQuestionsList: View {
-    
+    @Environment(\.dismiss) var dismiss
     @State private var selectedQuestion: Understand? = nil
     
     @FetchRequest var questions: FetchedResults<Understand>
@@ -55,7 +55,9 @@ struct UnderstandQuestionsList: View {
                 }
                 
                 ToolbarItem(placement: .topBarTrailing) {
-                    XmarkToolbarItem()
+                    XmarkToolbarItem(action: {
+                        dismiss()
+                    })
                 }
                 
             }

@@ -12,6 +12,7 @@ import SwiftUI
 struct QuestMapView: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var viewModelFactoryMain: ViewModelFactoryMain
+    @EnvironmentObject var dataController: DataController
     @ObservedObject var topicViewModel: TopicViewModel
     
     
@@ -20,18 +21,20 @@ struct QuestMapView: View {
     @State private var showLockedQuestInfoSheet: Bool = false
     @State private var showCompletedTopicSheet: Bool = false
     @State private var showTopicExpectationsSheet: Bool = false
+    @State private var showTopicBreakView: Bool = false
     @State private var showNextSequenceView: Bool = false
+    
     @State private var sequenceScrollPosition: Int?
     @State private var currentSequenceIndex: Int = 0 // to manage which sequence is being displayed
-    @State private var selectedSequenceIndex: Int = 0
     
     @Binding var selectedTopic: Topic?
     @Binding var currentTabBar: TabBarType
     @Binding var selectedTabTopic: TopicPickerItem
+    @Binding var animatedGoalIDs: Set<UUID>
     
+    @ObservedObject var goal: Goal
     let points: Int
     let backgroundColor: Color
-    let goal: Goal
     let frameWidth: CGFloat
     
     @FetchRequest var sequences: FetchedResults<Sequence>
@@ -40,7 +43,7 @@ struct QuestMapView: View {
     @AppStorage("selectedTopicId") var selectedTopicId: String = ""
     
     private var currentSequence: Sequence? {
-        sequences[selectedSequenceIndex]
+        sequences[currentSequenceIndex]
     }
     
     private var totalTopics: Int {
@@ -65,9 +68,11 @@ struct QuestMapView: View {
          selectedTopic: Binding<Topic?>,
          currentTabBar: Binding<TabBarType>,
          selectedTabTopic: Binding<TopicPickerItem>,
+         animatedGoalIDs: Binding<Set<UUID>>,
+         goal: Goal,
          points: Int,
          backgroundColor: Color,
-         goal: Goal,
+       
          frameWidth: CGFloat
     ) {
         
@@ -75,13 +80,14 @@ struct QuestMapView: View {
         self._selectedTopic = selectedTopic
         self._currentTabBar = currentTabBar
         self._selectedTabTopic = selectedTabTopic
+        self._animatedGoalIDs = animatedGoalIDs
+        self.goal = goal
         self.points = points
         self.backgroundColor = backgroundColor
-        self.goal = goal
         self.frameWidth = frameWidth
         
         let request: NSFetchRequest<Sequence> = Sequence.fetchRequest()
-        request.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: false)]
+        request.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: true)]
         request.predicate = NSPredicate(format: "goal == %@", goal)
         self._sequences = FetchRequest(fetchRequest: request)
         
@@ -122,6 +128,7 @@ struct QuestMapView: View {
                     showLockedQuestInfoSheet: $showLockedQuestInfoSheet,
                     showCompletedTopicSheet: $showCompletedTopicSheet,
                     showTopicExpectationsSheet: $showTopicExpectationsSheet,
+                    showTopicBreakView: $showTopicBreakView,
                     showNextSequenceView: $showNextSequenceView,
                     
                     // navigation bindings
@@ -155,6 +162,9 @@ struct QuestMapView: View {
             if playHapticEffect != 0 {
                 playHapticEffect = 0
             }
+            
+            
+            currentSequenceIndex = sequences.count > 1 ? sequences.endIndex - 1 : 0
             
         }
         .fullScreenCover(isPresented: $showUpdateTopicView, onDismiss: {
@@ -225,6 +235,19 @@ struct QuestMapView: View {
                 backgroundColor: backgroundColor,
                 showNextSequenceView: $showNextSequenceView)
         }
+        .fullScreenCover(isPresented: $showTopicBreakView, onDismiss: {
+            showTopicBreakView = false
+        }) {
+            if let topic = selectedTopic, let sequence = currentSequence {
+                BreakView(
+                    topicViewModel: topicViewModel,
+                    showTopicBreakView: $showTopicBreakView,
+                    topic: topic,
+                    goal: goal.goalTitle,
+                    sequence: sequence,
+                    backgroundColor: backgroundColor)
+            }
+        }
     }
     
     private func getBoxHeader(goalType: String) -> some View {
@@ -247,12 +270,31 @@ struct QuestMapView: View {
             Spacer()
             
             Menu {
-                
-                ForEach(Array(sequences.enumerated()), id: \.element.sequenceId) { index, sequence in
-                    menuButton(text: sequence.sequenceTitle, index: index)
+               
+                Menu {
+                    
+                    ForEach(Array(sequences.enumerated()), id: \.element.sequenceId) { index, sequence in
+                        menuButton(text: sequence.sequenceTitle, index: index)
+                    }
+                } label: {
+                    Label("Plans", systemImage: "")
+                        .font(.system(size: 14))
                 }
                 
-                
+                Button(role: .destructive) {
+                    
+                    Task {
+                        await dataController.changeGoalStatus(goal: goal, newStatus: .abandoned)
+                        
+                        DispatchQueue.main.async {
+                            self.animatedGoalIDs.remove(goal.goalId)
+                        }
+                    }
+                    
+                } label: {
+                    // Your label view
+                    Label("Abandon", systemImage: "trash")
+                }
             } label: {
                 Image(systemName: "ellipsis.circle")
                     .font(.system(size: 23, weight: .light).smallCaps())
@@ -265,11 +307,11 @@ struct QuestMapView: View {
     
     private func menuButton(text: String, index: Int) -> some View {
         Button {
-            if selectedSequenceIndex != index {
-                selectedSequenceIndex = index
+            if currentSequenceIndex != index {
+                currentSequenceIndex = index
             }
         } label: {
-            Label(text, systemImage: selectedSequenceIndex == index ? "checkmark" : "")
+            Label("\(index + 1) \(text)", systemImage: currentSequenceIndex == index ? "checkmark" : "")
                 .font(.system(size: 14))
         }
         
@@ -277,7 +319,7 @@ struct QuestMapView: View {
     
     private func sequenceProgressBar() -> some View {
         HStack (alignment: .center, spacing: 5) {
-            Text("Part \(sequences.count). \(currentSequence?.sequenceTitle ?? "")")
+            Text("Part \(currentSequenceIndex + 1). \(currentSequence?.sequenceTitle ?? "")")
                 .multilineTextAlignment(.leading)
                 .font(.system(size: 15, weight: .light))
                 .fontWidth(.condensed)
@@ -288,6 +330,15 @@ struct QuestMapView: View {
                 totalTopics: totalTopics,
                 totalCompletedTopics: totalCompletedTopics)
                 .frame(height: 15)
+        }
+        
+    }
+    
+    private func changeGoalStatus() {
+        
+        Task {
+            
+            
         }
         
     }

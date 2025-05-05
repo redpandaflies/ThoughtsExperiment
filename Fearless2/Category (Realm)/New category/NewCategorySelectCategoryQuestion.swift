@@ -65,7 +65,7 @@ struct CategoryBoxView: View {
     var selected: Bool
     
     var category: Realm {
-        if let realm = Realm.getRealm(forLifeArea: categoryName) {
+        if let realm = Realm.getRealm(forName: categoryName) {
             return realm
         }
         
@@ -73,23 +73,29 @@ struct CategoryBoxView: View {
     }
     
     var body: some View {
-        VStack {
-            Text(categoryName)
-                .multilineTextAlignment(.center)
-                .font(.system(size: 23, design: .serif))
-                .foregroundStyle(AppColors.textPrimary)
-                .opacity(selected ? 1 : 0.7)
-                .fixedSize(horizontal: false, vertical: true)
-                .padding(.top, 30)
-             
-            
+        ZStack {
             Image(category.icon)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .opacity(selected ? 0.5 : 0.2)
                 .blendMode(.luminosity)
-                .frame(width: 200)
-                .offset(y: 50)
+                .frame(height: 230)
+                .frame(alignment: .bottom)
+                .offset(y: 100)
+            
+            VStack {
+                Text(categoryName)
+                    .multilineTextAlignment(.center)
+                    .font(.system(size: 23, design: .serif))
+                    .foregroundStyle(AppColors.textPrimary)
+                    .opacity(selected ? 1 : 0.7)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(height: 65)
+                    .frame(alignment: .center)
+            }
+            .frame(maxHeight: .infinity, alignment: .top)
+            .padding(.top, 20)
+             
                
         }
         .frame(width: 200, height: 300)

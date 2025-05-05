@@ -97,12 +97,13 @@ struct SettingsView: View {
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    XmarkToolbarItem()
+                    XmarkToolbarItem(action: {
+                        dismiss()
+                    })
                 }
             }
         }//NavigationStack
         .tint(AppColors.textPrimary.opacity(0.7))//sets the back button on navigationlink views to white
-        .environment(\.colorScheme, .dark)
         .alert("⚠️\nAre you sure you want to start over?", isPresented: $showStartOverAlert) {
             Button("Start over", role: .destructive) {
                 startOver()

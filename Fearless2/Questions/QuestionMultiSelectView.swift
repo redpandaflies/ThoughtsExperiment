@@ -21,7 +21,7 @@ extension MultiSelectOption: Identifiable {
 
 struct QuestionMultiSelectView: View {
     @Binding var multiSelectAnswers: [String]
-    @Binding var customItems: [String]
+    @Binding var customItems: [String] // custom items are saved into CoreData or kept in memory (if question hasn't yet been saved in CoreData)
     @Binding var showProgressBar: Bool
     @Binding var itemsEditedInMemory: Bool //for questions that aren't saved yet to coredata
     let question: String
@@ -217,13 +217,12 @@ struct MultiSelectQuestionBubble: View {
                         }
                     }
                     .onAppear {
-                       
-                        if CustomOptionType.isCustomOption(option) {
-                            editableOption = ""
-                            showPlusSign = true
-                        } else {
-                            editableOption = option
-                        }
+                        setUpTextField()
+                        
+                    }
+                    .onChange(of: items) {
+                        // when there are two multi select questions in a row, ensures that custom answer of a question isn't displayed for the question after/before it
+                        setUpTextField()
                     }
                     .onChange(of: isFocused) {
                         if isFocused {
@@ -234,6 +233,7 @@ struct MultiSelectQuestionBubble: View {
                                 showPlusSign = false
                             }
                         }
+                        
                     }
             } else {
                 
@@ -244,8 +244,9 @@ struct MultiSelectQuestionBubble: View {
                 
             }
             
-            Spacer()
+       
         }
+        .frame(maxWidth: .infinity)
         .padding(.vertical, isFocused ? 10 : 15)
         .padding(.horizontal, 15)
         .contentShape(Rectangle())
@@ -255,6 +256,15 @@ struct MultiSelectQuestionBubble: View {
                 .fill(selected || customTextIsSelected ? Color.white.opacity(0.8) : Color.white.opacity(0.05))
         }
         .animation(.smooth(duration: 0.2), value: isFocused)
+    }
+    
+    private func setUpTextField() {
+        if CustomOptionType.isCustomOption(option) {
+            editableOption = ""
+            showPlusSign = true
+        } else {
+            editableOption = option
+        }
     }
     
     private func createCustomItems() {

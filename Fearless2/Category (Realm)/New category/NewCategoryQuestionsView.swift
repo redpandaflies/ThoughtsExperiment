@@ -13,8 +13,8 @@ struct NewCategoryQuestionsView: View {
     
     // Manage when to show alert for exiting create new category flow
     @State private var showExitFlowAlert: Bool = false
+    @State private var showProgressBar: Bool = true
     
-    @Binding var showNewGoalSheet: Bool
     @Binding var mainSelectedTab: Int
     @Binding var selectedCategory: String
     @Binding var selectedQuestion: Int
@@ -24,7 +24,11 @@ struct NewCategoryQuestionsView: View {
     @Binding var answersOpen: [String]
     // Array to store all single-select question answers
     @Binding var answersSingleSelect: [String]
+    @Binding var multiSelectAnswers: [String]
+    @Binding var multiSelectCustomItems: [String]
     @Binding var newGoalSaved: Bool
+    
+    let exitFlowAction: () -> Void
     
     var currentQuestion: QuestionNewCategory {
         return questions[selectedQuestion]
@@ -36,17 +40,18 @@ struct NewCategoryQuestionsView: View {
     var body: some View {
         VStack (spacing: 10){
             // MARK: Header
-            QuestionsProgressBar(
-                currentQuestionIndex: $progressBarQuestionIndex,
-                totalQuestions: 5,
-                showXmark: true,
-                xmarkAction: {
-                    showExitFlowAlert = true
-                },
-                showBackButton: selectedQuestion > 0,
-                backAction: handleBackButton
-            )
-                
+            if showProgressBar {
+                QuestionsProgressBar(
+                    currentQuestionIndex: $progressBarQuestionIndex,
+                    totalQuestions: 6,
+                    showXmark: true,
+                    xmarkAction: {
+                        manageDismissButtonAction()
+                    },
+                    showBackButton: selectedQuestion > 0,
+                    backAction: handleBackButton
+                )
+            }
             // MARK: Title
             if selectedQuestion > 1 {
                 getTitle()
@@ -62,6 +67,16 @@ struct NewCategoryQuestionsView: View {
                         question: currentQuestion.content,
                         placeholderText: "For best results, be very specific."
                     )
+                
+                case .multiSelect:
+                    QuestionMultiSelectView(
+                        multiSelectAnswers: $multiSelectAnswers,
+                        customItems: $multiSelectCustomItems,
+                        showProgressBar: $showProgressBar,
+                        question: currentQuestion.content,
+                        items: currentQuestion.options ?? [],
+                        itemsEdited: !multiSelectCustomItems.isEmpty
+                    )
        
                 default:
                     if selectedQuestion == 0 {
@@ -73,6 +88,7 @@ struct NewCategoryQuestionsView: View {
                     } else {
                         QuestionSingleSelectView(
                             singleSelectAnswer: $answersSingleSelect[selectedQuestion],
+                            showProgressBar: $showProgressBar,
                             question: currentQuestion.content,
                             items: currentQuestion.options ?? [],
                             subTitle: selectedQuestion == 1 ? "Choose your primary goal" : "",
@@ -98,7 +114,10 @@ struct NewCategoryQuestionsView: View {
         .alert("Are you sure you exit?", isPresented: $showExitFlowAlert) {
             Button("Cancel", role: .cancel) {}
             Button("Yes", role: .destructive) {
-                exitCreateNewCategory()
+                if focusField != nil {
+                    focusField = nil
+                }
+                exitFlowAction()
             }
         } message: {
             Text("You'll lose your progress towards adding a new question.")
@@ -123,6 +142,9 @@ struct NewCategoryQuestionsView: View {
         switch currentQuestion.questionType {
         case .open:
             return answersOpen[selectedQuestion].isEmpty
+            
+        case .multiSelect:
+            return multiSelectAnswers.isEmpty
         default:
             if selectedQuestion == 0 {
                 return selectedCategory.isEmpty
@@ -138,12 +160,17 @@ struct NewCategoryQuestionsView: View {
         
         switch answeredQuestionIndex {
         case 1:
-            
-            
             let remainingQuestions = QuestionNewCategory.remainingQuestionsNewCategory(userAnswer: answersSingleSelect[answeredQuestionIndex])
             
-            questions += remainingQuestions
-            
+            if questions.count > 2 {
+                if questions[2].content != QuestionNewCategory.getProblemQuestion(problem: answersSingleSelect[answeredQuestionIndex]) {
+                    questions.removeLast(min(4, questions.count))
+                    questions += remainingQuestions
+                }
+            } else {
+                questions += remainingQuestions
+            }
+
             print("questions: \(questions.count)")
             
         default:
@@ -155,26 +182,32 @@ struct NewCategoryQuestionsView: View {
         handleUIAndNavigation(answeredQuestionIndex: answeredQuestionIndex)
         
         //Save question answer to coredata on the last question
-        if answeredQuestionIndex == 4 {
+        if answeredQuestionIndex == 5 {
             Task {
                await saveAnswersForCategory()
             }
         }
     }
     
-    private func exitCreateNewCategory() {
-        if focusField != nil {
-            focusField = nil
+    private func manageDismissButtonAction() {
+        if !answersOpen[2].isEmpty {
+            showExitFlowAlert = true
+        } else {
+            if focusField != nil {
+                focusField = nil
+            }
+            
+            exitFlowAction()
         }
-        showNewGoalSheet = false
     }
     
     private func saveAnswersForCategory() async {
 
         // Create the category
-        let savedCategory = await dataController.createSingleCategory(lifeArea: selectedCategory)
+        let savedCategory = await dataController.createSingleCategory(name: selectedCategory)
         //Create new goal
         /// need to make sure questions are related to the right goal when saved
+        
         let savedGoal = await dataController.createNewGoal(category: savedCategory, problemType: answersSingleSelect[1])
         
         if let category = savedCategory, let goal = savedGoal {
@@ -203,13 +236,22 @@ struct NewCategoryQuestionsView: View {
                 
             }
             
+            // save last question (the only multi-select)
+            await dataController.saveAnswerDefaultQuestions(
+                questionType: .multiSelect,
+                question: questions[5],
+                userAnswer: multiSelectAnswers,
+                category: category,
+                goal: goal
+            )
+            
             await manageRun(category: category, goal: goal)
             
         }
     }
     
     private func handleUIAndNavigation(answeredQuestionIndex index: Int) {
-        if index < 4 {
+        if index < 5 {
             navigateToNextQuestion()
             updateFocusState(answeredQuestionIndex: index)
         } else {

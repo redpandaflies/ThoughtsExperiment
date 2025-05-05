@@ -57,7 +57,6 @@ struct QuestionOpenView: View {
                 }
                 
         }//VStack
-        .environment(\.colorScheme, .dark)
         .onAppear {
             if !answer.isEmpty {
                 topicText = answer

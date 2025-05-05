@@ -39,7 +39,6 @@ struct MainAppManager: View {
             
         } //ZStack
         .ignoresSafeArea(.all)
-        .environment(\.colorScheme, .dark)
     }
 }
 

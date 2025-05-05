@@ -69,7 +69,6 @@ struct TopicExpectationsView: View {
         .background {
             BackgroundPrimary(backgroundColor: backgroundColor)
         }
-        .environment(\.colorScheme, .dark )
         .onAppear {
             if let topic = topic, topic.topicStatus == TopicStatusItem.completed.rawValue {
                 disableButton = false

@@ -11,6 +11,8 @@ struct NextSequenceView: View {
     @EnvironmentObject var dataController: DataController
     @StateObject var sequenceViewModel: SequenceViewModel
     @StateObject var newCategoryViewModel: NewCategoryViewModel
+    // Manage when to show alert for exiting flow
+    @State private var showExitFlowAlert: Bool = false
     @State private var selectedTab: Int = 0
     
     //for managing the questions
@@ -101,7 +103,10 @@ struct NextSequenceView: View {
                     default:
                         NewCategoryRevealPlanView (
                             newCategoryViewModel: newCategoryViewModel,
-                            showSheet: $showNextSequenceView
+                            showSheet: $showNextSequenceView,
+                            completeSequenceAction: {
+                                completeSequence()
+                            }
                         )
                        
                     }
@@ -135,6 +140,14 @@ struct NextSequenceView: View {
             .onAppear {
                 getSequenceRecap()
             }
+            .alert("Are you sure you exit?", isPresented: $showExitFlowAlert) {
+                Button("Cancel", role: .cancel) {}
+                Button("Yes", role: .destructive) {
+                    exitFlow()
+                }
+            } message: {
+                Text("You'll lose your progress towards adding a new question.")
+            }
             .toolbar {
                
                 ToolbarItem(placement: .principal) {
@@ -142,7 +155,13 @@ struct NextSequenceView: View {
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    XmarkToolbarItem()
+                    XmarkToolbarItem(action: {
+                        if selectedTab > 1 {
+                            showNextSequenceView = false
+                        } else {
+                            showExitFlowAlert = true
+                        }
+                    })
                 }
                 
             }
@@ -174,7 +193,6 @@ struct NextSequenceView: View {
         case 2:
             manageQuestionFlow()
         case 3:
-            completeSequence()
             showNextSequenceView = false
             
         default:
@@ -289,7 +307,7 @@ struct NextSequenceView: View {
             }
             selectedTab = 4
             saveAnswers()
-            completeSequence()
+          
             if let category = goal.category {
               createPlanSuggestions(category: category, goal: goal)
             }
@@ -336,6 +354,7 @@ struct NextSequenceView: View {
         selectedTab += 1
         
         saveAnswers()
+        completeSequence()
         
     }
     
@@ -347,6 +366,19 @@ struct NextSequenceView: View {
                 await dataController.completeTopic(topic: topic, sequence: sequence)
             }
             
+        }
+    }
+    
+    private func exitFlow() {
+        //close sheet
+        showNextSequenceView = false
+       
+        
+        if selectedTab > 2 {
+            Task {
+                await dataController.deleteSequenceEndQuestions(sequence: sequence)
+                
+            }
         }
     }
 }

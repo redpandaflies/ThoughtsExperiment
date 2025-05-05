@@ -17,6 +17,8 @@ struct NewCategoryReflectionView: View {
     @State private var feedback: String = ""
     
     @Binding var mainSelectedTab: Int
+    @Binding var selectedQuestion: Int
+    @Binding  var progressBarQuestionIndex: Int
     
     let loadingTexts: [String] = [
         "Give me a few seconds while I go through your answers.",
@@ -128,6 +130,13 @@ struct NewCategoryReflectionView: View {
     }
     
     private func backAction() {
+        selectedQuestion = 2
+        progressBarQuestionIndex = 2
+        mainSelectedTab -= 1
+        
+        Task {
+            await dataController.deleteLastGoal()
+        }
         
     }
     

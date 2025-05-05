@@ -12,6 +12,7 @@ enum QuestTypeItem: String, CaseIterable {
     case guided
     case newCategory
     case context
+    case break1 // pause from questions, provides user something to read and reflect on
     case retro
     
     // get SF symbol name
@@ -27,6 +28,8 @@ enum QuestTypeItem: String, CaseIterable {
                 return "questionmark"
             case .retro:
                 return "clock.arrow.circlepath"
+            case .break1:
+                return "cube.transparent"
         }
     }
     

@@ -72,7 +72,9 @@ struct EndTopicView: View {
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    XmarkToolbarItem()
+                    XmarkToolbarItem(action: {
+                        dismiss()
+                    })
                 }
                 
             }

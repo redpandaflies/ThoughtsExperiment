@@ -37,9 +37,10 @@ enum QuestionCategory: String, Codable, CaseIterable {
     case wellness
     case passion
     case purpose
+    case mixed
     
     static func getCategoryData(for option: String) -> Realm? {
-        return Realm.realmsData.first { $0.lifeArea == option }
+        return Realm.realmsData.first { $0.name == option }
     }
 }
 
@@ -61,7 +62,7 @@ extension QuestionNewCategory {
                 category: .generic,
                 options: Realm.realmsData
                     .dropLast()
-                    .map { $0.lifeArea }
+                    .map { $0.name }
             ),
             QuestionNewCategory(
                 id: 2,
@@ -97,14 +98,24 @@ extension QuestionNewCategory {
                 options: [
                     "Make a decision",
                     "Solve a problem",
-                    "Resolve a conflict",
-                    "Get clarity",
-                    "Reduce anxiety",
-                    "Feel more confident"
+                    "Resolve a conflict"
                 ]
             )
         ]
     }
+    static func getProblemQuestion(problem: String) -> String? {
+            let followUpMap: [String: String] = [
+                "Make a decision":    "What decision do you need to make?",
+                "Get clarity":         "What do you need clarity on?",
+                "Reduce anxiety":      "What’s making you feel anxious?",
+                "Feel more confident": "Where are you doubting yourself?",
+                "Resolve a conflict":  "What conflict do you need to resolve?",
+                "Solve a problem":     "What problem are you trying to solve?"
+            ]
+            
+            return followUpMap[problem]
+        }
+    
     
     static func remainingQuestionsNewCategory(userAnswer: String) -> [QuestionNewCategory] {
         
@@ -143,6 +154,20 @@ extension QuestionNewCategory {
                 content: "What have you already tried or learned?",
                 questionType: .open,
                 category: .generic
+            ),
+            QuestionNewCategory(
+                id: 5,
+                content: "What would be helpful?",
+                questionType: .multiSelect,
+                category: .generic,
+                options: [
+                    "Encouragement and support",
+                    "Honest feedback",
+                    "Offer a different perspective",
+                    "Suggest small, actionable steps",
+                    "Highlight patterns or themes",
+                    "Other"
+                ]
             )
         ]
     }
@@ -153,7 +178,7 @@ extension QuestionNewCategory {
         let realms = Realm.realmsData
         
         // Extract and return the lifeArea values from the remaining realms
-        return realms.map { $0.lifeArea }
+        return realms.map { $0.name }
     }
     
     static func getQuestionFlow(for categoryChoice: String?) -> [QuestionNewCategory] {

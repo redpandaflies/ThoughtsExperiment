@@ -16,6 +16,8 @@ struct NewCategoryRevealPlanView: View {
     
     @Binding var showSheet: Bool
     
+    let completeSequenceAction: () -> Void
+    
     let screenWidth: CGFloat = UIScreen.current.bounds.width
     let frameWidth: CGFloat = 300
     
@@ -24,6 +26,16 @@ struct NewCategoryRevealPlanView: View {
         "Putting the finishing touches on the plan.",
         "Making sure the plan is right for you."
     ]
+    
+    init(
+        newCategoryViewModel: NewCategoryViewModel,
+        showSheet: Binding<Bool>,
+        completeSequenceAction: @escaping () -> Void = {}
+    ) {
+        self.newCategoryViewModel = newCategoryViewModel
+        self._showSheet = showSheet
+        self.completeSequenceAction = completeSequenceAction
+    }
     
     var body: some View {
         VStack {
@@ -139,6 +151,9 @@ struct NewCategoryRevealPlanView: View {
                 }
             }
         }
+        
+        // mark sequence and topic as complete
+        completeSequenceAction()
     }
     
 }

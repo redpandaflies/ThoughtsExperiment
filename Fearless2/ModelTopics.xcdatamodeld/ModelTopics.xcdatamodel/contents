@@ -66,6 +66,7 @@
         <attribute name="problemLong" optional="YES" attributeType="String"/>
         <attribute name="problemType" optional="YES" attributeType="String"/>
         <attribute name="resolution" optional="YES" attributeType="String"/>
+        <attribute name="status" optional="YES" attributeType="String"/>
         <attribute name="title" optional="YES" attributeType="String"/>
         <relationship name="category" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Category" inverseName="goals" inverseEntity="Category"/>
         <relationship name="questions" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Question" inverseName="goal" inverseEntity="Question"/>
@@ -109,6 +110,7 @@
         <attribute name="minLabel" optional="YES" attributeType="String"/>
         <attribute name="multiSelectOptions" optional="YES" attributeType="String"/>
         <attribute name="questionNumber" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="sequenceRecap" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="singleSelectOptions" optional="YES" attributeType="String"/>
         <attribute name="starterQuestion" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="type" optional="YES" attributeType="String"/>
@@ -162,6 +164,7 @@
         <relationship name="sequence" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Sequence" inverseName="summaries" inverseEntity="Sequence"/>
     </entity>
     <entity name="Topic" representedClassName="Topic" syncable="YES" codeGenerationType="class">
+        <attribute name="breakType" optional="YES" attributeType="String"/>
         <attribute name="completed" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="createdAt" optional="YES" attributeType="String"/>
         <attribute name="definition" optional="YES" attributeType="String"/>
@@ -173,6 +176,7 @@
         <attribute name="questType" optional="YES" attributeType="String"/>
         <attribute name="status" optional="YES" attributeType="String"/>
         <attribute name="title" optional="YES" attributeType="String"/>
+        <relationship name="breaks" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="TopicBreak" inverseName="topic" inverseEntity="TopicBreak"/>
         <relationship name="category" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Category" inverseName="topics" inverseEntity="Category"/>
         <relationship name="entries" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Entry" inverseName="topic" inverseEntity="Entry"/>
         <relationship name="expectations" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="TopicExpectation" inverseName="topic" inverseEntity="TopicExpectation"/>
@@ -184,6 +188,12 @@
         <relationship name="sections" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Section" inverseName="topic" inverseEntity="Section"/>
         <relationship name="sequence" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Sequence" inverseName="topics" inverseEntity="Sequence"/>
         <relationship name="suggestions" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="FocusAreaSuggestion" inverseName="topic" inverseEntity="FocusAreaSuggestion"/>
+    </entity>
+    <entity name="TopicBreak" representedClassName="TopicBreak" syncable="YES" codeGenerationType="class">
+        <attribute name="content" optional="YES" attributeType="String"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="orderIndex" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="topic" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Topic" inverseName="breaks" inverseEntity="Topic"/>
     </entity>
     <entity name="TopicExpectation" representedClassName="TopicExpectation" syncable="YES" codeGenerationType="class">
         <attribute name="content" optional="YES" attributeType="String"/>

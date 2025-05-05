@@ -101,7 +101,9 @@ struct FocusAreaRecapView: View {
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    XmarkToolbarItem()
+                    XmarkToolbarItem(action: {
+                        dismiss()
+                    })
                 }
                 
             }

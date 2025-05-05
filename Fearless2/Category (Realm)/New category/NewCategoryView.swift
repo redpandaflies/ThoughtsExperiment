@@ -20,9 +20,11 @@ struct NewCategoryView: View {
     @State private var progressBarQuestionIndex: Int = 0
     @State private var questions: [QuestionNewCategory] = QuestionNewCategory.initialQuestionsNewCategory()
     // Array to store all open question answers
-    @State private var answersOpen: [String] = Array(repeating: "", count: 5)
+    @State private var answersOpen: [String] = Array(repeating: "", count: 6)
     // Array to store all single-select question answers
-    @State private var answersSingleSelect: [String] = Array(repeating: "", count: 5)
+    @State private var answersSingleSelect: [String] = Array(repeating: "", count: 6)
+    @State private var multiSelectAnswers: [String] = []
+    @State private var multiSelectCustomItems: [String] = []
     // flag for tracking if new category has been saved, and needs to be deleted when user exits this flow early
     @State private var newGoalSaved: Bool = false
     
@@ -39,7 +41,8 @@ struct NewCategoryView: View {
                     mainSelectedTab: $mainSelectedTab,
                     xmarkAction: {
                         exitFlowAction()
-                    })
+                    }
+                )
             }
             
             // MARK: - View Content
@@ -47,7 +50,6 @@ struct NewCategoryView: View {
                 case 0:
                     NewCategoryQuestionsView (
                         newCategoryViewModel: newCategoryViewModel,
-                        showNewGoalSheet: $showNewGoalSheet,
                         mainSelectedTab: $mainSelectedTab,
                         selectedCategory: $selectedCategory,
                         selectedQuestion: $selectedQuestion,
@@ -55,14 +57,22 @@ struct NewCategoryView: View {
                         questions: $questions,
                         answersOpen: $answersOpen,
                         answersSingleSelect: $answersSingleSelect,
-                        newGoalSaved: $newGoalSaved
+                        multiSelectAnswers: $multiSelectAnswers,
+                        multiSelectCustomItems: $multiSelectCustomItems,
+                        newGoalSaved: $newGoalSaved,
+                        exitFlowAction: {
+                            exitFlowAction()
+                        }
                     )
                     .padding(.horizontal)
                 
                 case 1:
                     NewCategoryReflectionView (
                         newCategoryViewModel: newCategoryViewModel,
-                        mainSelectedTab: $mainSelectedTab
+                        mainSelectedTab: $mainSelectedTab,
+                        selectedQuestion: $selectedQuestion,
+                        progressBarQuestionIndex: $progressBarQuestionIndex
+                        
                     )
                     .padding(.horizontal)
     
@@ -78,7 +88,7 @@ struct NewCategoryView: View {
         .background {
             BackgroundPrimary(backgroundColor: AppColors.backgroundOnboardingIntro)
         }
-        .environment(\.colorScheme, .dark )
+//        .environment(\.colorScheme, .dark )
      
     }
   
@@ -104,7 +114,7 @@ struct NewCategoryHeader: View {
         
         HStack (spacing: 0) {
             ToolbarTitleItem2(
-                emoji: mainSelectedTab > 0 ? "realm66" : "",
+                emoji: "",
                 title: getToolBarText()
             )
             
@@ -125,14 +135,8 @@ struct NewCategoryHeader: View {
     
     private func getToolBarText() -> String {
         switch mainSelectedTab {
-        case 1:
-            return "Your mirror is taking it in"
-            
         case 2:
-            return "Your mirror reflects back"
-            
-        case 3, 4:
-           return "Choose a direction"
+            return "Choose a direction"
             
         default:
            return ""

@@ -81,6 +81,10 @@
 		8A79EAB22CE40A6D000A966B /* TranscriptionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A79EAB12CE40A68000A966B /* TranscriptionViewModel.swift */; };
 		8A79EAB52CE45B1B000A966B /* TopicDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A79EAB42CE45B1B000A966B /* TopicDetailView.swift */; };
 		8A79EAB72CE467C9000A966B /* TopicPickerItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A79EAB62CE467C9000A966B /* TopicPickerItem.swift */; };
+		8A7AD6682DC3FBB2000FB1C3 /* GoalStatusItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A7AD6672DC3FBAE000FB1C3 /* GoalStatusItem.swift */; };
+		8A7AD66A2DC546EE000FB1C3 /* DefaultFocusField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A7AD6692DC546E0000FB1C3 /* DefaultFocusField.swift */; };
+		8A7AD66D2DC71F58000FB1C3 /* BreakView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A7AD66C2DC71F58000FB1C3 /* BreakView.swift */; };
+		8A7AD66F2DC7340B000FB1C3 /* TopicBreak-CoreDataHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A7AD66E2DC7340B000FB1C3 /* TopicBreak-CoreDataHelpers.swift */; };
 		8A81D4592D800330008C8DA9 /* Profile-CoreDataHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A81D4582D800321008C8DA9 /* Profile-CoreDataHelpers.swift */; };
 		8A81D45C2D80F8BF008C8DA9 /* MixpanelService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A81D45B2D80F8B9008C8DA9 /* MixpanelService.swift */; };
 		8A81D45E2D8154B2008C8DA9 /* Staging.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 8A81D45D2D8154B2008C8DA9 /* Staging.xcconfig */; };
@@ -292,6 +296,10 @@
 		8A79EAB12CE40A68000A966B /* TranscriptionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionViewModel.swift; sourceTree = "<group>"; };
 		8A79EAB42CE45B1B000A966B /* TopicDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicDetailView.swift; sourceTree = "<group>"; };
 		8A79EAB62CE467C9000A966B /* TopicPickerItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicPickerItem.swift; sourceTree = "<group>"; };
+		8A7AD6672DC3FBAE000FB1C3 /* GoalStatusItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalStatusItem.swift; sourceTree = "<group>"; };
+		8A7AD6692DC546E0000FB1C3 /* DefaultFocusField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultFocusField.swift; sourceTree = "<group>"; };
+		8A7AD66C2DC71F58000FB1C3 /* BreakView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreakView.swift; sourceTree = "<group>"; };
+		8A7AD66E2DC7340B000FB1C3 /* TopicBreak-CoreDataHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TopicBreak-CoreDataHelpers.swift"; sourceTree = "<group>"; };
 		8A81D4582D800321008C8DA9 /* Profile-CoreDataHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Profile-CoreDataHelpers.swift"; sourceTree = "<group>"; };
 		8A81D45B2D80F8B9008C8DA9 /* MixpanelService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MixpanelService.swift; sourceTree = "<group>"; };
 		8A81D45D2D8154B2008C8DA9 /* Staging.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Staging.xcconfig; sourceTree = "<group>"; };
@@ -630,6 +638,14 @@
 			path = "Topic detail view";
 			sourceTree = "<group>";
 		};
+		8A7AD66B2DC71F15000FB1C3 /* Topic Break */ = {
+			isa = PBXGroup;
+			children = (
+				8A7AD66C2DC71F58000FB1C3 /* BreakView.swift */,
+			);
+			path = "Topic Break";
+			sourceTree = "<group>";
+		};
 		8A81D45A2D80F8A8008C8DA9 /* Launch sequence */ = {
 			isa = PBXGroup;
 			children = (
@@ -686,6 +702,7 @@
 				8A8ED72E2CF26E9900780384 /* FocusAreaSuggestion-CoreDataHelpers.swift */,
 				8A8ED7322CF2EE2A00780384 /* FocusAreaSummary-CoreDataHelpers.swift */,
 				8ADCEACD2DA9B167008D4FEA /* Goal-CoreDataHelpers.swift */,
+				8A7AD6672DC3FBAE000FB1C3 /* GoalStatusItem.swift */,
 				8ACE0DD42CD03A1500718B9E /* Insight-CoreDataHelpers.swift */,
 				8AC1D59E2D62B275000DD8E6 /* Points-CoreDataHelpers.swift */,
 				8A81D4582D800321008C8DA9 /* Profile-CoreDataHelpers.swift */,
@@ -698,6 +715,7 @@
 				8A9CC1BD2CAD26E7007C2AA9 /* Topic-CoreDataHelpers.swift */,
 				8ADCEAD32DAE2FF3008D4FEA /* TopicExpectation-CoreDataHelpers.swift */,
 				8A827B912D380CCA00D0204E /* TopicReview-CoreDataHelpers.swift */,
+				8A7AD66E2DC7340B000FB1C3 /* TopicBreak-CoreDataHelpers.swift */,
 				8A827BA02D414A4400D0204E /* TopicStatusItem.swift */,
 				8A26DFCE2CEEF395002C4F60 /* Understand-CoreDataHelpers.swift */,
 			);
@@ -811,6 +829,7 @@
 		8A9CC1962CAB66B3007C2AA9 /* Styling */ = {
 			isa = PBXGroup;
 			children = (
+				8A7AD6692DC546E0000FB1C3 /* DefaultFocusField.swift */,
 				8A573B9E2DC00A6A0027F636 /* GoalTypeSymbol.swift */,
 				8A6A99662D932A070069CAE0 /* Quest map */,
 				8AE398332D7575B100F76AAC /* ButtonStylePushDown.swift */,
@@ -869,6 +888,7 @@
 		8A9CC1AD2CAC681C007C2AA9 /* Topic */ = {
 			isa = PBXGroup;
 			children = (
+				8A7AD66B2DC71F15000FB1C3 /* Topic Break */,
 				8AA484292D9B20ED002F34E9 /* Completed topic sheet */,
 				8AC1D5A62D6582BE000DD8E6 /* End Topic */,
 				8ADCEAD52DAE3797008D4FEA /* Expectations */,
@@ -1225,6 +1245,7 @@
 				8A9CC1AC2CAB8E50007C2AA9 /* Shadows.swift in Sources */,
 				8A6A996A2D932DC70069CAE0 /* QuestMapItem.swift in Sources */,
 				8A9CC1C02CAD26F6007C2AA9 /* Question-CoreDataHelpers.swift in Sources */,
+				8A7AD66F2DC7340B000FB1C3 /* TopicBreak-CoreDataHelpers.swift in Sources */,
 				8A9192022CBE3C76007E17A0 /* CategoryItemProtocol.swift in Sources */,
 				8A74F4A42CE69AAB008A33B0 /* EntriesListView.swift in Sources */,
 				8A9CC1982CAB66DF007C2AA9 /* Colors.swift in Sources */,
@@ -1289,6 +1310,7 @@
 				8A9CC1D12CAE4325007C2AA9 /* TopicViewModel.swift in Sources */,
 				8A827B9F2D413C3100D0204E /* ArchivedTopicsView.swift in Sources */,
 				8AA4842B2D9B2118002F34E9 /* CompletedTopicSheetView.swift in Sources */,
+				8A7AD66A2DC546EE000FB1C3 /* DefaultFocusField.swift in Sources */,
 				8A573BA12DC00EB80027F636 /* SquareButton.swift in Sources */,
 				8A6332582CDD9E0000EF34FA /* ToolbarTitleItem.swift in Sources */,
 				8ADCEAE72DB1C93A008D4FEA /* LoadingAnimationEllipsis.swift in Sources */,
@@ -1369,6 +1391,7 @@
 				8A6332492CD8257A00EF34FA /* FocusArea-CoreDataHelpers.swift in Sources */,
 				8AC1D59D2D629EC1000DD8E6 /* FocusAreaRecapTimelineView.swift in Sources */,
 				8A9B99142D7902DD001707FD /* NewCategoryQuestionsView.swift in Sources */,
+				8A7AD6682DC3FBB2000FB1C3 /* GoalStatusItem.swift in Sources */,
 				8AE398152D6D861A00F76AAC /* OnboardingMainView.swift in Sources */,
 				8A9CC1C72CAE0B8D007C2AA9 /* Logger+Extension.swift in Sources */,
 				8A9191F32CB494FD007E17A0 /* QuestionOpenView.swift in Sources */,
@@ -1382,6 +1405,7 @@
 				8A9CC1772CAB3DEA007C2AA9 /* Fearless2App.swift in Sources */,
 				8A2C37022D26A17100C37315 /* UpdateSectionCompleteView.swift in Sources */,
 				8A74F4A82CE6A923008A33B0 /* EntryBoxView.swift in Sources */,
+				8A7AD66D2DC71F58000FB1C3 /* BreakView.swift in Sources */,
 				8A6332622CDFE33600EF34FA /* QuestionsProgressBar.swift in Sources */,
 				8A8B63F02D2000CE00BA57D0 /* TopicImageView.swift in Sources */,
 				8ADCEADA2DB0254C008D4FEA /* NextSequenceIntro.swift in Sources */,

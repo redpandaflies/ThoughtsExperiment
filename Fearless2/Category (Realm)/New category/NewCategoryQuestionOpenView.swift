@@ -45,7 +45,7 @@ struct QuestionOpenView2: View {
                 .foregroundStyle(AppColors.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
             
-            TextField(placeholderText, text: $topicText, axis: .vertical)
+            TextField("", text: $topicText, prompt: Text(placeholderText).foregroundStyle(AppColors.textPrimary.opacity(0.6)),axis: .vertical)
                 .font(.system(size: 16))
                 .fontWeight(.light)
                 .foregroundStyle(AppColors.textPrimary)
@@ -59,7 +59,6 @@ struct QuestionOpenView2: View {
                 }
                 
         }//VStack
-        .environment(\.colorScheme, .dark)
         .onAppear {
             if !answer.isEmpty {
                 topicText = answer

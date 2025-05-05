@@ -20,6 +20,7 @@ final class TopicViewModel: ObservableObject {
     @Published var focusAreaCreationFailed: Bool = false //when run fails
     @Published var createFocusAreaSummary: FocusAreaSummaryState = .ready
     @Published var createTopicQuestions: NewTopicQuestionsState = .ready
+    @Published var createTopicBreak: NewTopicBreakState = .ready
    
     @Published var sectionSummaryCreated: Bool = false
     @Published var scrollToAddTopic: Bool = false
@@ -67,6 +68,12 @@ final class TopicViewModel: ObservableObject {
         case retry
     }
     
+    enum NewTopicBreakState {
+        case ready
+        case loading
+        case retry
+    }
+    
     //MARK: create new topic
     //note: send the full name of category to GPT as context, save the short name to CoreData
     //note: kept the optionals for userInput and question for now, in case we want to add back in the follow-up questions and summary
@@ -93,6 +100,12 @@ final class TopicViewModel: ObservableObject {
                 }
                 if selectedAssistant == .topicOverview {
                     self.createTopicOverview = .loading
+                }
+                
+                if selectedAssistant == .topicBreak {
+                    self.createTopicBreak = .loading
+                } else {
+                    self.createTopicBreak = .ready
                 }
                 if selectedAssistant == .topic {
                     if self.createTopicQuestions != .loading {
@@ -152,6 +165,18 @@ final class TopicViewModel: ObservableObject {
                 
                 await MainActor.run {
                     self.createTopicOverview = .ready
+                }
+                
+            case .topicBreak:
+                guard let topic = topic else {
+                    loggerCoreData.error("Failed to get topic")
+                    return
+                }
+                
+                try await openAISwiftService.processTopicBreak(messageText: messageText, topic: topic)
+                
+                await MainActor.run {
+                    self.createTopicBreak = .ready
                 }
                 
             case .focusAreaSummary:

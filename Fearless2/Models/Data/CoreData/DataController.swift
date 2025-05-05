@@ -58,240 +58,6 @@ final class DataController: ObservableObject {
             }
         }
     }
-
-    //MARK: other
-    //fetch a section
-    func fetchSection(id: UUID) async -> Section? {
-        let request = NSFetchRequest<Section>(entityName: "Section")
-        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
-        
-        var fetchedSection: Section? = nil
-        
-        await context.perform {
-            do {
-                let results = try self.context.fetch(request)
-                if let section = results.first {
-                    
-                    fetchedSection = section
-                }
-            } catch {
-                self.logger.error("Error fetching entry with ID \(id): \(error.localizedDescription)")
-                
-            }
-        }
-        
-        return fetchedSection
-        
-    }
-    
-    //mark section as complete
-    func completeSection(section: Section) async {
-        await context.perform {
-            section.completed = true
-        }
-        
-        await self.save()
-    }
-    
-    //save user answer for an question
-    //note: questionContent needed when creating new topic, questionId needed when updating topic
-    func saveAnswer(questionType: QuestionType, questionContent: String? = nil, questionId: UUID? = nil, userAnswer: Any, customItems: [String]? = nil) async {
-        await context.perform {
-            let question: Question
-            
-            if let id = questionId {
-                // Fetch the existing question by ID
-                let request = NSFetchRequest<Question>(entityName: "Question")
-                request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
-                
-                do {
-                    let fetchedQuestions = try self.context.fetch(request)
-                    if let savedQuestion = fetchedQuestions.first {
-                        question = savedQuestion
-                    } else {
-                        self.logger.error("No question found with ID: \(id)")
-                        return
-                    }
-                } catch {
-                    self.logger.error("Error fetching question: \(error.localizedDescription)")
-                    return
-                }
-            } else {
-                // Create a new question if no `questionId` is provided
-                question = Question(context: self.context)
-                question.questionId = UUID()
-                question.createdAt = getCurrentTimeString()
-                question.questionType = questionType.rawValue
-                if let content = questionContent {
-                    question.questionContent = content
-                    question.starterQuestion = true
-                }
-                if let topic = self.newTopic {
-                    self.logger.log("Adding new \(questionType.rawValue) question to topic \(topic.topicId.uuidString)")
-                    topic.addToQuestions(question)
-                }
-            }
-            
-            // Set the answer based on the question type
-            switch questionType {
-            case .open:
-                if let answer = userAnswer as? String {
-                    question.questionAnswerOpen = answer
-                }
-            case .singleSelect:
-                if let answer = userAnswer as? String {
-                    question.questionAnswerSingleSelect = answer
-                }
-                
-                if let items = customItems, !items.isEmpty {
-                    let arrayString = items.joined(separator: ";")
-                    question.singleSelectOptions = arrayString
-                    question.editedSingleSelect = true
-                    self.logger.log("New single select options: \(arrayString)")
-                }
-                
-            case .multiSelect:
-                if let answer = userAnswer as? [String] {
-                    let arrayString = answer.joined(separator: ";")
-                    question.questionAnswerMultiSelect = arrayString
-                }
-                
-                if let items = customItems, !items.isEmpty {
-                    let arrayString = items.joined(separator: ";")
-                    question.multiSelectOptions = arrayString
-                    question.editedMultiSelect = true
-                    self.logger.log("New multi select options: \(arrayString)")
-                }
-            }
-            
-            // Mark the question as completed if it's not already
-            if !question.completed {
-                question.completed = true
-            }
-        }
-        
-        //        // Save the context
-        //        await self.save()
-    }
-    
-    //save answer for predefined questions
-    func saveAnswerDefaultQuestions(questionType: QuestionType, question: any QuestionProtocol, userAnswer: Any, category: Category? = nil, goal: Goal? = nil, sequence: Sequence? = nil) async {
-        await context.perform {
-            // create a new question
-            let newQuestion = Question(context: self.context)
-            newQuestion.questionId = UUID()
-            newQuestion.createdAt = getCurrentTimeString()
-            newQuestion.questionType = questionType.rawValue
-            self.logger.info("Question type being saved: \(newQuestion.questionType) ")
-            newQuestion.questionContent = question.content
-            newQuestion.categoryStarter = true
-            newQuestion.goalStarter = true
-            
-            // set the answer based on the question type
-            switch questionType {
-            case .open:
-                if let answer = userAnswer as? String {
-                    newQuestion.questionAnswerOpen = answer
-                }
-            case .singleSelect:
-                if let answer = userAnswer as? String {
-                    newQuestion.questionAnswerSingleSelect = answer
-                }
-            case .multiSelect:
-                if let answer = userAnswer as? [String] {
-                    let arrayString = answer.joined(separator: ";")
-                    newQuestion.questionAnswerMultiSelect = arrayString
-                }
-            }
-            
-            // Mark the question as completed
-            newQuestion.completed = true
-            
-            // add question to category
-            if let category = category {
-                category.addToQuestions(newQuestion)
-            }
-            // add question to goal
-            if let goal = goal {
-                goal.addToQuestions(newQuestion)
-            }
-            //add question to sequence
-            if let sequence = sequence {
-                sequence.addToQuestions(newQuestion)
-            }
-                    
-        }
-        
-        await self.save()
-    }
-    
-    func deleteEntry(id: UUID) async {
-        
-        let request = NSFetchRequest<Entry>(entityName: "Entry")
-        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
-        
-        await context.perform {
-            do {
-                let fetchedTopic = try self.context.fetch(request)
-                
-                if let entry = fetchedTopic.first {
-                    self.context.delete(entry)
-                    
-                    Task {
-                        await self.save()
-                    }
-                }
-                    
-            } catch {
-                self.logger.error("Failed to delete entry from Core Data: \(error.localizedDescription)")
-            }
-        }
-    }
-
-    //delete all suggestions
-    func deleteTopicSuggestions(topicId: UUID) async throws -> Topic? {
-        
-        let request = NSFetchRequest<Topic>(entityName: "Topic")
-        request.predicate = NSPredicate(format: "id == %@", topicId as CVarArg)
-       
-        var topic: Topic? = nil
-        
-        try await context.perform {
-            do {
-                
-                guard let fetchedTopic = try self.context.fetch(request).first else { return }
-                
-                let topicSuggestions = fetchedTopic.topicSuggestions
-               
-                for item in topicSuggestions {
-                    self.context.delete(item)
-                }
-               
-                Task {
-                    await self.save()
-                }
-                
-                topic = fetchedTopic
-                
-            } catch {
-                self.logger.error("Failed to batch delete suggestions: \(error.localizedDescription), \(error)")
-                throw CoreDataError.coreDataError(error)
-            }
-           
-        }
-        return topic
-    }
-    
-    func updateOverviewStatus(review: TopicReview) async {
-        await context.perform {
-            review.overviewGenerated.toggle()
-            
-            Task {
-                await self.save()
-            }
-        }
-        
-    }
     
 }
 
@@ -322,81 +88,7 @@ extension DataController {
         
     }
     
-    //create new topic
-    func createTopic(suggestion: NewTopicGenerated, topicId: UUID, category: Category) async -> (topicId: UUID?, focusArea: FocusArea?) {
-       
-        var createdFocusArea: FocusArea? = nil
-        
-        let request = NSFetchRequest<Topic>(entityName: "Topic")
-            request.predicate = NSPredicate(format: "id == %@", topicId as CVarArg)
-        
-        await context.perform {
-            
-            do {
-                
-                let results = try self.context.fetch(request)
-                            
-                // If no topic found, exit the function
-                guard let existingTopic = results.first else {
-                    self.logger.log("No topic found with ID: \(topicId)")
-                    return
-                }
-               
-                // Update the existing topic with suggestion data
-                existingTopic.topicStatus = TopicStatusItem.active.rawValue
-                existingTopic.topicCreatedAt = getCurrentTimeString()
-               
-                let focusAreasTotal = suggestion.focusAreas.count
-                existingTopic.focusAreasLimit = Int16(focusAreasTotal)
-                
-                category.addToTopics(existingTopic)
-                
-                for newFocusArea in suggestion.focusAreas {
-                    let focusArea = FocusArea(context: self.context)
-                    focusArea.focusAreaId = UUID()
-                    focusArea.focusAreaCreatedAt = getCurrentTimeString()
-                    focusArea.orderIndex = Int16(newFocusArea.focusAreaNumber)
-                    focusArea.focusAreaTitle = newFocusArea.content
-                    focusArea.focusAreaReasoning = newFocusArea.reasoning
-                    focusArea.focusAreaEmoji = newFocusArea.emoji
-                    
-                    existingTopic.addToFocusAreas(focusArea)
-                    category.addToFocusAreas(focusArea)
-                    
-                    if newFocusArea.focusAreaNumber == 1 {
-                        createdFocusArea = focusArea
-                        focusArea.focusAreaStatus = FocusAreaStatusItem.active.rawValue
-                    } else {
-                        focusArea.focusAreaStatus = FocusAreaStatusItem.locked.rawValue
-                    }
-                }
-                
-                self.addLastFocusArea(topic: existingTopic, category: category, index: focusAreasTotal + 1)
-                
-                self.newTopic = existingTopic
-                self.logger.log("Updated newTopic published variable")
-            } catch {
-                self.logger.error("Error fetching topic: \(error.localizedDescription)")
-            }
-
-        }
-        
-        await self.save()
-        
-        return (topicId, createdFocusArea)
-    }
-    
-    private func addLastFocusArea(topic: Topic, category: Category, index: Int) {
-        let newFocusArea = FocusArea(context: self.context)
-        newFocusArea.focusAreaId = UUID()
-        newFocusArea.focusAreaCreatedAt = getCurrentTimeString()
-        newFocusArea.focusAreaTitle = EndOfTopic.sampleEndOfTopic.title
-        newFocusArea.focusAreaReasoning = EndOfTopic.sampleEndOfTopic.reasoning
-        newFocusArea.orderIndex = Int16(index)
-        newFocusArea.endOfTopic = true
-        topic.addToFocusAreas(newFocusArea)
-        category.addToFocusAreas(newFocusArea)
-    }
+   
     
     func updateTopicStatus(id: UUID, item: TopicStatusItem) async {
         let request = NSFetchRequest<Topic>(entityName: "Topic")
@@ -467,75 +159,7 @@ extension DataController {
         return fetchedTopics
     }
     
-    //delete all
-    func deleteAll() async {
-        
-        await MainActor.run {
-            deletedAllData = false
-        }
-        
-        // 1. First delete categories (which should cascade delete related topics)
-        let categoryFetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Category")
-        let categoryBatchDeleteRequest = NSBatchDeleteRequest(fetchRequest: categoryFetchRequest)
-        
-        // Configure batch to get object IDs for updating the context's state
-        categoryBatchDeleteRequest.resultType = .resultTypeObjectIDs
-        
-        await context.perform {
-            do {
-                // Execute the category batch delete
-                let categoryBatchDelete = try self.context.execute(categoryBatchDeleteRequest) as? NSBatchDeleteResult
-                
-                // Use the deleted object IDs to update the context's state
-                if let deletedCategoryIDs = categoryBatchDelete?.result as? [NSManagedObjectID] {
-                    let categoryChanges = [NSDeletedObjectsKey: deletedCategoryIDs]
-                    NSManagedObjectContext.mergeChanges(fromRemoteContextSave: categoryChanges, into: [self.context])
-                }
-                
-                // Save context to ensure category deletions are persisted
-                try self.context.save()
-                
-                // 2. Now delete only orphaned topics (those unrelated to any category)
-                // Create a fetch request that finds topics not associated with any category
-                let topicFetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Topic")
-                let topicBatchDeleteRequest = NSBatchDeleteRequest(fetchRequest: topicFetchRequest)
-                topicBatchDeleteRequest.resultType = .resultTypeObjectIDs
-                
-                // Execute the topic batch delete for orphaned topics
-                let topicBatchDelete = try self.context.execute(topicBatchDeleteRequest) as? NSBatchDeleteResult
-                
-                // Use the deleted object IDs to update the context's state
-                if let deletedTopicIDs = topicBatchDelete?.result as? [NSManagedObjectID] {
-                    let topicChanges = [NSDeletedObjectsKey: deletedTopicIDs]
-                    NSManagedObjectContext.mergeChanges(fromRemoteContextSave: topicChanges, into: [self.context])
-                }
-                
-                // Final save to ensure all changes are persisted
-                try self.context.save()
-                
-                // 3. Delete the user's profile
-               let profileFetchRequest = NSFetchRequest<Profile>(entityName: "Profile")
-               let profiles = try self.context.fetch(profileFetchRequest)
-               
-                //delet all found profiles (there should only be one)
-               for profile in profiles {
-                   self.context.delete(profile)
-               }
-               
-               // Final save to ensure all changes are persisted
-               try self.context.save()
-            
-               self.logger.info("Successfully deleted all categories, orphaned topics, and user profile")
-                
-            } catch {
-                self.logger.error("Error during deletion process: \(error.localizedDescription)")
-            }
-        }
-        
-        await MainActor.run {
-            deletedAllData = true
-        }
-    }
+    
     
     //create new topic
     func createFocusArea(suggestion: any SuggestionProtocol, topic: Topic?) async -> FocusArea? {
@@ -703,11 +327,462 @@ extension DataController {
     
 }
 
-//MARK: category (realms)
+// MARK: - Questions
+extension DataController {
+
+        //save user answer for an question
+        //note: questionContent needed when creating new topic, questionId needed when updating topic
+        func saveAnswer(questionType: QuestionType, questionContent: String? = nil, questionId: UUID? = nil, userAnswer: Any, customItems: [String]? = nil) async {
+            await context.perform {
+                let question: Question
+                
+                if let id = questionId {
+                    // Fetch the existing question by ID
+                    let request = NSFetchRequest<Question>(entityName: "Question")
+                    request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+                    
+                    do {
+                        let fetchedQuestions = try self.context.fetch(request)
+                        if let savedQuestion = fetchedQuestions.first {
+                            question = savedQuestion
+                        } else {
+                            self.logger.error("No question found with ID: \(id)")
+                            return
+                        }
+                    } catch {
+                        self.logger.error("Error fetching question: \(error.localizedDescription)")
+                        return
+                    }
+                } else {
+                    // Create a new question if no `questionId` is provided
+                    question = Question(context: self.context)
+                    question.questionId = UUID()
+                    question.createdAt = getCurrentTimeString()
+                    question.questionType = questionType.rawValue
+                    if let content = questionContent {
+                        question.questionContent = content
+                        question.starterQuestion = true
+                    }
+                    if let topic = self.newTopic {
+                        self.logger.log("Adding new \(questionType.rawValue) question to topic \(topic.topicId.uuidString)")
+                        topic.addToQuestions(question)
+                    }
+                }
+                
+                // Set the answer based on the question type
+                switch questionType {
+                case .open:
+                    if let answer = userAnswer as? String {
+                        question.questionAnswerOpen = answer
+                    }
+                case .singleSelect:
+                    if let answer = userAnswer as? String {
+                        question.questionAnswerSingleSelect = answer
+                    }
+                    
+                    if let items = customItems, !items.isEmpty {
+                        let arrayString = items.joined(separator: ";")
+                        question.singleSelectOptions = arrayString
+                        question.editedSingleSelect = true
+                        self.logger.log("New single select options: \(arrayString)")
+                    }
+                    
+                case .multiSelect:
+                    if let answer = userAnswer as? [String] {
+                        let arrayString = answer.joined(separator: ";")
+                        question.questionAnswerMultiSelect = arrayString
+                    }
+                    
+                    if let items = customItems, !items.isEmpty {
+                        let arrayString = items.joined(separator: ";")
+                        question.multiSelectOptions = arrayString
+                        question.editedMultiSelect = true
+                        self.logger.log("New multi select options: \(arrayString)")
+                    }
+                }
+                
+                // Mark the question as completed if it's not already
+                if !question.completed {
+                    question.completed = true
+                }
+            }
+            
+            //        // Save the context
+            //        await self.save()
+        }
+        
+        //save answer for predefined questions
+        func saveAnswerDefaultQuestions(questionType: QuestionType, question: any QuestionProtocol, userAnswer: Any, category: Category? = nil, goal: Goal? = nil, sequence: Sequence? = nil) async {
+            await context.perform {
+                // create a new question
+                let newQuestion = Question(context: self.context)
+                newQuestion.questionId = UUID()
+                newQuestion.createdAt = getCurrentTimeString()
+                newQuestion.questionType = questionType.rawValue
+                self.logger.info("Question type being saved: \(newQuestion.questionType) ")
+                newQuestion.questionContent = question.content
+               
+                
+                // set the answer based on the question type
+                switch questionType {
+                case .open:
+                    if let answer = userAnswer as? String {
+                        newQuestion.questionAnswerOpen = answer
+                    }
+                case .singleSelect:
+                    if let answer = userAnswer as? String {
+                        newQuestion.questionAnswerSingleSelect = answer
+                    }
+                case .multiSelect:
+                    if let answer = userAnswer as? [String] {
+                        let arrayString = answer.joined(separator: ";")
+                        newQuestion.questionAnswerMultiSelect = arrayString
+                    }
+                }
+                
+                // Mark the question as completed
+                newQuestion.completed = true
+                
+                // add question to category
+                if let category = category {
+                    category.addToQuestions(newQuestion)
+                }
+                // add question to goal
+                if let goal = goal {
+                    newQuestion.goalStarter = true
+                    goal.addToQuestions(newQuestion)
+                }
+                //add question to sequence
+                if let sequence = sequence {
+                    newQuestion.sequenceRecap = true
+                    sequence.addToQuestions(newQuestion)
+                }
+                        
+            }
+            
+            await self.save()
+        }
+    
+    func deleteSequenceEndQuestions(sequence: Sequence) async {
+        let request = NSFetchRequest<Question>(entityName: "Question")
+        request.predicate = NSPredicate(format: "sequence == %@ AND sequenceRecap == true", sequence)
+        
+        await context.perform {
+            do {
+                let questionsToDelete = try self.context.fetch(request)
+                
+               
+                    for question in questionsToDelete {
+                        self.context.delete(question)
+                    }
+               
+            } catch {
+                self.logger.error("Failed to fetch or delete questions: \(error.localizedDescription)")
+            }
+        }
+        
+        await self.save()
+    }
+}
+
+extension DataController {
+    //MARK: Points
+    func updatePoints(newPoints: Int) async {
+        let request = NSFetchRequest<Points>(entityName: "Points")
+        
+        await context.perform {
+            do {
+                let results = try self.context.fetch(request)
+                if let existingPoints = results.first {
+                    existingPoints.total += Int64(newPoints)
+                } else {
+                    let points = Points(context: self.context)
+                    points.pointsId = UUID()
+                    points.total = Int64(newPoints)
+                }
+                
+            } catch {
+                self.logger.error("Error updating points CoreData: \(error)")
+            }
+        }
+        
+        await self.save()
+        
+    }
+    
+    func resetPoints() async {
+        let request = NSFetchRequest<Points>(entityName: "Points")
+        
+        await context.perform {
+            do {
+                let results = try self.context.fetch(request)
+                if let existingPoints = results.first {
+                    existingPoints.total = 0
+                }
+                
+            } catch {
+                self.logger.error("Error updating points CoreData: \(error)")
+            }
+        }
+        
+        await self.save()
+        
+    }
+    
+}
+
+// MARK: - Goals and sequences
 
 extension DataController {
     
+    //Create a new goal
+    func createNewGoal(category: Category?, problemType: String) async -> Goal? {
+        
+        var newGoal: Goal?
+        
+        await context.perform {
+            
+            // Create the new category
+            let goal = Goal(context: self.context)
+            goal.goalId = UUID()
+            goal.goalCreatedAt = getCurrentTimeString()
+            goal.goalProblemType = problemType
+            goal.goalStatus = GoalStatusItem.active.rawValue
+            self.logger.log("Created new goal, type: \(problemType)")
+            
+            if let category = category {
+                self.logger.log("Adding new goal to category: \(category.categoryName)")
+                category.addToGoals(goal)
+            }
+            
+            newGoal = goal
+        }
+        
+        await self.save()
+        
+        return newGoal
+    }
+    
+    // get goals
+    func fetchAllGoals() async -> [Goal] {
+        let request: NSFetchRequest<Goal> = Goal.fetchRequest()
+        var goals: [Goal] = []
+        await context.perform {
+            
+            do {
+                goals = try self.context.fetch(request)
+            } catch {
+                self.logger.log("Error fetching goals: \(error)")
+            }
+        }
+        
+        return goals
+    }
+    
+    func changeGoalStatus(goal: Goal, newStatus: GoalStatusItem) async {
+        await context.perform {
+            
+            goal.goalStatus = newStatus.rawValue
+            
+        }
+        await self.save()
+        
+    }
+    
+    func deleteLastGoal() async {
+        let request = NSFetchRequest<Goal>(entityName: "Goal")
+        
+        // Sort by createdAt, with most recent last
+        let sortDescriptor = NSSortDescriptor(key: "createdAt", ascending: true)
+        request.sortDescriptors = [sortDescriptor]
+        
+        await context.perform {
+            do {
+                let goals = try self.context.fetch(request)
+                
+                // Check if there are any categories
+                if let lastGoal = goals.last {
+                    self.context.delete(lastGoal)
+                    self.logger.log("Latest goal deleted")
+                } else {
+                    self.logger.log("No goals found to delete")
+                }
+                
+            } catch {
+                self.logger.error("Failed to fetch or delete goal from Core Data: \(error.localizedDescription)")
+            }
+        }
+        
+        await self.save()
+    }
+    
+    // save selected plan & create sequence
+    func saveSelectedPlan(plan: NewPlan, category: Category, goal: Goal) async {
+        await context.perform {
+            // build sequence
+            let newSequence = Sequence(context: self.context)
+            newSequence.sequenceId = UUID()
+            newSequence.sequenceCreatedAt = getCurrentTimeString()
+            newSequence.sequenceTitle = plan.title
+            newSequence.sequenceIntent = plan.intent
+            newSequence.sequenceStatus = SequenceStatusItem.active.rawValue
+            newSequence.sequenceObjectives = plan.explore.joined(separator: ";")
+            
+            // create relationships with Category and Goal
+            category.addToSequences(newSequence)
+            goal.addToSequences(newSequence)
+            
+            let totalQuests = plan.quests.count
+            
+            // combine static topics and AI generated ones
+            let allTopics: [NewTopic1] = NewTopic1.samples + plan.quests
+            
+            // save all topics to CoreData
+            for newTopic in allTopics {
+                self.insertTopic(
+                    plan: plan,
+                    newTopic: newTopic,
+                    sequence: newSequence,
+                    category: category,
+                    goal: goal,
+                    totalQuests: totalQuests
+                )
+            }
+        }
+        await save()
+    }
+    
+    private func insertTopic(
+            plan: NewPlan,
+            newTopic: NewTopic1,
+            sequence: Sequence,
+            category: Category,
+            goal: Goal,
+            totalQuests: Int
+    ) {
+        let halfwayPoint = totalQuests / 2
+        
+        let topic = Topic(context: context)
+        topic.topicId = UUID()
+        topic.topicCreatedAt = getCurrentTimeString()
+        topic.topicTitle = newTopic.title
+        topic.topicStatus = TopicStatusItem.locked.rawValue
+        //calculate order index based on step type
+            if newTopic.questType == QuestTypeItem.retro.rawValue {
+                topic.orderIndex = Int16(totalQuests + 2)
+            } else if newTopic.questType == QuestTypeItem.break1.rawValue {
+                topic.orderIndex = Int16(halfwayPoint + 1)
+            } else if newTopic.questNumber > halfwayPoint {
+                topic.orderIndex = Int16(newTopic.questNumber + 1)
+            } else {
+                topic.orderIndex = Int16(newTopic.questNumber)
+            }
+            topic.topicEmoji = newTopic.emoji
+            topic.topicDefinition = newTopic.objective
+            topic.topicQuestType = newTopic.questType
+            
+            // create relationships
+            sequence.addToTopics(topic)
+            category.addToTopics(topic)
+            goal.addToTopics(topic)
+            
+            // if this is the “expectations” topic, add its expectations
+            if newTopic.questType == QuestTypeItem.expectations.rawValue {
+                for item in plan.expectations {
+                    let expectation = TopicExpectation(context: context)
+                    expectation.expectationId = UUID()
+                    expectation.orderIndex = Int16(item.expectationsNumber)
+                    expectation.expectationContent = item.content
+                    topic.addToExpectations(expectation)
+                }
+            }
+        }
+    
+    
+    
 
+}
+
+// MARK: MISC
+
+extension DataController {
+    // MARK: delete all
+    func deleteAll() async {
+        
+        await MainActor.run {
+            deletedAllData = false
+        }
+        
+        // 1. First delete categories (which should cascade delete related topics)
+        let categoryFetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Category")
+        let categoryBatchDeleteRequest = NSBatchDeleteRequest(fetchRequest: categoryFetchRequest)
+        
+        // Configure batch to get object IDs for updating the context's state
+        categoryBatchDeleteRequest.resultType = .resultTypeObjectIDs
+        
+        await context.perform {
+            do {
+                // Execute the category batch delete
+                let categoryBatchDelete = try self.context.execute(categoryBatchDeleteRequest) as? NSBatchDeleteResult
+                
+                // Use the deleted object IDs to update the context's state
+                if let deletedCategoryIDs = categoryBatchDelete?.result as? [NSManagedObjectID] {
+                    let categoryChanges = [NSDeletedObjectsKey: deletedCategoryIDs]
+                    NSManagedObjectContext.mergeChanges(fromRemoteContextSave: categoryChanges, into: [self.context])
+                }
+                
+                // Save context to ensure category deletions are persisted
+                try self.context.save()
+                
+                // 2. Now delete only orphaned topics (those unrelated to any category)
+                // Create a fetch request that finds topics not associated with any category
+                let topicFetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Topic")
+                let topicBatchDeleteRequest = NSBatchDeleteRequest(fetchRequest: topicFetchRequest)
+                topicBatchDeleteRequest.resultType = .resultTypeObjectIDs
+                
+                // Execute the topic batch delete for orphaned topics
+                let topicBatchDelete = try self.context.execute(topicBatchDeleteRequest) as? NSBatchDeleteResult
+                
+                // Use the deleted object IDs to update the context's state
+                if let deletedTopicIDs = topicBatchDelete?.result as? [NSManagedObjectID] {
+                    let topicChanges = [NSDeletedObjectsKey: deletedTopicIDs]
+                    NSManagedObjectContext.mergeChanges(fromRemoteContextSave: topicChanges, into: [self.context])
+                }
+                
+                // Final save to ensure all changes are persisted
+                try self.context.save()
+                
+                // 3. Delete the user's profile
+               let profileFetchRequest = NSFetchRequest<Profile>(entityName: "Profile")
+               let profiles = try self.context.fetch(profileFetchRequest)
+               
+                //delet all found profiles (there should only be one)
+               for profile in profiles {
+                   self.context.delete(profile)
+               }
+               
+               // Final save to ensure all changes are persisted
+               try self.context.save()
+            
+               self.logger.info("Successfully deleted all categories, orphaned topics, and user profile")
+                
+            } catch {
+                self.logger.error("Error during deletion process: \(error.localizedDescription)")
+            }
+        }
+        
+        await MainActor.run {
+            deletedAllData = true
+        }
+    }
+}
+
+
+
+// MARK: - Current not in use
+extension DataController {
+    
+    // MARK: Categories
     func addCategoriesToCoreData() async {
     
         let request = NSFetchRequest<Category>(entityName: "Category")
@@ -744,11 +819,11 @@ extension DataController {
     /// Creates a single category in CoreData based on the provided life area option
     /// - Parameter lifeAreaOption: The life area string to match with Realm data
     /// - Returns: The created Category entity or nil if not found
-    func createSingleCategory(lifeArea: String) async -> Category? {
+    func createSingleCategory(name: String) async -> Category? {
         
         // Find the matching realm data
-        guard let realmData = QuestionCategory.getCategoryData(for: lifeArea) else {
-            self.logger.error("No matching realm found for lifeArea: \(lifeArea)")
+        guard let realmData = QuestionCategory.getCategoryData(for: name) else {
+            self.logger.error("No matching realm found for \(name)")
             return nil
         }
         
@@ -761,11 +836,11 @@ extension DataController {
                 let allCategories = try self.context.fetch(request)
                                 
                 let matchingCategories = allCategories.filter { category in
-                    category.lifeArea == lifeArea
+                    category.name == name
                 }
                                 
                 if !matchingCategories.isEmpty {
-                    self.logger.info("Category already exists for \(lifeArea)")
+                    self.logger.info("Category already exists for \(name)")
                     newCategory = matchingCategories.first
                     return
                 }
@@ -776,10 +851,8 @@ extension DataController {
                 category.orderIndex = Int16(allCategories.count)
                 category.categoryCreatedAt = getCurrentTimeString()
                 category.categoryEmoji = realmData.icon
-                category.categoryName = realmData.name
+                category.categoryName = name
                 category.categoryLifeArea = realmData.lifeArea
-                category.categoryUndiscovered = realmData.undiscoveredDescription
-                category.categoryDiscovered = realmData.discoveredDescription
                 
                 newCategory = category
                 
@@ -878,47 +951,157 @@ extension DataController {
         }
     }
     
-    func updatePoints(newPoints: Int) async {
-        let request = NSFetchRequest<Points>(entityName: "Points")
+    // MARK: Focus area
+    
+    func updateFocusAreaStatus(focusArea: FocusArea) async {
+        await context.perform {
+            //update focus area status to active
+            
+            self.logger.log("Updating status for focus area: \(focusArea.orderIndex) \(focusArea.focusAreaTitle)")
+            
+            focusArea.focusAreaStatus = FocusAreaStatusItem.active.rawValue
+        }
+        
+        await self.save()
+    
+    }
+    
+    func completeFocusArea(focusArea: FocusArea) async {
+        await context.perform {
+            focusArea.completedAt = getCurrentTimeString()
+            focusArea.focusAreaStatus = FocusAreaStatusItem.completed.rawValue
+            
+            self.logger.log("Complete focus area: \(focusArea.orderIndex) \(focusArea.focusAreaTitle)")
+        }
+        
+        await self.save()
+    }
+    
+    func completeFocusAreaRecap(focusArea: FocusArea) async {
+        await context.perform {
+            focusArea.recapComplete = true
+            
+            self.logger.log("Complete focus area recap: \(focusArea.orderIndex) \(focusArea.focusAreaTitle)")
+        }
+        
+        await self.save()
+    }
+    
+    
+    //MARK: Section
+    //fetch a section
+    func fetchSection(id: UUID) async -> Section? {
+        let request = NSFetchRequest<Section>(entityName: "Section")
+        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        
+        var fetchedSection: Section? = nil
         
         await context.perform {
             do {
                 let results = try self.context.fetch(request)
-                if let existingPoints = results.first {
-                    existingPoints.total += Int64(newPoints)
-                } else {
-                    let points = Points(context: self.context)
-                    points.pointsId = UUID()
-                    points.total = Int64(newPoints)
+                if let section = results.first {
+                    
+                    fetchedSection = section
                 }
-                
             } catch {
-                self.logger.error("Error updating points CoreData: \(error)")
+                self.logger.error("Error fetching entry with ID \(id): \(error.localizedDescription)")
+                
             }
         }
         
-        await self.save()
+        return fetchedSection
         
     }
     
-    func resetPoints() async {
-        let request = NSFetchRequest<Points>(entityName: "Points")
+    //mark section as complete
+    func completeSection(section: Section) async {
+        await context.perform {
+            section.completed = true
+        }
+        
+        await self.save()
+    }
+    
+    // MARK: Topic
+    
+    //create new topic
+    func createTopic(suggestion: NewTopicGenerated, topicId: UUID, category: Category) async -> (topicId: UUID?, focusArea: FocusArea?) {
+       
+        var createdFocusArea: FocusArea? = nil
+        
+        let request = NSFetchRequest<Topic>(entityName: "Topic")
+            request.predicate = NSPredicate(format: "id == %@", topicId as CVarArg)
         
         await context.perform {
+            
             do {
+                
                 let results = try self.context.fetch(request)
-                if let existingPoints = results.first {
-                    existingPoints.total = 0
+                            
+                // If no topic found, exit the function
+                guard let existingTopic = results.first else {
+                    self.logger.log("No topic found with ID: \(topicId)")
+                    return
+                }
+               
+                // Update the existing topic with suggestion data
+                existingTopic.topicStatus = TopicStatusItem.active.rawValue
+                existingTopic.topicCreatedAt = getCurrentTimeString()
+               
+                let focusAreasTotal = suggestion.focusAreas.count
+                existingTopic.focusAreasLimit = Int16(focusAreasTotal)
+                
+                category.addToTopics(existingTopic)
+                
+                for newFocusArea in suggestion.focusAreas {
+                    let focusArea = FocusArea(context: self.context)
+                    focusArea.focusAreaId = UUID()
+                    focusArea.focusAreaCreatedAt = getCurrentTimeString()
+                    focusArea.orderIndex = Int16(newFocusArea.focusAreaNumber)
+                    focusArea.focusAreaTitle = newFocusArea.content
+                    focusArea.focusAreaReasoning = newFocusArea.reasoning
+                    focusArea.focusAreaEmoji = newFocusArea.emoji
+                    
+                    existingTopic.addToFocusAreas(focusArea)
+                    category.addToFocusAreas(focusArea)
+                    
+                    if newFocusArea.focusAreaNumber == 1 {
+                        createdFocusArea = focusArea
+                        focusArea.focusAreaStatus = FocusAreaStatusItem.active.rawValue
+                    } else {
+                        focusArea.focusAreaStatus = FocusAreaStatusItem.locked.rawValue
+                    }
                 }
                 
+                self.addLastFocusArea(topic: existingTopic, category: category, index: focusAreasTotal + 1)
+                
+                self.newTopic = existingTopic
+                self.logger.log("Updated newTopic published variable")
             } catch {
-                self.logger.error("Error updating points CoreData: \(error)")
+                self.logger.error("Error fetching topic: \(error.localizedDescription)")
             }
+
         }
         
         await self.save()
         
+        return (topicId, createdFocusArea)
     }
+    
+    private func addLastFocusArea(topic: Topic, category: Category, index: Int) {
+        let newFocusArea = FocusArea(context: self.context)
+        newFocusArea.focusAreaId = UUID()
+        newFocusArea.focusAreaCreatedAt = getCurrentTimeString()
+        newFocusArea.focusAreaTitle = EndOfTopic.sampleEndOfTopic.title
+        newFocusArea.focusAreaReasoning = EndOfTopic.sampleEndOfTopic.reasoning
+        newFocusArea.orderIndex = Int16(index)
+        newFocusArea.endOfTopic = true
+        topic.addToFocusAreas(newFocusArea)
+        category.addToFocusAreas(newFocusArea)
+    }
+    
+    
+    // MARK: Other
     
     func saveUserName(name: String) async {
         
@@ -968,186 +1151,73 @@ extension DataController {
         }
     }
     
-    func updateFocusAreaStatus(focusArea: FocusArea) async {
-        await context.perform {
-            //update focus area status to active
-            
-            self.logger.log("Updating status for focus area: \(focusArea.orderIndex) \(focusArea.focusAreaTitle)")
-            
-            focusArea.focusAreaStatus = FocusAreaStatusItem.active.rawValue
-        }
+    
+    func deleteEntry(id: UUID) async {
         
-        await self.save()
-    
-    }
-    
-    func completeFocusArea(focusArea: FocusArea) async {
-        await context.perform {
-            focusArea.completedAt = getCurrentTimeString()
-            focusArea.focusAreaStatus = FocusAreaStatusItem.completed.rawValue
-            
-            self.logger.log("Complete focus area: \(focusArea.orderIndex) \(focusArea.focusAreaTitle)")
-        }
+        let request = NSFetchRequest<Entry>(entityName: "Entry")
+        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
         
-        await self.save()
-    }
-    
-    func completeFocusAreaRecap(focusArea: FocusArea) async {
         await context.perform {
-            focusArea.recapComplete = true
-            
-            self.logger.log("Complete focus area recap: \(focusArea.orderIndex) \(focusArea.focusAreaTitle)")
+            do {
+                let fetchedTopic = try self.context.fetch(request)
+                
+                if let entry = fetchedTopic.first {
+                    self.context.delete(entry)
+                    
+                    Task {
+                        await self.save()
+                    }
+                }
+                    
+            } catch {
+                self.logger.error("Failed to delete entry from Core Data: \(error.localizedDescription)")
+            }
         }
-        
-        await self.save()
     }
-    
-}
 
-// MARK: Goals and sequences
-
-extension DataController {
-    
-    //Create a new goal
-    func createNewGoal(category: Category?, problemType: String) async -> Goal? {
+    //delete all suggestions
+    func deleteTopicSuggestions(topicId: UUID) async throws -> Topic? {
         
-        var newGoal: Goal?
+        let request = NSFetchRequest<Topic>(entityName: "Topic")
+        request.predicate = NSPredicate(format: "id == %@", topicId as CVarArg)
+       
+        var topic: Topic? = nil
         
-        await context.perform {
+        try await context.perform {
+            do {
+                
+                guard let fetchedTopic = try self.context.fetch(request).first else { return }
+                
+                let topicSuggestions = fetchedTopic.topicSuggestions
+               
+                for item in topicSuggestions {
+                    self.context.delete(item)
+                }
+               
+                Task {
+                    await self.save()
+                }
+                
+                topic = fetchedTopic
+                
+            } catch {
+                self.logger.error("Failed to batch delete suggestions: \(error.localizedDescription), \(error)")
+                throw CoreDataError.coreDataError(error)
+            }
            
-                // Create the new category
-            let goal = Goal(context: self.context)
-            goal.goalId = UUID()
-            goal.goalCreatedAt = getCurrentTimeString()
-            goal.goalProblemType = problemType
-            self.logger.log("Created new goal, type: \(problemType)")
-            
-            if let category = category {
-                self.logger.log("Adding new goal to category: \(category.categoryName)")
-                category.addToGoals(goal)
-            }
-  
-            newGoal = goal
         }
-        
-        await self.save()
-        
-        return newGoal
+        return topic
     }
     
-    // get goals
-    func fetchAllGoals() async -> [Goal] {
-        let request: NSFetchRequest<Goal> = Goal.fetchRequest()
-        var goals: [Goal] = []
+    
+    func updateOverviewStatus(review: TopicReview) async {
         await context.perform {
+            review.overviewGenerated.toggle()
             
-            do {
-                goals = try self.context.fetch(request)
-            } catch {
-                self.logger.log("Error fetching goals: \(error)")
+            Task {
+                await self.save()
             }
         }
         
-        return goals
     }
-    
-    func deleteLastGoal() async {
-        let request = NSFetchRequest<Goal>(entityName: "Goal")
-        
-        // Sort by createdAt, with most recent last
-        let sortDescriptor = NSSortDescriptor(key: "createdAt", ascending: true)
-        request.sortDescriptors = [sortDescriptor]
-        
-        await context.perform {
-            do {
-                let goals = try self.context.fetch(request)
-                
-                // Check if there are any categories
-                if let lastGoal = goals.last {
-                    self.context.delete(lastGoal)
-                    self.logger.log("Latest goal deleted")
-                } else {
-                    self.logger.log("No goals found to delete")
-                }
-                
-            } catch {
-                self.logger.error("Failed to fetch or delete goal from Core Data: \(error.localizedDescription)")
-            }
-        }
-        
-        await self.save()
-    }
-    
-    // save selected plan & create sequence
-    func saveSelectedPlan(plan: NewPlan, category: Category, goal: Goal) async {
-        await context.perform {
-            // build sequence
-            let newSequence = Sequence(context: self.context)
-            newSequence.sequenceId = UUID()
-            newSequence.sequenceCreatedAt = getCurrentTimeString()
-            newSequence.sequenceTitle = plan.title
-            newSequence.sequenceIntent = plan.intent
-            newSequence.sequenceStatus = SequenceStatusItem.active.rawValue
-            newSequence.sequenceObjectives = plan.explore.joined(separator: ";")
-            
-            // create relationships with Category and Goal
-            category.addToSequences(newSequence)
-            goal.addToSequences(newSequence)
-            
-            let totalQuests = plan.quests.count
-            
-            // combine static topics and AI generated ones
-            let allTopics: [NewTopic1] = NewTopic1.samples + plan.quests
-            
-            // save all topics to CoreData
-            for newTopic in allTopics {
-                self.insertTopic(
-                    plan: plan,
-                    newTopic: newTopic,
-                    sequence: newSequence,
-                    category: category,
-                    goal: goal,
-                    totalQuests: totalQuests
-                )
-            }
-        }
-        await save()
-    }
-    
-    
-    private func insertTopic(
-            plan: NewPlan,
-            newTopic: NewTopic1,
-            sequence: Sequence,
-            category: Category,
-            goal: Goal,
-            totalQuests: Int
-        ) {
-            let topic = Topic(context: context)
-            topic.topicId = UUID()
-            topic.topicCreatedAt = getCurrentTimeString()
-            topic.topicTitle = newTopic.title
-            topic.topicStatus = TopicStatusItem.locked.rawValue
-            topic.orderIndex = Int16(newTopic.questType == QuestTypeItem.retro.rawValue ? totalQuests + 1 : newTopic.questNumber)
-            topic.topicEmoji = newTopic.emoji
-            topic.topicDefinition = newTopic.objective
-            topic.topicQuestType = newTopic.questType
-            
-            // create relationships
-            sequence.addToTopics(topic)
-            category.addToTopics(topic)
-            goal.addToTopics(topic)
-            
-            // if this is the “expectations” topic, add its expectations
-            if newTopic.questType == QuestTypeItem.expectations.rawValue {
-                for item in plan.expectations {
-                    let expectation = TopicExpectation(context: context)
-                    expectation.expectationId = UUID()
-                    expectation.orderIndex = Int16(item.expectationsNumber)
-                    expectation.expectationContent = item.content
-                    topic.addToExpectations(expectation)
-                }
-            }
-        }
-
 }

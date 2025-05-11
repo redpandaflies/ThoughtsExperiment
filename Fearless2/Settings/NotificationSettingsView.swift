@@ -29,11 +29,11 @@ struct NotificationSettingsView: View {
         VStack {
             Toggle(isOn: $isScheduled) {
                 VStack (alignment: .leading, spacing: 2){
-                    Text("Daily reminder to explore realms")
+                    Text("Daily reminder")
                         .font(.system(size: 14, weight: .medium))
                         .foregroundStyle(AppColors.textPrimary)
 
-                    Text("Build a habit that helps you wind down")
+                    Text("Make progress on what keeps you up at night")
                         .font(.system(size: 12, weight: .light))
                         .foregroundStyle(AppColors.textPrimary)
                         .opacity(0.5)

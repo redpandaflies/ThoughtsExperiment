@@ -142,8 +142,7 @@ final class AssistantRunManager {
                 throw ContextError.missingRequiredField("Topic")
             }
          
-            
-            guard let gatheredContext = await ContextGatherer.gatherContextTopic(dataController: dataController, loggerCoreData: loggerCoreData, topic: currentTopic) else {
+            guard let gatheredContext = await ContextGatherer.gatherContextTopic(dataController: dataController, loggerCoreData: loggerCoreData, selectedAssistant: selectedAssistant, topic: currentTopic) else {
                 loggerCoreData.error("Failed to get context ")
                 throw ContextError.noContextFound("Context")
             }

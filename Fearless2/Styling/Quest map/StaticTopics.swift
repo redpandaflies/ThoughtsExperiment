@@ -17,13 +17,6 @@ extension NewTopic1 {
             questType: QuestTypeItem.expectations.rawValue
         ),
         NewTopic1(
-            questNumber: 1,
-            title: "Break",
-            objective: "A break to zoom out and reflect",
-            emoji: "",
-            questType: QuestTypeItem.break1.rawValue
-        ),
-        NewTopic1(
             questNumber: 2,
             title: "Retrospective",
             objective: "Reflect on what you’ve experienced so far",

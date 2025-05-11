@@ -12,7 +12,11 @@ enum QuestTypeItem: String, CaseIterable {
     case guided
     case newCategory
     case context
-    case break1 // pause from questions, provides user something to read and reflect on
+    case breakSignal // pause from questions, provides user something to read and reflect on
+    case breakValues
+    case breakFirstPrinciples
+    case breakMentalModel
+    case breakMythReframe
     case retro
     
     // get SF symbol name
@@ -28,8 +32,16 @@ enum QuestTypeItem: String, CaseIterable {
                 return "questionmark"
             case .retro:
                 return "clock.arrow.circlepath"
-            case .break1:
+            case .breakSignal:
+                return "antenna.radiowaves.left.and.right"
+            case .breakValues:
+                return "heart.fill"
+            case .breakMentalModel:
                 return "cube.transparent"
+            case .breakMythReframe:
+                return "wand.and.rays"
+            case .breakFirstPrinciples:
+                return "circle.grid.cross.fill"
         }
     }
     

@@ -15,7 +15,6 @@ struct QuestMapView: View {
     @EnvironmentObject var dataController: DataController
     @ObservedObject var topicViewModel: TopicViewModel
     
-    
     @State private var playHapticEffect: Int = 0
     @State private var showUpdateTopicView: Bool = false
     @State private var showLockedQuestInfoSheet: Bool = false
@@ -26,6 +25,7 @@ struct QuestMapView: View {
     
     @State private var sequenceScrollPosition: Int?
     @State private var currentSequenceIndex: Int = 0 // to manage which sequence is being displayed
+    @State private var totalCompletedTopics: Int = 0
     
     @Binding var selectedTopic: Topic?
     @Binding var currentTabBar: TabBarType
@@ -48,19 +48,6 @@ struct QuestMapView: View {
     
     private var totalTopics: Int {
         currentSequence?.sequenceTopics.count ?? 0
-    }
-    
-    var totalCompletedTopics: Int {
-        guard sequences.indices.contains(currentSequenceIndex) else {
-            return 0
-        }
-        let sequence = sequences[currentSequenceIndex]
-        
-        let relatedTopics = sequence.sequenceTopics
-        
-        let completedTopics = relatedTopics.filter { $0.topicStatus == TopicStatusItem.completed.rawValue }
-        
-        return completedTopics.count
     }
     
     
@@ -145,7 +132,6 @@ struct QuestMapView: View {
             
             
         }//VStack
-        
         .padding(.vertical, 20)
         .background {
             RoundedRectangle(cornerRadius: 25)
@@ -162,10 +148,21 @@ struct QuestMapView: View {
             if playHapticEffect != 0 {
                 playHapticEffect = 0
             }
-            
-            
             currentSequenceIndex = sequences.count > 1 ? sequences.endIndex - 1 : 0
             
+            updateSequenceProgressBar()
+            
+        }
+        .onChange(of: topicViewModel.completedNewTopic) {
+            if topicViewModel.completedNewTopic {
+                updateSequenceProgressBar()
+                topicViewModel.completedNewTopic = false
+            }
+        }
+        .onChange(of: sequences.map(\.sequenceStatus)) { oldValue, newValue in
+            if currentSequenceIndex != sequences.endIndex - 1 {
+                currentSequenceIndex = sequences.endIndex - 1
+            }
         }
         .fullScreenCover(isPresented: $showUpdateTopicView, onDismiss: {
             showUpdateTopicView = false
@@ -270,15 +267,18 @@ struct QuestMapView: View {
             Spacer()
             
             Menu {
-               
-                Menu {
+                if goal.goalSequences.count > 1 {
+                    Menu {
+                        
+                        ForEach(Array(sequences.enumerated()), id: \.element.sequenceId) { index, sequence in
+                            menuButton(text: sequence.sequenceTitle, index: index)
+                        }
+                    } label: {
                     
-                    ForEach(Array(sequences.enumerated()), id: \.element.sequenceId) { index, sequence in
-                        menuButton(text: sequence.sequenceTitle, index: index)
+                        Label("Plans", systemImage: "checkmark")
+                            .labelStyle(.titleOnly)
+                            .font(.system(size: 14))
                     }
-                } label: {
-                    Label("Plans", systemImage: "")
-                        .font(.system(size: 14))
                 }
                 
                 Button(role: .destructive) {
@@ -293,8 +293,9 @@ struct QuestMapView: View {
                     
                 } label: {
                     // Your label view
-                    Label("Abandon", systemImage: "trash")
+                    Label("Delete", systemImage: "trash")
                 }
+                
             } label: {
                 Image(systemName: "ellipsis.circle")
                     .font(.system(size: 23, weight: .light).smallCaps())
@@ -306,13 +307,17 @@ struct QuestMapView: View {
     }
     
     private func menuButton(text: String, index: Int) -> some View {
-        Button {
-            if currentSequenceIndex != index {
-                currentSequenceIndex = index
-            }
-        } label: {
-            Label("\(index + 1) \(text)", systemImage: currentSequenceIndex == index ? "checkmark" : "")
-                .font(.system(size: 14))
+        
+        
+            Button {
+                if currentSequenceIndex != index {
+                    currentSequenceIndex = index
+                    updateSequenceProgressBar()
+                }
+            } label: {
+                    Label("\(index + 1). \(text)", systemImage: currentSequenceIndex == index ? "checkmark" : "")
+                        .font(.system(size: 14))
+                
         }
         
     }
@@ -327,20 +332,27 @@ struct QuestMapView: View {
                 .foregroundStyle(AppColors.textPrimary.opacity(0.7))
             
             ProgressBarThin(
-                totalTopics: totalTopics,
-                totalCompletedTopics: totalCompletedTopics)
+                totalCompletedTopics: totalCompletedTopics,
+                totalTopics: totalTopics
+                )
                 .frame(height: 15)
         }
         
     }
     
-    private func changeGoalStatus() {
-        
-        Task {
-            
-            
+    private func updateSequenceProgressBar() {
+        guard sequences.indices.contains(currentSequenceIndex) else {
+            return
         }
+        let sequence = sequences[currentSequenceIndex]
         
+        let relatedTopics = sequence.sequenceTopics
+        
+        let completedTopics = relatedTopics.filter { $0.topicStatus == TopicStatusItem.completed.rawValue }
+        
+        withAnimation {
+            totalCompletedTopics = completedTopics.count
+        }
     }
     
 }

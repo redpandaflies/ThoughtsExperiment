@@ -9,10 +9,12 @@ import SwiftUI
 
 struct UpdateTopicIntroView: View {
     @ObservedObject var topicViewModel: TopicViewModel
-    @State private var selectedTabTopicsList: Int = 0
+   
     @State private var lastCompleteSectionIndex: Int? = nil
     @State private var nextTopicIndex: Int? = nil
     
+    
+    @Binding var selectedTabTopicsList: Int 
     @Binding var answersOpen: [String]
     
     let topic: Topic
@@ -190,6 +192,7 @@ struct UpdateTopicIntroView: View {
             }
         }
     }
+    
     
     private func updateQuestionVariables(count: Int) {
         answersOpen = Array(repeating: "", count: count)

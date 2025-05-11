@@ -28,22 +28,18 @@ struct SettingsView: View {
     var body: some View {
         
         NavigationStack {
-            VStack (spacing: 10) {
+            VStack (spacing: 15) {
                 
-                Text("⚙️")
-                    .font(.system(size: 50))
-                    .padding(.bottom, 20)
+                Image("spinnerSilver")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 70)
+                    .blendMode(.plusLighter)
                 
-                Text("Forge of Customization")
+                Text("Preferences")
                     .font(.system(size: 25, design: .serif))
                     .foregroundStyle(AppColors.textPrimary)
-                
-                Text("Personalize your journey by setting the\ndetails just right.")
-                    .multilineTextAlignment(.center)
-                    .font(.system(size: 16, weight: .light))
-                    .foregroundStyle(AppColors.textPrimary)
-                    .lineSpacing(1.3)
-                    .padding(.bottom, 40)
+                    .padding(.bottom, 30)
               
                 SettingsLabel(iconName: "chevron.right", text: "Reminders")
                     .onTapGesture {
@@ -57,14 +53,11 @@ struct SettingsView: View {
                             .toolbarRole(.editor) //removes the word "back" in the back button
                     }
                 
-                dividerLine()
-                    .padding(.vertical, 20)
-                
                 ShareLink (
                     item: URL(string: "https://testflight.apple.com/join/GMHjFVf1")!
                 ) {
                     
-                    SettingsLabel(iconName: "paperplane.fill", text: "Send the app to a friend")
+                    SettingsLabel(iconName: "paperplane.fill", text: "Send this to a friend")
                 }
                 .background {
                     Button {
@@ -77,9 +70,6 @@ struct SettingsView: View {
                     }
                     .sensoryFeedback(.selection, trigger: playHapticEffect)
                 }
-                
-                dividerLine()
-                    .padding(.vertical, 20)
                 
                 SettingsLabel(iconName: "arrow.counterclockwise", text: "Start over")
                     .onTapGesture {
@@ -104,6 +94,7 @@ struct SettingsView: View {
             }
         }//NavigationStack
         .tint(AppColors.textPrimary.opacity(0.7))//sets the back button on navigationlink views to white
+        .environment(\.colorScheme, .dark)
         .alert("⚠️\nAre you sure you want to start over?", isPresented: $showStartOverAlert) {
             Button("Start over", role: .destructive) {
                 startOver()
@@ -115,19 +106,20 @@ struct SettingsView: View {
         
     }//body
     
-    private func dividerLine() -> some View {
-        Rectangle()
-            .fill(AppColors.dividerPrimary.opacity(0.2))
-            .frame(maxWidth: .infinity)
-            .frame(height: 1)
-            .shadow(color: AppColors.dividerShadow.opacity(0.05), radius: 0, x: 0, y: 1)
-    }
+//    private func dividerLine() -> some View {
+//        Rectangle()
+//            .fill(AppColors.dividerPrimary.opacity(0.2))
+//            .frame(maxWidth: .infinity)
+//            .frame(height: 1)
+//            .shadow(color: AppColors.dividerShadow.opacity(0.05), radius: 0, x: 0, y: 1)
+//    }
     
     private func startOver() {
         dismiss()
         
         //reset all appstorage and cloudstorage vars
         currentCategory = 0
+        currentAppView = 0
 //        newCategory = false
 //        showTopics = false
 //        discoveredFirstCategory = false // commented out temporarily, allow users to start over elegantly without going through onboarding
@@ -165,7 +157,7 @@ struct SettingsLabel: View {
         HStack {
            
             Text(text)
-                .font(.system(size: 17, weight: .light))
+                .font(.system(size: 15, weight: .light))
                 .foregroundStyle(AppColors.textPrimary)
           
             Spacer()

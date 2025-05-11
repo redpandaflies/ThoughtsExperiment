@@ -9,8 +9,8 @@ import SwiftUI
 
 
 struct RecapCelebrationView: View {
-    @State private var animationStage: Int = 0
-    
+    @Binding var animationStage: Int
+
     let title: String
     let text: String
     let points: String
@@ -60,7 +60,6 @@ struct RecapCelebrationView: View {
                     withAnimation (.easeIn(duration: 0.25)) {
                         animationStage += 1
                     }
-                    
                 }
                 
             }

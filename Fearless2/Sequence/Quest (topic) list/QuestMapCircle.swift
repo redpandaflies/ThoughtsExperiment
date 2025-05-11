@@ -14,7 +14,7 @@ struct QuestMapCircle: View {
 //    @State private var timer: Timer? = nil
     
     let backgroundColor: Color
-    let nextQuest: Bool //quest that is next but yet active (user has not picked the quest yet)
+    let nextTopic: Bool //quest that is next but yet active (user has not picked the quest yet)
     
     private var questType: QuestTypeItem {
        return QuestTypeItem(rawValue: topic.topicQuestType) ?? .guided
@@ -57,22 +57,22 @@ struct QuestMapCircle: View {
 //                        .fill(Color.clear)
 //                }
         )
-        .conditionalEffect(
-              .repeat(
-                .glow(color: AppColors.boxYellow1, radius: 70),
-                every: 4
-              ),
-              condition: playAnimation
-          )
+//        .conditionalEffect(
+//              .repeat(
+//                .glow(color: AppColors.boxYellow2, radius: 70),
+//                every: 4
+//              ),
+//              condition: playAnimation
+//          )
         .onAppear {
-            if questStatus == .active || nextQuest {
+            if nextTopic {
                 playAnimation = true
             }
         }
-        .onChange(of: nextQuest) {
+        .onChange(of: nextTopic) {
             if questStatus == .completed {
                 playAnimation = false
-            } else if questStatus == .active || nextQuest {
+            } else if nextTopic {
                 playAnimation = true
             }
         }
@@ -89,12 +89,12 @@ struct QuestMapCircle: View {
             Image(systemName: questIcon)
                 .font(.system(size: size, weight: .heavy))
                 .foregroundStyle(
-                    questStatus == .locked && !nextQuest ?  backgroundColor.opacity(0.2) : Color.white.opacity(0.9)
+                    questStatus == .locked && !nextTopic ?  backgroundColor.opacity(0.2) : Color.white.opacity(0.9)
                 )
-                .shadow(color: questStatus == .locked && !nextQuest ? .clear : Color.black.opacity(0.15), radius: 1, x: 0, y: 1)
+                .shadow(color: questStatus == .locked && !nextTopic ? .clear : Color.black.opacity(0.15), radius: 1, x: 0, y: 1)
            
             // black inner shadow
-            if questStatus == .locked && !nextQuest {
+            if questStatus == .locked && !nextTopic {
                 Rectangle()
                     .inverseMask(Image(systemName: questIcon).font(.system(size: size, weight: .heavy)))
                     .shadow(color: Color.black.opacity(0.15), radius: 1, x: 0, y: 1)
@@ -125,7 +125,7 @@ struct QuestMapCircle: View {
                 )
             )
         default:
-            return nextQuest ? AnyShapeStyle(
+            return nextTopic ? AnyShapeStyle(
                 LinearGradient(
                     gradient: Gradient(colors: [AppColors.boxYellow1, AppColors.boxYellow2]),
                     startPoint: .top,
@@ -149,7 +149,7 @@ struct QuestMapCircle: View {
         case .active:
             return Color.white
         default:
-            return nextQuest ? Color.white : Color.white.opacity(0.9)
+            return nextTopic ? Color.white : Color.white.opacity(0.9)
             
         }
     }

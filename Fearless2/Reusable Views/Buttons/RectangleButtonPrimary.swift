@@ -18,7 +18,7 @@ struct RectangleButtonPrimary: View {
     
     let buttonText: String
     let action: () -> Void
-    let showChevron: Bool
+    let showPlus: Bool
     let showSkipButton: Bool
     let skipAction: () -> Void
     let disableMainButton: Bool
@@ -29,7 +29,7 @@ struct RectangleButtonPrimary: View {
     init(
         buttonText: String,
         action: @escaping () -> Void,
-        showChevron: Bool = false,
+        showPlus: Bool = false,
         showSkipButton: Bool = false,
         skipAction: @escaping () -> Void = {},
         disableMainButton: Bool = false,
@@ -38,7 +38,7 @@ struct RectangleButtonPrimary: View {
     ) {
         self.buttonText = buttonText
         self.action = action
-        self.showChevron = showChevron
+        self.showPlus = showPlus
         self.showSkipButton = showSkipButton
         self.skipAction = skipAction
         self.disableMainButton = disableMainButton
@@ -108,17 +108,16 @@ struct RectangleButtonPrimary: View {
     private func mainButton(width: CGFloat) -> some View {
         HStack {
             
-            Text(buttonText)
-                .font(.system(size: sizeSmall ? 13 : 15, weight: .medium))
-                .foregroundStyle(buttonColor == .clear ? AppColors.textPrimary : .black)
-            
-            if showChevron {
-                Image(systemName: "chevron.right")
+            if showPlus {
+                Image(systemName: "plus")
                     .font(.system(size: 15, weight: .medium))
                     .foregroundStyle(Color.black)
             }
             
-          
+            Text(buttonText)
+                .font(.system(size: sizeSmall ? 13 : 15, weight: .medium))
+                .foregroundStyle(buttonColor == .clear ? AppColors.textPrimary : .black)
+
             
         }//HStack
         .frame(height: 55)

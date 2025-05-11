@@ -11,94 +11,122 @@ import SwiftUI
 final class TextAnimator {
     // MARK: - Properties
     private var text: String
-    private var words: [String]
     private var speed: Double
     private var hapticIntensity: Double
+    private var segments: [String]
     
     // MARK: - Published properties for views to observe
     @Binding var animatedText: String
+    @Binding var completedAnimation: Bool
     private let hapticImpact = UIImpactFeedbackGenerator(style: .medium)
+    
+    // MARK: - Parsing Method
+    private func parseTextIntoSegments(_ text: String) -> [String] {
+        // First, split the text by paragraphs (double line breaks)
+        let paragraphs = text.components(separatedBy: "\n\n")
+        
+        var segments: [String] = []
+        
+        for paragraph in paragraphs {
+            // For each paragraph, split by single line breaks
+            let lines = paragraph.components(separatedBy: "\n")
+            
+            for (lineIndex, line) in lines.enumerated() {
+                // Split each line into words
+                let words = line.components(separatedBy: CharacterSet.whitespaces)
+                    .filter { !$0.isEmpty }
+                
+                for (wordIndex, word) in words.enumerated() {
+                    segments.append(word)
+                    
+                    // Add space after word if it's not the last word in the line
+                    if wordIndex < words.count - 1 {
+                        segments.append(" ")
+                    }
+                }
+                
+//                // Add line break if it's not the last line in the paragraph
+                if lineIndex < lines.count - 1 {
+                    segments.append("\n")
+                }
+            }
+            
+            // Add paragraph break (double line break) if it's not the last paragraph
+            if paragraph != paragraphs.last {
+                segments.append("\n\n")
+            }
+        }
+        
+        return segments
+    }
     
     // MARK: - Initialization
     init(
         text: String,
         animatedText: Binding<String>,
+        completedAnimation: Binding<Bool>,
         speed: Double = 0.05,
         hapticIntensity: Double = 0.5
     ) {
         self.text = text
-        self.words = text
-            .components(separatedBy: CharacterSet.whitespacesAndNewlines)
-            .filter { !$0.isEmpty }
         self._animatedText = animatedText
+        self._completedAnimation = completedAnimation
         self.speed = speed
         self.hapticIntensity = hapticIntensity
+        
+        self.segments = []
+        // Split the text into segments that respect line breaks
+        self.segments = self.parseTextIntoSegments(text)
     }
+   
     
     // MARK: - Animation Methods
     func animate() {
         // Prevent multiple animations from running simultaneously
         hapticImpact.prepare()
         animatedText = ""
+        completedAnimation = false
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
-            self?.animateWord(at: 0)
+            self?.animateSegment(at: 0)
         }
     }
     
-    // show one letter at a time
-//    private func animateText(at position: Int = 0) {
-//        if position == 0 {
-//            animatedText = ""
-//        }
-//        let sleepTime = UInt64(speed * 1_000_000_000)
-//        
-//        if position < text.count {
-//            DispatchQueue.main.asyncAfter(deadline: .now() + speed) { [weak self] in
-//                guard let self = self else { return }
-//                let index = self.text.index(self.text.startIndex, offsetBy: position)
-//                self.animatedText.append(self.text[index])
-//                
-//                if position % 3 == 0 && position > 0 {
-//                    self.hapticImpact.impactOccurred(intensity: self.hapticIntensity)
-//                }
-//    
-//                Task {
-//                    if position % 16 == 0 && position > 0 {
-//                       try? await Task.sleep(nanoseconds: sleepTime * 2)
-//                   }
-//                    self.animateText(at: position + 1)
-//                }
-//            }
-//            
-//            
-//        }
-//    }
-    
-    private func animateWord(at index: Int) {
-            guard index < words.count else { return }
-
-            // Append next word and a space
-            animatedText += words[index]
-            if index < words.count - 1 {
-                animatedText += " "
-            }
-
-            // Haptic on each word
+    private func animateSegment(at index: Int) {
+        guard index < segments.count else {
+            // mark animation as complete
+            completedAnimation = true
+            return
+        }
+        
+        // Append next segment
+        animatedText += segments[index]
+        
+        // Apply haptic feedback for words (not for spaces or line breaks)
+        if segments[index] != " " && segments[index] != "\n" && segments[index] != "\n\n" {
             if index % 2 == 0 && index > 0 {
                 hapticImpact.impactOccurred(intensity: hapticIntensity)
             }
-            DispatchQueue.main.asyncAfter(deadline: .now() + speed) { [weak self] in
-                self?.animateWord(at: index + 1)
-            }
         }
+        
+        // Determine delay for the next segment
+        var delay = speed
+        
+        // Add slight pause at line breaks and paragraph breaks
+        if segments[index] == "\n\n" {
+            delay *= 1 // Longer pause for line breaks
+        } 
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
+            self?.animateSegment(at: index + 1)
+        }
+    }
     
     func updateText(_ newText: String) {
-            // Re-split new text into words
-            self.words = newText
-                .components(separatedBy: CharacterSet.whitespacesAndNewlines)
-                .filter { !$0.isEmpty }
-        }
+        self.text = newText
+        self.segments = self.parseTextIntoSegments(newText)
+    }
 }
+
 
 extension String {
     subscript(offset: Int) -> Character {

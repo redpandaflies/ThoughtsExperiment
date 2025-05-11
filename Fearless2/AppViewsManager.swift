@@ -24,37 +24,31 @@ struct AppViewsManager: View {
     var body: some View {
         Group {
             switch currentAppView {
+                
+            case 0:
+                
+                OnboardingMainView()
+                
             default:
 //                if !categories.isEmpty {
                     MainAppManager(topicViewModel: viewModelFactoryMain.makeTopicViewModel())
-                    
+                    .transition(.opacity)
 //                } else {
 //                    //Should never happen, user should always have categories unless they haven't done onboarding, may come up during testing
 //                    OnboardingMainView()
 //                }
             }
         }
-        .onAppear {
-            if currentAppView == 2 {
-                withAnimation(.smooth) {
-                    currentView = 2
-                }
-            }
-        }
         .onChange(of: currentAppView) {
-            if currentAppView == 2 {
+            if currentAppView == 1 {
                 withAnimation(.smooth) {
-                    currentView = 2
+                    currentView = 1
                 }
             } else {
                 currentView = 0
             }
         }
-        .onAppear {
-            if categories.count > 0 && currentAppView == 0 {
-                currentAppView = 1
-            }
-        }
+        
     }
     
 }

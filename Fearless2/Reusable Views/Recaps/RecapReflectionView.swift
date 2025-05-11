@@ -12,7 +12,7 @@ struct RecapReflectionView: View {
     @State private var animationValue: Bool = false
     @State private var animator: TextAnimator?
     @State private var startedAnimation: Bool = false
-    @State private var recapSelectedTab: Int = 0 //manage the UI changes when recap is ready
+    @State private var recapSelectedTab: Int = 1 //manage the UI changes when recap is ready
     @Binding var animatedText: String
     
     let feedback: String
@@ -39,6 +39,7 @@ struct RecapReflectionView: View {
                 
                 case 1:
                     recapText()
+                        .transition(.opacity)
                 
                 default:
                     FocusAreaRetryView(action: {
@@ -73,24 +74,6 @@ struct RecapReflectionView: View {
                 }
             }
         }
-//        .onChange(of: topicViewModel.createFocusAreaSummary) {
-//            
-//            switch topicViewModel.createFocusAreaSummary {
-//                case .ready:
-//                    animationValue = false
-//                    withAnimation (.snappy(duration: 0.2)) {
-//                        recapStatus = 1
-//                    }
-//                case .retry:
-//                    withAnimation (.snappy(duration: 0.2)) {
-//                        recapStatus = 2
-//                    }
-//                default:
-//                withAnimation (.snappy(duration: 0.2)) {
-//                    recapStatus = 0
-//                }
-//            }
-//        }
         .onChange(of: topicViewModel.createTopicOverview) {
             
             switch topicViewModel.createTopicOverview {
@@ -119,25 +102,6 @@ struct RecapReflectionView: View {
             .lineSpacing(1.5)
         
     }
-
-//    private func manageFocusAreaRecapView(focusArea: FocusArea) {
-//        switch  topicViewModel.createFocusAreaSummary  {
-//            case .ready:
-//                if focusArea.focusAreaStatus == FocusAreaStatusItem.completed.rawValue {
-//                    animatedText = feedback //no animation if use has already seen the feedback once
-//                    startedAnimation = true //prevent triggering animation when recapReady is set to true
-//                    recapStatus = 1
-//                } else {
-//                    startedAnimation = true
-//                    recapStatus = 1
-//                    animator?.animate()
-//                }
-//            case .loading:
-//                recapStatus = 0
-//            case .retry:
-//                recapStatus = 2
-//        }
-//    }
     
     private func manageTopicRecapView(topic: Topic) {
         switch  topicViewModel.createTopicOverview  {

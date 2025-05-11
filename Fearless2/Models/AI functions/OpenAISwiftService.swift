@@ -120,7 +120,7 @@ final class OpenAISwiftService: ObservableObject {
             self.toolCallId = ""
         }
         
-        let timeoutSeconds: Double = 30
+        let timeoutSeconds: Double = 45
         
         return try await withTimeout(seconds: timeoutSeconds) { [weak self] in
             guard let self = self else { throw OpenAIError.runIncomplete() }
@@ -219,7 +219,7 @@ final class OpenAISwiftService: ObservableObject {
                 self.loggerOpenAI.warning("Streamed run timed out after \(seconds) seconds")
                 
                 do {
-                    try await self.cancelRun(threadId: self.threadId)
+                    try await self.cancelRun()
                 } catch {
                     self.loggerOpenAI.error("Failed to cancel OpenAI run: \(error.localizedDescription)")
                 }
@@ -238,9 +238,9 @@ final class OpenAISwiftService: ObservableObject {
     }
     
     //cancel run
-    func cancelRun(threadId: String) async throws {
+    func cancelRun() async throws {
         do {
-            let run = try await service.cancelRun(threadID: threadId, runID: self.runId)
+            let run = try await service.cancelRun(threadID: self.threadId, runID: self.runId)
             loggerOpenAI.info("Successfully cancelled run: \(run.id)")
             
         } catch {
@@ -405,7 +405,6 @@ extension OpenAISwiftService {
         }
 
        try await context.perform {
-            topic.topicBreakType = newBreak.breakType
             
            for card in newBreak.cards {
                let topicBreak = TopicBreak(context: context)
@@ -833,13 +832,7 @@ struct Option: Codable, Hashable {
 
 // MARK: Create topic break
 struct NewTopicBreak: Codable, Hashable {
-    let breakType: String
     let cards: [NewBreakCard]
-    
-    enum CodingKeys: String, CodingKey {
-        case breakType = "break_type"
-        case cards
-    }
 }
 
 struct NewBreakCard: Codable, Hashable {

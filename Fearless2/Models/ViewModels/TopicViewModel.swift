@@ -10,20 +10,24 @@ import OSLog
 
 final class TopicViewModel: ObservableObject {
     
-    @Published var topicUpdated: Bool = false
+    // manage API calls states
     @Published var createTopicOverview: TopicOverviewState = .ready
-    @Published var showPlaceholder: Bool = false
-    @Published var generatingImage: Bool = false
-    @Published var updatedEntry: Entry? = nil
-    // create sections for focus area
+    @Published var createTopicQuestions: NewTopicQuestionsState = .ready
+    @Published var createTopicBreak: NewTopicBreakState = .ready
+    
+    // manage UI updates
+    /// triggers update of progress bar for sequence (plan)
+    @Published var completedNewTopic: Bool = false
+    
+    // not in use
     @Published var createNewFocusArea: NewFocusAreaState = .ready
     @Published var focusAreaCreationFailed: Bool = false //when run fails
     @Published var createFocusAreaSummary: FocusAreaSummaryState = .ready
-    @Published var createTopicQuestions: NewTopicQuestionsState = .ready
-    @Published var createTopicBreak: NewTopicBreakState = .ready
-   
     @Published var sectionSummaryCreated: Bool = false
     @Published var scrollToAddTopic: Bool = false
+    @Published var showPlaceholder: Bool = false
+    @Published var generatingImage: Bool = false
+    @Published var updatedEntry: Entry? = nil
   
     private var dataController: DataController
     private var openAISwiftService: OpenAISwiftService
@@ -83,7 +87,6 @@ final class TopicViewModel: ObservableObject {
             //reset published vars
             await MainActor.run {
                 self.threadId = nil
-                self.topicUpdated = false
                 self.showPlaceholder = false
                 self.generatingImage = false
                 if selectedAssistant == .focusArea {
@@ -209,7 +212,7 @@ final class TopicViewModel: ObservableObject {
     func cancelCurrentRun() async throws {
         let threadId = openAISwiftService.threadId
         if !threadId.isEmpty {
-                try await openAISwiftService.cancelRun(threadId: threadId)
+                try await openAISwiftService.cancelRun()
         } else {
             throw OpenAIError.missingRequiredField("No thread ID found")
         }

@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct ProgressBarThin: View {
-    let totalTopics: Int
     let totalCompletedTopics: Int
+    let totalTopics: Int
     
     var body: some View {
         GeometryReader { geo in

@@ -18,7 +18,7 @@ struct LottieView: UIViewRepresentable {
     
     let animationView: LottieAnimationView
     
-    init(name: String, loopMode: LottieLoopMode = .loop, animationSpeed: Binding<CGFloat> = .constant(2.5), contentMode: UIView.ContentMode = .scaleAspectFit, play: Binding<Bool> = .constant(true), backgroundColor: UIColor = .clear) {
+    init(name: String = "spinnerAnimated", loopMode: LottieLoopMode = .loop, animationSpeed: Binding<CGFloat> = .constant(2.5), contentMode: UIView.ContentMode = .scaleAspectFit, play: Binding<Bool> = .constant(true), backgroundColor: UIColor = .clear) {
         self.name = name
         self.loopMode = loopMode
         self._animationSpeed = animationSpeed

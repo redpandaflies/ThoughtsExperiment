@@ -1,68 +1,38 @@
-////
-////  OnboardingMainView.swift
-////  Fearless2
-////
-////  Created by Yue Deng-Wu on 2/24/25.
-////
-//import CoreData
-//import SwiftUI
 //
-//struct OnboardingMainView: View {
-//    @EnvironmentObject var dataController: DataController
-//    @State private var selectedIntroPage: Int = 0
-//    @State private var imagesScrollPosition: Int?
-//    @State private var selectedCategory: String = ""
-//    @State private var showQuestionsView: Bool = false
-//    @State private var animationStage: Int = 0
-//    let introContent: [OnboardingIntroContent] = OnboardingIntroContent.pages
-//    
-//    @FetchRequest(
-//        sortDescriptors: [
-//            NSSortDescriptor(key: "orderIndex", ascending: true)
-//        ]
-//    ) var categories: FetchedResults<Category>
-//    
-//    var newCategory: Realm {
-//        return QuestionCategory.getCategoryData(for: selectedCategory) ?? Realm.realmsData[5]
-//    }
-//    
-//    @AppStorage("currentAppView") var currentAppView: Int = 0
-//    @AppStorage("unlockNewCategory") var unlockNewCategory: Bool = false
-//    @AppStorage("discoveredFirstCategory") var discoveredFirstCategory: Bool = false
-//    @AppStorage("discoveredFirstFocusArea") var firstFocusArea: Bool = false
-//    @AppStorage("currentCategory") var currentCategory: Int = 0
-//    @AppStorage("showTopics") var showTopics: Bool = false
-//    
-//    var body: some View {
-//        
-//        VStack {
-//            
-//            HStack {
-//                Spacer()
-//                
-//                Button {
-//                    withAnimation {
-//                        selectedIntroPage = 9
-//                        imagesScrollPosition = 9
-//                    }
-//                    
-//                } label: {
-//                    Text("Skip")
-//                        .font(.system(size: 15))
-//                        .foregroundStyle(AppColors.textPrimary.opacity(0.0))
-//                }
-//                
-//            }
-//            .padding(.horizontal)
-//            .padding(.top, 45)
-//            
-//            OnboardingIntroView(selectedIntroPage: $selectedIntroPage, imagesScrollPosition: $imagesScrollPosition, showQuestionsView: $showQuestionsView, animationStage: $animationStage)
+//  OnboardingMainView.swift
+//  Fearless2
 //
-//        }
-//        .ignoresSafeArea()
-//        .background {
-//            BackgroundNewCategory(animationStage: $animationStage, backgroundColor: AppColors.backgroundOnboardingIntro, newBackgroundColor: newCategory.background)
-//        }
+//  Created by Yue Deng-Wu on 2/24/25.
+//
+import CoreData
+import SwiftUI
+
+struct OnboardingMainView: View {
+    @EnvironmentObject var viewModelFactoryMain: ViewModelFactoryMain
+    @EnvironmentObject var dataController: DataController
+    @State private var selectedIntroPage: Int = 0
+    @State private var showNewGoalSheet: Bool = false
+    @State private var cancelledCreateNewCategory: Bool = false
+    @State private var animationStage: Int = 0
+    let introContent: [OnboardingIntroContent] = OnboardingIntroContent.pages
+    
+    @AppStorage("currentAppView") var currentAppView: Int = 0
+    
+    var body: some View {
+        
+        VStack {
+            
+            OnboardingIntroView (
+                selectedIntroPage: $selectedIntroPage,
+                showNewGoalSheet: $showNewGoalSheet,
+                animationStage: $animationStage
+            )
+
+        }
+        .ignoresSafeArea(.keyboard)
+        .background {
+            BackgroundNewCategory(animationStage: $animationStage, backgroundColor: AppColors.backgroundOnboardingIntro, newBackgroundColor: AppColors.background1)
+        }
 //        .onAppear {
 //            //reset all appstorage and cloudstorage vars
 ////            currentCategory = 0
@@ -78,24 +48,49 @@
 ////                    await dataController.deleteAll()
 ////                    
 ////                }
-//                    
-//                await MainActor.run {
-//                    imagesScrollPosition = 0
-//                }
 //                
 //            }
 //        }
-//        .fullScreenCover(isPresented: $showQuestionsView, onDismiss: {
-//            showQuestionsView = false
-//        }) {
-//            OnboardingQuestionsView(selectedCategory: $selectedCategory, selectedIntroPage: $selectedIntroPage, imagesScrollPosition: $imagesScrollPosition)
-//                
-//        }
-//    }
-//  
-//}
-//
-//
+        .onChange(of: showNewGoalSheet) {
+            if !showNewGoalSheet && !cancelledCreateNewCategory {
+                completeOnboarding()
+            }
+        }
+        .fullScreenCover(isPresented: $showNewGoalSheet, onDismiss: {
+            showNewGoalSheet = false
+        }) {
+            NewCategoryView (
+                newCategoryViewModel: viewModelFactoryMain.makeNewCategoryViewModel(),
+                showNewGoalSheet: $showNewGoalSheet,
+                cancelledCreateNewCategory: $cancelledCreateNewCategory,
+                backgroundColor: AppColors.backgroundOnboardingIntro
+            )
+                
+        }
+    }
+    
+    private func completeOnboarding() {
+        
+        //hide text and button
+        animationStage += 1
+        
+        
+        //start expanding circle animation
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            animationStage += 1
+            
+            //switch to main app view
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                currentAppView = 1
+            }
+            
+        }
+        
+    }
+  
+}
+
+
 //#Preview {
 //    OnboardingMainView()
 //}

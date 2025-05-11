@@ -14,6 +14,10 @@ struct NextSequenceView: View {
     // Manage when to show alert for exiting flow
     @State private var showExitFlowAlert: Bool = false
     @State private var selectedTab: Int = 0
+    @State private var animationStage: Int = 0 //manages animation on celebration view, ensures that button is disabled until animation is complete
+    
+    // recap
+    @State private var recapScrollPosition: Int?
     
     //for managing the questions
     @State private var selectedQuestion: Int = 0
@@ -46,11 +50,11 @@ struct NextSequenceView: View {
         let count = QuestionNextSequence.questions.count
 
         // intialize every state var for storing question answers in memory
-        _answersOpen = State(initialValue: Array(repeating: "",      count: count))
-        _answersSingleSelect = State(initialValue: Array(repeating: "",      count: count))
-        _answersMultiSelect = State(initialValue: Array(repeating: [],      count: count))
-        _multiSelectCustomItems = State(initialValue: Array(repeating: [],      count: count))
-        _multiSelectOptionsEdited = State(initialValue: Array(repeating: false,   count: count))
+        _answersOpen = State(initialValue: Array(repeating: "", count: count))
+        _answersSingleSelect = State(initialValue: Array(repeating: "", count: count))
+        _answersMultiSelect = State(initialValue: Array(repeating: [], count: count))
+        _multiSelectCustomItems = State(initialValue: Array(repeating: [], count: count))
+        _multiSelectOptionsEdited = State(initialValue: Array(repeating: false, count: count))
         
         self.goal = goal
         self.sequence = sequence
@@ -96,11 +100,17 @@ struct NextSequenceView: View {
                         )
                         .padding(.horizontal)
                        
-                    case 3:
-                        RecapCelebrationView(title: goal.goalTitle, text: "For resolving", points: "+20")
+                        case 3:
+                        RecapCelebrationView(
+                            animationStage: $animationStage,
+                            title: goal.goalTitle,
+                            text: "For resolving",
+                            points: "+10"
+                        )
                             .padding(.top, 100)
                             .padding(.horizontal)
-                    default:
+                        
+                        default:
                         NewCategoryRevealPlanView (
                             newCategoryViewModel: newCategoryViewModel,
                             showSheet: $showNextSequenceView,
@@ -127,12 +137,12 @@ struct NextSequenceView: View {
                         )
                         .padding(.bottom, 10)
                         .padding(.horizontal)
+                        .ignoresSafeArea(getSafeAreaProperty())
                     }
                 }
                 .frame(maxHeight: .infinity, alignment: .bottom)
                 
             }//VStack
-           
             .background {
                 BackgroundPrimary(backgroundColor: backgroundColor)
                 
@@ -140,13 +150,13 @@ struct NextSequenceView: View {
             .onAppear {
                 getSequenceRecap()
             }
-            .alert("Are you sure you exit?", isPresented: $showExitFlowAlert) {
-                Button("Cancel", role: .cancel) {}
-                Button("Yes", role: .destructive) {
+            .alert("Exit retrospective?", isPresented: $showExitFlowAlert) {
+                Button("Keep going", role: .cancel) {}
+                Button("Exit", role: .destructive) {
                     exitFlow()
                 }
             } message: {
-                Text("You'll lose your progress towards adding a new question.")
+                Text("You'll lose your progress on this step.")
             }
             .toolbar {
                
@@ -156,10 +166,12 @@ struct NextSequenceView: View {
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     XmarkToolbarItem(action: {
-                        if selectedTab > 1 {
+                        if selectedTab < 2 || selectedTab == 3 {
                             showNextSequenceView = false
-                        } else {
+                        } else if selectedQuestion > 0 {
                             showExitFlowAlert = true
+                        } else {
+                            showNextSequenceView = false
                         }
                     })
                 }
@@ -180,6 +192,7 @@ struct NextSequenceView: View {
             
             NextSequenceRecap(
                 sequenceViewModel: sequenceViewModel,
+                recapScrollPosition: $recapScrollPosition,
                 summaries: sequence.sequenceSummaries,
                 retryAction: {
                     createSummary()
@@ -193,7 +206,7 @@ struct NextSequenceView: View {
         case 2:
             manageQuestionFlow()
         case 3:
-            showNextSequenceView = false
+            completeGoal()
             
         default:
             selectedTab += 1
@@ -206,11 +219,16 @@ struct NextSequenceView: View {
         case 1:
             if sequenceViewModel.createSequenceSummary == .loading {
                 return true
-            } else {
+            } else if recapScrollPosition == sequence.sequenceSummaries.count - 1 {
                 return false
+            } else {
+                return true
             }
         case 2:
            return disableButtonQuestions()
+            
+        case 3:
+            return animationStage < 2
         default:
             return false
         }
@@ -226,8 +244,7 @@ struct NextSequenceView: View {
         case .multiSelect:
             return answersMultiSelect[selectedQuestion].isEmpty
         }
-        
-        
+
     }
     
     private func getButtonText() -> String {
@@ -252,6 +269,16 @@ struct NextSequenceView: View {
         case .retry:
             return "Retry"
         }
+    }
+    
+    private func getSafeAreaProperty() ->  SafeAreaRegions {
+        if questions.isEmpty {
+            return []
+        } else if questions[selectedQuestion].questionType != .open {
+            return .keyboard
+        }
+        
+        return []
     }
     
     private func getSequenceRecap() {
@@ -355,18 +382,41 @@ struct NextSequenceView: View {
         
         saveAnswers()
         completeSequence()
-        
+        updatePoints()
     }
     
     private func completeSequence() {
-        
-        //mark sequence as complete
+       
         Task {
+            
+            //mark sequence as complete
             if let topic = topic {
                 await dataController.completeTopic(topic: topic, sequence: sequence)
             }
             
+           
         }
+    }
+    
+    private func updatePoints() {
+        Task {
+            // update points
+            await dataController.updatePoints(newPoints: 10)
+        }
+        
+        
+    }
+    
+    private func completeGoal() {
+        //close sheet
+        showNextSequenceView = false
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            Task {
+                await dataController.changeGoalStatus(goal: goal, newStatus: .completed)
+            }
+        }
+        
     }
     
     private func exitFlow() {

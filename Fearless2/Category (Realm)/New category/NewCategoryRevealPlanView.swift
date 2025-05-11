@@ -13,8 +13,14 @@ struct NewCategoryRevealPlanView: View {
     
     @State private var planSelectedTab: Int = 0
     @State private var suggestionsScrollPosition: Int?
+    @State private var animationCompleted: Bool = false
+    
+    //LottieView
+    @State private var animationSpeed: CGFloat = 1.0
+    @State private var play: Bool = true
     
     @Binding var showSheet: Bool
+    @Binding var cancelledCreateNewCategory: Bool
     
     let completeSequenceAction: () -> Void
     
@@ -22,19 +28,23 @@ struct NewCategoryRevealPlanView: View {
     let frameWidth: CGFloat = 300
     
     let loadingTexts: [String] = [
-        "Thinking through the best way forward for you.",
-        "Putting the finishing touches on the plan.",
-        "Making sure the plan is right for you."
+        "Exploring different perspectives",
+        "Narrowing down to two directions",
+        "Figuring out all the details"
     ]
     
     init(
         newCategoryViewModel: NewCategoryViewModel,
         showSheet: Binding<Bool>,
+        cancelledCreateNewCategory: Binding<Bool> = .constant(false),
         completeSequenceAction: @escaping () -> Void = {}
+      
     ) {
         self.newCategoryViewModel = newCategoryViewModel
         self._showSheet = showSheet
+        self._cancelledCreateNewCategory = cancelledCreateNewCategory
         self.completeSequenceAction = completeSequenceAction
+        
     }
     
     var body: some View {
@@ -42,7 +52,13 @@ struct NewCategoryRevealPlanView: View {
             switch planSelectedTab {
                 
                 case 0:
-                    NewCategoryLoadingView(texts: loadingTexts)
+                    NewCategoryLoadingView(
+                        texts: loadingTexts,
+                        showFooter: true,
+                        animationCompleted: $animationCompleted
+                    )
+                    .padding(.horizontal)
+                
                 case 1:
                     getPlanSuggestions()
                     
@@ -63,31 +79,28 @@ struct NewCategoryRevealPlanView: View {
             }
         }
         .onChange(of: newCategoryViewModel.createPlanSuggestions) {
-            
-            switch newCategoryViewModel.createPlanSuggestions {
-            case .ready:
-                planSelectedTab = 1
-            case .loading:
-                if planSelectedTab != 0 {
-                    planSelectedTab = 0
-                }
-            case .retry:
-                planSelectedTab = 2
-            
+            if animationCompleted {
+                manageView()
+            }
+        }
+        .onChange(of: animationCompleted) {
+            if animationCompleted {
+                manageView()
             }
         }
     }
     
     private func getPlanSuggestions() -> some View {
         VStack (alignment: .leading, spacing: 10) {
-            Text("Choose one of these two personalized plans I created for you")
-                .multilineTextAlignment(.leading)
-                .font(.system(size: 19, design: .serif))
-                .foregroundStyle(AppColors.textPrimary.opacity(0.8))
-                .lineSpacing(1.5)
-                .fixedSize(horizontal: false, vertical: true)
-                .padding(.horizontal)
-                .padding(.bottom, 20)
+            LottieView(
+                loopMode: .playOnce,
+                animationSpeed: $animationSpeed,
+                play: $play
+            )
+            .aspectRatio(contentMode: .fit)
+            .frame(width: 90, height: 90)
+            .padding(.horizontal)
+            .padding(.bottom, 20)
             
             ScrollView(.horizontal) {
                 HStack (alignment: .center, spacing: 15) {
@@ -141,20 +154,36 @@ struct NewCategoryRevealPlanView: View {
         
     }
     
+    private func manageView() {
+        switch newCategoryViewModel.createPlanSuggestions {
+        case .ready:
+            planSelectedTab = 1
+        case .loading:
+            if planSelectedTab != 0 {
+                planSelectedTab = 0
+            }
+        case .retry:
+            planSelectedTab = 2
+            
+        }
+    }
+    
     private func saveChosenPlan(plan: NewPlan) {
         Task {
             if let category = newCategoryViewModel.currentCategory, let goal = newCategoryViewModel.currentGoal {
                 await dataController.saveSelectedPlan(plan: plan, category: category, goal: goal)
                 
                 await MainActor.run {
+                    cancelledCreateNewCategory = false
                     showSheet = false
                 }
             }
         }
-        
         // mark sequence and topic as complete
         completeSequenceAction()
     }
+    
+    
     
 }
 
@@ -226,7 +255,7 @@ struct PlanSuggestionBox: View {
 //            VStack(alignment: .leading, spacing: 3) {
                 
                 ForEach(Array(suggestion.explore.enumerated()), id: \.element.self) { index, content in
-                        checklistItem(text: content)
+                        checklistItem(text: content, index: index)
                     }
                 
 //            }
@@ -244,27 +273,36 @@ struct PlanSuggestionBox: View {
 //            )
         }
         .padding(20)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .background {
             getRectangle()
         }
         
     }
     
-    private func checklistItem(text: String) -> some View {
+    private func checklistItem(text: String, index: Int) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: 10) {
            
            Image(systemName: "checkmark")
                .font(.system(size: 15, weight: .light))
                .fontWidth(.condensed)
-               .foregroundStyle(AppColors.textPrimary)
+               .foregroundStyle(AppColors.textPrimary.opacity(0.7))
                
-        
-           Text(text)
-               .multilineTextAlignment(.leading)
-               .font(.system(size: 15, weight: .light))
-               .fontWidth(.condensed)
-               .foregroundStyle(AppColors.textPrimary)
-               .lineSpacing(1.3)
+           
+            VStack (alignment: .leading, spacing: 15){
+                
+                Text(text)
+                    .multilineTextAlignment(.leading)
+                    .font(.system(size: 15, weight: .light))
+                    .fontWidth(.condensed)
+                    .foregroundStyle(AppColors.textPrimary.opacity(0.7))
+                    .lineSpacing(1.3)
+                
+                if index < suggestion.explore.count - 1 {
+                    dividerLine()
+                }
+                
+            }
             
        }
        .frame(alignment: .leading)
@@ -281,4 +319,12 @@ struct PlanSuggestionBox: View {
             )
     }
     
+    private func dividerLine() -> some View {
+        Rectangle()
+            .fill(.white.opacity(0.05))
+            .frame(maxWidth: .infinity)
+            .frame(height: 1)
+    }
 }
+
+

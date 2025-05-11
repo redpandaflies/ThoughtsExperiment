@@ -42,7 +42,15 @@ struct BreakView: View {
                 //dismiss
                 showTopicBreakView = false
             })
-            .padding(.bottom, 25)
+            .padding(.bottom)
+            
+            Text(topic?.topicTitle ?? "")
+                .multilineTextAlignment(.leading)
+                .font(.system(size: 25, design: .serif))
+                .foregroundStyle(AppColors.textPrimary)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.bottom)
+            
             
             switch selectedTabBreak {
             case 0:
@@ -57,6 +65,7 @@ struct BreakView: View {
                         
                         CarouselBox(orderIndex: index + 1, content: card.breakContent)
                     }
+                    .padding(.horizontal, -1) //to hide the vertical edge of the previous box when view scrolls
                 
             default:
                 FocusAreaRetryView(action: {
@@ -110,7 +119,7 @@ struct BreakView: View {
                 }
             }
         }
-        .onChange(of: topicViewModel.createTopicQuestions) {
+        .onChange(of: topicViewModel.createTopicBreak) {
             switch topicViewModel.createTopicBreak {
             case .ready:
                 topicBreakReady()
@@ -153,6 +162,7 @@ struct BreakView: View {
             }
             await MainActor.run {
                 showTopicBreakView = false
+                topicViewModel.completedNewTopic = true
             }
         }
     }

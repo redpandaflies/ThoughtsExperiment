@@ -25,83 +25,113 @@ struct ContextGatherer {
             """
             context += addGoalInfo(goal: goal)
         }
-
-        //get questions answered when creating goal
-        context += getNewGoalContext(goal: goal, category: category)
         
+        if selectedAssistant == .newCategory || (selectedAssistant == .planSuggestion && sequence == nil) {
+            //get questions answered when creating goal
+            context += getNewGoalContext(goal: goal, category: category)
+        }
       
         if selectedAssistant == .planSuggestion || selectedAssistant == .sequenceSummary {
-            // get plans and steps for the goal
-            /// get plan summaries
-            let sequences = goal.goalSequences
             
-            if !sequences.isEmpty {
-                let planSummaries = goal.goalSequenceSummaries
-                
-                context += getSequenceSummaries(summaries: planSummaries)
-            }
-            
-            /// current plan (for plan recap only)
+            // current plan (for plan recap and plan suggestions for existing topic)
             if let sequence = sequence {
                 
-                context += """
-                    The user needs the retrospective for this plan: \(sequence.sequenceTitle).
-                    a) description: \(sequence.sequenceIntent)
-                    b) objectives: \(sequence.sequenceObjectives)\n\n
-                """
-            
-                // get answers from plan recap flow
-                context +=  getSequenceRecapAnswers(sequence: sequence)
+                let goalSequences = goal.goalSequences.sorted { $0.sequenceCreatedAt < $1.sequenceCreatedAt }
+                if goalSequences.count > 1 {
+                    context += """
+                        - The previous plan didn't fully resolve the topic\n\n
+                    """
+                }
                 
-                // get steps
-                context += getTopicsList(topics: sequence.sequenceTopics)
+                if selectedAssistant == .sequenceSummary {
+                    context += """
+                        Create the retrospective for this plan: \(sequence.sequenceTitle).\n
+                    """
+                    
+                } else {
+                    context += """
+                        The most recent plan: \(sequence.sequenceTitle).\n
+                    """
+                }
+                
+                context += """
+                    - description: \(sequence.sequenceIntent)
+                    - objectives: \(sequence.sequenceObjectives)\n\n
+                """
+                
+                // get plan reflection, if available
+                context += getSequenceSummaries(summaries: sequence.sequenceSummaries)
+     
+                
+                // get answers from plan recap flow
+                context += getSequenceRecapAnswers(sequence: sequence)
+                
+                // get steps in current plan
+                context += getTopicsList(
+                    topics: sequence.sequenceTopics,
+                    sendQuestions: false
+                )
                 
                 // other plans for the current goal
-                context += getOtherSequences(currentSequence: sequence, goalSequences: goal.goalSequences)
+               
+                let otherSequences = goalSequences.filter { $0.sequenceId != sequence.sequenceId }
+                
+                if goalSequences.count > 1 && selectedAssistant != .sequenceSummary {
+                    context += getSequences(goalSequences: otherSequences)
+                } else if goalSequences.count > 1 {
+                    /// for sequence (plan) summary, get the user's answer to the question "what would be most helpful" from the recap for the previous plan
+                    
+                    if let previousSequence = otherSequences.last {
+                        let keyQuestion = previousSequence.sequenceQuestions.filter { $0.questionContent == QuestionNextSequence.questions[3].content }.first
+                        
+                        context += """
+                            Previous plan: \(previousSequence.sequenceTitle)
+                            At the end of the previous plan, user said this would be most helpful: \(keyQuestion?.questionAnswerOpen ?? "")
+                        """
+                    }
+                    
+                }
                 
             }
             
             // Other completed and ongoing goals
-            let fetchedGoals = await dataController.fetchAllGoals()
-            //filter out current goal
-            let remainingGoals = fetchedGoals.filter { $0.goalId != goal.goalId }
-            
-            if remainingGoals.isEmpty {
-                context += """
-                    Here are the user's other completed and ongoing goals:\n
-                """
-                
-                for goal in remainingGoals {
-                    context += """
-                        a) goal: \(goal.goalTitle)
-                        b) type: \(goal.goalProblemType)
-                        c) problem: \(goal.goalProblem)
-                        d) resolution: \(goal.goalResolution)\n 
-                    """
-                    
-                    let planSummaries = goal.goalSequenceSummaries
-                    
-                    context += getSequenceSummaries(summaries: planSummaries)
-                    
-                }
-            }
+//            let fetchedGoals = await dataController.fetchAllGoals()
+//            //filter out current goal
+//            let remainingGoals = fetchedGoals.filter { $0.goalId != goal.goalId }
+//            
+//            if remainingGoals.isEmpty {
+//                context += """
+//                    Here are the user's other completed and ongoing goals:\n
+//                """
+//                
+//                for goal in remainingGoals {
+//                    context += """
+//                        - goal: \(goal.goalTitle)
+//                        - type: \(goal.goalProblemType)
+//                        - problem: \(goal.goalProblem)
+//                        - resolution: \(goal.goalResolution)\n 
+//                    """
+//                    
+//                    let goalSequences = goal.goalSequences
+//                    
+//                    context += getSequences(goalSequences: goalSequences)
+//                    
+//                }
+//            }
+    
         }
 
         return context
     }
     
-    //for new topic
-    static func gatherContextTopic(dataController: DataController, loggerCoreData: Logger, topic: Topic) async -> String? {
+    //for updating topic, topic recaps, topic breaks
+    static func gatherContextTopic(dataController: DataController, loggerCoreData: Logger, selectedAssistant: AssistantItem, topic: Topic) async -> String? {
         guard let topic = await dataController.fetchTopic(id: topic.topicId) else {
             loggerCoreData.error("Failed to fetch topic with ID: \(topic.topicId.uuidString)")
                return nil
         }
         
-        guard let category = topic.category else {
-            loggerCoreData.error("Failed to get related cateogry")
-            return nil
-        }
-        guard let goal = category.categoryGoals.first else {
+        guard let goal = topic.goal else {
             loggerCoreData.error("Failed to get related goal")
             return nil
         }
@@ -111,8 +141,8 @@ struct ContextGatherer {
         // Step the user is requesting questions for
         var context = """
             Current step: \(topic.topicTitle).
-            a) objective: \(topic.topicDefinition)
-            b) type: \(topic.topicQuestType). \n\n
+            - objective: \(topic.topicDefinition)
+            - type: \(topic.topicQuestType). \n\n
         """
         
         // step questions for topic/step summary
@@ -142,12 +172,18 @@ struct ContextGatherer {
             // other plan topics
             let sequenceTopics = sequence.sequenceTopics.filter { $0.topicId != topic.topicId}
             context += """
-                Completed and locked steps in this plan are:\n
+                Steps in this plan:\n
             """
-            context += getTopicsList(topics: sequenceTopics)
+            context += getTopicsList(topics: sequenceTopics, sendQuestions: selectedAssistant != .topicOverview ? true : false, sendLockedTopics: selectedAssistant == .topic)
             
             // other plans for the current goal
-            context += getOtherSequences(currentSequence: sequence, goalSequences: goal.goalSequences)
+            if selectedAssistant == .topic {
+                let otherSequences = goal.goalSequences.filter { $0.sequenceId != sequence.sequenceId }
+                
+                if !otherSequences.isEmpty {
+                    context += getSequences(goalSequences: otherSequences)
+                }
+            }
         }
 
         return context
@@ -216,28 +252,25 @@ extension ContextGatherer {
     
     private static func addGoalInfo(goal: Goal) -> String {
         return """
-            a) title: \(goal.goalTitle)
-            b) type: \(goal.goalProblemType)
-            c) goal: \(goal.goalResolution)
-            d) problem statement: \(goal.goalProblemLong)\n\n
+            - title: \(goal.goalTitle)
+            - type: \(goal.goalProblemType)
+            - goal: \(goal.goalResolution)
+            - problem statement: \(goal.goalProblem)\n\n
         """
     }
     
     // questions answered when creating goal
     private static func getNewGoalContext(goal: Goal, category: Category) -> String {
-        var context = """
-            What user said about the topic: \n
-        """
-        
+       
         let goalQuestions = goal.goalQuestions
             .filter { $0.goalStarter == true }
             .sorted { $0.questionCreatedAt < $1.questionCreatedAt }
         
-        context += """
-            The topic is about this area of the user's life: \(category.categoryLifeArea)\n
-        """
+//        var context = """
+//            The topic is about this area of the user's life: \(category.categoryLifeArea)\n
+//        """
         
-        context += getQuestions(goalQuestions)
+        let context = getQuestions(goalQuestions)
         
         return context
     }
@@ -275,39 +308,31 @@ extension ContextGatherer {
         return result
     }
     
-    private static func getOnboardingContext(from category: Category) -> String {
-        var context = "User's answers to onboarding questions for this life area:\n"
-        
-        let categoryQuestions = category.categoryQuestions
-            .filter { $0.categoryStarter == true }
-            .sorted { $0.questionCreatedAt < $1.questionCreatedAt }
-        
-        context += getQuestions(categoryQuestions)
-        
-        return context
-    }
-    
-    private static func getTopicsList(topics: [Topic]) -> String {
+    private static func getTopicsList(topics: [Topic], sendQuestions: Bool, sendLockedTopics: Bool = false) -> String {
         let sortedTopics = topics.sorted { $0.topicCreatedAt < $1.topicCreatedAt }
         
         let completedTopics = sortedTopics.filter { $0.topicStatus == TopicStatusItem.completed.rawValue }
         
-        let lockedTopics = sortedTopics.filter { $0.topicStatus == TopicStatusItem.locked.rawValue }
-        
         var context = ""
         
-        if completedTopics.isEmpty {
+        if !completedTopics.isEmpty {
             context += """
-                Complete topics: \n
+                
+                Complete steps: \n
             """
-            context += getTopicsDetails(topics: topics)
+            context += getTopicsDetails(topics: completedTopics, sendQuestions: sendQuestions)
         }
         
-        if lockedTopics.isEmpty {
-            context += """
-                Locked topics: \n
-            """
-            context += getTopicsDetails(topics: topics)
+        if sendLockedTopics {
+            let lockedTopics = sortedTopics.filter { $0.topicStatus == TopicStatusItem.locked.rawValue }
+            
+            if !lockedTopics.isEmpty {
+                context += """
+                    
+                    Locked steps: \n
+                """
+                context += getTopicsDetails(topics: lockedTopics, sendQuestions: sendQuestions)
+            }
         }
         
         return context
@@ -315,15 +340,27 @@ extension ContextGatherer {
     
     
     // get info on each topic
-    private static func getTopicsDetails(topics: [Topic]) -> String {
+    private static func getTopicsDetails(topics: [Topic], sendQuestions: Bool) -> String {
         var topicsText = ""
             
         for topic in topics {
+            let questions = topic.topicQuestions
+            
             topicsText += """
-                a) title: \(topic.topicTitle)
-                b) status: \(topic.topicStatus)
-                c) summary: \(topic.review?.reviewSummary ?? "No summary, step still in progress")\n
+                - title: \(topic.topicTitle)
             """
+            if sendQuestions && !questions.isEmpty {
+                topicsText += """
+                    - step questions and answers:\n
+                """
+                topicsText += getQuestions(topic.topicQuestions)
+                
+            } else {
+                topicsText += """
+                    - summary: \(topic.review?.reviewSummary ?? "none, step in progress")\n\n
+                """
+                
+            }
         }
         
         return topicsText
@@ -335,11 +372,12 @@ extension ContextGatherer {
             return ""
         }
         var context = """
-            Plan summaries:\n
+            Summary for this plan:\n
         """
         for summary in summaries {
+           
             context += """
-                \(summary.summaryContent)\n
+                - \(summary.summaryContent)\n
             """
         }
         
@@ -349,32 +387,26 @@ extension ContextGatherer {
     // sequence details
     private static func getSequenceDetails(sequence: Sequence) -> String {
         return """
-            a) title: \(sequence.sequenceTitle)
-            b) description: \(sequence.sequenceIntent)
-            c) objectives: \(sequence.sequenceObjectives)\n\n
+            - title: \(sequence.sequenceTitle)
+            - description: \(sequence.sequenceIntent)
+            - objectives: \(sequence.sequenceObjectives)\n\n
         """
     }
     
     // other plans/sequences for same goal
-   private static func getOtherSequences(currentSequence: Sequence, goalSequences: [Sequence]) -> String {
-        
-        let otherPlans = goalSequences.filter { $0.sequenceId != currentSequence.sequenceId}
+   private static func getSequences(goalSequences: [Sequence]) -> String {
        
         var context = ""
-        
-        if !otherPlans.isEmpty {
+
+        context += """
+            Completed plans for the same topic:\n
+        """
             
-            context += """
-                Completed plans for the same topic:\n
-            """
-            
-            for plan in otherPlans {
-                context += getSequenceDetails(sequence: plan)
-                context += """
-                    d) summary: \(plan.sequenceSummaries.first?.summaryContent ?? "No summary available")\n\n
-                """
-                context += getSequenceRecapAnswers(sequence: plan)
-            }
+       for sequence in goalSequences {
+           context += getSequenceDetails(sequence: sequence)
+                
+           context += getSequenceSummaries(summaries: sequence.sequenceSummaries)
+               
         }
         
        return context
@@ -382,12 +414,18 @@ extension ContextGatherer {
     }
     
     private static func getSequenceRecapAnswers(sequence: Sequence) -> String {
-        var context = """
-            User's answers to questions during the plan retrospective flow: \n
-        """
         
         let sequenceQuestions = sequence.sequenceQuestions
             .sorted { $0.questionCreatedAt < $1.questionCreatedAt }
+        
+        if sequenceQuestions.isEmpty {
+            return ""
+        }
+        
+        var context = """
+            
+            User's answers to questions during the plan retrospective flow: \n
+        """
         
         context += getQuestions(sequenceQuestions)
         

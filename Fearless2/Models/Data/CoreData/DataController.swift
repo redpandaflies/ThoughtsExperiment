@@ -44,7 +44,7 @@ final class DataController: ObservableObject {
         self.context.automaticallyMergesChangesFromParent = true
     }
     
-    //save only if there are changes
+    // save only if there are changes
     func save() async {
         await context.perform {
             if self.context.hasChanges {
@@ -517,7 +517,11 @@ extension DataController {
             do {
                 let results = try self.context.fetch(request)
                 if let existingPoints = results.first {
-                    existingPoints.total = 0
+                    existingPoints.total = Int64(1)
+                } else {
+                    let points = Points(context: self.context)
+                    points.pointsId = UUID()
+                    points.total = Int64(1)
                 }
                 
             } catch {
@@ -600,8 +604,8 @@ extension DataController {
             do {
                 let goals = try self.context.fetch(request)
                 
-                // Check if there are any categories
-                if let lastGoal = goals.last {
+                // delete if it's the latest goal and doesn't have any plans/sequences yet
+                if let lastGoal = goals.last, lastGoal.goalSequences.isEmpty {
                     self.context.delete(lastGoal)
                     self.logger.log("Latest goal deleted")
                 } else {
@@ -660,7 +664,6 @@ extension DataController {
             goal: Goal,
             totalQuests: Int
     ) {
-        let halfwayPoint = totalQuests / 2
         
         let topic = Topic(context: context)
         topic.topicId = UUID()
@@ -668,18 +671,14 @@ extension DataController {
         topic.topicTitle = newTopic.title
         topic.topicStatus = TopicStatusItem.locked.rawValue
         //calculate order index based on step type
-            if newTopic.questType == QuestTypeItem.retro.rawValue {
-                topic.orderIndex = Int16(totalQuests + 2)
-            } else if newTopic.questType == QuestTypeItem.break1.rawValue {
-                topic.orderIndex = Int16(halfwayPoint + 1)
-            } else if newTopic.questNumber > halfwayPoint {
-                topic.orderIndex = Int16(newTopic.questNumber + 1)
-            } else {
-                topic.orderIndex = Int16(newTopic.questNumber)
-            }
-            topic.topicEmoji = newTopic.emoji
-            topic.topicDefinition = newTopic.objective
-            topic.topicQuestType = newTopic.questType
+        if newTopic.questType == QuestTypeItem.retro.rawValue {
+            topic.orderIndex = Int16(totalQuests + 1)
+        } else {
+            topic.orderIndex = Int16(newTopic.questNumber)
+        }
+        topic.topicEmoji = newTopic.emoji
+        topic.topicDefinition = newTopic.objective
+        topic.topicQuestType = newTopic.questType
             
             // create relationships
             sequence.addToTopics(topic)
@@ -819,13 +818,15 @@ extension DataController {
     /// Creates a single category in CoreData based on the provided life area option
     /// - Parameter lifeAreaOption: The life area string to match with Realm data
     /// - Returns: The created Category entity or nil if not found
-    func createSingleCategory(name: String) async -> Category? {
+    func createSingleCategory(name: String = "") async -> Category? {
         
         // Find the matching realm data
-        guard let realmData = QuestionCategory.getCategoryData(for: name) else {
-            self.logger.error("No matching realm found for \(name)")
-            return nil
-        }
+//        guard let realmData = QuestionCategory.getCategoryData(for: name) else {
+//            self.logger.error("No matching realm found for \(name)")
+//            return nil
+//        }
+        // category not in use right now, for now, everything is under category "mix of both"
+        let realmData = Realm.realmsData[2]
         
         var newCategory: Category?
         
@@ -836,7 +837,7 @@ extension DataController {
                 let allCategories = try self.context.fetch(request)
                                 
                 let matchingCategories = allCategories.filter { category in
-                    category.name == name
+                    category.name == realmData.name
                 }
                                 
                 if !matchingCategories.isEmpty {
@@ -851,7 +852,7 @@ extension DataController {
                 category.orderIndex = Int16(allCategories.count)
                 category.categoryCreatedAt = getCurrentTimeString()
                 category.categoryEmoji = realmData.icon
-                category.categoryName = name
+                category.categoryName = realmData.name
                 category.categoryLifeArea = realmData.lifeArea
                 
                 newCategory = category

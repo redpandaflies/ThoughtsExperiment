@@ -246,7 +246,7 @@ struct MultiSelectQuestionBubble: View {
             
        
         }
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.vertical, isFocused ? 10 : 15)
         .padding(.horizontal, 15)
         .contentShape(Rectangle())
@@ -259,7 +259,10 @@ struct MultiSelectQuestionBubble: View {
     }
     
     private func setUpTextField() {
-        if CustomOptionType.isCustomOption(option) {
+        if itemsEditedInMemory {
+            editableOption = customItems.last ?? ""
+            showPlusSign = true
+        } else if  CustomOptionType.isCustomOption(option) {
             editableOption = ""
             showPlusSign = true
         } else {

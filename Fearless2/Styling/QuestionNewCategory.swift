@@ -84,33 +84,23 @@ extension QuestionNewCategory {
     static func initialQuestionsNewCategory() -> [QuestionNewCategory] {
         return [
             QuestionNewCategory(
-            id: 0,
-            content: "It’s late. You’re trying to fall asleep, but your mind is wandering. What are you thinking about?",
-            questionType: .singleSelect,
-            category: .generic,
-            options: getLifeAreas()
-            ),
-            QuestionNewCategory(
-                id: 1,
-                content: "What kind of question are you facing?",
+                id: 0,
+                content: "What's on your mind?",
                 questionType: .singleSelect,
                 category: .generic,
                 options: [
                     "Make a decision",
                     "Solve a problem",
-                    "Resolve a conflict"
+                    "Get clarity on something"
                 ]
             )
         ]
     }
     static func getProblemQuestion(problem: String) -> String? {
             let followUpMap: [String: String] = [
-                "Make a decision":    "What decision do you need to make?",
-                "Get clarity":         "What do you need clarity on?",
-                "Reduce anxiety":      "What’s making you feel anxious?",
-                "Feel more confident": "Where are you doubting yourself?",
-                "Resolve a conflict":  "What conflict do you need to resolve?",
-                "Solve a problem":     "What problem are you trying to solve?"
+                "Make a decision": "What decision do you need to make?",
+                "Solve a problem": "What problem are you trying to solve?",
+                "Get clarity on something": "What do you need clarity on?"
             ]
             
             return followUpMap[problem]
@@ -119,27 +109,18 @@ extension QuestionNewCategory {
     
     static func remainingQuestionsNewCategory(userAnswer: String) -> [QuestionNewCategory] {
         
-        let followUpMap: [String: String] = [
-              "Make a decision":    "What decision do you need to make?",
-              "Get clarity":         "What do you need clarity on?",
-              "Reduce anxiety":      "What’s making you feel anxious?",
-              "Feel more confident": "Where are you doubting yourself?",
-              "Resolve a conflict":  "What conflict do you need to resolve?",
-              "Solve a problem":     "What problem are you trying to solve?"
-            ]
-        
-        let secondQuestionContent = followUpMap[userAnswer] ?? "Please tell me more about what's bothering you."
+        let secondQuestionContent = getProblemQuestion(problem: userAnswer) ?? "Please tell me more about what's bothering you."
         
         return [
             QuestionNewCategory(
-                id: 2,
+                id: 1,
                 content:  secondQuestionContent,
                 questionType: .open,
                 category: .generic
             ),
             QuestionNewCategory(
-                id: 3,
-                content: "How long has this been weighing on you?",
+                id: 2,
+                content: "How long has this been on your mind?",
                 questionType: .singleSelect,
                 category: .generic,
                 options: [
@@ -150,26 +131,40 @@ extension QuestionNewCategory {
                 ]
             ),
             QuestionNewCategory(
-                id: 4,
-                content: "What have you already tried or learned?",
+                id: 3,
+                content: "Anything else that might be relevant?",
                 questionType: .open,
                 category: .generic
             ),
             QuestionNewCategory(
-                id: 5,
+                id: 4,
                 content: "What would be helpful?",
                 questionType: .multiSelect,
                 category: .generic,
                 options: [
-                    "Encouragement and support",
-                    "Honest feedback",
                     "Offer a different perspective",
-                    "Suggest small, actionable steps",
-                    "Highlight patterns or themes",
+                    "Give candid feedback",
+                    "Suggest next steps",
                     "Other"
                 ]
             )
         ]
+    }
+    
+    static func defaultQuestion() -> QuestionNewCategory {
+        return QuestionNewCategory(
+            id: 4,
+            content: "What would be helpful?",
+            questionType: .multiSelect,
+            category: .generic,
+            options: [
+                "Offer a different perspective",
+                "Give candid feedback",
+                "Suggest next steps",
+                "Recommend relevant resources",
+                "Other"
+            ]
+        )
     }
     
     

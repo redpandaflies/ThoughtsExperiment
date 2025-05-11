@@ -17,6 +17,7 @@ struct FocusAreaRecapView: View {
     @State private var selectedTab: Int = 1 // [0] celebration, [1] feedback/recap
     @State private var selectedTabSuggestionsList: Int = 1 //manages whether suggestions, loading view or retry is shown on suggestions list
     @State private var animatedText = ""
+    @State private var celebrationAnimationStage: Int = 0
     
     @Binding var focusArea: FocusArea?
     @Binding var focusAreaScrollPosition: Int?
@@ -143,7 +144,7 @@ struct FocusAreaRecapView: View {
         switch selectedTab {
         case 0:
             if let currentFocusArea = focusArea {
-                RecapCelebrationView(title: currentFocusArea.focusAreaTitle, text: "For exploring", points: "+1")
+                RecapCelebrationView(animationStage: $celebrationAnimationStage, title: currentFocusArea.focusAreaTitle, text: "For exploring", points: "+1")
                     .padding(.top, 80)
             }
             

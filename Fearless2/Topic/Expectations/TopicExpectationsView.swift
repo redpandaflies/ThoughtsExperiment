@@ -46,10 +46,12 @@ struct TopicExpectationsView: View {
                 .foregroundStyle(AppColors.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.bottom)
+                .padding(.horizontal)
             
             CarouselView(items: sortedExpectations, scrollPosition: $expectationsScrollPosition, pagesCount: sortedExpectations.count) { index, expectation in
                 CarouselBox(orderIndex: index + 1, content: expectation.expectationContent)
             }
+            .padding(.horizontal, 15)
             
             Spacer()
             
@@ -57,14 +59,14 @@ struct TopicExpectationsView: View {
             RectangleButtonPrimary(
                 buttonText: "Continue",
                 action: {
-                    completeQuest()
+                    completeTopic()
                 },
                 disableMainButton: disableButton,
                 buttonColor: .white)
+                .padding(.horizontal)
             
         }//VStack
         .padding(.bottom)
-        .padding(.horizontal)
         .frame(maxHeight: .infinity, alignment: .top)
         .background {
             BackgroundPrimary(backgroundColor: backgroundColor)
@@ -111,13 +113,14 @@ struct TopicExpectationsView: View {
     
    
     
-    private func completeQuest() {
+    private func completeTopic() {
         Task {
             if let topic = topic, topic.topicStatus != TopicStatusItem.completed.rawValue {
                 await dataController.completeTopic(topic: topic)
             }
             await MainActor.run {
                 showTopicExpectationsSheet = false
+                topicViewModel.completedNewTopic = true
             }
         }
     }

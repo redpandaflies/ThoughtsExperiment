@@ -9,7 +9,7 @@ import SwiftUI
 
 struct QuestGridView: View {
     @State private var playHapticEffect: Int = 0
-    
+    @State private var nextTopic: Int = 0
     // sheets
     @Binding var showUpdateTopicView: Bool
     @Binding var showLockedQuestInfoSheet: Bool
@@ -92,7 +92,7 @@ struct QuestGridView: View {
                     QuestMapCircle(
                         topic: topic,
                         backgroundColor: backgroundColor,
-                        nextQuest: nextQuest == topic.orderIndex
+                        nextTopic: nextTopic == topic.orderIndex
                     )
                     .onTapGesture {
                         onQuestTap(topic: topic)
@@ -102,6 +102,21 @@ struct QuestGridView: View {
             }
         }//VGrid
         .frame(width: frameWidth)
+        .onAppear {
+            
+            if !topics.isEmpty {
+                setNextTopicIndex()
+            }
+        }
+        .onChange(of: topics.map(\.topicStatus)) {
+            setNextTopicIndex()
+        }
+    }
+    
+    
+    private func setNextTopicIndex() {
+        let nextIndex = topics.first(where: { $0.topicStatus == TopicStatusItem.locked.rawValue })?.orderIndex ?? -1
+        nextTopic = Int(nextIndex)
     }
     
     private func onQuestTap(topic: Topic) {
@@ -111,21 +126,22 @@ struct QuestGridView: View {
         let questType = QuestTypeItem(rawValue: topic.topicQuestType) ?? .guided
 
         switch questType {
-       
             
-        case .expectations:
-            selectedTopic = topic
-            showTopicExpectationsSheet = true
-        
-        case .break1:
-            break1Action(for: topic)
+            case .expectations:
+                selectedTopic = topic
+                showTopicExpectationsSheet = true
             
-        case .retro:
-            selectedTopic = topic
-            showNextSequenceView = true
+            case .guided, .context:
+                handleDefaultQuestTap(for: topic)
+               
+                
+            case .retro:
+                selectedTopic = topic
+                showNextSequenceView = true
+                
+            default:
+                breakAction(for: topic)
             
-        default:
-            handleDefaultQuestTap(for: topic)
         }
     }
 
@@ -134,7 +150,7 @@ struct QuestGridView: View {
 
         switch questStatus {
         case .locked:
-            if nextQuest == topic.orderIndex {
+            if nextTopic == topic.orderIndex {
                 getTopicDefault(topic: topic) // start create topic flow
             } else {
                 showLockedQuestInfoSheet = true
@@ -146,23 +162,22 @@ struct QuestGridView: View {
         }
     }
     
-    private func break1Action(for topic: Topic) {
-        let questStatus = TopicStatusItem(rawValue: topic.topicStatus) ?? .locked
+    private func breakAction(for topic: Topic) {
+        let topicStatus = TopicStatusItem(rawValue: topic.topicStatus) ?? .locked
         
-        switch questStatus {
+        switch topicStatus {
        
             case .locked:
-                if nextQuest == topic.orderIndex {
+                if nextTopic == topic.orderIndex {
                     getTopicBreak(topic: topic) // start create topic flow
                 } else {
                     showLockedQuestInfoSheet = true
                 }
                 
             default:
-               selectedTopic = topic
+                getTopicBreak(topic: topic) // start create topic flow
             
         }
-        
         
     }
     

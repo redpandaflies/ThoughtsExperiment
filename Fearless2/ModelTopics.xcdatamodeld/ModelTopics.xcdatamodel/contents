@@ -164,7 +164,6 @@
         <relationship name="sequence" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Sequence" inverseName="summaries" inverseEntity="Sequence"/>
     </entity>
     <entity name="Topic" representedClassName="Topic" syncable="YES" codeGenerationType="class">
-        <attribute name="breakType" optional="YES" attributeType="String"/>
         <attribute name="completed" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="createdAt" optional="YES" attributeType="String"/>
         <attribute name="definition" optional="YES" attributeType="String"/>

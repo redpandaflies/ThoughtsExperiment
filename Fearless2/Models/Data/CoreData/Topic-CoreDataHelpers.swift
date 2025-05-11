@@ -29,12 +29,6 @@ extension Topic {
         set { questType = newValue }
     }
     
-    var topicBreakType: String {
-        get { breakType ?? "" }
-        set { breakType = newValue }
-    }
-    
-    
     var topicEmoji: String {
         get { emoji ?? "" }
         set { emoji = newValue }

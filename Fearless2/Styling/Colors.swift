@@ -90,11 +90,25 @@ struct AppColors {
     static let buttonBlack2 = Color(.displayP3, red: 0.075, green: 0.075, blue: 0.075, opacity: 1) // #131313
    
 
-    // Background
+    // MARK: Backgrounds
     static let backgroundPrimary = textSecondary
     static let backgroundOnboardingIntro = Color(.displayP3, red: 0.059, green: 0.075, blue: 0.169, opacity: 1) // #0F132B
     
+    static let background1 = Color(.displayP3, red: 0.149, green: 0.212, blue: 0.090, opacity: 1) // #263617
+    static let background2 = Color(.displayP3, red: 0.106, green: 0.196, blue: 0.106, opacity: 1) // #1B321B
+    static let background3 = Color(.displayP3, red: 0.098, green: 0.204, blue: 0.149, opacity: 1) // #193426
+    static let background4 = Color(.displayP3, red: 0.090, green: 0.212, blue: 0.212, opacity: 1) // #173636
+    static let background5 = Color(.displayP3, red: 0.075, green: 0.149, blue: 0.224, opacity: 1) // #132639
+    static let background6 = Color(.displayP3, red: 0.141, green: 0.141, blue: 0.259, opacity: 1) // #242442
+    static let background7 = Color(.displayP3, red: 0.149, green: 0.098, blue: 0.204, opacity: 1) // #261934
+    static let background8 = Color(.displayP3, red: 0.196, green: 0.106, blue: 0.196, opacity: 1) // #321B32
+    static let background9 = Color(.displayP3, red: 0.212, green: 0.090, blue: 0.149, opacity: 1) // #361726
+    static let background10 = Color(.displayP3, red: 0.216, green: 0.082, blue: 0.082, opacity: 1) // #371515
+    static let background11 = Color(.displayP3, red: 0.239, green: 0.149, blue: 0.059, opacity: 1) // #3D260F
+    static let background12 = Color(.displayP3, red: 0.212, green: 0.212, blue: 0.090, opacity: 1) // #363617
     
+    
+    // realms version (old)
     static let backgroundUncharted = Color(.displayP3, red: 0.427, green: 0.090, blue: 0.094, opacity: 1) // #6D1718
     static let backgroundRelationships = Color(.displayP3, red: 0.478, green: 0.204, blue: 0.043, opacity: 1) // #7A340B
     static let backgroundFinances = Color(.displayP3, red: 0.506, green: 0.337, blue: 0, opacity: 1) // #815600
@@ -103,10 +117,28 @@ struct AppColors {
     static let backgroundCareer = Color(.displayP3, red: 0.090, green: 0.216, blue: 0.365, opacity: 1) // #17375D
     static let backgroundPurpose = Color(.displayP3, red: 0.173, green: 0.098, blue: 0.318, opacity: 1) // #2C1951
     
-
+    
     // Strokes
     static let strokePrimary = Color.white
     
     //Section progress bar
     static let progressBarPrimary = textPrimary
+}
+
+extension AppColors {
+    
+    static let allBackgrounds: [Color] = [
+        background6,  // #242442
+        background3,  // #193426
+        background5,  // #132639
+        background4,  // #173636
+        background11, // #3D260F
+        background2,  // #1B321B
+        background7,  // #261934
+        background10, // #371515
+        background8,  // #321B32
+        background1,  // #263617
+        background9,  // #361726
+        background12  // #363617
+    ]
 }

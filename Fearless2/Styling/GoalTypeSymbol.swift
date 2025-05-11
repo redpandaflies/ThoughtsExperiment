@@ -7,12 +7,9 @@
 
 struct GoalTypeSymbol {
     private static let symbols: [String: String] = [
-        "Make a decision":       "arrow.triangle.branch",
-        "Solve a problem":       "checkmark.seal",
-        "Resolve a conflict":    "bubble.left.and.bubble.right",
-        "Get clarity":           "magnifyingglass",
-        "Reduce anxiety":        "slowmo",
-        "Feel more confident":   "figure.dance"
+        "Make a decision": "arrow.triangle.branch",
+        "Solve a problem": "checkmark.seal",
+        "Get clarity on something": "magnifyingglass"
     ]
     
     /// Returns the SF Symbol name for a given problem description,

@@ -22,6 +22,9 @@ struct UpdateTopicView: View {
     @State private var currentQuestionIndex: Int = 0 //for the progress bar
     @State private var singleSelectCustomItems: [String] = []//stores updated array when user inputs their own answer for single select
     @State private var multiSelectCustomItems: [String] = []//stores updated array when user inputs their own answer for multi select
+    @State private var animationStage: Int = 0 //manages animation on celebration view, ensures that button is disabled until animation is complete
+    @State private var selectedTabTopicsList: Int = 0 //Topic intro view
+    
     
     @Binding var showUpdateTopicView: Bool //dismiss sheet
     
@@ -85,6 +88,7 @@ struct UpdateTopicView: View {
             case 0:
                 UpdateTopicIntroView(
                     topicViewModel: topicViewModel,
+                    selectedTabTopicsList: $selectedTabTopicsList,
                     answersOpen: $answersOpen,
                     topic: topic,
                     sequence: sequence,
@@ -110,12 +114,17 @@ struct UpdateTopicView: View {
                 .padding(.horizontal)
                 
             case 2:
-                RecapCelebrationView(title: topic.topicTitle, text: "For completing", points: "+1")
-                    .padding(.horizontal)
-                    .padding(.top, 80)
-                    .onAppear {
-                        getRecapAndNextTopicQuestions()
-                    }
+                RecapCelebrationView (
+                    animationStage: $animationStage,
+                    title: topic.topicTitle,
+                    text: "For completing",
+                    points: "+1"
+                )
+                .padding(.horizontal)
+                .padding(.top, 80)
+                .onAppear {
+                    getRecapAndNextTopicQuestions()
+                }
                 
             default:
                 UpdateTopicRecapView(
@@ -123,7 +132,8 @@ struct UpdateTopicView: View {
                     topic: topic,
                     retryAction: {
                         getRecapAndNextTopicQuestions()
-                    })
+                    }
+                )
                 
             }//switch
             
@@ -174,7 +184,7 @@ struct UpdateTopicView: View {
         .ignoresSafeArea(getSafeAreaProperty(for: selectedQuestion))
     }
     
-    private func getSafeAreaProperty(for index: Int) ->  SafeAreaRegions {
+    private func getSafeAreaProperty(for index: Int) -> SafeAreaRegions {
         if questions.isEmpty {
             return []
         } else if QuestionType(rawValue: questions[selectedQuestion].questionType) != .open {
@@ -216,18 +226,17 @@ struct UpdateTopicView: View {
     
     private func getMainButtonAction() {
         switch selectedTab {
-            
-        case 0:
-            goToQuestions()
-            
-        case 1:
-            saveAnswer()
-            
-        case 2:
-            updatePoints()
-            
-        default:
-            completeTopic()
+            case 0:
+                goToQuestions()
+                
+            case 1:
+                saveAnswer()
+                
+            case 2:
+                updatePoints()
+                
+            default:
+                completeTopic()
         }
     }
     
@@ -265,9 +274,15 @@ struct UpdateTopicView: View {
     
     private func disableButton() -> Bool {
         switch selectedTab {
+            
+        case 0:
+            return selectedTabTopicsList != 1
+            
         case 1:
             return showSkipButton()
-            
+        
+        case 2:
+            return animationStage < 2
         case 3:
             if topicViewModel.createTopicOverview == .loading {
                 return true
@@ -430,6 +445,10 @@ struct UpdateTopicView: View {
                 
                 await dataController.completeTopic(topic: topic)
                 
+                await MainActor.run {
+                    topicViewModel.completedNewTopic = true
+                }
+                
                 DispatchQueue.global(qos: .background).async {
                     Mixpanel.mainInstance().track(event: "Completed section")
                 }
@@ -530,18 +549,18 @@ struct UpdateTopicView: View {
                 
                 switch questType {
                     
-                case .break1:
-                    await getTopicBreak(topic: newTopic)
+                case .context, .guided:
+                    await  getTopicQuestions(topic: newTopic)
                     
                 case .retro:
                     break
                 default:
-                  await  getTopicQuestions(topic: newTopic)
+                  
+                    await getTopicBreak(topic: newTopic)
                     
                 }
                 
             }
-            
             
         }
     }

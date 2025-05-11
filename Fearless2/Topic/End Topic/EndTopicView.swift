@@ -16,6 +16,7 @@ struct EndTopicView: View {
     @State private var showFragment: Bool = false
     @State private var startRepeatingAnimation: Bool = false
     @State private var animatedText = ""
+    @State private var celebrationAnimationStage: Int = 0
     @Binding var section: Section?
     @ObservedObject var topic: Topic
     
@@ -25,7 +26,7 @@ struct EndTopicView: View {
                 VStack (alignment: (selectedTab == 1) ? .leading : .center, spacing: 5) {
                     switch selectedTab {
                         case 0:
-                            RecapCelebrationView(title: section?.topic?.topicTitle ?? "", text: "For completing", points: "+5")
+                        RecapCelebrationView(animationStage: $celebrationAnimationStage, title: section?.topic?.topicTitle ?? "", text: "For completing", points: "+5")
                                 .padding(.horizontal)
                                 .padding(.top, 80)
                             

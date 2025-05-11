@@ -12,7 +12,7 @@ struct NextSequenceRecap: View {
     
     @State private var recapSelectedTab: Int = 0
   
-    @State private var recapScrollPosition: Int?
+    @Binding var recapScrollPosition: Int?
     
     let summaries: [SequenceSummary]
     
@@ -36,6 +36,7 @@ struct NextSequenceRecap: View {
                 ) { index, summary in
                     CarouselBox(orderIndex: index + 1, content: summary.summaryContent)
                 }
+                .padding(.horizontal, -1)
                 
             default:
                 FocusAreaRetryView(action: {

@@ -26,7 +26,7 @@ extension QuestionNextSequence {
     static let questions: [QuestionNextSequence] = [
         QuestionNextSequence(
             id: 0,
-            content: "What do you feel you’ve made progress on?",
+            content: "What do you feel you have more clarity on?",
             questionType: .multiSelect,
             options: [
                 "What still energizes you, and what left you drained",

@@ -97,7 +97,7 @@ struct QuestionSingleSelectView: View {
                         option: option.text,
                         items: items,
                         isEditable: option.isEditable,
-                        symbol: GoalTypeSymbol.symbolName(for: option.text, default: ""),
+                        symbol: showSymbol ? GoalTypeItem.symbolName(forLongName: option.text) : "",
                         isFocused: $isFocused
                     )
                     .onTapGesture {

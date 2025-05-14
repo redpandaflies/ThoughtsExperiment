@@ -22,6 +22,8 @@ struct QuestMapView: View {
     @State private var showTopicExpectationsSheet: Bool = false
     @State private var showTopicBreakView: Bool = false
     @State private var showNextSequenceView: Bool = false
+    @State private var showLockedSequenceInfoSheet: Bool = false
+    @State private var showDeleteGoalAlert: Bool = false
     
     @State private var sequenceScrollPosition: Int?
     @State private var currentSequenceIndex: Int = 0 // to manage which sequence is being displayed
@@ -59,7 +61,6 @@ struct QuestMapView: View {
          goal: Goal,
          points: Int,
          backgroundColor: Color,
-       
          frameWidth: CGFloat
     ) {
         
@@ -117,6 +118,7 @@ struct QuestMapView: View {
                     showTopicExpectationsSheet: $showTopicExpectationsSheet,
                     showTopicBreakView: $showTopicBreakView,
                     showNextSequenceView: $showNextSequenceView,
+                    showLockedSequenceInfoSheet: $showLockedSequenceInfoSheet,
                     
                     // navigation bindings
                     selectedTopic: $selectedTopic,
@@ -141,6 +143,14 @@ struct QuestMapView: View {
                 .blendMode(.colorDodge)
         }
         .frame(width: frameWidth, height: 410)
+        .alert("Delete topic?", isPresented: $showDeleteGoalAlert) {
+            Button("Cancel", role: .cancel) {}
+            Button("Yes", role: .destructive) {
+                deleteGoal()
+            }
+        } message: {
+            Text("You'll lose your data for this topic.")
+        }
         .onAppear {
             withAnimation(.snappy(duration: 0.2)) {
                 currentTabBar = .home
@@ -230,7 +240,9 @@ struct QuestMapView: View {
                 sequence: sequences[currentSequenceIndex],
                 topic: selectedTopic,
                 backgroundColor: backgroundColor,
-                showNextSequenceView: $showNextSequenceView)
+                showNextSequenceView: $showNextSequenceView,
+                animatedGoalIDs: $animatedGoalIDs
+            )
         }
         .fullScreenCover(isPresented: $showTopicBreakView, onDismiss: {
             showTopicBreakView = false
@@ -245,6 +257,22 @@ struct QuestMapView: View {
                     backgroundColor: backgroundColor)
             }
         }
+        .sheet(isPresented: $showLockedSequenceInfoSheet) {
+            // locked end of sequence step
+            InfoPrimaryView(
+                backgroundColor: backgroundColor,
+                useIcon: true,
+                iconName: "clock.arrow.circlepath",
+                iconWeight: .heavy,
+                titleText: "What did you uncover?",
+                descriptionText: "Reflect on your progress and decide on next steps.",
+                useRectangleButton: false,
+                buttonAction: {
+                    showLockedSequenceInfoSheet = false
+                })
+            .presentationDetents([.fraction(0.65)])
+            .presentationCornerRadius(30)
+        }
     }
     
     private func getBoxHeader(goalType: String) -> some View {
@@ -252,7 +280,7 @@ struct QuestMapView: View {
         HStack {
             
             HStack (spacing: 3){
-                Image(systemName: GoalTypeSymbol.symbolName(for: goalType, default: ""))
+                Image(systemName: GoalTypeItem.symbolName(forLongName: goalType))
                     .font(.system(size: 15, weight: .light).smallCaps())
                     .fontWidth(.condensed)
                     .foregroundStyle(AppColors.textPrimary.opacity(0.7))
@@ -282,18 +310,10 @@ struct QuestMapView: View {
                 }
                 
                 Button(role: .destructive) {
-                    
-                    Task {
-                        await dataController.changeGoalStatus(goal: goal, newStatus: .abandoned)
-                        
-                        DispatchQueue.main.async {
-                            self.animatedGoalIDs.remove(goal.goalId)
-                        }
-                    }
-                    
+                    showDeleteGoalAlert = true
                 } label: {
                     // Your label view
-                    Label("Delete", systemImage: "trash")
+                    Label("Delete topic", systemImage: "trash")
                 }
                 
             } label: {
@@ -352,6 +372,19 @@ struct QuestMapView: View {
         
         withAnimation {
             totalCompletedTopics = completedTopics.count
+        }
+    }
+    
+    private func deleteGoal() {
+        withAnimation {
+            _ = animatedGoalIDs.remove(goal.goalId)
+        }
+        Task {
+            await dataController.changeGoalStatus(goal: goal, newStatus: .abandoned)
+            
+            DispatchQueue.global(qos: .background).async {
+                Mixpanel.mainInstance().track(event: "Deleted topic")
+            }
         }
     }
     

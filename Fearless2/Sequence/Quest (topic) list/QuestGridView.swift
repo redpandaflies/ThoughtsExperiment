@@ -5,6 +5,7 @@
 //  Created by Yue Deng-Wu on 4/23/25.
 //
 import CoreData
+import Mixpanel
 import SwiftUI
 
 struct QuestGridView: View {
@@ -17,6 +18,7 @@ struct QuestGridView: View {
     @Binding var showTopicExpectationsSheet: Bool
     @Binding var showTopicBreakView: Bool
     @Binding var showNextSequenceView: Bool
+    @Binding var showLockedSequenceInfoSheet: Bool
 
     // navigation
     @Binding var selectedTopic: Topic?
@@ -48,6 +50,7 @@ struct QuestGridView: View {
        showTopicExpectationsSheet: Binding<Bool>,
        showTopicBreakView: Binding<Bool>,
        showNextSequenceView: Binding<Bool>,
+       showLockedSequenceInfoSheet: Binding<Bool>,
         
        selectedTopic: Binding<Topic?>,
        currentTabBar: Binding<TabBarType>,
@@ -64,6 +67,7 @@ struct QuestGridView: View {
        self._showTopicExpectationsSheet = showTopicExpectationsSheet
        self._showTopicBreakView = showTopicBreakView
        self._showNextSequenceView = showNextSequenceView
+       self._showLockedSequenceInfoSheet = showLockedSequenceInfoSheet
 
        self._selectedTopic = selectedTopic
        self._currentTabBar = currentTabBar
@@ -130,14 +134,16 @@ struct QuestGridView: View {
             case .expectations:
                 selectedTopic = topic
                 showTopicExpectationsSheet = true
+            DispatchQueue.global(qos: .background).async {
+                Mixpanel.mainInstance().track(event: "Started expectation step")
+            }
             
             case .guided, .context:
                 handleDefaultQuestTap(for: topic)
                
                 
             case .retro:
-                selectedTopic = topic
-                showNextSequenceView = true
+                retroAction(for: topic)
                 
             default:
                 breakAction(for: topic)
@@ -159,6 +165,10 @@ struct QuestGridView: View {
         default:
             selectedTopic = topic
             showCompletedTopicSheet = true
+            
+            DispatchQueue.global(qos: .background).async {
+                Mixpanel.mainInstance().track(event: "Started expectation step")
+            }
         }
     }
     
@@ -170,6 +180,10 @@ struct QuestGridView: View {
             case .locked:
                 if nextTopic == topic.orderIndex {
                     getTopicBreak(topic: topic) // start create topic flow
+                    DispatchQueue.global(qos: .background).async {
+                        Mixpanel.mainInstance().track(event: "Started break step")
+                    }
+                    
                 } else {
                     showLockedQuestInfoSheet = true
                 }
@@ -193,5 +207,30 @@ struct QuestGridView: View {
         selectedTopic = topic
         
         showTopicBreakView = true
+    }
+    
+    private func retroAction(for topic: Topic) {
+        let topicStatus = TopicStatusItem(rawValue: topic.topicStatus) ?? .locked
+        
+        switch topicStatus {
+        case .locked:
+            if nextTopic == topic.orderIndex {
+                getTopicRetro(topic: topic)
+                
+                DispatchQueue.global(qos: .background).async {
+                    Mixpanel.mainInstance().track(event: "Started break step")
+                }
+            } else {
+                showLockedSequenceInfoSheet = true
+            }
+        default:
+            getTopicRetro(topic: topic)
+        }
+       
+    }
+    
+    private func getTopicRetro(topic: Topic) {
+        selectedTopic = topic
+        showNextSequenceView = true
     }
 }

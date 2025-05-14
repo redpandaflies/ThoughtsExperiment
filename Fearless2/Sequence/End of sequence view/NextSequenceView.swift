@@ -4,7 +4,7 @@
 //
 //  Created by Yue Deng-Wu on 4/7/25.
 //
-
+import Mixpanel
 import SwiftUI
 
 struct NextSequenceView: View {
@@ -28,6 +28,7 @@ struct NextSequenceView: View {
     @State private var multiSelectOptionsEdited: [Bool]
     
     @Binding var showNextSequenceView: Bool
+    @Binding var animatedGoalIDs: Set<UUID>
     
     let goal: Goal
     let sequence: Sequence
@@ -45,7 +46,8 @@ struct NextSequenceView: View {
         sequence: Sequence,
         topic: Topic?,
         backgroundColor: Color,
-        showNextSequenceView: Binding<Bool>
+        showNextSequenceView: Binding<Bool>,
+        animatedGoalIDs: Binding<Set<UUID>>
     ) {
         let count = QuestionNextSequence.questions.count
 
@@ -61,6 +63,7 @@ struct NextSequenceView: View {
         self.topic = topic
         self.backgroundColor = backgroundColor
         self._showNextSequenceView = showNextSequenceView
+        self._animatedGoalIDs = animatedGoalIDs
         
         _newCategoryViewModel = StateObject(wrappedValue: newCategoryViewModel)
         _sequenceViewModel = StateObject(wrappedValue: sequenceViewModel)
@@ -111,7 +114,7 @@ struct NextSequenceView: View {
                             .padding(.horizontal)
                         
                         default:
-                        NewCategoryRevealPlanView (
+                        SequenceSuggestionsView (
                             newCategoryViewModel: newCategoryViewModel,
                             showSheet: $showNextSequenceView,
                             completeSequenceAction: {
@@ -203,6 +206,12 @@ struct NextSequenceView: View {
     
     private func buttonAction() {
         switch selectedTab {
+        case 1:
+            if sequence.sequenceStatus == SequenceStatusItem.completed.rawValue {
+                showNextSequenceView = false
+            } else {
+                selectedTab += 1
+            }
         case 2:
             manageQuestionFlow()
         case 3:
@@ -282,6 +291,10 @@ struct NextSequenceView: View {
     }
     
     private func getSequenceRecap() {
+        if sequence.sequenceStatus == SequenceStatusItem.completed.rawValue {
+            selectedTab = 1
+        }
+        
         if sequence.sequenceSummaries.isEmpty {
             createSummary()
         }
@@ -292,6 +305,12 @@ struct NextSequenceView: View {
         sequenceViewModel.createSequenceSummary = .loading
         
         Task {
+            // update topic status to active
+            if let topicId = topic?.topicId {
+                await dataController.updateTopicStatus(id: topicId, item: .active)
+            }
+            
+            // get sequence summary
             do {
                 try await sequenceViewModel.manageRun(selectedAssistant: .sequenceSummary, category: goal.category, goal: goal, sequence: sequence)
                 
@@ -345,6 +364,10 @@ struct NextSequenceView: View {
     
     private func navigateToNextQuestion() {
         selectedQuestion += 1
+        
+        DispatchQueue.global(qos: .background).async {
+            Mixpanel.mainInstance().track(event: "Retro decision: topic resolved")
+        }
     }
     
    
@@ -360,6 +383,12 @@ struct NextSequenceView: View {
                     sequence: sequence
                 )
                 
+                if index == 3 {
+                    DispatchQueue.global(qos: .background).async {
+                        Mixpanel.mainInstance().track(event: "Ask for next plan: \(answer)")
+                    }
+                }
+                
             }
             
             for (index, answer) in answersMultiSelect.enumerated() where !answer.isEmpty {
@@ -370,6 +399,18 @@ struct NextSequenceView: View {
                     userAnswer: answer,
                     sequence: sequence
                 )
+                
+                if index == 1 {
+                    for item in answer {
+                        let shortDescription = MixpanelDetailedEvents.sequenceRetro[item] ?? ""
+                        
+                        DispatchQueue.global(qos: .background).async {
+                            Mixpanel.mainInstance().track(event: "Plan outcome: \(shortDescription)")
+                        }
+                        
+                    }
+                    
+                }
                 
             }
         }
@@ -382,7 +423,10 @@ struct NextSequenceView: View {
         
         saveAnswers()
         completeSequence()
-        updatePoints()
+        
+        DispatchQueue.global(qos: .background).async {
+            Mixpanel.mainInstance().track(event: "Retro decision: keep exploring topic")
+        }
     }
     
     private func completeSequence() {
@@ -394,17 +438,9 @@ struct NextSequenceView: View {
                 await dataController.completeTopic(topic: topic, sequence: sequence)
             }
             
-           
-        }
-    }
-    
-    private func updatePoints() {
-        Task {
-            // update points
+           // update points
             await dataController.updatePoints(newPoints: 10)
         }
-        
-        
     }
     
     private func completeGoal() {
@@ -412,6 +448,11 @@ struct NextSequenceView: View {
         showNextSequenceView = false
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            
+            withAnimation {
+                _ = animatedGoalIDs.remove(goal.goalId)
+            }
+            
             Task {
                 await dataController.changeGoalStatus(goal: goal, newStatus: .completed)
             }

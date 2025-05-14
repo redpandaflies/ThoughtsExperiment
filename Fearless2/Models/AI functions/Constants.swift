@@ -26,6 +26,30 @@ enum Constants {
         return openAIPartialKey
     }()
     
+    static let openAIAssistantIdNewCategory: String = {
+        guard let infoDict = infoDictionary,
+              let openAIId = infoDict["OPENAI_ASSISTANT_ID_NEW_CATEGORY"] as? String else {
+            logger.error("OpenAI new category assistant ID not available, using placeholder")
+            return ""
+        }
+       
+        logger.info("Retrieved OpenAI new category assistant ID: \(openAIId)")
+       
+        return openAIId
+    }()
+    
+    static let openAIAssistantIdSequenceSuggestion: String = {
+        guard let infoDict = infoDictionary,
+              let openAIId = infoDict["OPENAI_ASSISTANT_ID_SEQUENCE_SUGGESTION"] as? String else {
+            logger.error("OpenAI plan suggestion assistant ID not available, using placeholder")
+            return ""
+        }
+       
+        logger.info("Retrieved OpenAI plan suggestion assistant ID: \(openAIId)")
+       
+        return openAIId
+    }()
+    
     static let openAIAssistantIdTopic: String = {
 
         guard let infoDict = infoDictionary,
@@ -35,42 +59,6 @@ enum Constants {
         }
        
         logger.info("Retrieved OpenAI topic assistant ID: \(openAIId)")
-       
-        return openAIId
-    }()
-    
-    static let openAIAssistantIdTopicBreak: String = {
-        guard let infoDict = infoDictionary,
-              let openAIId = infoDict["OPENAI_ASSISTANT_ID_TOPIC_BREAK"] as? String else {
-            logger.error("OpenAI topic break assistant ID not available, using placeholder")
-            return ""
-        }
-        
-        logger.info("Retrieved OpenAI topic break assistant ID: \(openAIId)")
-        
-        return openAIId
-    }()
-    
-    static let openAIAssistantIdTopicSuggestions: String = {
-        guard let infoDict = infoDictionary,
-              let openAIId = infoDict["OPENAI_ASSISTANT_ID_TOPIC_SUGGESTIONS"] as? String else {
-            logger.error("OpenAI topic suggestions assistant ID not available, using placeholder")
-            return ""
-        }
-       
-        logger.info("Retrieved OpenAI topic suggestions assistant ID: \(openAIId)")
-       
-        return openAIId
-    }()
-    
-    static let openAIAssistantIdTopicSuggestions2: String = {
-        guard let infoDict = infoDictionary,
-              let openAIId = infoDict["OPENAI_ASSISTANT_ID_TOPIC_SUGGESTIONS2"] as? String else {
-            logger.error("OpenAI topic suggestions (new) assistant ID not available, using placeholder")
-            return ""
-        }
-       
-        logger.info("Retrieved OpenAI topic suggestions assistant ID: \(openAIId)")
        
         return openAIId
     }()
@@ -88,6 +76,31 @@ enum Constants {
         return openAIId
     }()
     
+    static let openAIAssistantIdTopicBreak: String = {
+        guard let infoDict = infoDictionary,
+              let openAIId = infoDict["OPENAI_ASSISTANT_ID_TOPIC_BREAK"] as? String else {
+            logger.error("OpenAI topic break assistant ID not available, using placeholder")
+            return ""
+        }
+        
+        logger.info("Retrieved OpenAI topic break assistant ID: \(openAIId)")
+        
+        return openAIId
+    }()
+    
+    static let openAIAssistantIdSequenceSummary: String = {
+        guard let infoDict = infoDictionary,
+              let openAIId = infoDict["OPENAI_ASSISTANT_ID_SEQUENCE_SUMMARY"] as? String else {
+            logger.error("OpenAI plan/sequence summary assistant ID not available, using placeholder")
+            return ""
+        }
+       
+        logger.info("Retrieved OpenAI plan/sequence summary assistant ID: \(openAIId)")
+       
+        return openAIId
+    }()
+    
+    // MARK: - Not in use
     static let openAIAssistantIdSectionSummary: String = {
 
         guard let infoDict = infoDictionary,
@@ -178,39 +191,26 @@ enum Constants {
         return stabilityPartialKey
     }()
     
-    
-    static let openAIAssistantIdNewCategory: String = {
+    static let openAIAssistantIdTopicSuggestions: String = {
         guard let infoDict = infoDictionary,
-              let openAIId = infoDict["OPENAI_ASSISTANT_ID_NEW_CATEGORY"] as? String else {
-            logger.error("OpenAI new category assistant ID not available, using placeholder")
+              let openAIId = infoDict["OPENAI_ASSISTANT_ID_TOPIC_SUGGESTIONS"] as? String else {
+            logger.error("OpenAI topic suggestions assistant ID not available, using placeholder")
             return ""
         }
        
-        logger.info("Retrieved OpenAI new category assistant ID: \(openAIId)")
+        logger.info("Retrieved OpenAI topic suggestions assistant ID: \(openAIId)")
        
         return openAIId
     }()
     
-    static let openAIAssistantIdPlanSuggestion: String = {
+    static let openAIAssistantIdTopicSuggestions2: String = {
         guard let infoDict = infoDictionary,
-              let openAIId = infoDict["OPENAI_ASSISTANT_ID_PLAN_SUGGESTION"] as? String else {
-            logger.error("OpenAI plan suggestion assistant ID not available, using placeholder")
+              let openAIId = infoDict["OPENAI_ASSISTANT_ID_TOPIC_SUGGESTIONS2"] as? String else {
+            logger.error("OpenAI topic suggestions (new) assistant ID not available, using placeholder")
             return ""
         }
        
-        logger.info("Retrieved OpenAI plan suggestion assistant ID: \(openAIId)")
-       
-        return openAIId
-    }()
-    
-    static let openAIAssistantIdSequenceSummary: String = {
-        guard let infoDict = infoDictionary,
-              let openAIId = infoDict["OPENAI_ASSISTANT_ID_SEQUENCE_SUMMARY"] as? String else {
-            logger.error("OpenAI plan/sequence summary assistant ID not available, using placeholder")
-            return ""
-        }
-       
-        logger.info("Retrieved OpenAI plan/sequence summary assistant ID: \(openAIId)")
+        logger.info("Retrieved OpenAI topic suggestions assistant ID: \(openAIId)")
        
         return openAIId
     }()

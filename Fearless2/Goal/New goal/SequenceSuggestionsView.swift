@@ -1,13 +1,13 @@
 //
-//  NewCategoryRevealPlanView.swift
+//  SequenceSuggestionsView.swift
 //  Fearless2
 //
 //  Created by Yue Deng-Wu on 4/10/25.
 //
-
+import Mixpanel
 import SwiftUI
 
-struct NewCategoryRevealPlanView: View {
+struct SequenceSuggestionsView: View {
     @EnvironmentObject var dataController: DataController
     @ObservedObject var newCategoryViewModel: NewCategoryViewModel
     
@@ -52,7 +52,7 @@ struct NewCategoryRevealPlanView: View {
             switch planSelectedTab {
                 
                 case 0:
-                    NewCategoryLoadingView(
+                    NewGoalLoadingView(
                         texts: loadingTexts,
                         showFooter: true,
                         animationCompleted: $animationCompleted
@@ -113,7 +113,7 @@ struct NewCategoryRevealPlanView: View {
                                 .opacity(phase.isIdentity ? 1 : 0.3)
                             }
                             .onTapGesture {
-                                saveChosenPlan(plan: suggestion)
+                                saveChosenPlan(plan: suggestion, index: index + 1)
                             }
                     }
                 }
@@ -168,7 +168,7 @@ struct NewCategoryRevealPlanView: View {
         }
     }
     
-    private func saveChosenPlan(plan: NewPlan) {
+    private func saveChosenPlan(plan: NewPlan, index: Int) {
         Task {
             if let category = newCategoryViewModel.currentCategory, let goal = newCategoryViewModel.currentGoal {
                 await dataController.saveSelectedPlan(plan: plan, category: category, goal: goal)
@@ -177,10 +177,17 @@ struct NewCategoryRevealPlanView: View {
                     cancelledCreateNewCategory = false
                     showSheet = false
                 }
+                
+                
             }
         }
         // mark sequence and topic as complete
         completeSequenceAction()
+        
+        DispatchQueue.global(qos: .background).async {
+            Mixpanel.mainInstance().track(event: "Chose plan \(index)")
+        }
+       
     }
     
     

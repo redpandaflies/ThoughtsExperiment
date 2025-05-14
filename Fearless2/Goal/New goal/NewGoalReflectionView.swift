@@ -1,13 +1,13 @@
 //
-//  NewCategoryReflectionView.swift
+//  NewGoalReflectionView.swift
 //  Fearless2
 //
 //  Created by Yue Deng-Wu on 4/10/25.
 //
-
+import Mixpanel
 import SwiftUI
 
-struct NewCategoryReflectionView: View {
+struct NewGoalReflectionView: View {
     @ObservedObject var newCategoryViewModel: NewCategoryViewModel
     @EnvironmentObject var dataController: DataController
     
@@ -41,7 +41,7 @@ struct NewCategoryReflectionView: View {
             switch reflectionSelectedTab {
             case 0:
                 //loading view
-                NewCategoryLoadingView(
+                NewGoalLoadingView(
                     texts: loadingTexts,
                     animationCompleted: $animationCompletedLoading
                 )
@@ -139,14 +139,16 @@ struct NewCategoryReflectionView: View {
         
         switch newCategoryViewModel.createNewCategorySummary {
         case .ready:
-            
-            if feedback.isEmpty {
-                feedback = newCategoryViewModel.newCategorySummary?.summary ?? ""
-            }
+            feedback = newCategoryViewModel.newCategorySummary?.summary ?? ""
             
             if reflectionSelectedTab != 1 {
                 reflectionSelectedTab = 1
             }
+            
+            // ensure animation vars are reset
+            animatedText = ""
+            animationCompletedText = false
+
             
             startReflectionAnimation()
             
@@ -162,7 +164,8 @@ struct NewCategoryReflectionView: View {
     }
     
     private func startReflectionAnimation() {
-       
+        print("Starting animation, feedback: \(feedback)")
+        
         animator = TextAnimator (
             text: feedback,
             animatedText: $animatedText,
@@ -175,6 +178,9 @@ struct NewCategoryReflectionView: View {
     
     private func nextAction() {
         mainSelectedTab += 1
+        DispatchQueue.global(qos: .background).async {
+            Mixpanel.mainInstance().track(event: "Problem statement correct")
+        }
     }
     
     private func backAction() {
@@ -183,10 +189,13 @@ struct NewCategoryReflectionView: View {
         mainSelectedTab -= 1
         
         Task {
-            await dataController.deleteLastGoal()
+            await dataController.deleteIncompleteGoals()
            
             await newCategoryViewModel.cancelCurrentRun()
-            
+            DispatchQueue.global(qos: .background).async {
+                Mixpanel.mainInstance().track(event: "Problem statement incorrect")
+            }
+           
         }
         
     }
@@ -194,6 +203,10 @@ struct NewCategoryReflectionView: View {
     private func retryAction() {
         reflectionSelectedTab = 0
         animationCompletedLoading = false
+        feedback = ""
+         animatedText = ""
+         animationCompletedText = false
+        
         
         if let category = newCategoryViewModel.currentCategory, let goal = newCategoryViewModel.currentGoal {
             Task {

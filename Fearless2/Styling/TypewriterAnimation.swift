@@ -103,7 +103,7 @@ final class TextAnimator {
         
         // Apply haptic feedback for words (not for spaces or line breaks)
         if segments[index] != " " && segments[index] != "\n" && segments[index] != "\n\n" {
-            if index % 2 == 0 && index > 0 {
+            if index % 3 == 0 && index > 0 {
                 hapticImpact.impactOccurred(intensity: hapticIntensity)
             }
         }

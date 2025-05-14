@@ -1,13 +1,13 @@
 //
-//  NewCategoryQuestionsView.swift
+//  NewGoalQuestionsView.swift
 //  Fearless2
 //
 //  Created by Yue Deng-Wu on 3/5/25.
 //
-
+import Mixpanel
 import SwiftUI
 
-struct NewCategoryQuestionsView: View {
+struct NewGoalQuestionsView: View {
     @EnvironmentObject var dataController: DataController
     @ObservedObject var newCategoryViewModel: NewCategoryViewModel
     
@@ -25,7 +25,7 @@ struct NewCategoryQuestionsView: View {
     @Binding var answersSingleSelect: [String]
     @Binding var multiSelectAnswers: [String]
     @Binding var multiSelectCustomItems: [String]
-    @Binding var newGoalSaved: Bool
+    
     @FocusState.Binding var focusField: DefaultFocusField?
     
     let exitFlowAction: () -> Void
@@ -126,6 +126,10 @@ struct NewCategoryQuestionsView: View {
             }
             
             exitFlowAction()
+        }
+        
+        DispatchQueue.global(qos: .background).async {
+            Mixpanel.mainInstance().track(event: "Closed new topic flow")
         }
     }
     

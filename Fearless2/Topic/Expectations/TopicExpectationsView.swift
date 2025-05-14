@@ -4,6 +4,7 @@
 //
 //  Created by Yue Deng-Wu on 4/14/25.
 //
+import Mixpanel
 import OSLog
 import SwiftUI
 
@@ -39,6 +40,7 @@ struct TopicExpectationsView: View {
                 showTopicExpectationsSheet = false
             })
             .padding(.bottom)
+            .padding(.horizontal)
             
             Text("What to expect")
                 .multilineTextAlignment(.leading)
@@ -63,7 +65,7 @@ struct TopicExpectationsView: View {
                 },
                 disableMainButton: disableButton,
                 buttonColor: .white)
-                .padding(.horizontal)
+            .padding(.horizontal)
             
         }//VStack
         .padding(.bottom)
@@ -103,7 +105,7 @@ struct TopicExpectationsView: View {
                     .font(.system(size: 25))
                     .foregroundStyle(AppColors.progressBarPrimary.opacity(0.3))
             }
-    
+            
         }//HStack
         .frame(maxWidth: .infinity)
         .padding(.top)
@@ -111,18 +113,27 @@ struct TopicExpectationsView: View {
         
     }
     
-   
+    
     
     private func completeTopic() {
         Task {
             if let topic = topic, topic.topicStatus != TopicStatusItem.completed.rawValue {
+            
                 await dataController.completeTopic(topic: topic)
+                
+                DispatchQueue.global(qos: .background).async {
+                    Mixpanel.mainInstance().track(event: "Completed expectation step")
+                }
             }
+            
             await MainActor.run {
                 showTopicExpectationsSheet = false
                 topicViewModel.completedNewTopic = true
             }
         }
+        
+       
+
     }
     
     private func getTopicQuestions() {

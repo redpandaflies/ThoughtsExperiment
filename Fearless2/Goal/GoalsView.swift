@@ -14,6 +14,7 @@ struct GoalsView: View {
     @EnvironmentObject var dataController: DataController
     @ObservedObject var topicViewModel: TopicViewModel
     
+    @State private var selectedTabGoals: Int = 0
     @State private var showSettingsView: Bool = false
     @State private var goalScrollPosition: Int?
     @State private var showNewGoalSheet: Bool = false
@@ -40,24 +41,6 @@ struct GoalsView: View {
         return Int(points.first?.total ?? 1)
     }
     
-    // avoid crashing app when goals is 0 or goalScrollPosition is out of bounds
-    private var displayedGoal: Goal? {
-        // if there are no goals, bail out
-        guard !goals.isEmpty else { return nil }
-        // if you have a valid scroll position, use it
-        if let pos = goalScrollPosition, goals.indices.contains(pos) {
-            return goals[pos]
-        }
-        // otherwise just show the first goal
-        return goals.first
-    }
-    
-    private var headerImageName: String {
-        let index = goalScrollPosition ?? 0
-        let imageIndex = (index % 3) + 1
-        return "goal\(imageIndex)"
-    }
-    
     let screenWidth = UIScreen.current.bounds.width
     
     var frameWidth: CGFloat {
@@ -72,65 +55,27 @@ struct GoalsView: View {
         NavigationStack {
             
             VStack (spacing: 15){
-                if !goals.isEmpty {
+                
+                switch selectedTabGoals {
+                case 0:
+                    GoalsListView(
+                        topicViewModel: topicViewModel,
+                        goalScrollPosition: $goalScrollPosition,
+                        selectedTopic: $selectedTopic,
+                        currentTabBar: $currentTabBar,
+                        selectedTabTopic: $selectedTabTopic,
+                        animatedGoalIDs: $animatedGoalIDs,
+                        goals: goals,
+                        currentPoints: currentPoints,
+                        frameWidth: frameWidth,
+                        safeAreaPadding: safeAreaPadding
+                    )
+                
                     
-                    Image(headerImageName)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(height: 160)
-                        .blendMode(.screen)
-                    
-                    ScrollView (.horizontal) {
-                        HStack (spacing: 15) {
-                            ForEach(Array(goals.enumerated()), id: \.element.goalId) { index, goal in
-                                // MARK: - Quests map
-                                /// if statement for 1) manage goal map animation; 2) ensure goal has plans/sequences
-                                
-                                if animatedGoalIDs.contains(goal.goalId) && !goal.goalSequences.isEmpty {
-                                    QuestMapView (
-                                        topicViewModel: topicViewModel,
-                                        selectedTopic: $selectedTopic,
-                                        currentTabBar: $currentTabBar,
-                                        selectedTabTopic: $selectedTabTopic,
-                                        animatedGoalIDs: $animatedGoalIDs,
-                                        goal: goal,
-                                        points: currentPoints,
-                                        backgroundColor: getBackground(index: index),
-                                        frameWidth: frameWidth
-                                    )
-                                    .transition( .movingParts.poof)
-                                    .id(index)
-//                                        .scrollTransition { content, phase in
-//                                            content
-//                                                .opacity(phase.isIdentity ? 1 : 0.3)
-//                                        }
-                                    
-                                }
-                                
-                            }//ForEach
-                        }//HStack
-                        .scrollTargetLayout()
-                        .onAppear {
-                            if animatedGoalIDs.isEmpty {
-                                animatedGoalIDs = Set(goals.map(\.goalId))
-                            }
-                        }
-                    }//ScrollView
-                    .scrollPosition(id: $goalScrollPosition, anchor: .center)
-                    .scrollClipDisabled(true)
-                    .scrollTargetBehavior(.viewAligned(limitBehavior: .alwaysByOne))
-                    .scrollIndicators(.hidden)
-                    .contentMargins(.horizontal, safeAreaPadding, for: .scrollContent)
-                    
-                    if goals.count > 1 {
-                        PageIndicatorView(scrollPosition: $goalScrollPosition, pagesCount: goals.count)
-                            .padding(.top)
-                    }
-                    
-                } else {
-                    
+                default:
                     GoalsEmptyState()
                 }
+          
                 
             }//VStack
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -142,11 +87,23 @@ struct GoalsView: View {
             .overlay {
                 addGoalButton(buttonAction: {
                     showNewGoalSheet = true
+                    DispatchQueue.global(qos: .background).async {
+                        Mixpanel.mainInstance().track(event: "Started a new topic")
+                    }
                 })
             }
             .onAppear {
+               
                 print("Number of goals: \(goals.count)")
-                goalScrollPosition = 0
+                
+                if animatedGoalIDs.isEmpty {
+                    animatedGoalIDs = Set(goals.map(\.goalId))
+                }
+                
+                if goals.count == 0 {
+                    selectedTabGoals = 1
+                }
+
             }
             .onChange(of: dataController.deletedAllData) {
                 print("Number of goals: \(goals.count)")
@@ -156,33 +113,32 @@ struct GoalsView: View {
                 //                }
             }
             .onChange(of:  goals.map(\.goalId)) { oldValue, newValue in
-                let newSet = Set(newValue)
-                let removed = animatedGoalIDs.subtracting(newSet)  // IDs to animate‐away
-                let added = newSet.subtracting(animatedGoalIDs)  // IDs to bring in
-
-                // Animate removals
-                withAnimation {
-                    animatedGoalIDs.subtract(removed)
-                }
-
-              
-                // Immediately add any new ones
-                animatedGoalIDs.formUnion(added)
                 
-              
+                if oldValue.count < newValue.count {
+                    updateGoalsList(newValue: newValue)
+                }
                 
             }
-            .onChange(of: showNewGoalSheet) {
-                if !cancelledCreateNewCategory && goals.count > 1 {
+            .onChange(of: animatedGoalIDs) { oldValue, newValue in
+                
+//                print("Old value: \(oldValue), new value: \(newValue)")
+                // update scroll view only if a goal has been abandoned or completed
+                if oldValue.count > newValue.count {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        
-                        goalScrollPosition = goals.count - 1
-                   
+                        if let scrollPosition = goalScrollPosition {
+                            withAnimation {
+                                goalScrollPosition = scrollPosition == 0 ? nil : max(scrollPosition - 1, 0)
+                            }
+                        }
                     }
                 }
+                
+                if animatedGoalIDs.isEmpty {
+                    selectedTabGoals = 1
+                }
             }
             .onChange(of: showNewGoalSheet) {
-                if !showNewGoalSheet && !cancelledCreateNewCategory {
+                if !showNewGoalSheet && !cancelledCreateNewCategory && goals.count > 1 {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                         withAnimation {
                             goalScrollPosition = goals.count - 1
@@ -200,9 +156,9 @@ struct GoalsView: View {
                 
                 ToolbarItem(placement: .topBarTrailing) {
                        Button {
-                           //tbd
+                           // show sheet explaining points
                            showLaurelInfoSheet = true
-                           print("Current points \(currentPoints)")
+                           
                            DispatchQueue.global(qos: .background).async {
                                Mixpanel.mainInstance().track(event: "Tapped laurel counter")
                            }
@@ -226,7 +182,7 @@ struct GoalsView: View {
             .fullScreenCover(isPresented: $showNewGoalSheet, onDismiss: {
                 showNewGoalSheet = false
             }) {
-                NewCategoryView(
+                NewGoalView(
                     newCategoryViewModel: viewModelFactoryMain.makeNewCategoryViewModel(),
                     showNewGoalSheet: $showNewGoalSheet,
                     cancelledCreateNewCategory: $cancelledCreateNewCategory,
@@ -254,13 +210,15 @@ struct GoalsView: View {
     
     private func getBackground(index: Int?) -> Color {
         if let index = index {
-            let usableIndex = (index % 12)
+            let count = AppColors.allBackgrounds.count
+            
+            let usableIndex = ((index % count) + count) % count
             
             return AppColors.allBackgrounds[usableIndex]
             
         }
         
-        return AppColors.backgroundOnboardingIntro
+        return AppColors.allBackgrounds[0]
     }
     
     private func addGoalButton(buttonAction: @escaping () -> Void) -> some View {
@@ -275,5 +233,21 @@ struct GoalsView: View {
             .padding(.bottom, 20)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+    }
+    
+    private func updateGoalsList(newValue: [UUID]) {
+        let newSet = Set(newValue)
+        let added = newSet.subtracting(animatedGoalIDs)  // IDs to bring in
+
+        // Animate removals
+//        withAnimation {
+//            animatedGoalIDs.subtract(removed)
+//        }
+      
+        // Immediately add any new ones
+        animatedGoalIDs.formUnion(added)
+        if selectedTabGoals != 0 {
+            selectedTabGoals = 0
+        }
     }
 }

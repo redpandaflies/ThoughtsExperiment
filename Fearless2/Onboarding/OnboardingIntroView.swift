@@ -116,6 +116,9 @@ struct OnboardingIntroView: View {
             selectedIntroPage += 1
             default:
              showNewGoalSheet = true
+            DispatchQueue.global(qos: .background).async {
+                Mixpanel.mainInstance().track(event: "Started a new topic")
+            }
         }
         
     }

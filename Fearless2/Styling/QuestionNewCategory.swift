@@ -46,40 +46,6 @@ enum QuestionCategory: String, Codable, CaseIterable {
 
 extension QuestionNewCategory {
     
-    //initial question onboarding
-    static var initialQuestionsOnboarding: [QuestionNewCategory] {
-        return [
-            QuestionNewCategory(
-                id: 0,
-                content: "What should I call you?",
-                questionType: .open,
-                category: .generic
-            ),
-            QuestionNewCategory(
-                id: 1,
-                content: "It's late. You're trying to fall asleep, but your mind is wandering. What are you thinking about?",
-                questionType: .singleSelect,
-                category: .generic,
-                options: Realm.realmsData
-                    .dropLast()
-                    .map { $0.name }
-            ),
-            QuestionNewCategory(
-                id: 2,
-                content: "What’s keeping you up at night about this part of your life?",
-                questionType: .open,
-                category: .generic
-            ),
-            QuestionNewCategory(
-                id: 3,
-                content: "What would make you feel better about this?",
-                questionType: .open,
-                category: .generic
-            )
-            
-        ]
-    }
-    
     //get questions new category
     static func initialQuestionsNewCategory() -> [QuestionNewCategory] {
         return [
@@ -88,28 +54,15 @@ extension QuestionNewCategory {
                 content: "What's on your mind?",
                 questionType: .singleSelect,
                 category: .generic,
-                options: [
-                    "Make a decision",
-                    "Solve a problem",
-                    "Get clarity on something"
-                ]
+                options: GoalTypeItem.allCases.map { $0.getNameLong() }
             )
         ]
     }
-    static func getProblemQuestion(problem: String) -> String? {
-            let followUpMap: [String: String] = [
-                "Make a decision": "What decision do you need to make?",
-                "Solve a problem": "What problem are you trying to solve?",
-                "Get clarity on something": "What do you need clarity on?"
-            ]
-            
-            return followUpMap[problem]
-        }
     
     
     static func remainingQuestionsNewCategory(userAnswer: String) -> [QuestionNewCategory] {
         
-        let secondQuestionContent = getProblemQuestion(problem: userAnswer) ?? "Please tell me more about what's bothering you."
+        let secondQuestionContent = GoalTypeItem.question(forLongName: userAnswer)
         
         return [
             QuestionNewCategory(
@@ -161,7 +114,6 @@ extension QuestionNewCategory {
                 "Offer a different perspective",
                 "Give candid feedback",
                 "Suggest next steps",
-                "Recommend relevant resources",
                 "Other"
             ]
         )

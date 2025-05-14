@@ -30,7 +30,7 @@ enum AssistantItem: Int, CaseIterable {
         case .newCategory:
             return Constants.openAIAssistantIdNewCategory
         case .planSuggestion:
-            return Constants.openAIAssistantIdPlanSuggestion
+            return Constants.openAIAssistantIdSequenceSuggestion
         case .sequenceSummary:
             return Constants.openAIAssistantIdSequenceSummary
         case .topic:

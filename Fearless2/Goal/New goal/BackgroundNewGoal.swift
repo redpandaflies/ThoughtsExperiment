@@ -1,5 +1,5 @@
 //
-//  BackgroundNewCategory.swift
+//  BackgroundNewGoal.swift
 //  Fearless2
 //
 //  Created by Yue Deng-Wu on 3/1/25.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct BackgroundNewCategory: View {
+struct BackgroundNewGoal: View {
     @Binding var animationStage: Int
     let backgroundColor: Color
     let newBackgroundColor: Color

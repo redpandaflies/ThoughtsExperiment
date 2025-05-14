@@ -7,6 +7,7 @@
 import Combine
 import Foundation
 import OSLog
+import UIKit
 
 final class TopicViewModel: ObservableObject {
     
@@ -34,6 +35,7 @@ final class TopicViewModel: ObservableObject {
     private var assistantRunManager: AssistantRunManager
     private var stabilityService = StabilityService.instance
     
+    private var backgroundTaskID: UIBackgroundTaskIdentifier = .invalid
     private var cancellables = Set<AnyCancellable>()
     
     var threadId: String? = nil //needed for cancelling runs
@@ -82,6 +84,23 @@ final class TopicViewModel: ObservableObject {
     //note: send the full name of category to GPT as context, save the short name to CoreData
     //note: kept the optionals for userInput and question for now, in case we want to add back in the follow-up questions and summary
     func manageRun(selectedAssistant: AssistantItem, userInput: [String]? = nil, topicId: UUID? = nil, entryId: UUID? = nil, transcript: String? = nil, topic: Topic? = nil, focusArea: FocusArea? = nil, section: Section? = nil, question: String? = nil, review: TopicReview? = nil, category: Category? = nil) async throws {
+        
+        // Start a background task to give iOS extra time when you go background
+        await MainActor.run {
+            // capture the task ID in a local constant
+            self.backgroundTaskID = UIApplication.shared.beginBackgroundTask (withName: "Finish Network Tasks") {
+                // End the task if time expires.
+                UIApplication.shared.endBackgroundTask(self.backgroundTaskID)
+                    self.backgroundTaskID = UIBackgroundTaskIdentifier.invalid
+                }
+        }
+
+        defer {
+          Task { @MainActor in
+            UIApplication.shared.endBackgroundTask(backgroundTaskID)
+              self.backgroundTaskID = UIBackgroundTaskIdentifier.invalid
+          }
+        }
         
         do {
             //reset published vars

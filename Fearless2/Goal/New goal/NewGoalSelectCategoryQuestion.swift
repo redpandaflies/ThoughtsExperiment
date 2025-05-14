@@ -1,5 +1,5 @@
 //
-//  NewCategorySelectCategoryQuestion.swift
+//  NewGoalSelectCategoryQuestion.swift
 //  Fearless2
 //
 //  Created by Yue Deng-Wu on 4/9/25.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct NewCategorySelectCategoryQuestion: View {
+struct NewGoalSelectCategoryQuestion: View {
     @Binding var selectedCategory: String
     let question: String
     let items: [String]

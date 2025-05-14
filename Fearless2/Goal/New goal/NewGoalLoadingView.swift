@@ -1,5 +1,5 @@
 //
-//  NewCategoryLoadingMirrorView.swift
+//  NewGoalLoadingView.swift
 //  Fearless2
 //
 //  Created by Yue Deng-Wu on 4/9/25.
@@ -9,7 +9,7 @@ import Lottie
 import Pow
 import SwiftUI
 
-struct NewCategoryLoadingView: View {
+struct NewGoalLoadingView: View {
     @State private var animationSpeed: CGFloat = 1.0
     @State private var symbolAnimationValue: Bool = false
     @State private var play: Bool = true
@@ -93,7 +93,7 @@ struct NewCategoryLoadingView: View {
     
     private func updateNextLine(after delay: Double, showCheckmark: Bool = true) {
        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-           withAnimation(.snappy(duration: 0.2)) {
+           withAnimation(.smooth(duration: 0.2)) {
                nextLine += 1
            }
            
@@ -137,6 +137,7 @@ struct NewCategoryLoadingView: View {
                 .foregroundStyle(getColor(index: index))
  
         }//HStack
+        
         
     }
    

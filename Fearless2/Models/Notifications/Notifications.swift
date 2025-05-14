@@ -56,8 +56,8 @@ extension NotificationManager: UNUserNotificationCenterDelegate {
             }
           
             let content = UNMutableNotificationContent()
-            content.title = "Forgotten Realms"
-            content.body = "Take a moment for yourself – reflect, unwind, and explore the realms."
+            content.title = "Kaleida"
+            content.body = "Let’s figure out that thing that keeps you up at night →."
             content.sound = UNNotificationSound.default
             
             // Set the notification to repeat only on weekdays

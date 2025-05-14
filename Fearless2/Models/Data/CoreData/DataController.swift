@@ -593,27 +593,29 @@ extension DataController {
         
     }
     
-    func deleteLastGoal() async {
+    // delete goals that don't have a plan
+    /// happens when user exits early from the new category/topic flow
+    func deleteIncompleteGoals() async {
         let request = NSFetchRequest<Goal>(entityName: "Goal")
-        
-        // Sort by createdAt, with most recent last
-        let sortDescriptor = NSSortDescriptor(key: "createdAt", ascending: true)
-        request.sortDescriptors = [sortDescriptor]
         
         await context.perform {
             do {
                 let goals = try self.context.fetch(request)
                 
-                // delete if it's the latest goal and doesn't have any plans/sequences yet
-                if let lastGoal = goals.last, lastGoal.goalSequences.isEmpty {
-                    self.context.delete(lastGoal)
-                    self.logger.log("Latest goal deleted")
+                // Filter goals with empty goalSequences
+                let incompleteGoals = goals.filter { $0.goalSequences.isEmpty }
+                
+                if incompleteGoals.isEmpty {
+                    self.logger.log("No incomplete goals found to delete")
                 } else {
-                    self.logger.log("No goals found to delete")
+                    for goal in incompleteGoals {
+                        self.context.delete(goal)
+                    }
+                    self.logger.log("\(incompleteGoals.count) incomplete goals deleted")
                 }
                 
             } catch {
-                self.logger.error("Failed to fetch or delete goal from Core Data: \(error.localizedDescription)")
+                self.logger.error("Failed to fetch or delete incomplete goals: \(error.localizedDescription)")
             }
         }
         

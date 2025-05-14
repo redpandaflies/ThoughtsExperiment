@@ -366,14 +366,14 @@ struct UpdateTopicView: View {
                 multiSelectCustomItems: customItemsMultiSelect
             )
             
-            DispatchQueue.global(qos: .background).async {
-                Mixpanel.mainInstance().track(event: "Answered question")
-            }
-            
             if numberOfQuestions == answeredQuestionIndex + 1 {
                 await MainActor.run {
                     completeQuestions()
                 }
+            }
+            
+            DispatchQueue.global(qos: .background).async {
+                Mixpanel.mainInstance().track(event: "Answered question")
             }
         }
         
@@ -450,7 +450,7 @@ struct UpdateTopicView: View {
                 }
                 
                 DispatchQueue.global(qos: .background).async {
-                    Mixpanel.mainInstance().track(event: "Completed section")
+                    Mixpanel.mainInstance().track(event: "Completed guided step")
                 }
                 
             }

@@ -1,13 +1,14 @@
 //
-//  NewCategoryView.swift
+//  NewGoalView.swift
 //  Fearless2
 //
 //  Created by Yue Deng-Wu on 2/24/25.
 //
 import CoreData
+import Mixpanel
 import SwiftUI
 
-struct NewCategoryView: View {
+struct NewGoalView: View {
    
     @EnvironmentObject var dataController: DataController
     @StateObject var newCategoryViewModel: NewCategoryViewModel
@@ -24,8 +25,6 @@ struct NewCategoryView: View {
     @State private var answersSingleSelect: [String] = Array(repeating: "", count: 5)
     @State private var multiSelectAnswers: [String] = []
     @State private var multiSelectCustomItems: [String] = []
-    // flag for tracking if new category has been saved, and needs to be deleted when user exits this flow early
-    @State private var newGoalSaved: Bool = false
     
     @Binding var showNewGoalSheet: Bool
     @Binding var cancelledCreateNewCategory: Bool
@@ -60,7 +59,7 @@ struct NewCategoryView: View {
             // MARK: - View Content
             switch mainSelectedTab {
                 case 0:
-                    NewCategoryQuestionsView (
+                    NewGoalQuestionsView (
                         newCategoryViewModel: newCategoryViewModel,
                         mainSelectedTab: $mainSelectedTab,
                         selectedQuestion: $selectedQuestion,
@@ -70,7 +69,6 @@ struct NewCategoryView: View {
                         answersSingleSelect: $answersSingleSelect,
                         multiSelectAnswers: $multiSelectAnswers,
                         multiSelectCustomItems: $multiSelectCustomItems,
-                        newGoalSaved: $newGoalSaved,
                         focusField: $focusField,
                         exitFlowAction: {
                             exitFlowAction()
@@ -79,7 +77,7 @@ struct NewCategoryView: View {
                     .padding(.horizontal)
                 
                 case 1:
-                    NewCategoryReflectionView (
+                    NewGoalReflectionView (
                         newCategoryViewModel: newCategoryViewModel,
                         mainSelectedTab: $mainSelectedTab,
                         selectedQuestion: $selectedQuestion,
@@ -88,7 +86,7 @@ struct NewCategoryView: View {
                     .padding(.horizontal)
     
                 default:
-                    NewCategoryRevealPlanView (
+                    SequenceSuggestionsView (
                         newCategoryViewModel: newCategoryViewModel,
                         showSheet: $showNewGoalSheet,
                         cancelledCreateNewCategory: $cancelledCreateNewCategory
@@ -156,7 +154,7 @@ struct NewCategoryView: View {
             let remainingQuestions = QuestionNewCategory.remainingQuestionsNewCategory(userAnswer: answersSingleSelect[answeredQuestionIndex])
             
             if questions.count > 1 {
-                if questions[1].content != QuestionNewCategory.getProblemQuestion(problem: answersSingleSelect[answeredQuestionIndex]) {
+                if questions[1].content != GoalTypeItem.question(forLongName: answersSingleSelect[answeredQuestionIndex]) {
                     questions.removeLast(min(4, questions.count))
                     questions += remainingQuestions
                 }
@@ -180,6 +178,12 @@ struct NewCategoryView: View {
                await saveAnswersForCategory()
             }
         }
+        
+       sendMixpanelEvents(
+        answeredQuestionIndex: answeredQuestionIndex
+       )
+        
+        
     }
     
     private func saveAnswersForCategory() async {
@@ -206,7 +210,6 @@ struct NewCategoryView: View {
             }
             
             for (index, answer) in answersSingleSelect.enumerated() where !answer.isEmpty {
-                   
                     await dataController.saveAnswerDefaultQuestions(
                         questionType: .singleSelect,
                         question: questions[index],
@@ -214,7 +217,6 @@ struct NewCategoryView: View {
                         category: category,
                         goal: goal
                     )
-                
             }
             
             // save last question (the only multi-select)
@@ -268,9 +270,7 @@ struct NewCategoryView: View {
 //            focusField = nil
 //        }
         mainSelectedTab = 1
-        if !newGoalSaved {
-            newGoalSaved = true
-        }
+     
     }
     
     
@@ -278,14 +278,22 @@ struct NewCategoryView: View {
         
         Task {
             do {
-                try await newCategoryViewModel.manageRun(selectedAssistant: .newCategory, category: category, goal: goal)
+                try await newCategoryViewModel.manageRun (
+                    selectedAssistant: .newCategory,
+                    category: category,
+                    goal: goal
+                )
                 
             } catch {
                 newCategoryViewModel.createNewCategorySummary = .retry
             }
             
             do {
-                try await newCategoryViewModel.manageRun(selectedAssistant: .planSuggestion, category: category, goal: goal)
+                try await newCategoryViewModel.manageRun (
+                    selectedAssistant: .planSuggestion,
+                    category: category,
+                    goal: goal
+                )
                 
             } catch {
                 newCategoryViewModel.createPlanSuggestions = .retry
@@ -297,20 +305,56 @@ struct NewCategoryView: View {
     
     
     private func exitFlowAction() {
-        //dismiss
-        cancelledCreateNewCategory = true
-       
-        if newGoalSaved {
-      
-            if newCategoryViewModel.createNewCategorySummary == .loading || newCategoryViewModel.createPlanSuggestions == .loading {
-                Task {
-                    await newCategoryViewModel.cancelCurrentRun()
-                    await dataController.deleteLastGoal()
-                }
+        
+        Task {
+            await newCategoryViewModel.cancelCurrentRun()
+            
+            await MainActor.run {
+                //dismiss
+                cancelledCreateNewCategory = true
+                showNewGoalSheet = false
+            }
+            
+            await dataController.deleteIncompleteGoals()
+            
+            DispatchQueue.global(qos: .background).async {
+                Mixpanel.mainInstance().track(event: "Closed new topic flow")
             }
         }
+    }
+    
+    private func sendMixpanelEvents(answeredQuestionIndex: Int) {
+        switch selectedQuestion {
+        case 0:
+            let userAnswer = answersSingleSelect[answeredQuestionIndex]
+            let goalType = GoalTypeItem.fromLongName(userAnswer).rawValue
+            
+            DispatchQueue.global(qos: .background).async {
+                Mixpanel.mainInstance().track(event: "Topic type: \(goalType)")
+            }
         
-        showNewGoalSheet = false
+        case 2:
+            let userAnswer = answersSingleSelect[answeredQuestionIndex]
+            let timespan = MixpanelDetailedEvents.problemRecency[userAnswer] ?? "Unknown"
+            DispatchQueue.global(qos: .background).async {
+                Mixpanel.mainInstance().track(event: "Topic recency: \(timespan)")
+            }
+            
+        case 4:
+            let userAnswer = multiSelectAnswers
+            for answer in userAnswer {
+                let shortAnswer = MixpanelDetailedEvents.userAsk[answer] ?? "\(answer)"
+                DispatchQueue.global(qos: .background).async {
+                    Mixpanel.mainInstance().track(event: "User ask: \(shortAnswer)")
+                }
+            }
+           
+            
+        default:
+            break
+            
+        }
+        
     }
     
     

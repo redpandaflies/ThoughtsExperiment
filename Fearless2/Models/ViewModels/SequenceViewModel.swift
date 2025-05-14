@@ -7,6 +7,7 @@
 
 import Foundation
 import OSLog
+import UIKit
 
 final class SequenceViewModel: ObservableObject {
     @Published var createSequenceSummary: SequenceSummaryState = .ready
@@ -14,6 +15,8 @@ final class SequenceViewModel: ObservableObject {
     private var dataController: DataController
     private var openAISwiftService: OpenAISwiftService
     private var assistantRunManager: AssistantRunManager
+    
+    private var backgroundTaskID: UIBackgroundTaskIdentifier = .invalid
     
     let loggerOpenAI = Logger.openAIEvents
     let loggerCoreData = Logger.coreDataEvents
@@ -32,6 +35,23 @@ final class SequenceViewModel: ObservableObject {
     
     
     func manageRun(selectedAssistant: AssistantItem, category: Category?, goal: Goal?, sequence: Sequence? = nil) async throws {
+        
+        // Start a background task to give iOS extra time when you go background
+        await MainActor.run {
+            // capture the task ID in a local constant
+            self.backgroundTaskID = UIApplication.shared.beginBackgroundTask (withName: "Finish Network Tasks") {
+                // End the task if time expires.
+                UIApplication.shared.endBackgroundTask(self.backgroundTaskID)
+                    self.backgroundTaskID = UIBackgroundTaskIdentifier.invalid
+                }
+        }
+
+        defer {
+          Task { @MainActor in
+            UIApplication.shared.endBackgroundTask(backgroundTaskID)
+              self.backgroundTaskID = UIBackgroundTaskIdentifier.invalid
+          }
+        }
     
         //reset published vars
         await MainActor.run {

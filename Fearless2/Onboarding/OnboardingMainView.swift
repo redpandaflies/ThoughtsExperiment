@@ -31,7 +31,7 @@ struct OnboardingMainView: View {
         }
         .ignoresSafeArea(.keyboard)
         .background {
-            BackgroundNewCategory(animationStage: $animationStage, backgroundColor: AppColors.backgroundOnboardingIntro, newBackgroundColor: AppColors.background1)
+            BackgroundNewGoal(animationStage: $animationStage, backgroundColor: AppColors.backgroundOnboardingIntro, newBackgroundColor: AppColors.allBackgrounds[0])
         }
 //        .onAppear {
 //            //reset all appstorage and cloudstorage vars
@@ -59,7 +59,7 @@ struct OnboardingMainView: View {
         .fullScreenCover(isPresented: $showNewGoalSheet, onDismiss: {
             showNewGoalSheet = false
         }) {
-            NewCategoryView (
+            NewGoalView (
                 newCategoryViewModel: viewModelFactoryMain.makeNewCategoryViewModel(),
                 showNewGoalSheet: $showNewGoalSheet,
                 cancelledCreateNewCategory: $cancelledCreateNewCategory,

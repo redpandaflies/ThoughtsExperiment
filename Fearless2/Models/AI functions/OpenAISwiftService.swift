@@ -340,9 +340,6 @@ extension OpenAISwiftService {
                self.loggerOpenAI.error("Couldn't find goal to update.")
                throw ProcessingError.missingRequiredField("goal")
            }
-        
-           //update sequence status
-           sequence.status = SequenceStatusItem.completed.rawValue
            
            for summary in summaries.summaries {
                let newSummary = SequenceSummary(context: context)

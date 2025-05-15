@@ -1,5 +1,5 @@
 //
-//  NewCategoryViewModel.swift
+//  NewGoalViewModel.swift
 //  Fearless2
 //
 //  Created by Yue Deng-Wu on 10/2/24.
@@ -9,7 +9,7 @@ import Foundation
 import OSLog
 import UIKit
 
-final class NewCategoryViewModel: ObservableObject {
+final class NewGoalViewModel: ObservableObject {
     @Published var newCategorySummary: NewCreateCategorySummary? = nil
     @Published var newPlanSuggestions: [NewPlan] = []
     @Published var createNewCategorySummary: NewCategorySummary = .ready
@@ -72,7 +72,7 @@ final class NewCategoryViewModel: ObservableObject {
             } else {
                 createPlanSuggestions = .ready
             }
-            if selectedAssistant == .newCategory {
+            if selectedAssistant == .newGoal {
                 createNewCategorySummary = .loading
             } else {
                 createNewCategorySummary = .ready
@@ -90,7 +90,7 @@ final class NewCategoryViewModel: ObservableObject {
             )
 
             switch selectedAssistant {
-                case .newCategory:
+                case .newGoal:
                 guard let newSummary = try await openAISwiftService.processCreateCategorySummary(messageText: messageText, goal: goal) else {
                     
                     loggerOpenAI.error("Failed to process new category flow summary")

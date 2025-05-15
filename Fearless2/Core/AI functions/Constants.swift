@@ -26,14 +26,14 @@ enum Constants {
         return openAIPartialKey
     }()
     
-    static let openAIAssistantIdNewCategory: String = {
+    static let openAIAssistantIdNewGoal: String = {
         guard let infoDict = infoDictionary,
-              let openAIId = infoDict["OPENAI_ASSISTANT_ID_NEW_CATEGORY"] as? String else {
-            logger.error("OpenAI new category assistant ID not available, using placeholder")
+              let openAIId = infoDict["OPENAI_ASSISTANT_ID_NEW_GOAL"] as? String else {
+            logger.error("OpenAI new goal assistant ID not available, using placeholder")
             return ""
         }
        
-        logger.info("Retrieved OpenAI new category assistant ID: \(openAIId)")
+        logger.info("Retrieved OpenAI new goal assistant ID: \(openAIId)")
        
         return openAIId
     }()

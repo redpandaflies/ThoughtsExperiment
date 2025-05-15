@@ -12,7 +12,11 @@ struct OnboardingIntroView: View {
     @State private var animatedText = ""
     @State private var animator: TextAnimator?
     @State private var animationCompletedText: Bool = false
-    @State private var showSampleTopic: Int = -1 // controls when sample topics appear
+   
+    //manage sample topics animation
+    @State private var currentChunk = 0
+    @State private var showIndexInChunk = -1
+    @State private var isAnimatingSampleTopics = false
     
     @Binding var selectedIntroPage: Int
     @Binding var showNewGoalSheet: Bool
@@ -51,14 +55,19 @@ struct OnboardingIntroView: View {
             
             if selectedIntroPage == 1 && animatedText == content.title {
                 HStack (spacing: hStackSpacing) {
-                    ForEach(sampleTopics, id: \.id) { topic in
-                        if topic.id <= showSampleTopic {
+                    ForEach(Array(sampleTopics.enumerated()), id: \.element.id) { index, topic in
+                        let chunk = index / 3
+                        let positionInChunk = index % 3
+                        if chunk == currentChunk && positionInChunk <= showIndexInChunk {
                             SampleTopicBox(
                                 heading: topic.heading,
                                 title: topic.title,
                                 boxFrameWidth: boxFrameWidth
                             )
                             .transition(.movingParts.blur)
+                            .onTapGesture {
+                                showNewGoalSheet = true
+                            }
                         }
                         
                     }
@@ -67,9 +76,8 @@ struct OnboardingIntroView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.top)
                 .onAppear {
-                    updateSampleTopicsState(delay: 0.5)
-                    updateSampleTopicsState(delay: 0.8)
-                    updateSampleTopicsState(delay: 1.1)
+                    isAnimatingSampleTopics = true
+                    animateChunk(0)
                 }
             }
           
@@ -93,6 +101,9 @@ struct OnboardingIntroView: View {
         .opacity((animationStage == 0) ? 1 : 0)
         .onAppear {
             typewriterAnimation()
+        }
+        .onDisappear {
+            isAnimatingSampleTopics = false
         }
         .onChange(of: selectedIntroPage) {
             typewriterAnimation()
@@ -128,7 +139,7 @@ struct OnboardingIntroView: View {
         case 0:
             return !animationCompletedText
         default:
-            return showSampleTopic != 2
+            return false
         }
     }
     
@@ -146,12 +157,42 @@ struct OnboardingIntroView: View {
         animator?.animate()
     }
     
-    private func updateSampleTopicsState(delay: Double) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-            withAnimation(.snappy(duration: 0.2)) {
-                showSampleTopic += 1
+    private func animateChunk(_ chunk: Int) {
+        guard isAnimatingSampleTopics else { return }
+
+        currentChunk = chunk
+        showIndexInChunk = -1
+
+        // 1) reveal each of the 3 with a stagger
+        for i in 0..<3 {
+            let revealDelay = Double(i) * 0.1
+            DispatchQueue.main.asyncAfter(deadline: .now() + revealDelay) {
+                guard isAnimatingSampleTopics else { return }
+                withAnimation(.snappy(duration: 0.2)) {
+                    self.showIndexInChunk = i
+                }
             }
         }
+
+        // 2) after all three are revealed, hide them then schedule next chunk
+          let totalRevealTime = Double(2) * 0.3 + 0.2    // last reveal starts at 0.6, takes 0.2
+        let postRevealHold: Double = 5.0
+          let hideAnimationDelay: Double = 0.75
+
+          DispatchQueue.main.asyncAfter(deadline: .now() + totalRevealTime + postRevealHold) {
+              guard isAnimatingSampleTopics else { return }
+              withAnimation(.easeInOut) {
+                  showIndexInChunk = -1
+              }
+
+              // 3) pick next chunk with wrap-around
+              let next = (chunk + 1) % 3
+
+              // 4) give the hide animation a moment, then recurse
+              DispatchQueue.main.asyncAfter(deadline: .now() + hideAnimationDelay) {
+                  animateChunk(next)
+              }
+          }
     }
 }
 
@@ -170,17 +211,19 @@ struct SampleTopicBox: View {
                 .font(.system(size: 12, weight: .light).smallCaps())
                 .fontWidth(.condensed)
                 .foregroundStyle(AppColors.textPrimary.opacity(0.5))
+                .fixedSize(horizontal: false, vertical: true)
             
             Text(title)
                 .multilineTextAlignment(.leading)
                 .font(.system(size: 13, weight: .light))
                 .foregroundStyle(AppColors.textPrimary.opacity(0.7))
                 .lineSpacing(1.15)
+                .fixedSize(horizontal: false, vertical: true)
             
         }
         .padding(.horizontal, 15)
         .padding(.vertical, 14)
-        .frame(width: boxFrameWidth, height: 110, alignment: .topLeading)
+        .frame(width: boxFrameWidth, height: 120, alignment: .topLeading)
         .background {
             RoundedRectangle(cornerRadius: 15)
                 .stroke(AppColors.textPrimary.opacity(0.3), lineWidth: 0.5)

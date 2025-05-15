@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SequenceSuggestionsView: View {
     @EnvironmentObject var dataController: DataController
-    @ObservedObject var newCategoryViewModel: NewCategoryViewModel
+    @ObservedObject var newGoalViewModel: NewGoalViewModel
     
     @State private var planSelectedTab: Int = 0
     @State private var suggestionsScrollPosition: Int?
@@ -34,13 +34,13 @@ struct SequenceSuggestionsView: View {
     ]
     
     init(
-        newCategoryViewModel: NewCategoryViewModel,
+        newGoalViewModel: NewGoalViewModel,
         showSheet: Binding<Bool>,
         cancelledCreateNewCategory: Binding<Bool> = .constant(false),
         completeSequenceAction: @escaping () -> Void = {}
       
     ) {
-        self.newCategoryViewModel = newCategoryViewModel
+        self.newGoalViewModel = newGoalViewModel
         self._showSheet = showSheet
         self._cancelledCreateNewCategory = cancelledCreateNewCategory
         self.completeSequenceAction = completeSequenceAction
@@ -70,15 +70,15 @@ struct SequenceSuggestionsView: View {
             
         }
         .onAppear {
-            if newCategoryViewModel.createPlanSuggestions == .ready && !newCategoryViewModel.newPlanSuggestions.isEmpty {
+            if newGoalViewModel.createPlanSuggestions == .ready && !newGoalViewModel.newPlanSuggestions.isEmpty {
                 planSelectedTab = 1
-            } else if newCategoryViewModel.createPlanSuggestions == .retry {
+            } else if newGoalViewModel.createPlanSuggestions == .retry {
                 planSelectedTab = 2
             } else {
                 planSelectedTab = 0
             }
         }
-        .onChange(of: newCategoryViewModel.createPlanSuggestions) {
+        .onChange(of: newGoalViewModel.createPlanSuggestions) {
             if animationCompleted {
                 manageView()
             }
@@ -105,12 +105,12 @@ struct SequenceSuggestionsView: View {
             ScrollView(.horizontal) {
                 HStack (alignment: .center, spacing: 15) {
                     
-                    ForEach(Array(newCategoryViewModel.newPlanSuggestions.enumerated()), id: \.element.self) { index, suggestion in
+                    ForEach(Array(newGoalViewModel.newPlanSuggestions.enumerated()), id: \.element.self) { index, suggestion in
                         PlanSuggestionBox(suggestion: suggestion, index: index, frameWidth: frameWidth)
                             .id(index)
                             .scrollTransition { content, phase in
                                 content
-                                .opacity(phase.isIdentity ? 1 : 0.3)
+                                .opacity(phase.isIdentity ? 1 : 0.5)
                             }
                             .onTapGesture {
                                 saveChosenPlan(plan: suggestion, index: index + 1)
@@ -131,7 +131,7 @@ struct SequenceSuggestionsView: View {
     private func retryAction() {
         planSelectedTab = 0
         
-        if let category = newCategoryViewModel.currentCategory, let goal = newCategoryViewModel.currentGoal {
+        if let category = newGoalViewModel.currentCategory, let goal = newGoalViewModel.currentGoal {
             Task {
                 await manageRun(category: category, goal: goal)
             }
@@ -144,10 +144,10 @@ struct SequenceSuggestionsView: View {
         Task {
            
             do {
-                try await newCategoryViewModel.manageRun(selectedAssistant: .planSuggestion, category: category, goal: goal)
+                try await newGoalViewModel.manageRun(selectedAssistant: .planSuggestion, category: category, goal: goal)
                 
             } catch {
-                newCategoryViewModel.createPlanSuggestions = .retry
+                newGoalViewModel.createPlanSuggestions = .retry
             }
             
         }
@@ -155,7 +155,7 @@ struct SequenceSuggestionsView: View {
     }
     
     private func manageView() {
-        switch newCategoryViewModel.createPlanSuggestions {
+        switch newGoalViewModel.createPlanSuggestions {
         case .ready:
             planSelectedTab = 1
         case .loading:
@@ -170,7 +170,7 @@ struct SequenceSuggestionsView: View {
     
     private func saveChosenPlan(plan: NewPlan, index: Int) {
         Task {
-            if let category = newCategoryViewModel.currentCategory, let goal = newCategoryViewModel.currentGoal {
+            if let category = newGoalViewModel.currentCategory, let goal = newGoalViewModel.currentGoal {
                 await dataController.saveSelectedPlan(plan: plan, category: category, goal: goal)
                 
                 await MainActor.run {

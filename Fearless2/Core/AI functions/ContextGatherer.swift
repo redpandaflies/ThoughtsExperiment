@@ -26,7 +26,7 @@ struct ContextGatherer {
             context += addGoalInfo(goal: goal)
         }
         
-        if selectedAssistant == .newCategory || (selectedAssistant == .planSuggestion && sequence == nil) {
+        if selectedAssistant == .newGoal || (selectedAssistant == .planSuggestion && sequence == nil) {
             //get questions answered when creating goal
             context += getNewGoalContext(goal: goal, category: category)
         }

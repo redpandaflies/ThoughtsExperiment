@@ -21,8 +21,8 @@ class ViewModelFactoryMain: ObservableObject {
         )
     }
     
-    func makeNewCategoryViewModel() -> NewCategoryViewModel {
-        return NewCategoryViewModel(
+    func makeNewGoalViewModel() -> NewGoalViewModel {
+        return NewGoalViewModel(
             dataController: dataController,
             openAISwiftService: openAISwiftService,
             assistantRunManager: assistantRunManager

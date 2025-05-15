@@ -235,7 +235,7 @@ struct QuestMapView: View {
             
             NextSequenceView(
                 sequenceViewModel: viewModelFactoryMain.makeSequenceViewModel(),
-                newCategoryViewModel: viewModelFactoryMain.makeNewCategoryViewModel(),
+                newGoalViewModel: viewModelFactoryMain.makeNewGoalViewModel(),
                 goal: goal,
                 sequence: sequences[currentSequenceIndex],
                 topic: selectedTopic,

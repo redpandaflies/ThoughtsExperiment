@@ -9,7 +9,7 @@ import SwiftUI
 
 struct NewGoalQuestionsView: View {
     @EnvironmentObject var dataController: DataController
-    @ObservedObject var newCategoryViewModel: NewCategoryViewModel
+    @ObservedObject var newGoalViewModel: NewGoalViewModel
     
     // Manage when to show alert for exiting create new category flow
     @State private var showExitFlowAlert: Bool = false

@@ -33,8 +33,7 @@ struct GoalsListView: View {
 
         // 3. Clamp to the valid indices of `goals`
         let safeIndex = goals.indices.contains(rawIndex)
-            ? rawIndex
-            : 0
+            ? rawIndex : 0
 
         // 4. Pull the goal at the safe index
         let goal = goals[safeIndex]

@@ -60,7 +60,7 @@ struct OnboardingMainView: View {
             showNewGoalSheet = false
         }) {
             NewGoalView (
-                newCategoryViewModel: viewModelFactoryMain.makeNewCategoryViewModel(),
+                newGoalViewModel: viewModelFactoryMain.makeNewGoalViewModel(),
                 showNewGoalSheet: $showNewGoalSheet,
                 cancelledCreateNewCategory: $cancelledCreateNewCategory,
                 backgroundColor: AppColors.backgroundOnboardingIntro

@@ -73,7 +73,9 @@ struct GoalsView: View {
                 
                     
                 default:
-                    GoalsEmptyState()
+                    GoalsEmptyState(
+                        showNewGoalSheet: $showNewGoalSheet
+                    )
                 }
           
                 
@@ -183,7 +185,7 @@ struct GoalsView: View {
                 showNewGoalSheet = false
             }) {
                 NewGoalView(
-                    newCategoryViewModel: viewModelFactoryMain.makeNewCategoryViewModel(),
+                    newGoalViewModel: viewModelFactoryMain.makeNewGoalViewModel(),
                     showNewGoalSheet: $showNewGoalSheet,
                     cancelledCreateNewCategory: $cancelledCreateNewCategory,
                     backgroundColor: getBackground(index: goalScrollPosition)

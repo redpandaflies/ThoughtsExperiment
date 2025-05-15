@@ -10,7 +10,6 @@ import SwiftUI
 enum QuestTypeItem: String, CaseIterable {
     case expectations
     case guided
-    case newCategory
     case context
     case breakSignal // pause from questions, provides user something to read and reflect on
     case breakValues
@@ -26,8 +25,6 @@ enum QuestTypeItem: String, CaseIterable {
                 return "book.pages.fill"
             case .guided:
                 return "questionmark"
-            case .newCategory:
-                return "mountain.2.fill"
             case .context:
                 return "questionmark"
             case .retro:

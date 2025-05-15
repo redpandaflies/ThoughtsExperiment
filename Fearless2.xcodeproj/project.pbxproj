@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		8A03867D2DD2FA8C0063DA31 /* GoalsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A03867C2DD2FA8C0063DA31 /* GoalsListView.swift */; };
 		8A0386802DD3EEB20063DA31 /* MixpanelDetailedEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A03867F2DD3EEB20063DA31 /* MixpanelDetailedEvents.swift */; };
+		8A0386822DD5AF2C0063DA31 /* FeatureFlags.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A0386812DD5AF2C0063DA31 /* FeatureFlags.swift */; };
 		8A1DCD272CB1C44D00580DE6 /* QuestionScaleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A1DCD262CB1C44A00580DE6 /* QuestionScaleView.swift */; };
 		8A21B2C82D5EC4F4004AD75E /* BackgroundPrimary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A21B2C72D5EC4F4004AD75E /* BackgroundPrimary.swift */; };
 		8A21B2CC2D5FF33D004AD75E /* ToolbarTitleItem2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A21B2CB2D5FF33D004AD75E /* ToolbarTitleItem2.swift */; };
@@ -188,7 +189,7 @@
 		8ADCEAC52DA7A1BD008D4FEA /* NewGoalLoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ADCEAC42DA7A1BD008D4FEA /* NewGoalLoadingView.swift */; };
 		8ADCEAC72DA836BA008D4FEA /* NewGoalReflectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ADCEAC62DA836BA008D4FEA /* NewGoalReflectionView.swift */; };
 		8ADCEAC92DA87876008D4FEA /* SequenceSuggestionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ADCEAC82DA87876008D4FEA /* SequenceSuggestionsView.swift */; };
-		8ADCEACC2DA8BB7E008D4FEA /* NewCategoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ADCEACB2DA8BB7E008D4FEA /* NewCategoryViewModel.swift */; };
+		8ADCEACC2DA8BB7E008D4FEA /* NewGoalViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ADCEACB2DA8BB7E008D4FEA /* NewGoalViewModel.swift */; };
 		8ADCEACE2DA9B167008D4FEA /* Goal-CoreDataHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ADCEACD2DA9B167008D4FEA /* Goal-CoreDataHelpers.swift */; };
 		8ADCEAD02DAB196C008D4FEA /* Sequence-CoreDataHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ADCEACF2DAB196C008D4FEA /* Sequence-CoreDataHelpers.swift */; };
 		8ADCEAD22DACEABE008D4FEA /* SequenceStatusItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ADCEAD12DACEABE008D4FEA /* SequenceStatusItem.swift */; };
@@ -227,6 +228,7 @@
 /* Begin PBXFileReference section */
 		8A03867C2DD2FA8C0063DA31 /* GoalsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalsListView.swift; sourceTree = "<group>"; };
 		8A03867F2DD3EEB20063DA31 /* MixpanelDetailedEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MixpanelDetailedEvents.swift; sourceTree = "<group>"; };
+		8A0386812DD5AF2C0063DA31 /* FeatureFlags.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureFlags.swift; sourceTree = "<group>"; };
 		8A1DCD262CB1C44A00580DE6 /* QuestionScaleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionScaleView.swift; sourceTree = "<group>"; };
 		8A21B2C72D5EC4F4004AD75E /* BackgroundPrimary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundPrimary.swift; sourceTree = "<group>"; };
 		8A21B2CB2D5FF33D004AD75E /* ToolbarTitleItem2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolbarTitleItem2.swift; sourceTree = "<group>"; };
@@ -405,7 +407,7 @@
 		8ADCEAC42DA7A1BD008D4FEA /* NewGoalLoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewGoalLoadingView.swift; sourceTree = "<group>"; };
 		8ADCEAC62DA836BA008D4FEA /* NewGoalReflectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewGoalReflectionView.swift; sourceTree = "<group>"; };
 		8ADCEAC82DA87876008D4FEA /* SequenceSuggestionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SequenceSuggestionsView.swift; sourceTree = "<group>"; };
-		8ADCEACB2DA8BB7E008D4FEA /* NewCategoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewCategoryViewModel.swift; sourceTree = "<group>"; };
+		8ADCEACB2DA8BB7E008D4FEA /* NewGoalViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewGoalViewModel.swift; sourceTree = "<group>"; };
 		8ADCEACD2DA9B167008D4FEA /* Goal-CoreDataHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Goal-CoreDataHelpers.swift"; sourceTree = "<group>"; };
 		8ADCEACF2DAB196C008D4FEA /* Sequence-CoreDataHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Sequence-CoreDataHelpers.swift"; sourceTree = "<group>"; };
 		8ADCEAD12DACEABE008D4FEA /* SequenceStatusItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SequenceStatusItem.swift; sourceTree = "<group>"; };
@@ -786,7 +788,7 @@
 				8A9CC1762CAB3DEA007C2AA9 /* Fearless2App.swift */,
 				8A9CC18B2CAB5BF7007C2AA9 /* AppViewsManager.swift */,
 				8AE3982F2D71908B00F76AAC /* MainAppManager.swift */,
-				8A9CC1842CAB449F007C2AA9 /* Models */,
+				8A9CC1842CAB449F007C2AA9 /* Core */,
 				8A9CC19F2CAB7BD3007C2AA9 /* Header */,
 				8A63324D2CDAB82C00EF34FA /* Tab bar */,
 				8AE398132D6D85FF00F76AAC /* Onboarding */,
@@ -821,9 +823,10 @@
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
-		8A9CC1842CAB449F007C2AA9 /* Models */ = {
+		8A9CC1842CAB449F007C2AA9 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				8A0386812DD5AF2C0063DA31 /* FeatureFlags.swift */,
 				8A8382962D8BFF9E0041B01D /* Notifications */,
 				8A81D45A2D80F8A8008C8DA9 /* Launch sequence */,
 				8A63A1BF2D4BF46800712B27 /* Error handling */,
@@ -833,7 +836,7 @@
 				8A9CC1BC2CAD26C7007C2AA9 /* Data */,
 				8A8B63E12D1EFC6900BA57D0 /* Logging */,
 			);
-			path = Models;
+			path = Core;
 			sourceTree = "<group>";
 		};
 		8A9CC1962CAB66B3007C2AA9 /* Styling */ = {
@@ -930,7 +933,7 @@
 				8A2A7E7A2DA4C2FB00DFDD34 /* AssistantRunManager.swift */,
 				8A26DFD02CEF0224002C4F60 /* UnderstandViewModel.swift */,
 				8A2A7E782DA4B07300DFDD34 /* SequenceViewModel.swift */,
-				8ADCEACB2DA8BB7E008D4FEA /* NewCategoryViewModel.swift */,
+				8ADCEACB2DA8BB7E008D4FEA /* NewGoalViewModel.swift */,
 				8A79EAB12CE40A68000A966B /* TranscriptionViewModel.swift */,
 				8A9CC1D02CAE4325007C2AA9 /* TopicViewModel.swift */,
 				8A8B63E82D1F02BE00BA57D0 /* TopicImageViewModel.swift */,
@@ -1406,6 +1409,7 @@
 				8A8B63E92D1F02C400BA57D0 /* TopicImageViewModel.swift in Sources */,
 				8A6332492CD8257A00EF34FA /* FocusArea-CoreDataHelpers.swift in Sources */,
 				8AC1D59D2D629EC1000DD8E6 /* FocusAreaRecapTimelineView.swift in Sources */,
+				8A0386822DD5AF2C0063DA31 /* FeatureFlags.swift in Sources */,
 				8A9B99142D7902DD001707FD /* NewGoalQuestionsView.swift in Sources */,
 				8A7AD6682DC3FBB2000FB1C3 /* GoalStatusItem.swift in Sources */,
 				8AE398152D6D861A00F76AAC /* OnboardingMainView.swift in Sources */,
@@ -1429,7 +1433,7 @@
 				8ADCEADA2DB0254C008D4FEA /* NextSequenceIntro.swift in Sources */,
 				8A26DFD92CEFAEE3002C4F60 /* UnderstandAskQuestionBox.swift in Sources */,
 				8A9CC1E12CAF1BC4007C2AA9 /* NewTopicPreviewBox.swift in Sources */,
-				8ADCEACC2DA8BB7E008D4FEA /* NewCategoryViewModel.swift in Sources */,
+				8ADCEACC2DA8BB7E008D4FEA /* NewGoalViewModel.swift in Sources */,
 				8A2C37062D286BA400C37315 /* FocusAreaLoadingView.swift in Sources */,
 				8A2C36FA2D21A8B100C37315 /* QuestionSingleSelectView.swift in Sources */,
 				8AE3981D2D6FA74300F76AAC /* QuestionNewCategory.swift in Sources */,
@@ -1586,7 +1590,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Fearless2/Fearless2Debug.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 12;
+				CURRENT_PROJECT_VERSION = 13;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"Fearless2/Preview Content\"";
 				DEVELOPMENT_TEAM = 79TB36U8AD;
@@ -1625,7 +1629,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Fearless2/Fearless2.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 22;
+				CURRENT_PROJECT_VERSION = 23;
 				DEVELOPMENT_ASSET_PATHS = "\"Fearless2/Preview Content\"";
 				DEVELOPMENT_TEAM = 79TB36U8AD;
 				ENABLE_DEBUG_DYLIB = NO;

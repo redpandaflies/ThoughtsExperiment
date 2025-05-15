@@ -10,7 +10,7 @@ import SwiftUI
 struct NextSequenceView: View {
     @EnvironmentObject var dataController: DataController
     @StateObject var sequenceViewModel: SequenceViewModel
-    @StateObject var newCategoryViewModel: NewCategoryViewModel
+    @StateObject var newGoalViewModel: NewGoalViewModel
     // Manage when to show alert for exiting flow
     @State private var showExitFlowAlert: Bool = false
     @State private var selectedTab: Int = 0
@@ -41,7 +41,7 @@ struct NextSequenceView: View {
     
     init(
         sequenceViewModel: SequenceViewModel,
-        newCategoryViewModel: NewCategoryViewModel,
+        newGoalViewModel: NewGoalViewModel,
         goal: Goal,
         sequence: Sequence,
         topic: Topic?,
@@ -65,7 +65,7 @@ struct NextSequenceView: View {
         self._showNextSequenceView = showNextSequenceView
         self._animatedGoalIDs = animatedGoalIDs
         
-        _newCategoryViewModel = StateObject(wrappedValue: newCategoryViewModel)
+        _newGoalViewModel = StateObject(wrappedValue: newGoalViewModel)
         _sequenceViewModel = StateObject(wrappedValue: sequenceViewModel)
     }
     
@@ -95,7 +95,7 @@ struct NextSequenceView: View {
                             focusField: $focusField,
                             sequenceObjectives: sequence.sequenceObjectives,
                             keepExploringAction: {
-                                navigateToNextQuestion()
+                                keepExploring()
                             },
                             resolveTopicAction: {
                                 goToCelebrationView()
@@ -115,7 +115,7 @@ struct NextSequenceView: View {
                         
                         default:
                         SequenceSuggestionsView (
-                            newCategoryViewModel: newCategoryViewModel,
+                            newGoalViewModel: newGoalViewModel,
                             showSheet: $showNextSequenceView,
                             completeSequenceAction: {
                                 completeSequence()
@@ -325,10 +325,10 @@ struct NextSequenceView: View {
     private func createPlanSuggestions(category: Category, goal: Goal) {
         Task {
             do {
-                try await newCategoryViewModel.manageRun(selectedAssistant: .planSuggestion, category: category, goal: goal, sequence: sequence)
+                try await newGoalViewModel.manageRun(selectedAssistant: .planSuggestion, category: category, goal: goal, sequence: sequence)
                 
             } catch {
-                newCategoryViewModel.createPlanSuggestions = .retry
+                newGoalViewModel.createPlanSuggestions = .retry
             }
         }
     }
@@ -365,9 +365,6 @@ struct NextSequenceView: View {
     private func navigateToNextQuestion() {
         selectedQuestion += 1
         
-        DispatchQueue.global(qos: .background).async {
-            Mixpanel.mainInstance().track(event: "Retro decision: topic resolved")
-        }
     }
     
    
@@ -417,6 +414,13 @@ struct NextSequenceView: View {
         
     }
     
+    private func keepExploring() {
+        navigateToNextQuestion()
+        
+        DispatchQueue.global(qos: .background).async {
+            Mixpanel.mainInstance().track(event: "Retro decision: keep exploring topic")
+        }
+    }
     
     private func goToCelebrationView() {
         selectedTab += 1
@@ -425,7 +429,7 @@ struct NextSequenceView: View {
         completeSequence()
         
         DispatchQueue.global(qos: .background).async {
-            Mixpanel.mainInstance().track(event: "Retro decision: keep exploring topic")
+            Mixpanel.mainInstance().track(event: "Retro decision: topic resolved")
         }
     }
     

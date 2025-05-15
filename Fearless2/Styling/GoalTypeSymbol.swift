@@ -26,6 +26,17 @@ enum GoalTypeItem: String, CaseIterable {
         }
     }
     
+    func getNameShort() -> String {
+        switch self {
+        case .decision:
+            return "Make a decision"
+        case .problem:
+            return "Solve a problem"
+        case .clarity:
+            return "Get clarity"
+        }
+    }
+    
     func getQuestion() -> String {
         switch self {
         case .decision:

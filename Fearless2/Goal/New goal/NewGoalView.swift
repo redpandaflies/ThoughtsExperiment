@@ -11,7 +11,7 @@ import SwiftUI
 struct NewGoalView: View {
    
     @EnvironmentObject var dataController: DataController
-    @StateObject var newCategoryViewModel: NewCategoryViewModel
+    @StateObject var newGoalViewModel: NewGoalViewModel
     @State private var mainSelectedTab: Int = 0
     @State private var animationStage: Int = 0
     
@@ -60,7 +60,7 @@ struct NewGoalView: View {
             switch mainSelectedTab {
                 case 0:
                     NewGoalQuestionsView (
-                        newCategoryViewModel: newCategoryViewModel,
+                        newGoalViewModel: newGoalViewModel,
                         mainSelectedTab: $mainSelectedTab,
                         selectedQuestion: $selectedQuestion,
                         progressBarQuestionIndex: $progressBarQuestionIndex,
@@ -78,7 +78,7 @@ struct NewGoalView: View {
                 
                 case 1:
                     NewGoalReflectionView (
-                        newCategoryViewModel: newCategoryViewModel,
+                        newGoalViewModel: newGoalViewModel,
                         mainSelectedTab: $mainSelectedTab,
                         selectedQuestion: $selectedQuestion,
                         progressBarQuestionIndex: $progressBarQuestionIndex
@@ -87,7 +87,7 @@ struct NewGoalView: View {
     
                 default:
                     SequenceSuggestionsView (
-                        newCategoryViewModel: newCategoryViewModel,
+                        newGoalViewModel: newGoalViewModel,
                         showSheet: $showNewGoalSheet,
                         cancelledCreateNewCategory: $cancelledCreateNewCategory
                     )
@@ -278,25 +278,25 @@ struct NewGoalView: View {
         
         Task {
             do {
-                try await newCategoryViewModel.manageRun (
-                    selectedAssistant: .newCategory,
+                try await newGoalViewModel.manageRun (
+                    selectedAssistant: .newGoal,
                     category: category,
                     goal: goal
                 )
                 
             } catch {
-                newCategoryViewModel.createNewCategorySummary = .retry
+                newGoalViewModel.createNewCategorySummary = .retry
             }
             
             do {
-                try await newCategoryViewModel.manageRun (
+                try await newGoalViewModel.manageRun (
                     selectedAssistant: .planSuggestion,
                     category: category,
                     goal: goal
                 )
                 
             } catch {
-                newCategoryViewModel.createPlanSuggestions = .retry
+                newGoalViewModel.createPlanSuggestions = .retry
             }
             
         }
@@ -307,7 +307,7 @@ struct NewGoalView: View {
     private func exitFlowAction() {
         
         Task {
-            await newCategoryViewModel.cancelCurrentRun()
+            await newGoalViewModel.cancelCurrentRun()
             
             await MainActor.run {
                 //dismiss
@@ -324,11 +324,11 @@ struct NewGoalView: View {
     }
     
     private func sendMixpanelEvents(answeredQuestionIndex: Int) {
-        switch selectedQuestion {
+        switch answeredQuestionIndex {
         case 0:
             let userAnswer = answersSingleSelect[answeredQuestionIndex]
             let goalType = GoalTypeItem.fromLongName(userAnswer).rawValue
-            
+            print("Goal type: \(goalType)")
             DispatchQueue.global(qos: .background).async {
                 Mixpanel.mainInstance().track(event: "Topic type: \(goalType)")
             }
@@ -348,7 +348,6 @@ struct NewGoalView: View {
                     Mixpanel.mainInstance().track(event: "User ask: \(shortAnswer)")
                 }
             }
-           
             
         default:
             break

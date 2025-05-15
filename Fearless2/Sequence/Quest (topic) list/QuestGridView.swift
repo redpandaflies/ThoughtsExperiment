@@ -6,11 +6,14 @@
 //
 import CoreData
 import Mixpanel
+import Pow
 import SwiftUI
 
 struct QuestGridView: View {
     @State private var playHapticEffect: Int = 0
     @State private var nextTopic: Int = 0
+    @State private var playAnimation: Bool = false // animation for next topic
+    
     // sheets
     @Binding var showUpdateTopicView: Bool
     @Binding var showLockedQuestInfoSheet: Bool
@@ -98,6 +101,13 @@ struct QuestGridView: View {
                         backgroundColor: backgroundColor,
                         nextTopic: nextTopic == topic.orderIndex
                     )
+                    .conditionalEffect(
+                         .repeat(
+                            .glow(color: AppColors.boxYellow2, radius: 70),
+                            every: 3.5
+                         ),
+                         condition: playAnimation ? nextTopic == topic.orderIndex : false
+                     )
                     .onTapGesture {
                         onQuestTap(topic: topic)
                     }
@@ -121,6 +131,9 @@ struct QuestGridView: View {
     private func setNextTopicIndex() {
         let nextIndex = topics.first(where: { $0.topicStatus == TopicStatusItem.locked.rawValue })?.orderIndex ?? -1
         nextTopic = Int(nextIndex)
+        if !playAnimation {
+            playAnimation = true
+        }
     }
     
     private func onQuestTap(topic: Topic) {
@@ -167,7 +180,7 @@ struct QuestGridView: View {
             showCompletedTopicSheet = true
             
             DispatchQueue.global(qos: .background).async {
-                Mixpanel.mainInstance().track(event: "Started expectation step")
+                Mixpanel.mainInstance().track(event: "Started guided step")
             }
         }
     }
@@ -213,16 +226,20 @@ struct QuestGridView: View {
         let topicStatus = TopicStatusItem(rawValue: topic.topicStatus) ?? .locked
         
         switch topicStatus {
+            
         case .locked:
-            if nextTopic == topic.orderIndex {
+            
+            if nextTopic == topic.orderIndex || FeatureFlags.isStaging {
                 getTopicRetro(topic: topic)
                 
                 DispatchQueue.global(qos: .background).async {
-                    Mixpanel.mainInstance().track(event: "Started break step")
+                    Mixpanel.mainInstance().track(event: "Started retrospective")
                 }
             } else {
                 showLockedSequenceInfoSheet = true
             }
+            
+            
         default:
             getTopicRetro(topic: topic)
         }

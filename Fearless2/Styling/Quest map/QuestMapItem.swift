@@ -27,7 +27,7 @@ extension QuestMapItem {
     static let questMap1: [QuestMapItem] = [
         QuestMapItem(orderIndex: 0, questType: .guided),
         QuestMapItem(orderIndex: 1, questType: .guided),
-        QuestMapItem(orderIndex: 2, questType: .newCategory),
+        QuestMapItem(orderIndex: 2, questType: .context),
         QuestMapItem(orderIndex: 3, questType: .guided),
         QuestMapItem(orderIndex: 4, questType: .guided),
         QuestMapItem(orderIndex: 5, questType: .guided),

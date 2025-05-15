@@ -57,28 +57,6 @@ struct QuestMapCircle: View {
 //                        .fill(Color.clear)
 //                }
         )
-//        .conditionalEffect(
-//              .repeat(
-//                .glow(color: AppColors.boxYellow2, radius: 70),
-//                every: 4
-//              ),
-//              condition: playAnimation
-//          )
-        .onAppear {
-            if nextTopic {
-                playAnimation = true
-            }
-        }
-        .onChange(of: nextTopic) {
-            if questStatus == .completed {
-                playAnimation = false
-            } else if nextTopic {
-                playAnimation = true
-            }
-        }
-        .onDisappear {
-            playAnimation = false
-        }
     }
     
     private func getSFSymbol(size: CGFloat) -> some View {
@@ -156,7 +134,7 @@ struct QuestMapCircle: View {
     
     private func getSFSymbolSize() -> CGFloat {
         switch questType {
-            case .newCategory, .context:
+            case .context:
                 return 20
             default:
             return 25

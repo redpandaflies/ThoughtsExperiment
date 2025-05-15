@@ -119,7 +119,7 @@ final class AssistantRunManager {
         
         //topic suggestion assistant only
         switch selectedAssistant {
-        case .newCategory, .planSuggestion, .sequenceSummary:
+        case .newGoal, .planSuggestion, .sequenceSummary:
             guard let currentCategory = category else {
                 loggerCoreData.error("Failed to get current category")
                 throw ContextError.missingRequiredField("Category")

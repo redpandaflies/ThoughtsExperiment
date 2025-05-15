@@ -8,7 +8,7 @@ import Mixpanel
 import SwiftUI
 
 struct NewGoalReflectionView: View {
-    @ObservedObject var newCategoryViewModel: NewCategoryViewModel
+    @ObservedObject var newGoalViewModel: NewGoalViewModel
     @EnvironmentObject var dataController: DataController
     
     @State private var reflectionSelectedTab: Int = 0
@@ -65,14 +65,14 @@ struct NewGoalReflectionView: View {
                 reflectionSelectedTab = 0
             }
         }
-        .onChange(of: newCategoryViewModel.createNewCategorySummary) {
+        .onChange(of: newGoalViewModel.createNewCategorySummary) {
             if animationCompletedLoading {
                 manageView()
             }
             
         }
         .onChange(of: animationCompletedLoading) {
-            if animationCompletedLoading && newCategoryViewModel.createNewCategorySummary != .loading {
+            if animationCompletedLoading && newGoalViewModel.createNewCategorySummary != .loading {
                 manageView()
             }
         }
@@ -137,9 +137,9 @@ struct NewGoalReflectionView: View {
     
     private func manageView() {
         
-        switch newCategoryViewModel.createNewCategorySummary {
+        switch newGoalViewModel.createNewCategorySummary {
         case .ready:
-            feedback = newCategoryViewModel.newCategorySummary?.summary ?? ""
+            feedback = newGoalViewModel.newCategorySummary?.summary ?? ""
             
             if reflectionSelectedTab != 1 {
                 reflectionSelectedTab = 1
@@ -191,7 +191,7 @@ struct NewGoalReflectionView: View {
         Task {
             await dataController.deleteIncompleteGoals()
            
-            await newCategoryViewModel.cancelCurrentRun()
+            await newGoalViewModel.cancelCurrentRun()
             DispatchQueue.global(qos: .background).async {
                 Mixpanel.mainInstance().track(event: "Problem statement incorrect")
             }
@@ -208,7 +208,7 @@ struct NewGoalReflectionView: View {
          animationCompletedText = false
         
         
-        if let category = newCategoryViewModel.currentCategory, let goal = newCategoryViewModel.currentGoal {
+        if let category = newGoalViewModel.currentCategory, let goal = newGoalViewModel.currentGoal {
             Task {
                 await manageRun(category: category, goal: goal)
             }
@@ -221,17 +221,17 @@ struct NewGoalReflectionView: View {
         
         Task {
             do {
-                try await newCategoryViewModel.manageRun(selectedAssistant: .newCategory, category: category, goal: goal)
+                try await newGoalViewModel.manageRun(selectedAssistant: .newGoal, category: category, goal: goal)
                 
             } catch {
-                newCategoryViewModel.createNewCategorySummary = .retry
+                newGoalViewModel.createNewCategorySummary = .retry
             }
             
             do {
-                try await newCategoryViewModel.manageRun(selectedAssistant: .planSuggestion, category: category, goal: goal)
+                try await newGoalViewModel.manageRun(selectedAssistant: .planSuggestion, category: category, goal: goal)
                 
             } catch {
-                newCategoryViewModel.createPlanSuggestions = .retry
+                newGoalViewModel.createPlanSuggestions = .retry
             }
             
         }

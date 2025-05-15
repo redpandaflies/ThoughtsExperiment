@@ -33,8 +33,8 @@
 		<string>fetch</string>
 		<string>remote-notification</string>
 	</array>
-	<key>OPENAI_ASSISTANT_ID_NEW_CATEGORY</key>
-	<string>$(OPENAI_ASSISTANT_ID_NEW_CATEGORY)</string>
+	<key>OPENAI_ASSISTANT_ID_NEW_GOAL</key>
+	<string>$(OPENAI_ASSISTANT_ID_NEW_GOAL)</string>
 	<key>OPENAI_ASSISTANT_ID_SEQUENCE_SUGGESTION</key>
 	<string>$(OPENAI_ASSISTANT_ID_SEQUENCE_SUGGESTION)</string>
 	<key>OPENAI_ASSISTANT_ID_SEQUENCE_SUMMARY</key>

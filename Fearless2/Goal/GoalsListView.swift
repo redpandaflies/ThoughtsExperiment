@@ -88,10 +88,11 @@ struct GoalsListView: View {
             .contentMargins(.horizontal, safeAreaPadding, for: .scrollContent)
             
             if goals.count > 1 {
-                PageIndicatorView(
+                PageIndicatorView (
                     scrollPosition: $goalScrollPosition,
-                    pagesCount: getPagesCount())
-                    .padding(.top)
+                    pagesCount: getPagesCount()
+                )
+                .padding(.top)
             }
             
         }

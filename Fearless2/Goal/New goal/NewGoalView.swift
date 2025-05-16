@@ -302,8 +302,7 @@ struct NewGoalView: View {
         }
         
     }
-    
-    
+
     private func exitFlowAction() {
         
         Task {

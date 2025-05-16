@@ -10,10 +10,13 @@ import OSLog
 import UIKit
 
 final class NewGoalViewModel: ObservableObject {
-    @Published var newCategorySummary: NewCreateCategorySummary? = nil
+    @Published var newCategorySummary: String = ""
     @Published var newPlanSuggestions: [NewPlan] = []
     @Published var createNewCategorySummary: NewCategorySummary = .ready
     @Published var createPlanSuggestions: PlanSuggestionsState = .ready
+    @Published var completedLoadingAnimationSummary: Bool = false
+    @Published var completedLoadingAnimationPlan: Bool = false
+    
     var currentCategory: Category? = nil
     var currentGoal: Goal? = nil
     
@@ -65,14 +68,16 @@ final class NewGoalViewModel: ObservableObject {
         
         //reset published vars
         await MainActor.run {
-            self.newCategorySummary = nil
-            self.newPlanSuggestions = []
+            
             if selectedAssistant == .planSuggestion {
+                self.newPlanSuggestions = []
                 createPlanSuggestions = .loading
             } else {
                 createPlanSuggestions = .ready
             }
+            
             if selectedAssistant == .newGoal {
+                self.newCategorySummary = ""
                 createNewCategorySummary = .loading
             } else {
                 createNewCategorySummary = .ready
@@ -99,9 +104,10 @@ final class NewGoalViewModel: ObservableObject {
                 }
                 
                 await MainActor.run {
-                    self.newCategorySummary = newSummary
+                    self.newCategorySummary = newSummary.summary
                     self.createNewCategorySummary = .ready
-                    self.loggerOpenAI.log("New category summary ready")
+                    self.loggerOpenAI.log("New category summary ready: \(self.newCategorySummary)")
+                    
                 }
                 
                 case .planSuggestion:

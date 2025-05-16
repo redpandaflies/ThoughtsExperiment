@@ -4,6 +4,7 @@
 //
 //  Created by Yue Deng-Wu on 4/10/25.
 //
+import Combine
 import Mixpanel
 import SwiftUI
 
@@ -17,10 +18,10 @@ struct NewGoalReflectionView: View {
     @State private var animator: TextAnimator?
     @State private var animatedText: String = ""
     @State private var animationCompletedText: Bool = false
-    @State private var feedback: String = ""
+    @State private var startedTextAnimation: Bool = false
     
     // marks loading animation complete
-    @State private var animationCompletedLoading: Bool = false
+       @State private var animationCompletedLoading: Bool = false
     
     // LottieView
     @State private var animationSpeed: CGFloat = 1.0
@@ -35,6 +36,7 @@ struct NewGoalReflectionView: View {
         "Understanding your situation",
         "Summarizing what you’ve told me"
     ]
+
   
     var body: some View {
         VStack {
@@ -42,43 +44,47 @@ struct NewGoalReflectionView: View {
             case 0:
                 //loading view
                 NewGoalLoadingView(
+                    newGoalViewModel: newGoalViewModel,
                     texts: loadingTexts,
-                    animationCompleted: $animationCompletedLoading
+                    viewType: .summary
                 )
                 
             case 1:
                 // reflection/summary view
                 getReflection()
-                    
                 
-           default:
+                
+            default:
                 //retry
                 FocusAreaRetryView(action: {
                     retryAction()
                 })
             }
             
-            
         }//VStack
         .onAppear {
             if reflectionSelectedTab != 0 {
                 reflectionSelectedTab = 0
             }
-        }
-        .onChange(of: newGoalViewModel.createNewCategorySummary) {
-            if animationCompletedLoading {
-                manageView()
-            }
+            
+            //reset state vars
+            resetVars()
             
         }
-        .onChange(of: animationCompletedLoading) {
-            if animationCompletedLoading && newGoalViewModel.createNewCategorySummary != .loading {
-                manageView()
-            }
+        .onReceive(
+          Publishers.CombineLatest(
+            newGoalViewModel.$createNewCategorySummary,
+            newGoalViewModel.$completedLoadingAnimationSummary
+          )
+          .filter { summary, loaded in
+            summary != .loading && loaded
+          }
+          .receive(on: DispatchQueue.main)
+          .eraseToAnyPublisher()
+        ) { _ in
+          manageView()
         }
     }
-    
-   
     
     private func getReflection() -> some View {
         VStack (alignment: .leading, spacing: 10) {
@@ -139,18 +145,13 @@ struct NewGoalReflectionView: View {
         
         switch newGoalViewModel.createNewCategorySummary {
         case .ready:
-            feedback = newGoalViewModel.newCategorySummary?.summary ?? ""
             
             if reflectionSelectedTab != 1 {
                 reflectionSelectedTab = 1
             }
-            
-            // ensure animation vars are reset
-            animatedText = ""
-            animationCompletedText = false
-
-            
-            startReflectionAnimation()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                startReflectionAnimation()
+            }
             
         case .loading:
             if reflectionSelectedTab != 0 {
@@ -164,8 +165,14 @@ struct NewGoalReflectionView: View {
     }
     
     private func startReflectionAnimation() {
-        print("Starting animation, feedback: \(feedback)")
         
+        guard !startedTextAnimation else { return }
+        
+        startedTextAnimation = true
+        
+        let feedback = newGoalViewModel.newCategorySummary
+        
+        print ("New goal feedback: \(feedback)")
         animator = TextAnimator (
             text: feedback,
             animatedText: $animatedText,
@@ -188,6 +195,8 @@ struct NewGoalReflectionView: View {
         progressBarQuestionIndex = 2
         mainSelectedTab -= 1
         
+        resetVars()
+        
         Task {
             await dataController.deleteIncompleteGoals()
            
@@ -202,10 +211,7 @@ struct NewGoalReflectionView: View {
     
     private func retryAction() {
         reflectionSelectedTab = 0
-        animationCompletedLoading = false
-        feedback = ""
-         animatedText = ""
-         animationCompletedText = false
+        resetVars()
         
         
         if let category = newGoalViewModel.currentCategory, let goal = newGoalViewModel.currentGoal {
@@ -236,6 +242,15 @@ struct NewGoalReflectionView: View {
             
         }
         
+    }
+    
+    private func resetVars() {
+        //reset state vars
+        animatedText = ""
+        startedTextAnimation = false
+        animationCompletedText = false
+        
+        newGoalViewModel.completedLoadingAnimationSummary = false
     }
     
 }

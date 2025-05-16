@@ -9,27 +9,35 @@ import Lottie
 import Pow
 import SwiftUI
 
+enum NewGoalLoadingViewType {
+    case summary
+    case plan
+}
+
 struct NewGoalLoadingView: View {
+    @ObservedObject var newGoalViewModel: NewGoalViewModel
+    
     @State private var animationSpeed: CGFloat = 1.0
     @State private var symbolAnimationValue: Bool = false
     @State private var play: Bool = true
     @State private var nextLine: Int = -1 // controls which line of text is shown
     @State private var checkOff: Int = 0 // controls the sf symbol shown
     
-    @Binding var animationCompleted: Bool
-    
     let texts: [String]
+    let viewType: NewGoalLoadingViewType
     let showFooter: Bool
-    
+   
     
     init(
+        newGoalViewModel: NewGoalViewModel,
         texts: [String],
-        showFooter: Bool = false,
-        animationCompleted: Binding<Bool> = .constant(false)
+        viewType: NewGoalLoadingViewType,
+        showFooter: Bool = false
     ) {
+        self.newGoalViewModel = newGoalViewModel
         self.texts = texts
+        self.viewType = viewType
         self.showFooter = showFooter
-        self._animationCompleted = animationCompleted
     }
     
     var body: some View {
@@ -77,7 +85,6 @@ struct NewGoalLoadingView: View {
     }
     
     private func startAnimation() {
-        
 //        withAnimation(.snappy(duration: 0.5)) {
             play = true
 //        }
@@ -87,7 +94,13 @@ struct NewGoalLoadingView: View {
         updateNextLine(after: 6.5, showCheckmark: false)
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 7.0) {
-            animationCompleted = true
+            switch viewType {
+            case .summary:
+                newGoalViewModel.completedLoadingAnimationSummary = true
+            case .plan:
+                newGoalViewModel.completedLoadingAnimationPlan = true
+            }
+            
         }
     }
     
@@ -111,7 +124,7 @@ struct NewGoalLoadingView: View {
     
     private func getContent(index: Int, title: String) -> some View {
         
-        HStack (spacing: 10) {
+        HStack (alignment: .firstTextBaseline, spacing: 10) {
           
             if index < checkOff {
                 Image(systemName: getIcon(index: index))

@@ -120,7 +120,7 @@ final class OpenAISwiftService: ObservableObject {
             self.toolCallId = ""
         }
         
-        let timeoutSeconds: Double = 45
+        let timeoutSeconds: Double = 60
         
         return try await withTimeout(seconds: timeoutSeconds) { [weak self] in
             guard let self = self else { throw OpenAIError.runIncomplete() }
@@ -288,8 +288,6 @@ extension OpenAISwiftService {
             
             try self.saveCoreDataChanges(context: context, errorDescription: "new goal")
         }
-        
-        
         return categorySummary
     }
     // MARK: Plan suggestions

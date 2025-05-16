@@ -32,7 +32,6 @@ struct NewGoalQuestionsView: View {
     
     var currentQuestion: QuestionNewCategory {
         return questions[selectedQuestion]
-       
     }
     
     var body: some View {
@@ -114,9 +113,7 @@ struct NewGoalQuestionsView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         
     }
-    
-   
-    
+
     private func manageDismissButtonAction() {
         if !answersOpen[1].isEmpty {
             showExitFlowAlert = true

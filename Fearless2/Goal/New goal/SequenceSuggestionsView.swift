@@ -4,6 +4,7 @@
 //
 //  Created by Yue Deng-Wu on 4/10/25.
 //
+import Combine
 import Mixpanel
 import SwiftUI
 
@@ -53,9 +54,10 @@ struct SequenceSuggestionsView: View {
                 
                 case 0:
                     NewGoalLoadingView(
+                        newGoalViewModel: newGoalViewModel,
                         texts: loadingTexts,
-                        showFooter: true,
-                        animationCompleted: $animationCompleted
+                        viewType: .plan,
+                        showFooter: true
                     )
                     .padding(.horizontal)
                 
@@ -78,15 +80,18 @@ struct SequenceSuggestionsView: View {
                 planSelectedTab = 0
             }
         }
-        .onChange(of: newGoalViewModel.createPlanSuggestions) {
-            if animationCompleted {
-                manageView()
-            }
-        }
-        .onChange(of: animationCompleted) {
-            if animationCompleted {
-                manageView()
-            }
+        .onReceive(
+          Publishers.CombineLatest(
+            newGoalViewModel.$createPlanSuggestions,
+            newGoalViewModel.$completedLoadingAnimationPlan
+          )
+          .filter { suggestions, loaded in
+            loaded && suggestions != .loading
+          }
+          .receive(on: DispatchQueue.main)
+          .eraseToAnyPublisher()
+        ) { _ in
+          manageView()
         }
     }
     
@@ -130,6 +135,8 @@ struct SequenceSuggestionsView: View {
     
     private func retryAction() {
         planSelectedTab = 0
+        // reset var for managing when loading animation is ready
+        newGoalViewModel.completedLoadingAnimationPlan = false
         
         if let category = newGoalViewModel.currentCategory, let goal = newGoalViewModel.currentGoal {
             Task {
@@ -178,7 +185,6 @@ struct SequenceSuggestionsView: View {
                     showSheet = false
                 }
                 
-                
             }
         }
         // mark sequence and topic as complete
@@ -189,8 +195,6 @@ struct SequenceSuggestionsView: View {
         }
        
     }
-    
-    
     
 }
 

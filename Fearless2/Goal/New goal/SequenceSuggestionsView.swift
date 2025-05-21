@@ -21,7 +21,6 @@ struct SequenceSuggestionsView: View {
     @State private var play: Bool = true
     
     @Binding var showSheet: Bool
-    @Binding var cancelledCreateNewCategory: Bool
     
     let completeSequenceAction: () -> Void
     
@@ -37,13 +36,11 @@ struct SequenceSuggestionsView: View {
     init(
         newGoalViewModel: NewGoalViewModel,
         showSheet: Binding<Bool>,
-        cancelledCreateNewCategory: Binding<Bool> = .constant(false),
         completeSequenceAction: @escaping () -> Void = {}
       
     ) {
         self.newGoalViewModel = newGoalViewModel
         self._showSheet = showSheet
-        self._cancelledCreateNewCategory = cancelledCreateNewCategory
         self.completeSequenceAction = completeSequenceAction
         
     }
@@ -181,7 +178,7 @@ struct SequenceSuggestionsView: View {
                 await dataController.saveSelectedPlan(plan: plan, category: category, goal: goal)
                 
                 await MainActor.run {
-                    cancelledCreateNewCategory = false
+                    dataController.createdNewGoal = true
                     showSheet = false
                 }
                 

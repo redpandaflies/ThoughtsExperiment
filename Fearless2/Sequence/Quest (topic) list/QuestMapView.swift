@@ -35,7 +35,6 @@ struct QuestMapView: View {
     @Binding var animatedGoalIDs: Set<UUID>
     
     @ObservedObject var goal: Goal
-    let points: Int
     let backgroundColor: Color
     let frameWidth: CGFloat
     
@@ -59,7 +58,6 @@ struct QuestMapView: View {
          selectedTabTopic: Binding<TopicPickerItem>,
          animatedGoalIDs: Binding<Set<UUID>>,
          goal: Goal,
-         points: Int,
          backgroundColor: Color,
          frameWidth: CGFloat
     ) {
@@ -70,7 +68,6 @@ struct QuestMapView: View {
         self._selectedTabTopic = selectedTabTopic
         self._animatedGoalIDs = animatedGoalIDs
         self.goal = goal
-        self.points = points
         self.backgroundColor = backgroundColor
         self.frameWidth = frameWidth
         
@@ -264,7 +261,7 @@ struct QuestMapView: View {
                 useIcon: true,
                 iconName: "clock.arrow.circlepath",
                 iconWeight: .heavy,
-                titleText: "What did you uncover?",
+                titleText: "What will you uncover?",
                 descriptionText: "Reflect on your progress and decide on next steps.",
                 useRectangleButton: false,
                 buttonAction: {

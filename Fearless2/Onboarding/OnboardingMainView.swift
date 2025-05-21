@@ -52,7 +52,7 @@ struct OnboardingMainView: View {
 //            }
 //        }
         .onChange(of: showNewGoalSheet) {
-            if !showNewGoalSheet && !cancelledCreateNewCategory {
+            if !showNewGoalSheet && dataController.createdNewGoal {
                 completeOnboarding()
             }
         }
@@ -62,7 +62,6 @@ struct OnboardingMainView: View {
             NewGoalView (
                 newGoalViewModel: viewModelFactoryMain.makeNewGoalViewModel(),
                 showNewGoalSheet: $showNewGoalSheet,
-                cancelledCreateNewCategory: $cancelledCreateNewCategory,
                 backgroundColor: AppColors.backgroundOnboardingIntro
             )
                 

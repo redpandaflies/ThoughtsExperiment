@@ -18,7 +18,6 @@ struct GoalsListView: View {
     @Binding var animatedGoalIDs: Set<UUID>
     
     let goals: FetchedResults<Goal>
-    let currentPoints: Int
     let frameWidth: CGFloat
     let safeAreaPadding: CGFloat
     
@@ -63,7 +62,6 @@ struct GoalsListView: View {
                                 selectedTabTopic: $selectedTabTopic,
                                 animatedGoalIDs: $animatedGoalIDs,
                                 goal: goal,
-                                points: currentPoints,
                                 backgroundColor: getBackground(index: index),
                                 frameWidth: frameWidth
                             )

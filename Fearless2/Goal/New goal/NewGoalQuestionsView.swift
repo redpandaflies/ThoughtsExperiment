@@ -81,7 +81,7 @@ struct NewGoalQuestionsView: View {
                         showProgressBar: $showProgressBar,
                         question: currentQuestion.content,
                         items: currentQuestion.options ?? [],
-                        subTitle: selectedQuestion == 0 ? "Choose your primary goal" : "",
+                        subTitle: selectedQuestion == 0 ? "Think of something that's been bothering you" : "",
                         showSymbol: selectedQuestion == 0 ? true : false
                     )
                     

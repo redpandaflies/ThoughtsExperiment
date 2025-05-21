@@ -17,6 +17,8 @@ final class DataController: ObservableObject {
     @Published var newFocusArea: Bool = false
     @Published var onboardingCategory: Category? = nil
     @Published var deletedAllData: Bool = false
+    /// prevents scroll if user exits new goal flow early
+    @Published var createdNewGoal: Bool = false
     
     let container: NSPersistentCloudKitContainer
     var context: NSManagedObjectContext

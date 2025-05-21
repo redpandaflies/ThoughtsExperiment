@@ -123,6 +123,22 @@ struct AppColors {
     
     //Section progress bar
     static let progressBarPrimary = textPrimary
+    
+    //picker
+    static let pickerColorPrimary = Color(.displayP3, red: 0.373, green: 0.373, blue: 0.373, opacity: 1) // #5F5F5F
+    static let pickerColorPrimaryUI = UIColor(
+            displayP3Red:   0.373,
+            green:          0.373,
+            blue:           0.373,
+            alpha:          1.0
+        )
+    static let pickerColorSelected = Color(.displayP3, red: 0.498, green: 0.498, blue: 0.498, opacity: 0.6) // #7F7F7F
+    static let pickerColorSelectedUI = UIColor(
+            displayP3Red: 0.498,
+            green: 0.498,
+            blue: 0.498,
+            alpha: 0.6
+        )
 }
 
 extension AppColors {

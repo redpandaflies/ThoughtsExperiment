@@ -9,7 +9,6 @@ import Mixpanel
 import SwiftUI
 
 struct NewGoalView: View {
-   
     @EnvironmentObject var dataController: DataController
     @StateObject var newGoalViewModel: NewGoalViewModel
     @State private var mainSelectedTab: Int = 0
@@ -27,7 +26,6 @@ struct NewGoalView: View {
     @State private var multiSelectCustomItems: [String] = []
     
     @Binding var showNewGoalSheet: Bool
-    @Binding var cancelledCreateNewCategory: Bool
     
     let backgroundColor: Color
         
@@ -88,8 +86,7 @@ struct NewGoalView: View {
                 default:
                     SequenceSuggestionsView (
                         newGoalViewModel: newGoalViewModel,
-                        showSheet: $showNewGoalSheet,
-                        cancelledCreateNewCategory: $cancelledCreateNewCategory
+                        showSheet: $showNewGoalSheet
                     )
             }
         }
@@ -106,17 +103,28 @@ struct NewGoalView: View {
     }
   
     private func getViewButton() -> some View {
-        VStack {
-            //Next button
-            RectangleButtonPrimary(
-                buttonText: "Continue",
-                action: {
-                nextButtonAction()
-                },
-                disableMainButton: disableButton(),
-                buttonColor: .white)
+        VStack (alignment: .leading) {
+            if answersSingleSelect[0].isEmpty  {
+                SampleGoalsView(
+                    showSymbol: true,
+                    onTapAction: { selectedGoal in
+                        answersSingleSelect[selectedQuestion] = selectedGoal
+                })
+                .padding(.horizontal, 30)
+                
+            } else {
+                //Next button
+                RectangleButtonPrimary(
+                    buttonText: "Continue",
+                    action: {
+                        nextButtonAction()
+                    },
+                    disableMainButton: disableButton(),
+                    buttonColor: .white)
+                .padding(.horizontal)
+            }
         }
-        .frame(maxHeight: .infinity, alignment: .bottom)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
         .padding(.bottom)
         .ignoresSafeArea(getSafeAreaProperty())
     }
@@ -310,7 +318,7 @@ struct NewGoalView: View {
             
             await MainActor.run {
                 //dismiss
-                cancelledCreateNewCategory = true
+                dataController.createdNewGoal = false
                 showNewGoalSheet = false
             }
             

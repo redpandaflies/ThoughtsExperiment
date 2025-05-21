@@ -18,6 +18,8 @@ struct QuestionOpenView2: View {
     let answer: String
     let disableNewLine: Bool
     
+    let screenHeight = UIScreen.current.bounds.height
+    
     init(topicText: Binding<String>,
          focusField: FocusState<DefaultFocusField?>.Binding,
          focusValue: DefaultFocusField,
@@ -57,8 +59,10 @@ struct QuestionOpenView2: View {
                         topicText = newValue.replacingOccurrences(of: "\n", with: "")
                     }
                 }
+              
                 
         }//VStack
+        .padding(.bottom, 60)
         .onAppear {
             if !answer.isEmpty {
                 topicText = answer

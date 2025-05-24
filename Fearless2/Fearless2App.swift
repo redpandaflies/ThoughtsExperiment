@@ -16,7 +16,6 @@ struct Fearless2App: App {
         
         let dataController = DataController()
         
-        
         Mixpanel.initialize(token: "d4d86478dfdb268b3b66c023196232f0", trackAutomaticEvents: false, flushInterval: 30)
         
         _dataController = StateObject(wrappedValue: dataController)
@@ -27,7 +26,7 @@ struct Fearless2App: App {
     
     var body: some Scene {
         WindowGroup {
-            AppViewsManager()
+            LoginAppView()
                 .environment(\.managedObjectContext, dataController.container.viewContext)
                 .environmentObject(dataController)
                 .environmentObject(viewModelFactoryMain)

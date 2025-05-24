@@ -18,6 +18,14 @@
 		8A2207742DDCF7B600B17F7E /* GoalsPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A2207732DDCF7B600B17F7E /* GoalsPickerView.swift */; };
 		8A2207762DDCF7DC00B17F7E /* GoalsPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A2207752DDCF7D700B17F7E /* GoalsPicker.swift */; };
 		8A22077A2DDD6E1C00B17F7E /* SampleGoalsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A2207792DDD6E0300B17F7E /* SampleGoalsView.swift */; };
+		8A22077D2DDE8F2400B17F7E /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = 8A22077C2DDE8F2400B17F7E /* Auth */; };
+		8A22077F2DDE8F2400B17F7E /* Functions in Frameworks */ = {isa = PBXBuildFile; productRef = 8A22077E2DDE8F2400B17F7E /* Functions */; };
+		8A2207812DDE8F2400B17F7E /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = 8A2207802DDE8F2400B17F7E /* PostgREST */; };
+		8A2207832DDE9AEA00B17F7E /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A2207822DDE9AE400B17F7E /* AuthViewModel.swift */; };
+		8A2207852DDEB59100B17F7E /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A2207842DDEB58C00B17F7E /* AuthService.swift */; };
+		8A2207882DDEBB9700B17F7E /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 8A2207872DDEBB9700B17F7E /* Supabase */; };
+		8A22078A2DDEF25D00B17F7E /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A2207892DDEF25D00B17F7E /* LoginView.swift */; };
+		8A22078C2DDF91AA00B17F7E /* LoginAppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A22078B2DDF91AA00B17F7E /* LoginAppView.swift */; };
 		8A26DFC82CED43DD002C4F60 /* InsightsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A26DFC72CED43D1002C4F60 /* InsightsListView.swift */; };
 		8A26DFCA2CED4575002C4F60 /* InsightBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A26DFC92CED456A002C4F60 /* InsightBoxView.swift */; };
 		8A26DFCD2CEEC076002C4F60 /* UnderstandView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A26DFCC2CEEC06C002C4F60 /* UnderstandView.swift */; };
@@ -242,6 +250,10 @@
 		8A2207732DDCF7B600B17F7E /* GoalsPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalsPickerView.swift; sourceTree = "<group>"; };
 		8A2207752DDCF7D700B17F7E /* GoalsPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalsPicker.swift; sourceTree = "<group>"; };
 		8A2207792DDD6E0300B17F7E /* SampleGoalsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleGoalsView.swift; sourceTree = "<group>"; };
+		8A2207822DDE9AE400B17F7E /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
+		8A2207842DDEB58C00B17F7E /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
+		8A2207892DDEF25D00B17F7E /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		8A22078B2DDF91AA00B17F7E /* LoginAppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginAppView.swift; sourceTree = "<group>"; };
 		8A26DFC72CED43D1002C4F60 /* InsightsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsListView.swift; sourceTree = "<group>"; };
 		8A26DFC92CED456A002C4F60 /* InsightBoxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightBoxView.swift; sourceTree = "<group>"; };
 		8A26DFCC2CEEC06C002C4F60 /* UnderstandView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnderstandView.swift; sourceTree = "<group>"; };
@@ -458,9 +470,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8A2207882DDEBB9700B17F7E /* Supabase in Frameworks */,
 				8A5881B32D3456E60019C785 /* Mixpanel in Frameworks */,
 				8A9CC1C32CAD2A6E007C2AA9 /* SwiftOpenAI in Frameworks */,
+				8A22077F2DDE8F2400B17F7E /* Functions in Frameworks */,
+				8A2207812DDE8F2400B17F7E /* PostgREST in Frameworks */,
 				8A8ED7422CF5656100780384 /* Pow in Frameworks */,
+				8A22077D2DDE8F2400B17F7E /* Auth in Frameworks */,
 				8A8B63EE2D1F068A00BA57D0 /* AIProxy in Frameworks */,
 				8ABE9AEA2CB2768600483CFD /* WrappingHStack in Frameworks */,
 				8A9CC1D62CAE7609007C2AA9 /* Lottie in Frameworks */,
@@ -491,6 +507,13 @@
 				8A2207792DDD6E0300B17F7E /* SampleGoalsView.swift */,
 			);
 			path = "Sample goals";
+			sourceTree = "<group>";
+		};
+		8A2207862DDEBB9700B17F7E /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		8A26DFC62CED431F002C4F60 /* Insights */ = {
@@ -695,6 +718,7 @@
 		8A81D45A2D80F8A8008C8DA9 /* Launch sequence */ = {
 			isa = PBXGroup;
 			children = (
+				8A2207842DDEB58C00B17F7E /* AuthService.swift */,
 				8A81D45B2D80F8B9008C8DA9 /* MixpanelService.swift */,
 				8A03867F2DD3EEB20063DA31 /* MixpanelDetailedEvents.swift */,
 			);
@@ -799,6 +823,7 @@
 			isa = PBXGroup;
 			children = (
 				8A9CC1752CAB3DEA007C2AA9 /* Fearless2 */,
+				8A2207862DDEBB9700B17F7E /* Frameworks */,
 				8A9CC1742CAB3DEA007C2AA9 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -819,6 +844,7 @@
 				8A9CC1C52CAE0727007C2AA9 /* Info.plist */,
 				8A9CC1B92CAD1A4A007C2AA9 /* ModelTopics.xcdatamodeld */,
 				8A9CC1762CAB3DEA007C2AA9 /* Fearless2App.swift */,
+				8A22078B2DDF91AA00B17F7E /* LoginAppView.swift */,
 				8A9CC18B2CAB5BF7007C2AA9 /* AppViewsManager.swift */,
 				8AE3982F2D71908B00F76AAC /* MainAppManager.swift */,
 				8A9CC1842CAB449F007C2AA9 /* Core */,
@@ -963,6 +989,7 @@
 		8A9CC1CF2CAE42BF007C2AA9 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				8A2207822DDE9AE400B17F7E /* AuthViewModel.swift */,
 				8A2A7E7C2DA59D1700DFDD34 /* ViewModelFactoryMain.swift */,
 				8A2A7E7A2DA4C2FB00DFDD34 /* AssistantRunManager.swift */,
 				8A26DFD02CEF0224002C4F60 /* UnderstandViewModel.swift */,
@@ -1169,6 +1196,7 @@
 				8AE398202D70FBD000F76AAC /* Info sheets */,
 				8AE398142D6D861A00F76AAC /* OnboardingMainView.swift */,
 				8AE398182D6EC41700F76AAC /* OnboardingIntroView.swift */,
+				8A2207892DDEF25D00B17F7E /* LoginView.swift */,
 			);
 			path = Onboarding;
 			sourceTree = "<group>";
@@ -1215,6 +1243,10 @@
 				8A8ED7412CF5656100780384 /* Pow */,
 				8A8B63ED2D1F068A00BA57D0 /* AIProxy */,
 				8A5881B22D3456E60019C785 /* Mixpanel */,
+				8A22077C2DDE8F2400B17F7E /* Auth */,
+				8A22077E2DDE8F2400B17F7E /* Functions */,
+				8A2207802DDE8F2400B17F7E /* PostgREST */,
+				8A2207872DDEBB9700B17F7E /* Supabase */,
 			);
 			productName = Fearless2;
 			productReference = 8A9CC1732CAB3DEA007C2AA9 /* Fearless2.app */;
@@ -1251,6 +1283,7 @@
 				8A8ED7402CF5656100780384 /* XCRemoteSwiftPackageReference "Pow" */,
 				8A8B63EC2D1F068A00BA57D0 /* XCRemoteSwiftPackageReference "AIProxySwift" */,
 				8A5881B12D3456E60019C785 /* XCRemoteSwiftPackageReference "mixpanel-swift" */,
+				8A22077B2DDE8F2400B17F7E /* XCRemoteSwiftPackageReference "supabase-swift" */,
 			);
 			productRefGroup = 8A9CC1742CAB3DEA007C2AA9 /* Products */;
 			projectDirPath = "";
@@ -1300,6 +1333,7 @@
 				8A74F4A42CE69AAB008A33B0 /* EntriesListView.swift in Sources */,
 				8A9CC1982CAB66DF007C2AA9 /* Colors.swift in Sources */,
 				8A63324C2CD8415600EF34FA /* FocusAreaView.swift in Sources */,
+				8A2207852DDEB59100B17F7E /* AuthService.swift in Sources */,
 				8AB2DF462D56F0CD0069E914 /* CategoryView.swift in Sources */,
 				8ADCEAE52DB0C742008D4FEA /* NextSequenceWhereToNext.swift in Sources */,
 				8A81D4592D800330008C8DA9 /* Profile-CoreDataHelpers.swift in Sources */,
@@ -1398,6 +1432,7 @@
 				8ADCEAD42DAE2FF3008D4FEA /* TopicExpectation-CoreDataHelpers.swift in Sources */,
 				8A21B2CC2D5FF33D004AD75E /* ToolbarTitleItem2.swift in Sources */,
 				8A79EAB02CE3F045000A966B /* AudioRecorder.swift in Sources */,
+				8A2207832DDE9AEA00B17F7E /* AuthViewModel.swift in Sources */,
 				8A9CC1DA2CAE7697007C2AA9 /* LottieView.swift in Sources */,
 				8A2C37132D2FF05900C37315 /* LoadingPlaceholderContent.swift in Sources */,
 				8A21B2C82D5EC4F4004AD75E /* BackgroundPrimary.swift in Sources */,
@@ -1405,9 +1440,11 @@
 				8A827B922D380CCA00D0204E /* TopicReview-CoreDataHelpers.swift in Sources */,
 				8A2A7E7D2DA59E3A00DFDD34 /* ViewModelFactoryMain.swift in Sources */,
 				8AE398342D7575C300F76AAC /* ButtonStylePushDown.swift in Sources */,
+				8A22078C2DDF91AA00B17F7E /* LoginAppView.swift in Sources */,
 				8ADCEAC72DA836BA008D4FEA /* NewGoalReflectionView.swift in Sources */,
 				8A74F4A22CE69A42008A33B0 /* EntryDetailView.swift in Sources */,
 				8A26DFCA2CED4575002C4F60 /* InsightBoxView.swift in Sources */,
+				8A22078A2DDEF25D00B17F7E /* LoginView.swift in Sources */,
 				8AB2DF482D5701260069E914 /* LaurelItem.swift in Sources */,
 				8ADCEAFE2DBB4480008D4FEA /* UpdateTopicRecapView.swift in Sources */,
 				8A9B99092D76C02D001707FD /* TypewriterAnimation.swift in Sources */,
@@ -1718,6 +1755,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		8A22077B2DDE8F2400B17F7E /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.29.0;
+			};
+		};
 		8A5881B12D3456E60019C785 /* XCRemoteSwiftPackageReference "mixpanel-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/mixpanel/mixpanel-swift";
@@ -1769,6 +1814,26 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		8A22077C2DDE8F2400B17F7E /* Auth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8A22077B2DDE8F2400B17F7E /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Auth;
+		};
+		8A22077E2DDE8F2400B17F7E /* Functions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8A22077B2DDE8F2400B17F7E /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Functions;
+		};
+		8A2207802DDE8F2400B17F7E /* PostgREST */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8A22077B2DDE8F2400B17F7E /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = PostgREST;
+		};
+		8A2207872DDEBB9700B17F7E /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8A22077B2DDE8F2400B17F7E /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
 		8A5881B22D3456E60019C785 /* Mixpanel */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 8A5881B12D3456E60019C785 /* XCRemoteSwiftPackageReference "mixpanel-swift" */;

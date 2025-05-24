@@ -55,7 +55,7 @@ struct OnboardingIntroView: View {
                 action: {
                     introViewButtonAction()
                 },
-                showPlus: selectedIntroPage == 1 ? true : false,
+                imageName: selectedIntroPage == 1 ? "plus" : "",
                 disableMainButton: disabledButton(),
                 buttonColor: .white
             )

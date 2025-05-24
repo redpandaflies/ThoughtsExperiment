@@ -18,7 +18,7 @@ struct RectangleButtonPrimary: View {
     
     let buttonText: String
     let action: () -> Void
-    let showPlus: Bool
+    let imageName: String
     let showSkipButton: Bool
     let skipAction: () -> Void
     let disableMainButton: Bool
@@ -29,7 +29,7 @@ struct RectangleButtonPrimary: View {
     init(
         buttonText: String,
         action: @escaping () -> Void,
-        showPlus: Bool = false,
+        imageName: String = "",
         showSkipButton: Bool = false,
         skipAction: @escaping () -> Void = {},
         disableMainButton: Bool = false,
@@ -38,7 +38,7 @@ struct RectangleButtonPrimary: View {
     ) {
         self.buttonText = buttonText
         self.action = action
-        self.showPlus = showPlus
+        self.imageName = imageName
         self.showSkipButton = showSkipButton
         self.skipAction = skipAction
         self.disableMainButton = disableMainButton
@@ -108,8 +108,8 @@ struct RectangleButtonPrimary: View {
     private func mainButton(width: CGFloat) -> some View {
         HStack {
             
-            if showPlus {
-                Image(systemName: "plus")
+            if !imageName.isEmpty {
+                Image(systemName: imageName)
                     .font(.system(size: 15, weight: .medium))
                     .foregroundStyle(Color.black)
             }

@@ -20,4 +20,6 @@ extension Logger {
     static let uiEvents = Logger(subsystem: subsystem, category: "uiEvents")
     static let mixpanelEvents = Logger(subsystem: subsystem, category: "mixpanelEvents")
     static let notificationEvents = Logger(subsystem: subsystem, category: "notificationEvents")
+    static let supabaseEvents = Logger(subsystem: subsystem, category: "supabaseEvents")
+    static let authEvents = Logger(subsystem: subsystem, category: "authEvents")
 }

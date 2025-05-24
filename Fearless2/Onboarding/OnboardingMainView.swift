@@ -10,7 +10,7 @@ import SwiftUI
 struct OnboardingMainView: View {
     @EnvironmentObject var viewModelFactoryMain: ViewModelFactoryMain
     @EnvironmentObject var dataController: DataController
-    @State private var selectedIntroPage: Int = 0
+    @State private var selectedIntroPage: Int = 1
     @State private var showNewGoalSheet: Bool = false
     @State private var cancelledCreateNewCategory: Bool = false
     @State private var animationStage: Int = 0

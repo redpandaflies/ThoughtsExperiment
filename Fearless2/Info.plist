@@ -41,5 +41,9 @@
 	<string>$(OPENAI_ASSISTANT_ID_SEQUENCE_SUMMARY)</string>
 	<key>OPENAI_ASSISTANT_ID_TOPIC_BREAK</key>
 	<string>$(OPENAI_ASSISTANT_ID_TOPIC_BREAK)</string>
+	<key>SUPABASE_URL</key>
+	<string>$(SUPABASE_URL)</string>
+	<key>SUPABASE_ANON_KEY</key>
+	<string>$(SUPABASE_ANON_KEY)</string>
 </dict>
 </plist>

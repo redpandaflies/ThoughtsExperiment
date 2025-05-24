@@ -100,6 +100,33 @@ enum Constants {
         return openAIId
     }()
     
+    // MARK: - Supabase
+    
+    static let supabaseURL: URL = {
+        guard let infoDict = infoDictionary,
+              let databaseURL = infoDict["SUPABASE_URL"] as? String else {
+            logger.error("Supabase URL not available, using placeholder")
+            return URL(string: "")!
+        }
+        if FeatureFlags.isStaging {
+            logger.info("Retrieved supabaseURL: \(databaseURL)")
+        }
+        return URL(string: databaseURL) ?? URL(string: "")!
+    }()
+    
+    static let supabaseKey: String = {
+
+        guard let infoDict = infoDictionary,
+              let databaseKey = infoDict["SUPABASE_ANON_KEY"] as? String else {
+            logger.error("Supabase key not available, using placeholder")
+            return ""
+        }
+        if FeatureFlags.isStaging {
+            logger.info("Retrieved supabase key: \(databaseKey)")
+        }
+        return databaseKey
+    }()
+    
     // MARK: - Not in use
     static let openAIAssistantIdSectionSummary: String = {
 

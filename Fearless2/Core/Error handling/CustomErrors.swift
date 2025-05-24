@@ -97,3 +97,15 @@ enum ContextError: LocalizedError {
         }
     }
 }
+
+// Errors for authentication
+enum AuthError: LocalizedError {
+    case authenticationFailed(Error)
+    
+    var errorDescription: String? {
+        switch self {
+        case .authenticationFailed(let underlying):
+            return "Authentication failed: \(underlying.localizedDescription)"
+        }
+    }
+}

@@ -112,24 +112,24 @@ struct GoalsView: View {
                 NewGoalView(
                     newGoalViewModel: viewModelFactoryMain.makeNewGoalViewModel(),
                     showNewGoalSheet: $showNewGoalSheet,
-                    backgroundColor: getBackground(index: selectedSegment == .active ? goalScrollPositionActive : goalScrollPositionCompleted)
+                    backgroundColor: getBackground(index: selectedSegment == .active ? goalScrollPositionActive : goalScrollPositionCompleted),
+                    isOnboarding: false
                 )
             }
             .sheet(isPresented: $showLaurelInfoSheet, onDismiss: {
                    showLaurelInfoSheet = false
                }) {
-
-                   InfoPrimaryView(
-                    backgroundColor: getBackground(index: selectedSegment == .active ? goalScrollPositionActive : goalScrollPositionCompleted),
-                       useIcon: false,
-                       titleText: "You earn laurels by answering questions and resolving topics.",
-                       descriptionText: "You'll soon be able to use them to unlock new abilities.",
-                       useRectangleButton: false,
-                       buttonAction: {}
-                   )
-                   .presentationDetents([.fraction(0.65)])
-                   .presentationCornerRadius(30)
-               }
+               InfoPrimaryView (
+                backgroundColor: getBackground(index: selectedSegment == .active ? goalScrollPositionActive : goalScrollPositionCompleted),
+                   useIcon: false,
+                   titleText: "You earn laurels by answering questions and resolving topics.",
+                   descriptionText: "You'll soon be able to use them to unlock new abilities.",
+                   useRectangleButton: false,
+                   buttonAction: {}
+               )
+               .presentationDetents([.fraction(0.65)])
+               .presentationCornerRadius(30)
+           }
         }
        
     }

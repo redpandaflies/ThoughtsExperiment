@@ -100,6 +100,12 @@ extension QuestionNewCategory {
                     "Suggest next steps",
                     "Other"
                 ]
+            ),
+            QuestionNewCategory(
+                id: 5,
+                content: "What aspects of this topic do you want to explore?",
+                questionType: .multiSelect,
+                category: .generic
             )
         ]
     }

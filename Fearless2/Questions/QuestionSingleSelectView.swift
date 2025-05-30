@@ -140,6 +140,7 @@ struct QuestionSingleSelectView: View {
 struct SingleSelectQuestionBubble: View {
     @State private var editableOption: String = ""
     @State private var showPlusSign: Bool = false
+    @State private var showEditSign: Bool = false
     @Binding var singleSelectAnswer: String
     @Binding var customItems: [String]
     @Binding var showProgressBar: Bool
@@ -173,6 +174,14 @@ struct SingleSelectQuestionBubble: View {
                         .transition(.opacity)
                 }
                 
+                if showEditSign {
+                    Image(systemName: "pencil.line")
+                        .multilineTextAlignment(.leading)
+                        .font(.system(size: 15, weight: .light))
+                        .foregroundStyle(AppColors.textBlack)
+                        .transition(.opacity)
+                }
+                
                 TextField("", text: $editableOption.max(40))
                     .multilineTextAlignment(.leading)
                     .font(.system(size: 15, weight: .light))
@@ -188,6 +197,9 @@ struct SingleSelectQuestionBubble: View {
                         if editableOption.isEmpty {
                             editableOption = ""
                             withAnimation(.snappy(duration: 0.2)) {
+                                if showEditSign {
+                                    showEditSign = false
+                                }
                                 showPlusSign = true
                             }
                             if singleSelectAnswer == option {
@@ -200,13 +212,7 @@ struct SingleSelectQuestionBubble: View {
                         }
                     }
                     .onAppear {
-                        
-                        if CustomOptionType.isCustomOption(option) {
-                            editableOption = ""
-                            showPlusSign = true
-                        } else {
-                            editableOption = option
-                        }
+                        setupTextfield()
                     }
                     .onChange(of: items) {
                         // when there are two multi select questions in a row, ensures that custom answer of a question isn't displayed for the question after/before it
@@ -260,9 +266,12 @@ struct SingleSelectQuestionBubble: View {
     private func setupTextfield() {
         if CustomOptionType.isCustomOption(option) {
             editableOption = ""
+            showEditSign = false
             showPlusSign = true
         } else {
             editableOption = option
+            showPlusSign = false
+            showEditSign = true
         }
     }
     

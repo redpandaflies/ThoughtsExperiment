@@ -23,33 +23,37 @@ struct QuestionMultiSelectView: View {
     @Binding var multiSelectAnswers: [String]
     @Binding var customItems: [String] // custom items are saved into CoreData or kept in memory (if question hasn't yet been saved in CoreData)
     @Binding var showProgressBar: Bool
-    @Binding var itemsEditedInMemory: Bool //for questions that aren't saved yet to coredata
+    
     let question: String
     let items: [String]
     let answers: String //existing answers for question
     let itemsEdited: Bool
+    let subTitle: String
     
     @FocusState private var isFocused: Bool
     
     let screenWidth = UIScreen.current.bounds.width
     
-    init(multiSelectAnswers: Binding<[String]>, customItems: Binding<[String]> = .constant([]), showProgressBar: Binding<Bool> = .constant(true), itemsEditedInMemory: Binding<Bool> = .constant(false), question: String, items: [String], answers: String = "", itemsEdited: Bool = false) {
+    init(multiSelectAnswers: Binding<[String]>, customItems: Binding<[String]> = .constant([]), showProgressBar: Binding<Bool> = .constant(true), question: String, items: [String], answers: String = "", itemsEdited: Bool = false, subTitle: String = "Choose all that apply") {
         self._multiSelectAnswers = multiSelectAnswers
         self._customItems = customItems
         self._showProgressBar = showProgressBar
-        self._itemsEditedInMemory = itemsEditedInMemory
         self.question = question
         self.items = items
         self.answers = answers
         self.itemsEdited = itemsEdited
+        self.subTitle = subTitle
     }
-    
+
+    private var currentItems: [String] {
+        customItems.isEmpty ? items : customItems
+      }
     // Process the options to determine which ones are editable
    private var processedOptions: [MultiSelectOption] {
-       return Array(items.enumerated()).map { index, option in
+       return Array(currentItems.enumerated()).map { index, option in
            let isCustomOptionType = CustomOptionType.isCustomOption(option)
-           let isLastItem = index == items.count - 1
-           let isEditable = isCustomOptionType || (itemsEdited && isLastItem) || (itemsEditedInMemory && isLastItem)
+           let isLastItem = index == currentItems.count - 1
+           let isEditable = isCustomOptionType || (itemsEdited && isLastItem) || (!customItems.isEmpty && isLastItem)
            
            return MultiSelectOption(
                text: option,
@@ -69,7 +73,7 @@ struct QuestionMultiSelectView: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.vertical, 10)
             
-            Text("Choose all that apply")
+            Text(subTitle)
                 .font(.system(size: 11))
                 .fontWeight(.light)
                 .foregroundStyle(AppColors.textPrimary.opacity(0.7))
@@ -81,7 +85,6 @@ struct QuestionMultiSelectView: View {
                     multiSelectAnswers: $multiSelectAnswers,
                     customItems: $customItems,
                     showProgressBar: $showProgressBar,
-                    itemsEditedInMemory: $itemsEditedInMemory,
                     selected: multiSelectAnswers.contains(option.text),
                     option: option.text,
                     items: items,
@@ -98,7 +101,6 @@ struct QuestionMultiSelectView: View {
                     multiSelectAnswers: $multiSelectAnswers,
                     customItems: $customItems,
                     showProgressBar: $showProgressBar,
-                    itemsEditedInMemory: $itemsEditedInMemory,
                     selected: multiSelectAnswers.contains(editableOption.text),
                     option: editableOption.text,
                     items: items,
@@ -157,7 +159,6 @@ struct MultiSelectQuestionBubble: View {
     @Binding var multiSelectAnswers: [String]
     @Binding var customItems: [String]
     @Binding var showProgressBar: Bool
-    @Binding var itemsEditedInMemory: Bool
     
     let selected: Bool
     let option: String
@@ -211,9 +212,6 @@ struct MultiSelectQuestionBubble: View {
                         } else {
                             multiSelectAnswers.append(editableOption)
                             createCustomItems()
-                            if !itemsEditedInMemory {
-                                itemsEditedInMemory = true
-                            }
                         }
                     }
                     .onAppear {
@@ -259,7 +257,8 @@ struct MultiSelectQuestionBubble: View {
     }
     
     private func setUpTextField() {
-        if itemsEditedInMemory {
+        if !customItems.isEmpty {
+            print("Loading custom items from memory")
             editableOption = customItems.last ?? ""
             showPlusSign = true
         } else if  CustomOptionType.isCustomOption(option) {

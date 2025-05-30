@@ -42,6 +42,7 @@ struct NextSequenceIntro: View {
             
             
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .onAppear {
             // schedule each item to appear 0.5s apart
             for i in content.indices {

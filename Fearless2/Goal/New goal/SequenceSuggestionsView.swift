@@ -205,7 +205,7 @@ struct PlanSuggestionBox: View {
     var body: some View {
         VStack (alignment: .leading, spacing: 5) {
             
-            Text("Plan \(index + 1)")
+            Text("Path \(index + 1)")
                 .multilineTextAlignment(.leading)
                 .font(.system(size: 17, weight: .light).smallCaps())
                 .fontWidth(.condensed)

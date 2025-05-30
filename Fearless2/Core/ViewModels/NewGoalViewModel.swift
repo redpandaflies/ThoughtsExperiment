@@ -10,7 +10,7 @@ import OSLog
 import UIKit
 
 final class NewGoalViewModel: ObservableObject {
-    @Published var newCategorySummary: String = ""
+    @Published var newCategorySummary: NewCreateCategorySummary? = nil
     @Published var newPlanSuggestions: [NewPlan] = []
     @Published var createNewCategorySummary: NewCategorySummary = .ready
     @Published var createPlanSuggestions: PlanSuggestionsState = .ready
@@ -77,7 +77,7 @@ final class NewGoalViewModel: ObservableObject {
             }
             
             if selectedAssistant == .newGoal {
-                self.newCategorySummary = ""
+                self.newCategorySummary = nil
                 createNewCategorySummary = .loading
             } else {
                 createNewCategorySummary = .ready
@@ -104,9 +104,9 @@ final class NewGoalViewModel: ObservableObject {
                 }
                 
                 await MainActor.run {
-                    self.newCategorySummary = newSummary.summary
+                    self.newCategorySummary = newSummary
                     self.createNewCategorySummary = .ready
-                    self.loggerOpenAI.log("New category summary ready: \(self.newCategorySummary)")
+                    self.loggerOpenAI.log("New category summary ready: \(self.newCategorySummary?.summary ?? "")")
                     
                 }
                 

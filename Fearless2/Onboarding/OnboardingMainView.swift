@@ -62,7 +62,8 @@ struct OnboardingMainView: View {
             NewGoalView (
                 newGoalViewModel: viewModelFactoryMain.makeNewGoalViewModel(),
                 showNewGoalSheet: $showNewGoalSheet,
-                backgroundColor: AppColors.backgroundOnboardingIntro
+                backgroundColor: AppColors.backgroundOnboardingIntro,
+                isOnboarding: true
             )
                 
         }

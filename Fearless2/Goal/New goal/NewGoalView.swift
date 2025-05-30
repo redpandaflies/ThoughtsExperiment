@@ -19,15 +19,26 @@ struct NewGoalView: View {
     @State private var progressBarQuestionIndex: Int = 0
     @State private var questions: [QuestionNewCategory] = QuestionNewCategory.initialQuestionsNewCategory()
     // Array to store all open question answers
-    @State private var answersOpen: [String] = Array(repeating: "", count: 5)
+    @State private var answersOpen: [String] = Array(repeating: "", count: 6)
     // Array to store all single-select question answers
-    @State private var answersSingleSelect: [String] = Array(repeating: "", count: 5)
-    @State private var multiSelectAnswers: [String] = []
-    @State private var multiSelectCustomItems: [String] = []
+    @State private var answersSingleSelect: [String] = Array(repeating: "", count: 6)
+    @State private var multiSelectAnswers: [[String]] = Array(repeating: [], count: 6)
+    @State private var multiSelectCustomItems: [[String]] = Array(repeating: [], count: 6)
+    
+    // Manage when to show alert for exiting create new category flow
+    @State private var showExitFlowAlert: Bool = false
+    // Hide progress bar when user is inputing answers for single and multi-select questions
+    @State private var showProgressBar: Bool = true
+    
+    // expectations
+    @State private var expectationsScrollPosition: Int?
+    @State private var disableButtonExpectations: Bool = true
+    
     
     @Binding var showNewGoalSheet: Bool
-    
+   
     let backgroundColor: Color
+    let isOnboarding: Bool
         
     var currentQuestion: QuestionNewCategory {
         guard selectedQuestion < questions.count else {
@@ -45,7 +56,21 @@ struct NewGoalView: View {
         VStack (spacing: 10) {
             
             // MARK: - Header
-            if mainSelectedTab > 0 {
+            if mainSelectedTab == 0 && showProgressBar {
+                
+                QuestionsProgressBar(
+                    currentQuestionIndex: $progressBarQuestionIndex,
+                    totalQuestions: 6,
+                    showXmark: true,
+                    xmarkAction: {
+                        manageDismissButtonAction()
+                    },
+                    showBackButton: selectedQuestion > 0,
+                    backAction: handleBackButton
+                )
+                
+               
+            } else {
                 NewCategoryHeader(
                     mainSelectedTab: $mainSelectedTab,
                     xmarkAction: {
@@ -59,18 +84,15 @@ struct NewGoalView: View {
                 case 0:
                     NewGoalQuestionsView (
                         newGoalViewModel: newGoalViewModel,
+                        showProgressBar: $showProgressBar,
                         mainSelectedTab: $mainSelectedTab,
                         selectedQuestion: $selectedQuestion,
-                        progressBarQuestionIndex: $progressBarQuestionIndex,
                         questions: $questions,
                         answersOpen: $answersOpen,
                         answersSingleSelect: $answersSingleSelect,
                         multiSelectAnswers: $multiSelectAnswers,
                         multiSelectCustomItems: $multiSelectCustomItems,
-                        focusField: $focusField,
-                        exitFlowAction: {
-                            exitFlowAction()
-                        }
+                        focusField: $focusField
                     )
                     .padding(.horizontal)
                 
@@ -83,6 +105,9 @@ struct NewGoalView: View {
                     )
                     .padding(.horizontal)
     
+                case 2:
+                    NewGoalExpectationsView(expectationsScrollPosition: $expectationsScrollPosition)
+                
                 default:
                     SequenceSuggestionsView (
                         newGoalViewModel: newGoalViewModel,
@@ -95,9 +120,27 @@ struct NewGoalView: View {
             BackgroundPrimary(backgroundColor: backgroundColor)
         }
         .overlay {
-            if mainSelectedTab == 0 {
+            if mainSelectedTab == 0 || mainSelectedTab == 2 {
                 getViewButton()
             }
+        }
+        .onChange(of: expectationsScrollPosition) {
+            if (expectationsScrollPosition == NewGoalExpectation.expectations.count - 1) {
+                if disableButtonExpectations {
+                    disableButtonExpectations = false
+                }
+            }
+        }
+        .alert("Discard new topic?", isPresented: $showExitFlowAlert) {
+            Button("Cancel", role: .cancel) {}
+            Button("Yes", role: .destructive) {
+                if focusField != nil {
+                    focusField = nil
+                }
+                exitFlowAction()
+            }
+        } message: {
+            Text("You'll lose your progress.")
         }
      
     }
@@ -115,11 +158,11 @@ struct NewGoalView: View {
             } else {
                 //Next button
                 RectangleButtonPrimary(
-                    buttonText: "Continue",
+                    buttonText: mainSelectedTab == 0 ? "Continue" : "Reveal my paths",
                     action: {
-                        nextButtonAction()
+                        mainSelectedTab == 0 ? nextButtonAction() : (mainSelectedTab += 1)
                     },
-                    disableMainButton: disableButton(),
+                    disableMainButton: mainSelectedTab == 0 ? disableButtonQuestions() : disableButtonExpectations,
                     buttonColor: .white)
                 .padding(.horizontal)
             }
@@ -139,17 +182,18 @@ struct NewGoalView: View {
         return []
     }
     
-    private func disableButton() -> Bool {
-      
+    private func disableButtonQuestions() -> Bool {
         switch currentQuestion.questionType {
         case .open:
             return answersOpen[selectedQuestion].isEmpty && selectedQuestion != 3
-            
         case .multiSelect:
+            if selectedQuestion == 5 {
+                return multiSelectAnswers[selectedQuestion].count < 2
+            }
+            
             return false
         default:
             return answersSingleSelect[selectedQuestion].isEmpty
-            
         }
     }
     
@@ -163,7 +207,7 @@ struct NewGoalView: View {
             
             if questions.count > 1 {
                 if questions[1].content != GoalTypeItem.question(forLongName: answersSingleSelect[answeredQuestionIndex]) {
-                    questions.removeLast(min(4, questions.count))
+                    questions.removeLast(min(5, questions.count))
                     questions += remainingQuestions
                 }
             } else {
@@ -183,7 +227,14 @@ struct NewGoalView: View {
         //Save question answer to coredata on the last question
         if answeredQuestionIndex == 4 {
             Task {
-               await saveAnswersForCategory()
+               await saveAnswersPart1()
+
+            }
+        }
+        
+        if answeredQuestionIndex == 5 {
+            Task {
+                await saveAnswersPart2()
             }
         }
         
@@ -194,13 +245,12 @@ struct NewGoalView: View {
         
     }
     
-    private func saveAnswersForCategory() async {
+    private func saveAnswersPart1() async {
 
         // Create the category
         let savedCategory = await dataController.createSingleCategory()
         //Create new goal
         /// need to make sure questions are related to the right goal when saved
-        
         let savedGoal = await dataController.createNewGoal(category: savedCategory, problemType: answersSingleSelect[0])
         
         if let category = savedCategory, let goal = savedGoal {
@@ -231,7 +281,7 @@ struct NewGoalView: View {
             await dataController.saveAnswerDefaultQuestions(
                 questionType: .multiSelect,
                 question: questions[4],
-                userAnswer: multiSelectAnswers,
+                userAnswer: multiSelectAnswers[4],
                 category: category,
                 goal: goal
             )
@@ -241,17 +291,34 @@ struct NewGoalView: View {
         }
     }
     
+    private func saveAnswersPart2() async {
+        
+        if let category = newGoalViewModel.currentCategory, let goal = newGoalViewModel.currentGoal {
+            await dataController.saveAnswerDefaultQuestions (
+                questionType: .multiSelect,
+                question: questions[5],
+                userAnswer: multiSelectAnswers[5],
+                category: category,
+                goal: goal
+            )
+            await manageRunPlanSuggestion(category: category, goal: goal)
+        }
+        
+    }
+    
     private func handleUIAndNavigation(answeredQuestionIndex index: Int) {
-        if index < questions.count - 1{
+        if index < questions.count - 2 {
             navigateToNextQuestion()
             updateFocusState(for: index)
-        } else {
+        } else if index == questions.count - 2 {
             print("selectedQuestion =", selectedQuestion,
                   "questions.count =", questions.count,
                   "answersOpen.count =", answersOpen.count,
                   "answersSingleSelect.count =", answersSingleSelect.count)
             
-            finishQuestions()
+            finishQuestionsPart1()
+        } else {
+            finishQuestionsPart2()
         }
     }
 
@@ -273,19 +340,35 @@ struct NewGoalView: View {
         }
     }
 
-    private func finishQuestions() {
+    private func finishQuestionsPart1() {
 //        if focusField != nil {
 //            focusField = nil
 //        }
         mainSelectedTab = 1
-     
     }
     
+    private func finishQuestionsPart2() {
+//        if focusField != nil {
+//            focusField = nil
+//        }
+        withAnimation(.interpolatingSpring) {
+            progressBarQuestionIndex += 1
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            if isOnboarding {
+                mainSelectedTab = 2
+            } else {
+                mainSelectedTab = 3
+            }
+        }
+    }
     
     private func manageRun(category: Category, goal: Goal) async {
         
         Task {
             do {
+                // get reflection, goal title and description, options for last question
                 try await newGoalViewModel.manageRun (
                     selectedAssistant: .newGoal,
                     category: category,
@@ -296,12 +379,15 @@ struct NewGoalView: View {
                 newGoalViewModel.createNewCategorySummary = .retry
             }
             
+        }
+        
+    }
+    
+    private func manageRunPlanSuggestion(category: Category, goal: Goal) async {
+        
+        Task {
             do {
-                try await newGoalViewModel.manageRun (
-                    selectedAssistant: .planSuggestion,
-                    category: category,
-                    goal: goal
-                )
+                try await newGoalViewModel.manageRun(selectedAssistant: .planSuggestion, category: category, goal: goal)
                 
             } catch {
                 newGoalViewModel.createPlanSuggestions = .retry
@@ -309,25 +395,6 @@ struct NewGoalView: View {
             
         }
         
-    }
-
-    private func exitFlowAction() {
-        
-        Task {
-            await newGoalViewModel.cancelCurrentRun()
-            
-            await MainActor.run {
-                //dismiss
-                dataController.createdNewGoal = false
-                showNewGoalSheet = false
-            }
-            
-            await dataController.deleteIncompleteGoals()
-            
-            DispatchQueue.global(qos: .background).async {
-                Mixpanel.mainInstance().track(event: "Closed new topic flow")
-            }
-        }
     }
     
     private func sendMixpanelEvents(answeredQuestionIndex: Int) {
@@ -348,7 +415,7 @@ struct NewGoalView: View {
             }
             
         case 4:
-            let userAnswer = multiSelectAnswers
+            let userAnswer = multiSelectAnswers[4]
             for answer in userAnswer {
                 let shortAnswer = MixpanelDetailedEvents.userAsk[answer] ?? "\(answer)"
                 DispatchQueue.global(qos: .background).async {
@@ -363,7 +430,62 @@ struct NewGoalView: View {
         
     }
     
+    // MARK: - Exit flow
+    private func manageDismissButtonAction() {
+        if !answersOpen[1].isEmpty {
+            showExitFlowAlert = true
+        } else {
+            if focusField != nil {
+                focusField = nil
+            }
+            
+            exitFlowAction()
+        }
+        
+        DispatchQueue.global(qos: .background).async {
+            Mixpanel.mainInstance().track(event: "Closed new topic flow")
+        }
+    }
     
+    private func exitFlowAction() {
+        
+        Task {
+            await newGoalViewModel.cancelCurrentRun()
+            
+            await MainActor.run {
+                //dismiss
+                dataController.createdNewGoal = false
+                showNewGoalSheet = false
+            }
+            
+            await dataController.deleteIncompleteGoals()
+            
+            DispatchQueue.global(qos: .background).async {
+                Mixpanel.mainInstance().track(event: "Closed new topic flow")
+            }
+        }
+    }
+    
+    // MARK: - Handle the back button action for questions
+    private func handleBackButton() {
+        let answeredQuestionIndex = selectedQuestion
+        
+        if answeredQuestionIndex > 0 && answeredQuestionIndex < 5 {
+            // Go back one question
+            navigateToPreviousQuestion()
+        } else if answeredQuestionIndex == 5 {
+            mainSelectedTab = 1
+            navigateToPreviousQuestion()
+        }
+    }
+    
+    private func navigateToPreviousQuestion() {
+        focusField = nil
+        selectedQuestion -= 1
+        withAnimation(.interpolatingSpring) {
+            progressBarQuestionIndex -= 1
+        }
+    }
 }
 
 
@@ -401,7 +523,7 @@ struct NewCategoryHeader: View {
         case 1:
             return "Reflection"
             
-        case 2:
+        case 3:
             return "Choose a direction"
             
         default:

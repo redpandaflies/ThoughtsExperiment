@@ -135,7 +135,10 @@ class AuthService: NSObject, ASAuthorizationControllerDelegate {
     }
     
     private func updateDisplayNameIfNeeded(_ fullName: String?) async throws {
-        guard let name = fullName else { return }
+        guard let name = fullName, !name.isEmpty else {
+            loggerAuth.info("Skipped display name update: name is nil or empty")
+            return
+        }
        
         loggerAuth.info("Updating Supabase user metadata with display_name: \(name)")
         
@@ -143,6 +146,7 @@ class AuthService: NSObject, ASAuthorizationControllerDelegate {
         let attrs = UserAttributes(
           data: ["display_name": AnyJSON.string(name)]
         )
+        
         // Call endpoint to update user data
         let updateResp = try await client.auth.update(user: attrs)
         loggerSupabase.info("Metadata update returned: \(updateResp.userMetadata)")

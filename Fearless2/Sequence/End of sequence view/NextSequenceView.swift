@@ -93,7 +93,7 @@ struct NextSequenceView: View {
                             multiSelectOptionsEdited: $multiSelectOptionsEdited,
                             questions: questions,
                             focusField: $focusField,
-                            sequenceObjectives: sequence.sequenceObjectives,
+                            sequenceObjectives: getObjectives(),
                             keepExploringAction: {
                                 keepExploring()
                             },
@@ -133,6 +133,10 @@ struct NextSequenceView: View {
                         RectangleButtonPrimary(
                             buttonText: getButtonText(),
                             action: {
+                                buttonAction()
+                            },
+                            showSkipButton: (selectedTab == 2 && selectedQuestion == 0 && answersMultiSelect[0].count == 0),
+                            skipAction: {
                                 buttonAction()
                             },
                             disableMainButton: disableButton(),
@@ -388,7 +392,7 @@ struct NextSequenceView: View {
                 
             }
             
-            for (index, answer) in answersMultiSelect.enumerated() where !answer.isEmpty {
+            for (index, answer) in answersMultiSelect.enumerated() where index == 0 || !answer.isEmpty {
                 
                 await dataController.saveAnswerDefaultQuestions(
                     questionType: .multiSelect,
@@ -475,6 +479,15 @@ struct NextSequenceView: View {
                 
             }
         }
+    }
+    
+    // get the areas users selected during new goal flow
+    private func getObjectives() -> String {
+        let questions = goal.goalQuestions
+        let objectiveQuestion = QuestionNewCategory.remainingQuestionsNewCategory(userAnswer: GoalTypeItem.decision.getNameLong()).last?.content ?? ""
+        let objectives = questions.filter { $0.questionContent == objectiveQuestion }.first?.questionAnswerMultiSelect ?? ""
+        
+        return objectives
     }
 }
 

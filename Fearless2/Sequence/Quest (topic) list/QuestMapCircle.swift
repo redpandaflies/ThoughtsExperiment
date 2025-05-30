@@ -29,7 +29,7 @@ struct QuestMapCircle: View {
     }
     
     var body: some View {
-        Group {
+        VStack {
             
             switch questType {
             case .guided, .context:

@@ -21,7 +21,7 @@ struct NewGoalReflectionView: View {
     @State private var startedTextAnimation: Bool = false
     
     // marks loading animation complete
-       @State private var animationCompletedLoading: Bool = false
+    @State private var animationCompletedLoading: Bool = false
     
     // LottieView
     @State private var animationSpeed: CGFloat = 1.0
@@ -63,13 +63,19 @@ struct NewGoalReflectionView: View {
             
         }//VStack
         .onAppear {
-            if reflectionSelectedTab != 0 {
-                reflectionSelectedTab = 0
+            
+            if let _ = newGoalViewModel.newCategorySummary {
+                /// when user moves back to this view
+                reflectionSelectedTab = 1
+            } else {
+                /// when user sees the new reflection for the first time
+                if reflectionSelectedTab != 0 {
+                    reflectionSelectedTab = 0
+                }
+                
+                //reset state vars
+                resetVars()
             }
-            
-            //reset state vars
-            resetVars()
-            
         }
         .onReceive(
           Publishers.CombineLatest(
@@ -170,21 +176,27 @@ struct NewGoalReflectionView: View {
         
         startedTextAnimation = true
         
-        let feedback = newGoalViewModel.newCategorySummary
-        
-        print ("New goal feedback: \(feedback)")
-        animator = TextAnimator (
-            text: feedback,
-            animatedText: $animatedText,
-            completedAnimation: $animationCompletedText,
-            speed: 0.03
-        )
-        
-        animator?.animate()
+        if let feedback = newGoalViewModel.newCategorySummary?.summary {
+            print ("New goal feedback: \(feedback)")
+            animator = TextAnimator (
+                text: feedback,
+                animatedText: $animatedText,
+                completedAnimation: $animationCompletedText,
+                speed: 0.03
+            )
+            
+            animator?.animate()
+        }
     }
     
     private func nextAction() {
-        mainSelectedTab += 1
+        mainSelectedTab = 0
+        selectedQuestion += 1
+        
+        withAnimation(.interpolatingSpring) {
+            progressBarQuestionIndex += 1
+        }
+        
         DispatchQueue.global(qos: .background).async {
             Mixpanel.mainInstance().track(event: "Problem statement correct")
         }
@@ -213,36 +225,21 @@ struct NewGoalReflectionView: View {
         reflectionSelectedTab = 0
         resetVars()
         
-        
         if let category = newGoalViewModel.currentCategory, let goal = newGoalViewModel.currentGoal {
             Task {
-                await manageRun(category: category, goal: goal)
+                do {
+                    try await newGoalViewModel.manageRun(selectedAssistant: .newGoal, category: category, goal: goal)
+                    
+                } catch {
+                    newGoalViewModel.createNewCategorySummary = .retry
+                }
             }
         }
         
         
     }
     
-    private func manageRun(category: Category, goal: Goal) async {
-        
-        Task {
-            do {
-                try await newGoalViewModel.manageRun(selectedAssistant: .newGoal, category: category, goal: goal)
-                
-            } catch {
-                newGoalViewModel.createNewCategorySummary = .retry
-            }
-            
-            do {
-                try await newGoalViewModel.manageRun(selectedAssistant: .planSuggestion, category: category, goal: goal)
-                
-            } catch {
-                newGoalViewModel.createPlanSuggestions = .retry
-            }
-            
-        }
-        
-    }
+    
     
     private func resetVars() {
         //reset state vars
@@ -251,6 +248,7 @@ struct NewGoalReflectionView: View {
         animationCompletedText = false
         
         newGoalViewModel.completedLoadingAnimationSummary = false
+        newGoalViewModel.newCategorySummary = nil
     }
     
 }

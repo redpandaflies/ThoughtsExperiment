@@ -57,7 +57,6 @@ struct GoalsViewActive: View {
                         safeAreaPadding: safeAreaPadding
                     )
                     
-                    
                 default:
                     GoalsEmptyState(
                         showNewGoalSheet: $showNewGoalSheet

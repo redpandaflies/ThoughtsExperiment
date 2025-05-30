@@ -11,24 +11,18 @@ struct NewGoalQuestionsView: View {
     @EnvironmentObject var dataController: DataController
     @ObservedObject var newGoalViewModel: NewGoalViewModel
     
-    // Manage when to show alert for exiting create new category flow
-    @State private var showExitFlowAlert: Bool = false
-    @State private var showProgressBar: Bool = true
-    
+    @Binding var showProgressBar: Bool
     @Binding var mainSelectedTab: Int
     @Binding var selectedQuestion: Int
-    @Binding  var progressBarQuestionIndex: Int
     @Binding var questions: [QuestionNewCategory]
     // Array to store all open question answers
     @Binding var answersOpen: [String]
     // Array to store all single-select question answers
     @Binding var answersSingleSelect: [String]
-    @Binding var multiSelectAnswers: [String]
-    @Binding var multiSelectCustomItems: [String]
+    @Binding var multiSelectAnswers: [[String]]
+    @Binding var multiSelectCustomItems: [[String]]
     
     @FocusState.Binding var focusField: DefaultFocusField?
-    
-    let exitFlowAction: () -> Void
     
     var currentQuestion: QuestionNewCategory {
         return questions[selectedQuestion]
@@ -36,19 +30,7 @@ struct NewGoalQuestionsView: View {
     
     var body: some View {
         VStack (spacing: 10){
-            // MARK: Header
-            if showProgressBar {
-                QuestionsProgressBar(
-                    currentQuestionIndex: $progressBarQuestionIndex,
-                    totalQuestions: 5,
-                    showXmark: true,
-                    xmarkAction: {
-                        manageDismissButtonAction()
-                    },
-                    showBackButton: selectedQuestion > 0,
-                    backAction: handleBackButton
-                )
-            }
+            
             // MARK: Title
             if selectedQuestion > 0 {
                 getTitle()
@@ -57,7 +39,7 @@ struct NewGoalQuestionsView: View {
             // MARK: Question
             switch currentQuestion.questionType {
                 case .open:
-                    QuestionOpenView2(
+                    QuestionOpenView2 (
                         topicText: $answersOpen[selectedQuestion],
                         focusField: $focusField,
                         focusValue: .question(selectedQuestion),
@@ -66,17 +48,17 @@ struct NewGoalQuestionsView: View {
                     )
                 
                 case .multiSelect:
-                    QuestionMultiSelectView(
-                        multiSelectAnswers: $multiSelectAnswers,
-                        customItems: $multiSelectCustomItems,
+                    QuestionMultiSelectView (
+                        multiSelectAnswers: $multiSelectAnswers[selectedQuestion],
+                        customItems: $multiSelectCustomItems[selectedQuestion],
                         showProgressBar: $showProgressBar,
                         question: currentQuestion.content,
-                        items: currentQuestion.options ?? [],
-                        itemsEdited: !multiSelectCustomItems.isEmpty
+                        items: getMultiSelectOptions(),
+                        subTitle: selectedQuestion == 5 ? "Choose at least two" : "Choose all that apply"
                     )
        
                 default:
-                    QuestionSingleSelectView(
+                    QuestionSingleSelectView (
                         singleSelectAnswer: $answersSingleSelect[selectedQuestion],
                         showProgressBar: $showProgressBar,
                         question: currentQuestion.content,
@@ -89,17 +71,7 @@ struct NewGoalQuestionsView: View {
             
         }//VStack
         .padding(.bottom)
-        .alert("Discard new topic?", isPresented: $showExitFlowAlert) {
-            Button("Cancel", role: .cancel) {}
-            Button("Yes", role: .destructive) {
-                if focusField != nil {
-                    focusField = nil
-                }
-                exitFlowAction()
-            }
-        } message: {
-            Text("You'll lose your progress.")
-        }
+        
     }
     
     private func getTitle() -> some View {
@@ -113,40 +85,17 @@ struct NewGoalQuestionsView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         
     }
-
-    private func manageDismissButtonAction() {
-        if !answersOpen[1].isEmpty {
-            showExitFlowAlert = true
-        } else {
-            if focusField != nil {
-                focusField = nil
-            }
+    
+    private func getMultiSelectOptions() -> [String] {
+        if selectedQuestion == 5 {
             
-            exitFlowAction()
+           var questions = newGoalViewModel.newCategorySummary?.areas ?? []
+            questions.append(CustomOptionType.other.rawValue)
+            
+            return questions
         }
         
-        DispatchQueue.global(qos: .background).async {
-            Mixpanel.mainInstance().track(event: "Closed new topic flow")
-        }
-    }
-    
-    // MARK: - Handle the back button action
-    private func handleBackButton() {
-        let answeredQuestionIndex = selectedQuestion
-        
-        if answeredQuestionIndex > 0 {
-            // Go back one question
-            navigateToPreviousQuestion()
-        }
-    }
-    
-    
-    private func navigateToPreviousQuestion() {
-        focusField = nil
-        selectedQuestion -= 1
-        withAnimation(.interpolatingSpring) {
-            progressBarQuestionIndex -= 1
-        }
+        return currentQuestion.options ?? []
     }
 
 }

@@ -86,6 +86,7 @@ struct AppColors {
     static let buttonYellow1 = boxYellow1
     static let buttonYellow2 = boxYellow2
     static let buttonLightGrey1 = Color(.displayP3, red: 0.89, green: 0.89, blue: 0.89, opacity: 1) // #e3e3e3
+    static let buttonLightGrey2 = Color(.displayP3, red: 0.059, green: 0.141, blue: 0.239, opacity: 0.2) // #0F243D
     static let buttonBlack1 = Color(.displayP3, red: 0.216, green: 0.216, blue: 0.216, opacity: 1) // #373737
     static let buttonBlack2 = Color(.displayP3, red: 0.075, green: 0.075, blue: 0.075, opacity: 1) // #131313
    
@@ -127,10 +128,10 @@ struct AppColors {
     //picker
     static let pickerColorPrimary = Color(.displayP3, red: 0.373, green: 0.373, blue: 0.373, opacity: 1) // #5F5F5F
     static let pickerColorPrimaryUI = UIColor(
-            displayP3Red:   0.373,
-            green:          0.373,
-            blue:           0.373,
-            alpha:          1.0
+            displayP3Red: 0.373,
+            green: 0.373,
+            blue: 0.373,
+            alpha: 1.0
         )
     static let pickerColorSelected = Color(.displayP3, red: 0.498, green: 0.498, blue: 0.498, opacity: 0.6) // #7F7F7F
     static let pickerColorSelectedUI = UIColor(

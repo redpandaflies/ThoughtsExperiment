@@ -44,7 +44,6 @@ struct NextSequenceQuestionsView: View {
                     QuestionMultiSelectView(
                         multiSelectAnswers: $answersMultiSelect[selectedQuestion],
                         customItems: $multiSelectCustomItems[selectedQuestion],
-                        itemsEditedInMemory: $multiSelectOptionsEdited[selectedQuestion],
                         question: currentQuestion.content,
                         items: getOptionsForMultiSelect()
                     )

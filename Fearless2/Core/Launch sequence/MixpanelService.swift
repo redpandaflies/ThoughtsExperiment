@@ -19,11 +19,16 @@ class MixpanelService {
     
     func setUserProfile(distinctId: String, name: String) {
         Mixpanel.mainInstance().identify(distinctId: distinctId)
-        Mixpanel.mainInstance().people.set(properties: [
-           "$name": name,
-            "$user_id": distinctId
-        ])
+        
+        if !name.isEmpty {
+            Mixpanel.mainInstance().people.set(properties: [
+                "$name": name,
+                "$user_id": distinctId
+            ])
+        } else {
+            Mixpanel.mainInstance().people.set(properties: [
+                "$user_id": distinctId
+            ])
+        }
    }
-    
-    
 }

@@ -23,19 +23,18 @@ final class AuthViewModel: ObservableObject {
     let loggerAuth = Logger.authEvents
     
     init() {
-            checkSession()
-        }
+        checkSession()
+    }
 
     private func checkSession() {
         if let session = authService.client.auth.currentSession {
-                isAuthenticated = true
+            isAuthenticated = true
             loggerAuth.log("User already signed in: \(session.user.id)")
 
-            } else {
-                isAuthenticated = false
-            }
+        } else {
+            isAuthenticated = false
         }
-    
+    }
 
     func signInWithApple() {
       Task {
@@ -47,7 +46,7 @@ final class AuthViewModel: ObservableObject {
             }
         // set-up mixpanel profile
             DispatchQueue.global().async {
-                MixpanelService.shared.setUserProfile(distinctId: id, name: name ?? "No name")
+                MixpanelService.shared.setUserProfile(distinctId: id, name: name ?? "")
             }
             
         } catch {

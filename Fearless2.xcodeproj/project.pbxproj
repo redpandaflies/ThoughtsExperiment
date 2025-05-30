@@ -235,6 +235,8 @@
 		8AE398322D74053900F76AAC /* BackgroundNewGoal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE398312D74053900F76AAC /* BackgroundNewGoal.swift */; };
 		8AE398342D7575C300F76AAC /* ButtonStylePushDown.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AE398332D7575B100F76AAC /* ButtonStylePushDown.swift */; };
 		8AEFB6E62CF6F60B00942293 /* SuggestionProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AEFB6E52CF6F5E100942293 /* SuggestionProtocol.swift */; };
+		8AFA021F2DE6CD0300A5E867 /* NewGoalExpectationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AFA021E2DE6CD0300A5E867 /* NewGoalExpectationsView.swift */; };
+		8AFA02212DE6D93600A5E867 /* NewGoalExpectation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AFA02202DE6D93600A5E867 /* NewGoalExpectation.swift */; };
 		8AFCCCD62D5D4BFC0079732C /* RoundButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AFCCCD52D5D4BFC0079732C /* RoundButton.swift */; };
 /* End PBXBuildFile section */
 
@@ -462,6 +464,8 @@
 		8AE398312D74053900F76AAC /* BackgroundNewGoal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundNewGoal.swift; sourceTree = "<group>"; };
 		8AE398332D7575B100F76AAC /* ButtonStylePushDown.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonStylePushDown.swift; sourceTree = "<group>"; };
 		8AEFB6E52CF6F5E100942293 /* SuggestionProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestionProtocol.swift; sourceTree = "<group>"; };
+		8AFA021E2DE6CD0300A5E867 /* NewGoalExpectationsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewGoalExpectationsView.swift; sourceTree = "<group>"; };
+		8AFA02202DE6D93600A5E867 /* NewGoalExpectation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewGoalExpectation.swift; sourceTree = "<group>"; };
 		8AFCCCD52D5D4BFC0079732C /* RoundButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundButton.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -810,6 +814,7 @@
 			children = (
 				8A9B990C2D78EC36001707FD /* NewGoalView.swift */,
 				8A9B99132D7902DD001707FD /* NewGoalQuestionsView.swift */,
+				8AFA021E2DE6CD0300A5E867 /* NewGoalExpectationsView.swift */,
 				8AE398312D74053900F76AAC /* BackgroundNewGoal.swift */,
 				8ADCEAC22DA73E11008D4FEA /* NewGoalSelectCategoryQuestion.swift */,
 				8ADCEAC42DA7A1BD008D4FEA /* NewGoalLoadingView.swift */,
@@ -915,6 +920,7 @@
 				8A9CC1D92CAE7697007C2AA9 /* LottieView.swift */,
 				8A9B99112D78F855001707FD /* NewCategoryContent.swift */,
 				8AE398162D6D90D800F76AAC /* OnboardingIntroContent.swift */,
+				8AFA02202DE6D93600A5E867 /* NewGoalExpectation.swift */,
 				8AE3981C2D6FA74300F76AAC /* QuestionNewCategory.swift */,
 				8ADCEAE02DB07F59008D4FEA /* QuestionNextSequence.swift */,
 				8ADCEAED2DB70364008D4FEA /* QuestionProtocol.swift */,
@@ -1399,6 +1405,7 @@
 				8A7AD66A2DC546EE000FB1C3 /* DefaultFocusField.swift in Sources */,
 				8A573BA12DC00EB80027F636 /* SquareButton.swift in Sources */,
 				8A6332582CDD9E0000EF34FA /* ToolbarTitleItem.swift in Sources */,
+				8AFA02212DE6D93600A5E867 /* NewGoalExpectation.swift in Sources */,
 				8ADCEAE72DB1C93A008D4FEA /* LoadingAnimationEllipsis.swift in Sources */,
 				8AB2DF4C2D57236B0069E914 /* CategoryDescriptionView.swift in Sources */,
 				8A74F49D2CE59420008A33B0 /* TopicDetailViewFooter.swift in Sources */,
@@ -1413,6 +1420,7 @@
 				8A9CC1B42CAC6ABE007C2AA9 /* CategoryItem.swift in Sources */,
 				8AC1D5A82D6582F3000DD8E6 /* EndTopicView.swift in Sources */,
 				8A9B99182D7BCA35001707FD /* LaurelWreath.swift in Sources */,
+				8AFA021F2DE6CD0300A5E867 /* NewGoalExpectationsView.swift in Sources */,
 				8A26DFD72CEFAE58002C4F60 /* UnderstandAskQuestionView.swift in Sources */,
 				8ADCEADF2DB03801008D4FEA /* CarouselView.swift in Sources */,
 				8AA484282D9A2BE9002F34E9 /* TestRectangle.swift in Sources */,
@@ -1663,7 +1671,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Fearless2/Fearless2Debug.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 16;
+				CURRENT_PROJECT_VERSION = 17;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"Fearless2/Preview Content\"";
 				DEVELOPMENT_TEAM = 79TB36U8AD;
@@ -1702,7 +1710,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Fearless2/Fearless2.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 27;
+				CURRENT_PROJECT_VERSION = 28;
 				DEVELOPMENT_ASSET_PATHS = "\"Fearless2/Preview Content\"";
 				DEVELOPMENT_TEAM = 79TB36U8AD;
 				ENABLE_DEBUG_DYLIB = NO;

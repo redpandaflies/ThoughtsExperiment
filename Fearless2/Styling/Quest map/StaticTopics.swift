@@ -11,7 +11,7 @@ extension NewTopic1 {
     static let samples: [NewTopic1] = [
         NewTopic1(
             questNumber: 0,
-            title: "What to Expect",
+            title: "What to expect",
             objective: "Outline what you hope to learn or achieve in this topic",
             emoji: "",
             questType: QuestTypeItem.expectations.rawValue

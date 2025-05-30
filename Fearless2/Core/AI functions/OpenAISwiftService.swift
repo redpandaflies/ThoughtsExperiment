@@ -288,6 +288,7 @@ extension OpenAISwiftService {
             
             try self.saveCoreDataChanges(context: context, errorDescription: "new goal")
         }
+        
         return categorySummary
     }
     // MARK: Plan suggestions
@@ -694,6 +695,7 @@ enum SenderRole: String, Codable {
 struct NewCreateCategorySummary: Codable, Hashable {
     let summary: String
     let goal: NewGoal
+    let areas: [String]
 }
 
 struct NewGoal: Codable, Hashable {

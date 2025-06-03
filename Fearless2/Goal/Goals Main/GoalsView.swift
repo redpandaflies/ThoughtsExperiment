@@ -111,6 +111,7 @@ struct GoalsView: View {
             }) {
                 NewGoalView(
                     newGoalViewModel: viewModelFactoryMain.makeNewGoalViewModel(),
+                    topicViewModel: topicViewModel,
                     showNewGoalSheet: $showNewGoalSheet,
                     backgroundColor: getBackground(index: selectedSegment == .active ? goalScrollPositionActive : goalScrollPositionCompleted),
                     isOnboarding: false

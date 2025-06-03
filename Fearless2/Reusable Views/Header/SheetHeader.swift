@@ -8,17 +8,11 @@
 import SwiftUI
 
 struct SheetHeader: View {
-    let emoji: String
     let title: String
     let xmarkAction: () -> Void
     
     var body: some View {
         HStack (spacing: 8) {
-  
-            Text(emoji)
-                .multilineTextAlignment(.leading)
-                .font(.system(size: 19, weight: .light).smallCaps())
-         
             
             Text(title)
                 .multilineTextAlignment(.leading)

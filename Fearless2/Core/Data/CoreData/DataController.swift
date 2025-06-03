@@ -625,7 +625,10 @@ extension DataController {
     }
     
     // save selected plan & create sequence
-    func saveSelectedPlan(plan: NewPlan, category: Category, goal: Goal) async {
+    func saveSelectedPlan(plan: NewPlan, category: Category, goal: Goal) async -> Topic? {
+        // we need to return first topic so that we can use it to fetch the questions for that topic
+        var firstTopic: Topic? = nil
+        
         await context.perform {
             // build sequence
             let newSequence = Sequence(context: self.context)
@@ -656,8 +659,13 @@ extension DataController {
                     totalQuests: totalQuests
                 )
             }
+            
+            firstTopic = newSequence.sequenceTopics.filter { $0.orderIndex == 0 }.first
         }
+        
         await save()
+
+        return firstTopic
     }
     
     private func insertTopic(
@@ -676,30 +684,31 @@ extension DataController {
         topic.topicStatus = TopicStatusItem.locked.rawValue
         //calculate order index based on step type
         if newTopic.questType == QuestTypeItem.retro.rawValue {
-            topic.orderIndex = Int16(totalQuests + 1)
+            topic.orderIndex = Int16(totalQuests)
         } else {
-            topic.orderIndex = Int16(newTopic.questNumber)
+            topic.orderIndex = Int16(newTopic.questNumber - 1)
         }
         topic.topicEmoji = newTopic.emoji
         topic.topicDefinition = newTopic.objective
         topic.topicQuestType = newTopic.questType
             
-            // create relationships
-            sequence.addToTopics(topic)
-            category.addToTopics(topic)
-            goal.addToTopics(topic)
-            
-            // if this is the “expectations” topic, add its expectations
-            if newTopic.questType == QuestTypeItem.expectations.rawValue {
-                for item in plan.expectations {
-                    let expectation = TopicExpectation(context: context)
-                    expectation.expectationId = UUID()
-                    expectation.orderIndex = Int16(item.expectationsNumber)
-                    expectation.expectationContent = item.content
-                    topic.addToExpectations(expectation)
-                }
-            }
-        }
+        // create relationships
+        sequence.addToTopics(topic)
+        category.addToTopics(topic)
+        goal.addToTopics(topic)
+        
+        // if this is the “expectations” topic, add its expectations
+//        if newTopic.questType == QuestTypeItem.expectations.rawValue {
+//            for item in plan.expectations {
+//                let expectation = TopicExpectation(context: context)
+//                expectation.expectationId = UUID()
+//                expectation.orderIndex = Int16(item.expectationsNumber)
+//                expectation.expectationContent = item.content
+//                topic.addToExpectations(expectation)
+//            }
+//        }
+
+    }
     
     
     

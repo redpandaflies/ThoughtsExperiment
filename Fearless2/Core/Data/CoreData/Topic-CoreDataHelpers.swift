@@ -85,6 +85,11 @@ extension Topic {
         return result
     }
     
+    var topicFeedback: [TopicFeedback] {
+        let result = feedback?.allObjects as? [TopicFeedback] ?? []
+        return result
+    }
+    
     var topicBreaks: [TopicBreak] {
         let result = breaks?.allObjects as? [TopicBreak] ?? []
         return result

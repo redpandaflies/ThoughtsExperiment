@@ -151,7 +151,6 @@ struct FocusAreaRecapView: View {
         default:
             RecapReflectionView(
                 topicViewModel: topicViewModel,
-                animatedText: $animatedText,
                 feedback: focusArea?.summary?.summaryFeedback ?? "",
                 retryAction: {
                     generateNewRecap()

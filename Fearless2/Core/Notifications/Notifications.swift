@@ -12,7 +12,6 @@ import UserNotifications
 // MARK: set Sunday recap reminder
 final class NotificationManager: NSObject, ObservableObject {
     
-    
     @Published var selectedDestination: Bool = false
     
     let notificationCenter = UNUserNotificationCenter.current()

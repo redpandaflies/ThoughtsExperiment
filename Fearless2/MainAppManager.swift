@@ -9,7 +9,7 @@ import SwiftUI
 
 struct MainAppManager: View {
  
-    @StateObject var topicViewModel: TopicViewModel
+    @ObservedObject var topicViewModel: TopicViewModel
     
     @State private var currentTabBar: TabBarType = .home
     @State private var selectedTabHome: TabBarItemHome = .topics
@@ -19,12 +19,6 @@ struct MainAppManager: View {
     @State private var selectedTopic: Topic? = nil
     @State private var showAskQuestionView: Bool = false
     @State private var askQuestionTab: Int = 0 //to control which view shows up when showAskQuestionView is true
-    
-    init(
-        topicViewModel: TopicViewModel
-    ) {
-        _topicViewModel = StateObject(wrappedValue: topicViewModel)
-    }
     
     var body: some View {
         ZStack {

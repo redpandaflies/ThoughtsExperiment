@@ -179,6 +179,7 @@
         <relationship name="category" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Category" inverseName="topics" inverseEntity="Category"/>
         <relationship name="entries" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Entry" inverseName="topic" inverseEntity="Entry"/>
         <relationship name="expectations" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="TopicExpectation" inverseName="topic" inverseEntity="TopicExpectation"/>
+        <relationship name="feedback" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="TopicFeedback" inverseName="topic" inverseEntity="TopicFeedback"/>
         <relationship name="focusAreas" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="FocusArea" inverseName="topic" inverseEntity="FocusArea"/>
         <relationship name="goal" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Goal" inverseName="topics" inverseEntity="Goal"/>
         <relationship name="insights" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Insight" inverseName="topic" inverseEntity="Insight"/>
@@ -199,6 +200,12 @@
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="orderIndex" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <relationship name="topic" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Topic" inverseName="expectations" inverseEntity="Topic"/>
+    </entity>
+    <entity name="TopicFeedback" representedClassName="TopicFeedback" syncable="YES" codeGenerationType="class">
+        <attribute name="content" optional="YES" attributeType="String"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="orderIndex" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="topic" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Topic" inverseName="feedback" inverseEntity="Topic"/>
     </entity>
     <entity name="TopicReview" representedClassName="TopicReview" syncable="YES" codeGenerationType="class">
         <attribute name="createdAt" optional="YES" attributeType="String"/>

@@ -10,6 +10,7 @@ import SwiftUI
 
 struct SequenceSuggestionsView: View {
     @EnvironmentObject var dataController: DataController
+    @ObservedObject var topicViewModel: TopicViewModel
     @ObservedObject var newGoalViewModel: NewGoalViewModel
     
     @State private var planSelectedTab: Int = 0
@@ -34,11 +35,13 @@ struct SequenceSuggestionsView: View {
     ]
     
     init(
+        topicViewModel: TopicViewModel,
         newGoalViewModel: NewGoalViewModel,
         showSheet: Binding<Bool>,
         completeSequenceAction: @escaping () -> Void = {}
       
     ) {
+        self.topicViewModel = topicViewModel
         self.newGoalViewModel = newGoalViewModel
         self._showSheet = showSheet
         self.completeSequenceAction = completeSequenceAction
@@ -50,11 +53,12 @@ struct SequenceSuggestionsView: View {
             switch planSelectedTab {
                 
                 case 0:
-                    NewGoalLoadingView(
-                        newGoalViewModel: newGoalViewModel,
+                    LoadingViewChecklist(
                         texts: loadingTexts,
-                        viewType: .plan,
-                        showFooter: true
+                        showFooter: true,
+                        onComplete: {
+                            newGoalViewModel.completedLoadingAnimationSummary = true
+                        }
                     )
                     .padding(.horizontal)
                 
@@ -175,11 +179,15 @@ struct SequenceSuggestionsView: View {
     private func saveChosenPlan(plan: NewPlan, index: Int) {
         Task {
             if let category = newGoalViewModel.currentCategory, let goal = newGoalViewModel.currentGoal {
-                await dataController.saveSelectedPlan(plan: plan, category: category, goal: goal)
+                let topic = await dataController.saveSelectedPlan(plan: plan, category: category, goal: goal)
                 
                 await MainActor.run {
                     dataController.createdNewGoal = true
                     showSheet = false
+                }
+                
+                if let topic = topic {
+                    await getTopicQuestions(topic: topic)
                 }
                 
             }
@@ -191,6 +199,17 @@ struct SequenceSuggestionsView: View {
             Mixpanel.mainInstance().track(event: "Chose plan \(index)")
         }
        
+    }
+    
+    private func getTopicQuestions(topic: Topic) async {
+        
+        do {
+            try await topicViewModel.manageRun(selectedAssistant: .topic, topic: topic)
+        
+        } catch {
+            topicViewModel.createTopicQuestions = .retry
+        }
+      
     }
     
 }

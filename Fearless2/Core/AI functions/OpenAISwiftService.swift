@@ -360,14 +360,13 @@ extension OpenAISwiftService {
         }
     }
     
-    
     @MainActor
     func processTopicOverview(messageText: String, topic: Topic) async throws {
         let arguments = messageText
         let context = self.dataController.container.viewContext
         
         // Decode the arguments to get the new section data
-        guard let newReview = self.decodeArguments(arguments: arguments, as: NewTopicOverview.self) else {
+        guard let newRecap = self.decodeArguments(arguments: arguments, as: NewTopicRecap.self) else {
             self.loggerOpenAI.error("Couldn't decode arguments for topic review.")
             throw ProcessingError.decodingError("topic review")
         }
@@ -377,14 +376,21 @@ extension OpenAISwiftService {
             let review = TopicReview(context: context)
             review.reviewId = UUID()
             review.reviewCreatedAt = getCurrentTimeString()
-            review.reviewOverview = newReview.overview
-            review.reviewSummary = newReview.summary
+            review.reviewSummary = newRecap.summary
             review.overviewGenerated = true
             topic.assignReview(review)
-              
+           
+           for item in newRecap.feedback {
+               let feedback = TopicFeedback(context: context)
+               feedback.feedbackId = UUID()
+               feedback.orderIndex = Int16(item.feedbackNumber)
+               feedback.feedbackContent = item.content
+               
+               topic.addToFeedback(feedback)
+           }
           
             // Save to coredata
-           try self.saveCoreDataChanges(context: context, errorDescription: "new topic review")
+            try self.saveCoreDataChanges(context: context, errorDescription: "new topic review")
             
         }
     }
@@ -431,6 +437,8 @@ extension OpenAISwiftService {
             
             // add sections to topic
             self.processQuestions(newQuestions.questions, for: topic, in: context)
+            // add expectations to topic
+            self.processTopicExpectations(newQuestions.expectations, for: topic, in: context)
             
             try self.saveCoreDataChanges(context: context, errorDescription: "New topic questions")
             
@@ -457,6 +465,17 @@ extension OpenAISwiftService {
                topic.addToQuestions(question)
            }
        }
+    
+    private func processTopicExpectations(_ expectations: [NewExpectation], for topic: Topic, in context:NSManagedObjectContext) {
+        
+        for item in expectations {
+            let expectation = TopicExpectation(context: context)
+            expectation.expectationId = UUID()
+            expectation.orderIndex = Int16(item.expectationsNumber)
+            expectation.expectationContent = item.content
+            topic.addToExpectations(expectation)
+        }
+    }
     
     @MainActor
     func processFocusAreaSummary(messageText: String, focusArea: FocusArea) async throws {
@@ -709,12 +728,10 @@ struct NewPlanSuggestions: Codable, Hashable {
     let plans: [NewPlan]
 }
 
-
 struct NewPlan: Codable, Hashable {
     let title: String
     let intent: String
     let explore: [String]
-    let expectations: [NewExpectation]
     let quests: [NewTopic1]
 }
 
@@ -734,7 +751,7 @@ struct NewTopic1: Codable, Hashable {
     }
 }
 
-// MARK: Plan expectations
+// MARK: Plan/Topic expectations
 struct NewExpectation: Codable, Hashable {
     let expectationsNumber: Int
     let content: String
@@ -766,10 +783,20 @@ struct NewTopic: Codable, Hashable {
     let suggestions: [NewSuggestion]
 }
 
-//Create topic overview
-struct NewTopicOverview: Codable, Hashable {
-    let overview: String
+// MARK: - Create topic recap
+struct NewTopicRecap: Codable, Hashable {
     let summary: String
+    let feedback: [NewFeedback]
+}
+
+struct NewFeedback: Codable, Hashable {
+    let feedbackNumber: Int
+    let content: String
+
+    enum CodingKeys: String, CodingKey {
+        case feedbackNumber = "feedback_number"
+        case content
+    }
 }
 
 //Create topic suggestions
@@ -800,6 +827,7 @@ struct NewFocusAreaHeading: Codable, Hashable {
 // MARK: Create topic questions
 struct NewTopicQuestions: Codable, Hashable {
     let questions: [NewQuestion]
+    let expectations: [NewExpectation]
 }
 
 //question belongs to a section

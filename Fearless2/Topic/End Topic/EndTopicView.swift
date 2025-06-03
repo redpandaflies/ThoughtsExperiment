@@ -15,7 +15,6 @@ struct EndTopicView: View {
     @State private var selectedTab: Int = 0
     @State private var showFragment: Bool = false
     @State private var startRepeatingAnimation: Bool = false
-    @State private var animatedText = ""
     @State private var celebrationAnimationStage: Int = 0
     @Binding var section: Section?
     @ObservedObject var topic: Topic
@@ -170,7 +169,6 @@ struct EndTopicView: View {
         ScrollView {
             RecapReflectionView(
                 topicViewModel: topicViewModel,
-                animatedText: $animatedText,
                 feedback: topic.review?.reviewSummary ?? "",
                 retryAction: {
                     getTopicReview()

@@ -11,6 +11,8 @@ import SwiftUI
 struct NewGoalView: View {
     @EnvironmentObject var dataController: DataController
     @StateObject var newGoalViewModel: NewGoalViewModel
+    @ObservedObject var topicViewModel: TopicViewModel
+    
     @State private var mainSelectedTab: Int = 0
     @State private var animationStage: Int = 0
     
@@ -110,6 +112,7 @@ struct NewGoalView: View {
                 
                 default:
                     SequenceSuggestionsView (
+                        topicViewModel: topicViewModel,
                         newGoalViewModel: newGoalViewModel,
                         showSheet: $showNewGoalSheet
                     )

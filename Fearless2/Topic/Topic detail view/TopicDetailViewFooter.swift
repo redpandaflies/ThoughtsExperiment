@@ -38,7 +38,6 @@ struct TopicDetailViewFooter: View {
            
             Menu {
                 
-                
                 Button (role: .destructive) {
                     showDeleteTopicAlert = true
                     

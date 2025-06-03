@@ -43,10 +43,11 @@ struct NewGoalReflectionView: View {
             switch reflectionSelectedTab {
             case 0:
                 //loading view
-                NewGoalLoadingView(
-                    newGoalViewModel: newGoalViewModel,
+                LoadingViewChecklist(
                     texts: loadingTexts,
-                    viewType: .summary
+                    onComplete: {
+                        newGoalViewModel.completedLoadingAnimationSummary = true
+                    }
                 )
                 
             case 1:

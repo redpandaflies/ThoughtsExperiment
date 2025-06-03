@@ -1,5 +1,5 @@
 //
-//  UpdateTopicIntroView.swift
+//  UpdateTopicEndView.swift
 //  Fearless2
 //
 //  Created by Yue Deng-Wu on 4/23/25.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct UpdateTopicIntroView: View {
+struct UpdateTopicEndView: View {
     @ObservedObject var topicViewModel: TopicViewModel
    
     @State private var lastCompleteSectionIndex: Int? = nil
@@ -15,11 +15,8 @@ struct UpdateTopicIntroView: View {
     
     @Binding var selectedTabTopicsList: Int
     
-    let topic: Topic
     let sequence: Sequence
     let questions: FetchedResults<Question>
-    let getQuestions: () -> Void
-    let updateQuestionVariables: (Int) -> Void
     
     var topics: [Topic] {
         return sequence.sequenceTopics.sorted { $0.orderIndex < $1.orderIndex }
@@ -44,58 +41,13 @@ struct UpdateTopicIntroView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.bottom)
-            
-            
-            switch selectedTabTopicsList {
-                case 0:
-                    LoadingPlaceholderContent(contentType: .newTopic)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .padding(.top, 20)
-                case 1:
-                    topicsList()
-                        .padding(.horizontal)
-                        .onAppear {
-                            startAnimating()
-                        }
-                default:
-                    FocusAreaRetryView(action: {
-                        getQuestions()
-                    })
-                        .frame(width: frameWidth)
-                        .padding(.top, 20)
-                
-            }
+          
+            topicsList()
+                .padding(.horizontal)
             
         }//VStack
         .onAppear {
-            
-            if topic.topicQuestions.isEmpty && topicViewModel.createTopicQuestions == .ready {
-                // ensures that API has been made and there are questions for this topic
-                getQuestions()
-                
-            } else {
-                switch topicViewModel.createTopicQuestions {
-                case .ready:
-                    updateQuestionVariables(topic.topicQuestions.count)
-                    selectedTabTopicsList = 1
-                case .loading:
-                    selectedTabTopicsList = 0
-                case .retry:
-                    selectedTabTopicsList = 2
-                }
-            }
-            
-        }
-        .onChange(of: topicViewModel.createTopicQuestions) {
-            switch topicViewModel.createTopicQuestions {
-            case .ready:
-                selectedTabTopicsList = 1
-            case .loading:
-                selectedTabTopicsList = 0
-            case .retry:
-                selectedTabTopicsList = 2
-            }
-            
+            startAnimating()
         }
     }
     
@@ -105,15 +57,14 @@ struct UpdateTopicIntroView: View {
                 
                 getContent(
                     index: index,
-                    title: topics[index].topicTitle,
-                    subtitle: (nextTopicIndex == index) ? topics[index].topicDefinition : ""
+                    title: topics[index].topicTitle
                 )
                 
             }//ForEach
         }
     }
     
-    private func getContent(index: Int, title: String, subtitle: String) -> some View {
+    private func getContent(index: Int, title: String) -> some View {
         
         HStack (alignment: .firstTextBaseline, spacing: 15) {
             
@@ -132,22 +83,12 @@ struct UpdateTopicIntroView: View {
                     .foregroundStyle(getColor(index: index))
                     .contentTransition(.symbolEffect(.replace.offUp.byLayer))
             }
-               
             
-            VStack (alignment: .leading, spacing: 5) {
-                Text(title)
-                    .multilineTextAlignment(.leading)
-                    .font(.system(size: 19, design: .serif))
-                    .foregroundStyle(getColor(index: index))
-                
-                if !subtitle.isEmpty {
-                    Text(subtitle)
-                        .multilineTextAlignment(.leading)
-                        .font(.system(size: 17, weight: .light))
-                        .foregroundStyle(getColor(index: index))
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-            }
+            Text(title)
+                .multilineTextAlignment(.leading)
+                .font(.system(size: 19, design: .serif))
+                .foregroundStyle(getColor(index: index))
+            
             
             
         }//HStack
@@ -175,9 +116,9 @@ struct UpdateTopicIntroView: View {
         if index < topicsComplete - 1 {
             return AppColors.textPrimary.opacity(0.5)
         } else if lastCompleteSectionIndex == index {
-            return AppColors.textPrimary.opacity(0.5)
-        } else if nextTopicIndex == index {
             return AppColors.textPrimary
+        } else if nextTopicIndex == index {
+            return AppColors.textPrimary.opacity(0.5)
         } else if index == topicsComplete - 1 {
             return AppColors.textPrimary.opacity(0.5)
         }
@@ -212,6 +153,6 @@ struct UpdateTopicIntroView: View {
         }
        
     }
-
+    
 }
 

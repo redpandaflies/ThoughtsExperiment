@@ -9,7 +9,7 @@ import SwiftUI
 
 struct AppViewsManager: View {
     
-    @EnvironmentObject var viewModelFactoryMain: ViewModelFactoryMain
+    @StateObject private var topicViewModel: TopicViewModel
     
     @State private var currentView: Int = 0
     
@@ -21,17 +21,22 @@ struct AppViewsManager: View {
     
     @AppStorage("currentAppView") var currentAppView: Int = 0
 
+    init(topicViewModel: TopicViewModel) {
+        _topicViewModel = StateObject(wrappedValue: topicViewModel)
+    }
+
+
     var body: some View {
         Group {
             switch currentView {
                 
             case 0:
                 
-                OnboardingMainView()
+                OnboardingMainView(topicViewModel: topicViewModel)
                 
             default:
 //                if !categories.isEmpty {
-                MainAppManager(topicViewModel: viewModelFactoryMain.makeTopicViewModel())
+                MainAppManager(topicViewModel: topicViewModel)
                     .transition(.opacity)
 //                } else {
 //                    //Should never happen, user should always have categories unless they haven't done onboarding, may come up during testing

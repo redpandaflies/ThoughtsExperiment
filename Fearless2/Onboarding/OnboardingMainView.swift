@@ -10,6 +10,8 @@ import SwiftUI
 struct OnboardingMainView: View {
     @EnvironmentObject var viewModelFactoryMain: ViewModelFactoryMain
     @EnvironmentObject var dataController: DataController
+    @ObservedObject var topicViewModel: TopicViewModel
+    
     @State private var selectedIntroPage: Int = 1
     @State private var showNewGoalSheet: Bool = false
     @State private var cancelledCreateNewCategory: Bool = false
@@ -61,6 +63,7 @@ struct OnboardingMainView: View {
         }) {
             NewGoalView (
                 newGoalViewModel: viewModelFactoryMain.makeNewGoalViewModel(),
+                topicViewModel: topicViewModel,
                 showNewGoalSheet: $showNewGoalSheet,
                 backgroundColor: AppColors.backgroundOnboardingIntro,
                 isOnboarding: true

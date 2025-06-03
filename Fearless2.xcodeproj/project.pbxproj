@@ -65,6 +65,7 @@
 		8A573B9F2DC00A8D0027F636 /* GoalTypeSymbol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A573B9E2DC00A6A0027F636 /* GoalTypeSymbol.swift */; };
 		8A573BA12DC00EB80027F636 /* SquareButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A573BA02DC00EB80027F636 /* SquareButton.swift */; };
 		8A5881B32D3456E60019C785 /* Mixpanel in Frameworks */ = {isa = PBXBuildFile; productRef = 8A5881B22D3456E60019C785 /* Mixpanel */; };
+		8A5EEC962DEE63280016481B /* UpdateTopicEndView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A5EEC952DEE63280016481B /* UpdateTopicEndView.swift */; };
 		8A6332492CD8257A00EF34FA /* FocusArea-CoreDataHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A6332482CD8257A00EF34FA /* FocusArea-CoreDataHelpers.swift */; };
 		8A63324C2CD8415600EF34FA /* FocusAreaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A63324B2CD8415600EF34FA /* FocusAreaView.swift */; };
 		8A63324F2CDAB85A00EF34FA /* TabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A63324E2CDAB84000EF34FA /* TabBar.swift */; };
@@ -104,6 +105,8 @@
 		8A7AD66A2DC546EE000FB1C3 /* DefaultFocusField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A7AD6692DC546E0000FB1C3 /* DefaultFocusField.swift */; };
 		8A7AD66D2DC71F58000FB1C3 /* BreakView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A7AD66C2DC71F58000FB1C3 /* BreakView.swift */; };
 		8A7AD66F2DC7340B000FB1C3 /* TopicBreak-CoreDataHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A7AD66E2DC7340B000FB1C3 /* TopicBreak-CoreDataHelpers.swift */; };
+		8A808A9D2DEAB97F00730DFD /* UpdateTopicCarouselView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A808A9C2DEAB97F00730DFD /* UpdateTopicCarouselView.swift */; };
+		8A808A9F2DEBC50F00730DFD /* TopicFeedback-CoreDataHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A808A9E2DEBC50F00730DFD /* TopicFeedback-CoreDataHelpers.swift */; };
 		8A81D4592D800330008C8DA9 /* Profile-CoreDataHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A81D4582D800321008C8DA9 /* Profile-CoreDataHelpers.swift */; };
 		8A81D45C2D80F8BF008C8DA9 /* MixpanelService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A81D45B2D80F8B9008C8DA9 /* MixpanelService.swift */; };
 		8A81D45E2D8154B2008C8DA9 /* Staging.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 8A81D45D2D8154B2008C8DA9 /* Staging.xcconfig */; };
@@ -199,7 +202,7 @@
 		8AD2BD372DA07C300067EA14 /* RecapReflectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AD2BD362DA07C300067EA14 /* RecapReflectionView.swift */; };
 		8AD2BD3A2DA0849F0067EA14 /* TopicRecapFragmentBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AD2BD392DA0849F0067EA14 /* TopicRecapFragmentBox.swift */; };
 		8ADCEAC32DA73E11008D4FEA /* NewGoalSelectCategoryQuestion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ADCEAC22DA73E11008D4FEA /* NewGoalSelectCategoryQuestion.swift */; };
-		8ADCEAC52DA7A1BD008D4FEA /* NewGoalLoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ADCEAC42DA7A1BD008D4FEA /* NewGoalLoadingView.swift */; };
+		8ADCEAC52DA7A1BD008D4FEA /* LoadingViewChecklist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ADCEAC42DA7A1BD008D4FEA /* LoadingViewChecklist.swift */; };
 		8ADCEAC72DA836BA008D4FEA /* NewGoalReflectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ADCEAC62DA836BA008D4FEA /* NewGoalReflectionView.swift */; };
 		8ADCEAC92DA87876008D4FEA /* SequenceSuggestionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ADCEAC82DA87876008D4FEA /* SequenceSuggestionsView.swift */; };
 		8ADCEACC2DA8BB7E008D4FEA /* NewGoalViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ADCEACB2DA8BB7E008D4FEA /* NewGoalViewModel.swift */; };
@@ -294,6 +297,7 @@
 		8A4B27482D6A9B6900FEAC44 /* CategoryQuestsHeading.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryQuestsHeading.swift; sourceTree = "<group>"; };
 		8A573B9E2DC00A6A0027F636 /* GoalTypeSymbol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalTypeSymbol.swift; sourceTree = "<group>"; };
 		8A573BA02DC00EB80027F636 /* SquareButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SquareButton.swift; sourceTree = "<group>"; };
+		8A5EEC952DEE63280016481B /* UpdateTopicEndView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateTopicEndView.swift; sourceTree = "<group>"; };
 		8A6332482CD8257A00EF34FA /* FocusArea-CoreDataHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FocusArea-CoreDataHelpers.swift"; sourceTree = "<group>"; };
 		8A63324B2CD8415600EF34FA /* FocusAreaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusAreaView.swift; sourceTree = "<group>"; };
 		8A63324E2CDAB84000EF34FA /* TabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBar.swift; sourceTree = "<group>"; };
@@ -333,6 +337,8 @@
 		8A7AD6692DC546E0000FB1C3 /* DefaultFocusField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultFocusField.swift; sourceTree = "<group>"; };
 		8A7AD66C2DC71F58000FB1C3 /* BreakView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreakView.swift; sourceTree = "<group>"; };
 		8A7AD66E2DC7340B000FB1C3 /* TopicBreak-CoreDataHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TopicBreak-CoreDataHelpers.swift"; sourceTree = "<group>"; };
+		8A808A9C2DEAB97F00730DFD /* UpdateTopicCarouselView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateTopicCarouselView.swift; sourceTree = "<group>"; };
+		8A808A9E2DEBC50F00730DFD /* TopicFeedback-CoreDataHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TopicFeedback-CoreDataHelpers.swift"; sourceTree = "<group>"; };
 		8A81D4582D800321008C8DA9 /* Profile-CoreDataHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Profile-CoreDataHelpers.swift"; sourceTree = "<group>"; };
 		8A81D45B2D80F8B9008C8DA9 /* MixpanelService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MixpanelService.swift; sourceTree = "<group>"; };
 		8A81D45D2D8154B2008C8DA9 /* Staging.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Staging.xcconfig; sourceTree = "<group>"; };
@@ -428,7 +434,7 @@
 		8AD2BD362DA07C300067EA14 /* RecapReflectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecapReflectionView.swift; sourceTree = "<group>"; };
 		8AD2BD392DA0849F0067EA14 /* TopicRecapFragmentBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicRecapFragmentBox.swift; sourceTree = "<group>"; };
 		8ADCEAC22DA73E11008D4FEA /* NewGoalSelectCategoryQuestion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewGoalSelectCategoryQuestion.swift; sourceTree = "<group>"; };
-		8ADCEAC42DA7A1BD008D4FEA /* NewGoalLoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewGoalLoadingView.swift; sourceTree = "<group>"; };
+		8ADCEAC42DA7A1BD008D4FEA /* LoadingViewChecklist.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingViewChecklist.swift; sourceTree = "<group>"; };
 		8ADCEAC62DA836BA008D4FEA /* NewGoalReflectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewGoalReflectionView.swift; sourceTree = "<group>"; };
 		8ADCEAC82DA87876008D4FEA /* SequenceSuggestionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SequenceSuggestionsView.swift; sourceTree = "<group>"; };
 		8ADCEACB2DA8BB7E008D4FEA /* NewGoalViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewGoalViewModel.swift; sourceTree = "<group>"; };
@@ -789,6 +795,7 @@
 				8ADCEAEB2DB2E023008D4FEA /* SequenceSummary-CoreDataHelpers.swift */,
 				8A9CC1BD2CAD26E7007C2AA9 /* Topic-CoreDataHelpers.swift */,
 				8ADCEAD32DAE2FF3008D4FEA /* TopicExpectation-CoreDataHelpers.swift */,
+				8A808A9E2DEBC50F00730DFD /* TopicFeedback-CoreDataHelpers.swift */,
 				8A827B912D380CCA00D0204E /* TopicReview-CoreDataHelpers.swift */,
 				8A7AD66E2DC7340B000FB1C3 /* TopicBreak-CoreDataHelpers.swift */,
 				8A827BA02D414A4400D0204E /* TopicStatusItem.swift */,
@@ -817,7 +824,6 @@
 				8AFA021E2DE6CD0300A5E867 /* NewGoalExpectationsView.swift */,
 				8AE398312D74053900F76AAC /* BackgroundNewGoal.swift */,
 				8ADCEAC22DA73E11008D4FEA /* NewGoalSelectCategoryQuestion.swift */,
-				8ADCEAC42DA7A1BD008D4FEA /* NewGoalLoadingView.swift */,
 				8ADCEAC62DA836BA008D4FEA /* NewGoalReflectionView.swift */,
 				8ADCEAC82DA87876008D4FEA /* SequenceSuggestionsView.swift */,
 			);
@@ -1139,6 +1145,7 @@
 		8ADCEAE82DB1D722008D4FEA /* Loading animation */ = {
 			isa = PBXGroup;
 			children = (
+				8ADCEAC42DA7A1BD008D4FEA /* LoadingViewChecklist.swift */,
 				8ADCEAE62DB1C93A008D4FEA /* LoadingAnimationEllipsis.swift */,
 				8A74F49E2CE5A70B008A33B0 /* RecordingLoadingAnimation.swift */,
 				8A2C37122D2FF05900C37315 /* LoadingPlaceholderContent.swift */,
@@ -1184,6 +1191,8 @@
 				8ADCEAF92DB9F18E008D4FEA /* UpdateTopicIntroView.swift */,
 				8ADCEAFB2DBB0352008D4FEA /* UpdateTopicQuestionsView.swift */,
 				8ADCEAFD2DBB4480008D4FEA /* UpdateTopicRecapView.swift */,
+				8A808A9C2DEAB97F00730DFD /* UpdateTopicCarouselView.swift */,
+				8A5EEC952DEE63280016481B /* UpdateTopicEndView.swift */,
 			);
 			path = "Update topic";
 			sourceTree = "<group>";
@@ -1346,6 +1355,7 @@
 				8A26DFDD2CEFF2EB002C4F60 /* UnderstandToolbarItem.swift in Sources */,
 				8AE398302D71908B00F76AAC /* MainAppManager.swift in Sources */,
 				8A2207762DDCF7DC00B17F7E /* GoalsPicker.swift in Sources */,
+				8A5EEC962DEE63280016481B /* UpdateTopicEndView.swift in Sources */,
 				8A6332562CDD66D500EF34FA /* TopicBox.swift in Sources */,
 				8ADCEAD22DACEABE008D4FEA /* SequenceStatusItem.swift in Sources */,
 				8A9CC1A12CAB7C34007C2AA9 /* SettingsToolbarItem.swift in Sources */,
@@ -1373,7 +1383,7 @@
 				8AB2DF4E2D573F770069E914 /* CategoryMissionBox.swift in Sources */,
 				8A74F49F2CE5A71A008A33B0 /* RecordingLoadingAnimation.swift in Sources */,
 				8A6A996D2D94C7110069CAE0 /* QuestionOpenView2.swift in Sources */,
-				8ADCEAC52DA7A1BD008D4FEA /* NewGoalLoadingView.swift in Sources */,
+				8ADCEAC52DA7A1BD008D4FEA /* LoadingViewChecklist.swift in Sources */,
 				8AE3982A2D711FF700F76AAC /* BackgroundSecondary.swift in Sources */,
 				8ADCEAFC2DBB0352008D4FEA /* UpdateTopicQuestionsView.swift in Sources */,
 				8A9B990D2D78EC36001707FD /* NewGoalView.swift in Sources */,
@@ -1389,6 +1399,7 @@
 				8A79EAB72CE467C9000A966B /* TopicPickerItem.swift in Sources */,
 				8A8ED73F2CF43EC700780384 /* StartRecordingButton.swift in Sources */,
 				8A9CC19A2CAB69EA007C2AA9 /* GetScreenSize.swift in Sources */,
+				8A808A9F2DEBC50F00730DFD /* TopicFeedback-CoreDataHelpers.swift in Sources */,
 				8A74F4B02CE83A2A008A33B0 /* SectionSummary-CoreDataHelpers.swift in Sources */,
 				8A8B63E32D1EFCDA00BA57D0 /* LocalFileManager.swift in Sources */,
 				8ACE0DD52CD03A1500718B9E /* Insight-CoreDataHelpers.swift in Sources */,
@@ -1472,6 +1483,7 @@
 				8A26DFDB2CEFC4FF002C4F60 /* UnderstandLoadingView.swift in Sources */,
 				8A6332532CDD66B700EF34FA /* ActiveTopicsView.swift in Sources */,
 				8A26DFD12CEF0224002C4F60 /* UnderstandViewModel.swift in Sources */,
+				8A808A9D2DEAB97F00730DFD /* UpdateTopicCarouselView.swift in Sources */,
 				8A49389D2DBCCA43006FCCF3 /* ProgressBarThin.swift in Sources */,
 				8A2C36FC2D22CA2100C37315 /* RectangleButtonPrimary.swift in Sources */,
 				8ADCEAD02DAB196C008D4FEA /* Sequence-CoreDataHelpers.swift in Sources */,
@@ -1671,7 +1683,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Fearless2/Fearless2Debug.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 17;
+				CURRENT_PROJECT_VERSION = 18;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"Fearless2/Preview Content\"";
 				DEVELOPMENT_TEAM = 79TB36U8AD;
@@ -1710,7 +1722,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Fearless2/Fearless2.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 28;
+				CURRENT_PROJECT_VERSION = 29;
 				DEVELOPMENT_ASSET_PATHS = "\"Fearless2/Preview Content\"";
 				DEVELOPMENT_TEAM = 79TB36U8AD;
 				ENABLE_DEBUG_DYLIB = NO;

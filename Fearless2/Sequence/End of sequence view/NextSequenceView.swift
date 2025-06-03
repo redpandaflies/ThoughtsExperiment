@@ -11,6 +11,7 @@ struct NextSequenceView: View {
     @EnvironmentObject var dataController: DataController
     @StateObject var sequenceViewModel: SequenceViewModel
     @StateObject var newGoalViewModel: NewGoalViewModel
+    @ObservedObject var topicViewModel: TopicViewModel
     // Manage when to show alert for exiting flow
     @State private var showExitFlowAlert: Bool = false
     @State private var selectedTab: Int = 0
@@ -42,6 +43,7 @@ struct NextSequenceView: View {
     init(
         sequenceViewModel: SequenceViewModel,
         newGoalViewModel: NewGoalViewModel,
+        topicViewModel: TopicViewModel,
         goal: Goal,
         sequence: Sequence,
         topic: Topic?,
@@ -49,6 +51,9 @@ struct NextSequenceView: View {
         showNextSequenceView: Binding<Bool>,
         animatedGoalIDs: Binding<Set<UUID>>
     ) {
+        
+        self.topicViewModel = topicViewModel
+        
         let count = QuestionNextSequence.questions.count
 
         // intialize every state var for storing question answers in memory
@@ -115,6 +120,7 @@ struct NextSequenceView: View {
                         
                         default:
                         SequenceSuggestionsView (
+                            topicViewModel: topicViewModel,
                             newGoalViewModel: newGoalViewModel,
                             showSheet: $showNextSequenceView,
                             completeSequenceAction: {

@@ -8,11 +8,12 @@
 import SwiftUI
 
 struct LoginAppView: View {
+    @EnvironmentObject var viewModelFactoryMain: ViewModelFactoryMain
     @StateObject private var authViewModel = AuthViewModel()
     
     var body: some View {
         if authViewModel.isAuthenticated {
-            AppViewsManager()
+            AppViewsManager(topicViewModel: viewModelFactoryMain.makeTopicViewModel())
             
         } else {
             LoginView(authViewModel: authViewModel)

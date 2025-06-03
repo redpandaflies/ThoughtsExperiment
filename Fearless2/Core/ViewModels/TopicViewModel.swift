@@ -19,6 +19,7 @@ final class TopicViewModel: ObservableObject {
     // manage UI updates
     /// triggers update of progress bar for sequence (plan)
     @Published var completedNewTopic: Bool = false
+    @Published var completedLoadingAnimationSummary: Bool = false
     
     // not in use
     @Published var createNewFocusArea: NewFocusAreaState = .ready

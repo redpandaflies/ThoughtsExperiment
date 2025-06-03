@@ -1,5 +1,5 @@
 //
-//  NewGoalLoadingView.swift
+//  LoadingViewChecklist.swift
 //  Fearless2
 //
 //  Created by Yue Deng-Wu on 4/9/25.
@@ -9,14 +9,8 @@ import Lottie
 import Pow
 import SwiftUI
 
-enum NewGoalLoadingViewType {
-    case summary
-    case plan
-}
-
-struct NewGoalLoadingView: View {
-    @ObservedObject var newGoalViewModel: NewGoalViewModel
-    
+struct LoadingViewChecklist: View {
+ 
     @State private var animationSpeed: CGFloat = 1.0
     @State private var symbolAnimationValue: Bool = false
     @State private var play: Bool = true
@@ -24,20 +18,17 @@ struct NewGoalLoadingView: View {
     @State private var checkOff: Int = 0 // controls the sf symbol shown
     
     let texts: [String]
-    let viewType: NewGoalLoadingViewType
     let showFooter: Bool
-   
+    let onComplete: () -> Void
     
     init(
-        newGoalViewModel: NewGoalViewModel,
         texts: [String],
-        viewType: NewGoalLoadingViewType,
-        showFooter: Bool = false
+        showFooter: Bool = false,
+        onComplete: @escaping () -> Void
     ) {
-        self.newGoalViewModel = newGoalViewModel
         self.texts = texts
-        self.viewType = viewType
         self.showFooter = showFooter
+        self.onComplete = onComplete
     }
     
     var body: some View {
@@ -94,13 +85,7 @@ struct NewGoalLoadingView: View {
         updateNextLine(after: 6.5, showCheckmark: false)
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 7.0) {
-            switch viewType {
-            case .summary:
-                newGoalViewModel.completedLoadingAnimationSummary = true
-            case .plan:
-                newGoalViewModel.completedLoadingAnimationPlan = true
-            }
-            
+            onComplete()
         }
     }
     

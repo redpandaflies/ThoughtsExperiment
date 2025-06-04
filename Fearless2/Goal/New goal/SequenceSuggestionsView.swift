@@ -22,6 +22,7 @@ struct SequenceSuggestionsView: View {
     @State private var play: Bool = true
     
     @Binding var showSheet: Bool
+    @Binding var showExitFlowAlert: Bool
     
     let completeSequenceAction: () -> Void
     
@@ -38,12 +39,14 @@ struct SequenceSuggestionsView: View {
         topicViewModel: TopicViewModel,
         newGoalViewModel: NewGoalViewModel,
         showSheet: Binding<Bool>,
+        showExitFlowAlert: Binding<Bool>,
         completeSequenceAction: @escaping () -> Void = {}
       
     ) {
         self.topicViewModel = topicViewModel
         self.newGoalViewModel = newGoalViewModel
         self._showSheet = showSheet
+        self._showExitFlowAlert = showExitFlowAlert
         self.completeSequenceAction = completeSequenceAction
         
     }
@@ -57,7 +60,7 @@ struct SequenceSuggestionsView: View {
                         texts: loadingTexts,
                         showFooter: true,
                         onComplete: {
-                            newGoalViewModel.completedLoadingAnimationSummary = true
+                            newGoalViewModel.completedLoadingAnimationPlan = true
                         }
                     )
                     .padding(.horizontal)
@@ -93,6 +96,13 @@ struct SequenceSuggestionsView: View {
           .eraseToAnyPublisher()
         ) { _ in
           manageView()
+        }
+        .onChange(of: showExitFlowAlert) {
+            // in case API call finishes while alert is active & view doesn't update
+            
+            if !showExitFlowAlert  {
+                manageView()
+            }
         }
     }
     
@@ -324,6 +334,7 @@ struct PlanSuggestionBox: View {
                     .fontWidth(.condensed)
                     .foregroundStyle(AppColors.textPrimary.opacity(0.7))
                     .lineSpacing(1.3)
+                    .fixedSize(horizontal: false, vertical: true)
                 
                 if index < suggestion.explore.count - 1 {
                     dividerLine()

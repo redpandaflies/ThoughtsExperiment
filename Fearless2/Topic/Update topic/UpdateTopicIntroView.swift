@@ -68,7 +68,6 @@ struct UpdateTopicIntroView: View {
             
         }//VStack
         .onAppear {
-            
             if topic.topicQuestions.isEmpty && topicViewModel.createTopicQuestions == .ready {
                 // ensures that API has been made and there are questions for this topic
                 getQuestions()
@@ -139,6 +138,7 @@ struct UpdateTopicIntroView: View {
                     .multilineTextAlignment(.leading)
                     .font(.system(size: 19, design: .serif))
                     .foregroundStyle(getColor(index: index))
+                    .fixedSize(horizontal: false, vertical: true)
                 
                 if !subtitle.isEmpty {
                     Text(subtitle)

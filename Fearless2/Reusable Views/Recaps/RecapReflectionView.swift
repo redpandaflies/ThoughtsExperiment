@@ -27,26 +27,22 @@ struct RecapReflectionView: View {
     let retryAction: () -> Void
     let focusArea: FocusArea?
     let topic: Topic?
-    
-    
-    let loadingTexts: [String] = [
-        "Going through your answers",
-        "Understanding your situation",
-        "Summarizing what you’ve told me"
-    ]
+    let loadingTexts: [String]
     
     init(
         topicViewModel: TopicViewModel,
         feedback: String,
         retryAction: @escaping () -> Void,
         focusArea: FocusArea? = nil,
-        topic: Topic? = nil
+        topic: Topic? = nil,
+        loadingText: [String]
     ) {
         self.topicViewModel = topicViewModel
         self.feedback = feedback
         self.retryAction = retryAction
         self.focusArea = focusArea
         self.topic = topic
+        self.loadingTexts = loadingText
     }
     
     var body: some View {

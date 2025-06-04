@@ -24,6 +24,12 @@ struct FocusAreaRecapView: View {
     
     let topic: Topic
     
+    let loadingTexts: [String] = [
+        "Going through your answers",
+        "Understanding your situation",
+        "Summarizing what you’ve told me"
+    ]
+    
     var focusAreaIndex: Int {
         let focusAreaNumber = focusArea?.orderIndex ?? 1
         return Int(focusAreaNumber)
@@ -155,7 +161,8 @@ struct FocusAreaRecapView: View {
                 retryAction: {
                     generateNewRecap()
                 },
-                focusArea: focusArea
+                focusArea: focusArea,
+                loadingText: loadingTexts
             )
         }
     }

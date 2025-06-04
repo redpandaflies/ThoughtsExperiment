@@ -85,5 +85,14 @@ final class SequenceViewModel: ObservableObject {
         
     }
     
-    
+    func cancelCurrentRun() async {
+        let threadId = openAISwiftService.threadId
+        if !threadId.isEmpty {
+            do {
+                try await openAISwiftService.cancelRun()
+            } catch {
+                loggerOpenAI.error("Failed to cancel current run: \(error.localizedDescription)")
+            }
+        }
+    }
 }

@@ -14,6 +14,12 @@ struct UpdateTopicRecapView: View {
     let topic: Topic
     let retryAction: () -> Void
     
+    let loadingTexts: [String] = [
+        "Going through your answers",
+        "Summarizing what you've said",
+        "Writing down some thoughts"
+    ]
+    
     var body: some View {
 
         ScrollView {
@@ -25,7 +31,8 @@ struct UpdateTopicRecapView: View {
                     retryAction: {
                         retryAction()
                     },
-                    topic: topic
+                    topic: topic,
+                    loadingText: loadingTexts
                 )
             }
             .frame(maxWidth: .infinity, alignment: .leading)

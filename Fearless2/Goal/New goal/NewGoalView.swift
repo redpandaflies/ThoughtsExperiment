@@ -114,7 +114,8 @@ struct NewGoalView: View {
                     SequenceSuggestionsView (
                         topicViewModel: topicViewModel,
                         newGoalViewModel: newGoalViewModel,
-                        showSheet: $showNewGoalSheet
+                        showSheet: $showNewGoalSheet,
+                        showExitFlowAlert: $showExitFlowAlert
                     )
             }
         }

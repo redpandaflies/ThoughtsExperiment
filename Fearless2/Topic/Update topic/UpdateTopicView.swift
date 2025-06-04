@@ -173,7 +173,6 @@ struct UpdateTopicView: View {
                         selectedTabTopicsList: $selectedTabTopicsList,
                         sequence: sequence,
                         questions: questions
-                        
                     )
                     .padding(.horizontal)
                     .padding(.top)
@@ -291,6 +290,9 @@ struct UpdateTopicView: View {
     
     private func getMainButtonAction() {
         switch selectedTab {
+            case 0:
+                startFlow()
+            
             case 1:
                 goToQuestions()
                 
@@ -376,10 +378,17 @@ struct UpdateTopicView: View {
         
     }
     
+    private func startFlow() {
+        if !topic.topicExpectations.isEmpty {
+            selectedTab += 1
+        } else {
+            selectedTab += 2
+        }
+    }
+    
     private func goToQuestions() {
         let count = topic.topicQuestions.count
         answersOpen = Array(repeating: "", count: count)
-        
         selectedTab += 1
     }
     

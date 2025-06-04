@@ -123,6 +123,7 @@ struct NextSequenceView: View {
                             topicViewModel: topicViewModel,
                             newGoalViewModel: newGoalViewModel,
                             showSheet: $showNextSequenceView,
+                            showExitFlowAlert: $showExitFlowAlert,
                             completeSequenceAction: {
                                 completeSequence()
                             }
@@ -141,7 +142,7 @@ struct NextSequenceView: View {
                             action: {
                                 buttonAction()
                             },
-                            showSkipButton: (selectedTab == 2 && selectedQuestion == 0 && answersMultiSelect[0].count == 0),
+                            showSkipButton: showSkipButton(),
                             skipAction: {
                                 buttonAction()
                             },
@@ -164,7 +165,9 @@ struct NextSequenceView: View {
                 getSequenceRecap()
             }
             .alert("Exit retrospective?", isPresented: $showExitFlowAlert) {
-                Button("Keep going", role: .cancel) {}
+                Button("Keep going", role: .cancel) {
+                    showExitFlowAlert = false
+                }
                 Button("Exit", role: .destructive) {
                     exitFlow()
                 }
@@ -179,13 +182,7 @@ struct NextSequenceView: View {
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     XmarkToolbarItem(action: {
-                        if selectedTab < 2 || selectedTab == 3 {
-                            showNextSequenceView = false
-                        } else if selectedQuestion > 0 {
-                            showExitFlowAlert = true
-                        } else {
-                            showNextSequenceView = false
-                        }
+                        dismissAction()
                     })
                 }
                 
@@ -206,11 +203,28 @@ struct NextSequenceView: View {
             NextSequenceRecap(
                 sequenceViewModel: sequenceViewModel,
                 recapScrollPosition: $recapScrollPosition,
+                showExitFlowAlert: $showExitFlowAlert,
                 summaries: sequence.sequenceSummaries,
                 retryAction: {
                     createSummary()
                 }
             )
+        }
+    }
+    
+    private func dismissAction() {
+        if selectedTab < 2 {
+            showNextSequenceView = false
+            cancelRun()
+            
+        } else if selectedTab > 2 {
+            showExitFlowAlert = true
+            
+        } else if selectedQuestion > 0 {
+            showExitFlowAlert = true
+            
+        } else {
+            showNextSequenceView = false
         }
     }
     
@@ -266,6 +280,18 @@ struct NextSequenceView: View {
 
     }
     
+    private func showSkipButton() -> Bool {
+        if selectedTab == 2 {
+            if selectedQuestion == 0 && answersMultiSelect[0].count == 0 {
+                return true
+            } else if selectedQuestion == 3 && answersOpen[3].isEmpty {
+                return true
+            }
+            
+        }
+        return false
+    }
+    
     private func getButtonText() -> String {
         switch selectedTab {
             case 0:
@@ -290,6 +316,7 @@ struct NextSequenceView: View {
         }
     }
     
+    
     private func getSafeAreaProperty() ->  SafeAreaRegions {
         if questions.isEmpty {
             return []
@@ -305,7 +332,7 @@ struct NextSequenceView: View {
             selectedTab = 1
         }
         
-        if sequence.sequenceSummaries.isEmpty {
+        if sequence.sequenceSummaries.isEmpty && sequenceViewModel.createSequenceSummary != .loading {
             createSummary()
         }
         
@@ -483,6 +510,21 @@ struct NextSequenceView: View {
             Task {
                 await dataController.deleteSequenceEndQuestions(sequence: sequence)
                 
+            }
+        }
+        
+        // cancel any active API calls
+        cancelRun()
+    }
+    
+    private func cancelRun() {
+        Task {
+            if sequenceViewModel.createSequenceSummary == .loading {
+                await sequenceViewModel.cancelCurrentRun()
+            }
+            
+            if newGoalViewModel.createPlanSuggestions == .loading {
+                await newGoalViewModel.cancelCurrentRun()
             }
         }
     }

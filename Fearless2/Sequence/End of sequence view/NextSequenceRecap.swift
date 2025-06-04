@@ -13,6 +13,7 @@ struct NextSequenceRecap: View {
     @State private var recapSelectedTab: Int = 0
   
     @Binding var recapScrollPosition: Int?
+    @Binding var showExitFlowAlert: Bool
     
     let summaries: [SequenceSummary]
     
@@ -46,33 +47,37 @@ struct NextSequenceRecap: View {
             }
         }
         .onAppear {
-            switch sequenceViewModel.createSequenceSummary {
-            case .ready:
-                recapSelectedTab = 1
-            case .loading:
-                if recapSelectedTab != 0 {
-                    recapSelectedTab = 0
-                }
-            case .retry:
-                recapSelectedTab = 2
-            }
+            manageView()
         }
         .onChange(of: sequenceViewModel.createSequenceSummary) {
-            switch sequenceViewModel.createSequenceSummary {
-            case .ready:
-                recapSelectedTab = 1
-            case .loading:
-                if recapSelectedTab != 0 {
-                    recapSelectedTab = 0
-                }
-            case .retry:
-                recapSelectedTab = 2
+            manageView()
+        }
+        .onChange(of: showExitFlowAlert) {
+            // in case API call finishes while alert is active & view doesn't update
+            
+            if !showExitFlowAlert  {
+                manageView()
             }
         }
         
     }
     
-  
+    private func manageView() {
+        switch sequenceViewModel.createSequenceSummary {
+        case .ready:
+            if recapSelectedTab != 1 {
+                recapSelectedTab = 1
+            }
+        case .loading:
+            if recapSelectedTab != 0 {
+                recapSelectedTab = 0
+            }
+        case .retry:
+            if recapSelectedTab != 2 {
+                recapSelectedTab = 2
+            }
+        }
+    }
 }
 
 

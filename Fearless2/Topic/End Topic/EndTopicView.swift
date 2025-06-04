@@ -19,6 +19,12 @@ struct EndTopicView: View {
     @Binding var section: Section?
     @ObservedObject var topic: Topic
     
+    let loadingTexts: [String] = [
+        "Going through your answers",
+        "Understanding your situation",
+        "Summarizing what you’ve told me"
+    ]
+    
     var body: some View {
         NavigationStack {
             ZStack {
@@ -173,7 +179,8 @@ struct EndTopicView: View {
                 retryAction: {
                     getTopicReview()
                 },
-                topic: topic
+                topic: topic,
+                loadingText: loadingTexts
             )
             .padding(.top, 20)
             .padding(.horizontal)

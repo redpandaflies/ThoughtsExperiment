@@ -12,6 +12,7 @@
 		8A0386822DD5AF2C0063DA31 /* FeatureFlags.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A0386812DD5AF2C0063DA31 /* FeatureFlags.swift */; };
 		8A1DCD272CB1C44D00580DE6 /* QuestionScaleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A1DCD262CB1C44A00580DE6 /* QuestionScaleView.swift */; };
 		8A1FC7D92DF7738E00772D65 /* UpdateDailyTopicQuestionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A1FC7D82DF7738E00772D65 /* UpdateDailyTopicQuestionsView.swift */; };
+		8A1FC7DD2DF7EC7300772D65 /* spinnerAnimatedLoop.json in Resources */ = {isa = PBXBuildFile; fileRef = 8A1FC7DC2DF7EC7300772D65 /* spinnerAnimatedLoop.json */; };
 		8A21B2C82D5EC4F4004AD75E /* BackgroundPrimary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A21B2C72D5EC4F4004AD75E /* BackgroundPrimary.swift */; };
 		8A21B2CC2D5FF33D004AD75E /* ToolbarTitleItem2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A21B2CB2D5FF33D004AD75E /* ToolbarTitleItem2.swift */; };
 		8A2207702DDCEA1F00B17F7E /* GoalsViewCompleted.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A22076F2DDCEA1F00B17F7E /* GoalsViewCompleted.swift */; };
@@ -261,6 +262,7 @@
 		8A0386812DD5AF2C0063DA31 /* FeatureFlags.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureFlags.swift; sourceTree = "<group>"; };
 		8A1DCD262CB1C44A00580DE6 /* QuestionScaleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionScaleView.swift; sourceTree = "<group>"; };
 		8A1FC7D82DF7738E00772D65 /* UpdateDailyTopicQuestionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateDailyTopicQuestionsView.swift; sourceTree = "<group>"; };
+		8A1FC7DC2DF7EC7300772D65 /* spinnerAnimatedLoop.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = spinnerAnimatedLoop.json; sourceTree = "<group>"; };
 		8A21B2C72D5EC4F4004AD75E /* BackgroundPrimary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundPrimary.swift; sourceTree = "<group>"; };
 		8A21B2CB2D5FF33D004AD75E /* ToolbarTitleItem2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolbarTitleItem2.swift; sourceTree = "<group>"; };
 		8A22076F2DDCEA1F00B17F7E /* GoalsViewCompleted.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalsViewCompleted.swift; sourceTree = "<group>"; };
@@ -943,6 +945,7 @@
 				8A9CC17A2CAB3DEB007C2AA9 /* Assets.xcassets */,
 				8A2C370E2D2C5B5F00C37315 /* loadingAnimation.json */,
 				8A4933882DCC5FBA002B37BD /* spinnerAnimated.json */,
+				8A1FC7DC2DF7EC7300772D65 /* spinnerAnimatedLoop.json */,
 				8A9CC17C2CAB3DEB007C2AA9 /* Preview Content */,
 				8A9CC1C42CAE066D007C2AA9 /* Production.xcconfig */,
 				8A81D45D2D8154B2008C8DA9 /* Staging.xcconfig */,
@@ -1385,6 +1388,7 @@
 				8A81D45E2D8154B2008C8DA9 /* Staging.xcconfig in Resources */,
 				8A9CC17E2CAB3DEB007C2AA9 /* Preview Assets.xcassets in Resources */,
 				8A4933892DCC5FBA002B37BD /* spinnerAnimated.json in Resources */,
+				8A1FC7DD2DF7EC7300772D65 /* spinnerAnimatedLoop.json in Resources */,
 				8A9CC17B2CAB3DEB007C2AA9 /* Assets.xcassets in Resources */,
 				8A2C370F2D2C5B5F00C37315 /* loadingAnimation.json in Resources */,
 			);
@@ -1763,7 +1767,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Fearless2/Fearless2Debug.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 20;
+				CURRENT_PROJECT_VERSION = 21;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"Fearless2/Preview Content\"";
 				DEVELOPMENT_TEAM = 79TB36U8AD;
@@ -1802,7 +1806,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Fearless2/Fearless2.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 31;
+				CURRENT_PROJECT_VERSION = 32;
 				DEVELOPMENT_ASSET_PATHS = "\"Fearless2/Preview Content\"";
 				DEVELOPMENT_TEAM = 79TB36U8AD;
 				ENABLE_DEBUG_DYLIB = NO;

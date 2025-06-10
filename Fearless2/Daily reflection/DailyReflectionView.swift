@@ -110,9 +110,6 @@ struct DailyReflectionView: View {
                 getFooter(dailyTopics.first)
                     .padding(.bottom, screenHeight * 0.27)
                 
-                
-                
-                
             }// VStack
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
             .background {
@@ -272,6 +269,7 @@ struct DailyReflectionView: View {
     private func loadingView() -> some View {
         VStack {
             LottieView(
+                name: "spinnerAnimatedLoop",
                 animationSpeed: $animationSpeed,
                 play: $play
             )
@@ -308,7 +306,7 @@ struct DailyReflectionView: View {
                 RectangleButtonPrimary(
                     buttonText: "Start",
                     action: {
-                        showUpdateTopicView = true
+                        startTopic()
                     },
                     buttonColor: .white,
                     cornerRadius: 10
@@ -406,6 +404,14 @@ struct DailyReflectionView: View {
             try await dailyTopicViewModel.manageRun(selectedAssistant: .topicDailyQuestions, topic: topic)
         } catch {
             dailyTopicViewModel.createTopicQuestions = .retry
+        }
+    }
+    
+    private func startTopic() {
+        showUpdateTopicView = true
+        
+        DispatchQueue.global(qos: .background).async {
+            Mixpanel.mainInstance().track(event: "Started daily topic")
         }
     }
 

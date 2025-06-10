@@ -24,6 +24,8 @@ struct RectangleButtonPrimary: View {
     let disableMainButton: Bool
     let sizeSmall: Bool
     let buttonColor: RectangleButtonColor
+    let cornerRadius: CGFloat
+    
     let screenWidth = UIScreen.current.bounds.width
     
     init(
@@ -34,7 +36,8 @@ struct RectangleButtonPrimary: View {
         skipAction: @escaping () -> Void = {},
         disableMainButton: Bool = false,
         sizeSmall: Bool = false,
-        buttonColor: RectangleButtonColor = .yellow
+        buttonColor: RectangleButtonColor = .yellow,
+        cornerRadius: CGFloat = 15
     ) {
         self.buttonText = buttonText
         self.action = action
@@ -44,6 +47,7 @@ struct RectangleButtonPrimary: View {
         self.disableMainButton = disableMainButton
         self.sizeSmall = sizeSmall
         self.buttonColor = buttonColor
+        self.cornerRadius = cornerRadius
     }
     
     var body: some View {

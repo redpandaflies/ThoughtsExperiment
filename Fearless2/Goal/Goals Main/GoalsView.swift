@@ -24,14 +24,8 @@ struct GoalsView: View {
     @Binding var selectedTopic: Topic?
     @Binding var currentTabBar: TabBarType
     @Binding var selectedTabTopic: TopicPickerItem
-    
-    @FetchRequest(
-        sortDescriptors: []
-    ) var points: FetchedResults<Points>
-    
-    var currentPoints: Int {
-        return Int(points.first?.total ?? 1)
-    }
+   
+    let currentPoints: Int
     
     let screenWidth = UIScreen.current.bounds.width
     
@@ -157,7 +151,7 @@ struct GoalsView: View {
                 }
             )
             .padding(.horizontal, safeAreaPadding)
-            .padding(.bottom, 20)
+            .padding(.bottom, 90)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
     }

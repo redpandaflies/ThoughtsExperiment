@@ -7,11 +7,10 @@
 import Combine
 import SwiftUI
 
-struct RecapReflectionView: View {
-    @ObservedObject var topicViewModel: TopicViewModel
+struct RecapReflectionView<ViewModel: TopicRecapObservable>: View {
+    @ObservedObject var viewModel: ViewModel
     @State private var animationValue: Bool = false
     @State private var startedAnimation: Bool = false
-    @State private var recapSelectedTab: Int = 1 //manage the UI changes when recap is ready
     
     // LottieView
     @State private var animationSpeed: CGFloat = 1.0
@@ -23,21 +22,25 @@ struct RecapReflectionView: View {
     @State private var animationCompletedText: Bool = false
     @State private var startedTextAnimation: Bool = false
     
+    @Binding var recapSelectedTab: Int
+    
     let feedback: String
     let retryAction: () -> Void
     let focusArea: FocusArea?
-    let topic: Topic?
+    let topic: TopicRepresentable?
     let loadingTexts: [String]
     
     init(
-        topicViewModel: TopicViewModel,
+        viewModel: ViewModel,
+        recapSelectedTab: Binding<Int>,
         feedback: String,
         retryAction: @escaping () -> Void,
         focusArea: FocusArea? = nil,
-        topic: Topic? = nil,
+        topic: TopicRepresentable? = nil,
         loadingText: [String]
     ) {
-        self.topicViewModel = topicViewModel
+        self.viewModel = viewModel
+        self._recapSelectedTab = recapSelectedTab
         self.feedback = feedback
         self.retryAction = retryAction
         self.focusArea = focusArea
@@ -53,7 +56,7 @@ struct RecapReflectionView: View {
                     LoadingViewChecklist(
                         texts: loadingTexts,
                         onComplete: {
-                            topicViewModel.completedLoadingAnimationSummary = true
+                            viewModel.markCompleteLoadingAnimationSummary()
                         }
                     )
                 
@@ -80,8 +83,8 @@ struct RecapReflectionView: View {
         }
         .onReceive(
           Publishers.CombineLatest(
-            topicViewModel.$createTopicOverview,
-            topicViewModel.$completedLoadingAnimationSummary
+            viewModel.createTopicRecapPublisher,
+            viewModel.completedLoadingAnimationSummaryPublisher
           )
           .filter { summary, loaded in
             summary != .loading && loaded
@@ -126,7 +129,7 @@ struct RecapReflectionView: View {
     }
     
     private func manageTopicRecapView() {
-        switch  topicViewModel.createTopicOverview  {
+        switch  viewModel.createTopicRecap  {
             case .ready:
             if recapSelectedTab != 1 {
                 recapSelectedTab = 1

@@ -100,6 +100,46 @@ enum Constants {
         return openAIId
     }()
     
+    // MARK: - Daily topic
+    static let openAIAssistantIdTopicDaily: String = {
+
+        guard let infoDict = infoDictionary,
+              let openAIId = infoDict["OPENAI_ASSISTANT_ID_TOPIC_DAILY"] as? String else {
+            logger.error("OpenAI daily topic assistant ID not available, using placeholder")
+            return ""
+        }
+       
+        logger.info("Retrieved OpenAI daily topic assistant ID: \(openAIId)")
+       
+        return openAIId
+    }()
+        
+    static let openAIAssistantIdTopicDailyQuestions: String = {
+
+        guard let infoDict = infoDictionary,
+              let openAIId = infoDict["OPENAI_ASSISTANT_ID_TOPIC_DAILY_QUESTIONS"] as? String else {
+            logger.error("OpenAI daily topic questions assistant ID not available, using placeholder")
+            return ""
+        }
+       
+        logger.info("Retrieved OpenAI daily topic questions assistant ID: \(openAIId)")
+       
+        return openAIId
+    }()
+        
+    static let openAIAssistantIdTopicDailyRecap: String = {
+
+        guard let infoDict = infoDictionary,
+              let openAIId = infoDict["OPENAI_ASSISTANT_ID_TOPIC_DAILY_RECAP"] as? String else {
+            logger.error("OpenAI daily topic recap assistant ID not available, using placeholder")
+            return ""
+        }
+       
+        logger.info("Retrieved OpenAI daily topic recap assistant ID: \(openAIId)")
+       
+        return openAIId
+    }()
+    
     // MARK: - Supabase
     
     static let supabaseURL: URL = {

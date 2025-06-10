@@ -189,6 +189,136 @@ struct ContextGatherer {
         return context
     }
     
+    //for daily topic
+    static func gatherContextDailyTopic(
+        topicRepository: TopicRepository,
+        goalRepository: GoalRepository,
+        loggerCoreData: Logger,
+        selectedAssistant: AssistantItem,
+        currentTopic: TopicDaily? = nil
+    ) async -> String? {
+        
+        var context = ""
+//        guard let topic = await topicRepository.fetchDailyTopic(id: topic.topicId) else {
+//            loggerCoreData.error("Failed to fetch topic with ID: \(topic.topicId.uuidString)")
+//               return nil
+//        }
+        /// all existing daily topics
+        if let dailyTopics = await topicRepository.fetchAllDailyTopics() {
+            for topic in dailyTopics {
+                
+                if let newTopic = currentTopic, newTopic.topicId == topic.topicId {
+                    context += """
+                        You are generating questions for this topic: \(topic.topicTitle).
+                        Its theme is \(topic.topicTheme).\n\n
+                    """
+                    
+                    let expectations = topic.topicExpectations.sorted { $0.orderIndex < $1.orderIndex }
+                    
+                    if !expectations.isEmpty {
+                        context += """
+                            Here's what the topic should cover: \n
+                        """
+                        
+                        
+                        for expectation in expectations {
+                            context += """
+                                - \(expectation.expectationContent)\n
+                            """
+                        }
+                        
+                    }
+                    
+                } else {
+                    context += """
+                        Topic: \(topic.topicTitle).
+                        - theme: \(topic.topicTheme)
+                        - status: \(topic.topicStatus) \n
+                    """
+                }
+                
+                if let recap = topic.review {
+                    context += """
+                        - summary: \(recap.reviewSummary)\n
+                    """
+                    
+                    let feedback = topic.topicFeedback.sorted { $0.orderIndex < $1.orderIndex }
+                    
+                    for item in feedback {
+                        context += """
+                            - \(item.feedbackContent)
+                        """
+                    }
+                }
+                
+            }
+        }
+        
+        // goals
+        let goals = await goalRepository.fetchAllGoals()
+        
+        /// active topics
+        let activeGoals = goals.filter { $0.goalStatus == GoalStatusItem.active.rawValue }
+        
+        if activeGoals.count > 0 {
+            context += """
+                Active topics: \n
+            """
+            
+            for goal in activeGoals {
+                context += addGoalWithSequences(goal: goal)
+            }
+        }
+            
+        /// resolved topics
+        let resolvedGoals = goals.filter { $0.goalStatus == GoalStatusItem.completed.rawValue }
+        
+        if resolvedGoals.count > 0 {
+            context += """
+                Resolved topics: \n
+            """
+            
+            for goal in resolvedGoals {
+                context += addGoalWithSequences(goal: goal)
+                
+            }
+        }
+        return context
+    }
+    
+    
+    
+    // daily topic review
+    static func gatherContextDailyTopicRecap(
+        topicRepository: TopicRepository,
+        loggerCoreData: Logger,
+        selectedAssistant: AssistantItem,
+        topic: TopicDaily
+    ) async -> String? {
+        guard let topic = await topicRepository.fetchDailyTopic(id: topic.topicId) else {
+            loggerCoreData.error("Failed to fetch topic with ID: \(topic.topicId.uuidString)")
+               return nil
+        }
+        
+        // Step the user is requesting questions for
+        var context = """
+            Topic: \(topic.topicTitle).
+            - theme: \(topic.topicTheme)
+            - status: \(topic.topicStatus) \n\n
+        """
+        
+        // step questions for topic/step summary
+        let questions = topic.topicQuestions
+        if !questions.isEmpty {
+            context += """
+                Answers for questions in this step:\n
+            """
+            context += getQuestions(questions)
+        }
+
+        return context
+    }
+    
     //for understand
 //    static func gatherContextUnderstand(dataController: DataController, loggerCoreData: Logger, question: String) async -> String? {
 //        var context = "The user would like to know this about themselves: \(question)\n Please provide an answer based on the context provided below about the user.\n\n"
@@ -249,7 +379,6 @@ struct ContextGatherer {
 // MARK: reusable code
 extension ContextGatherer {
     
-    
     private static func addGoalInfo(goal: Goal) -> String {
         return """
             - title: \(goal.goalTitle)
@@ -257,6 +386,18 @@ extension ContextGatherer {
             - goal: \(goal.goalResolution)
             - problem statement: \(goal.goalProblem)\n\n
         """
+    }
+    
+   private static func addGoalWithSequences(goal: Goal) -> String {
+        var result = ""
+        result += addGoalInfo(goal: goal)
+        
+        for sequence in goal.goalSequences {
+            result += getSequenceDetails(sequence: sequence)
+            result += getSequenceSummaries(summaries: sequence.sequenceSummaries)
+        }
+        
+        return result
     }
     
     // questions answered when creating goal

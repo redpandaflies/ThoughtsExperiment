@@ -16,3 +16,4 @@ func getCurrentTimeString() -> String {
     let dateString = formatter.string(from: date)
     return dateString
 }
+

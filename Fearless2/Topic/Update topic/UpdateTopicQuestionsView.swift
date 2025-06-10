@@ -8,8 +8,7 @@
 import SwiftUI
 
 struct UpdateTopicQuestionsView: View {
-    @EnvironmentObject var dataController: DataController
-    @ObservedObject var topicViewModel: TopicViewModel
+   
     @Binding var showProgressBar: Bool
     @Binding var selectedQuestion: Int
     @Binding var answersOpen: [String]
@@ -20,7 +19,7 @@ struct UpdateTopicQuestionsView: View {
 
     @FocusState.Binding var focusField: DefaultFocusField?
 
-    let topic: Topic
+    let topic: TopicRepresentable
     var questions: FetchedResults<Question>
     
     var body: some View {
@@ -80,9 +79,10 @@ struct UpdateTopicQuestionsView: View {
                 }
             }
             
-            Spacer()
+            
             
         }//VStack
+        .frame(maxHeight: .infinity, alignment: .topLeading)
         
     }
 }

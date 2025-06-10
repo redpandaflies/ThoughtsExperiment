@@ -12,48 +12,35 @@ enum TabBarType {
 }
 
 struct TabBar: View {
-    @Binding var currentTabBar: TabBarType
     @Binding var selectedTabHome: TabBarItemHome
-    @Binding var selectedTabTopic: TopicPickerItem
-    @Binding var navigateToTopicDetailView: Bool
-    
-    let topic: Topic?
+
     let screenWidth = UIScreen.current.bounds.width
+    
     var body: some View {
         
-            VStack {
-                Spacer()
+        VStack {
+             
                 
-                ZStack {
+            ZStack {
+                    
+                Rectangle()
+                    .stroke(.white.opacity(0.1), lineWidth: 0.5)
+                    .fill(AppColors.backgroundPrimary.opacity(0.5))
+                    .shadow(color: .black.opacity(0.2), radius: 2.5, x: 0, y: -2)
+                    .blendMode(.colorDodge)
+          
+                
 
-                    switch currentTabBar {
-                        case .home:
-                            HomeGradient()
-                        case .topic:
-                            Rectangle()
-                                .stroke(.white.opacity(0.1), lineWidth: 0.5)
-                                .fill(AppColors.backgroundPrimary.opacity(0.5))
-                                .shadow(color: .black.opacity(0.2), radius: 2.5, x: 0, y: -2)
-                                .blendMode(.softLight)
-                    }
+                HomeTabBar(selectedTabHome: $selectedTabHome)
+                    .padding(.bottom, 30)
                     
-                Group {
-                    switch currentTabBar {
-                    case .home:
-                        EmptyView()
-//                        HomeTabBar(selectedTabHome: $selectedTabHome)
-                        //                            .transition(.opacity.combined(with: .scale(0.8)))
-                    case .topic:
-                        TopicDetailViewFooter(selectedTabTopic: $selectedTabTopic, currentTabBar: $currentTabBar, navigateToTopicDetailView: $navigateToTopicDetailView, topic: topic)
-                            .transition(.opacity.combined(with: .scale(0.8)))
-                    }
-                    
-                }
-                .padding(.bottom, 30)
+                
             }
-            .frame(width: screenWidth, height: 90)
+            .frame(maxWidth: .infinity, maxHeight: 90)
+           
            
         }
+        .frame(maxHeight: .infinity, alignment: .bottom)
         .edgesIgnoringSafeArea(.bottom)
         
     }
@@ -91,6 +78,7 @@ struct HomeTabBar: View {
             }
         }
         
+        
     }
 }
 
@@ -108,7 +96,7 @@ struct TabBarButton: View {
                     Spacer()
                     
                     Image(systemName: tab.selectedIconName())
-                        .font(.system(size: 15))
+                        .font(.system(size: 20, weight: .medium, design: .rounded))
                         .foregroundStyle(AppColors.whiteDefault)
                         .fontWeight(.regular)
                         .padding(.bottom, 2)
@@ -121,7 +109,7 @@ struct TabBarButton: View {
                        
                 }
                 .opacity(isSelected ? 0.8 : 0.5)
-                .frame(width: 60, height: 40)
+                .frame(width: 80, height: 40)
             
         }.sensoryFeedback(.selection, trigger: isSelected) { oldValue, newValue in
             return oldValue != newValue && newValue == true

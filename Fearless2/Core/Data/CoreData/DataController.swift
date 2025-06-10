@@ -89,9 +89,7 @@ extension DataController {
         await self.save()
         
     }
-    
-   
-    
+
     func updateTopicStatus(id: UUID, item: TopicStatusItem) async {
         let request = NSFetchRequest<Topic>(entityName: "Topic")
         request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
@@ -334,7 +332,7 @@ extension DataController {
 
         //save user answer for an question
         //note: questionContent needed when creating new topic, questionId needed when updating topic
-        func saveAnswer(questionType: QuestionType, questionContent: String? = nil, questionId: UUID? = nil, userAnswer: Any, customItems: [String]? = nil) async {
+        func saveAnswer(questionType: QuestionType, topic: TopicRepresentable? = nil, questionContent: String? = nil, questionId: UUID? = nil, userAnswer: Any, customItems: [String]? = nil) async {
             await context.perform {
                 let question: Question
                 
@@ -365,7 +363,7 @@ extension DataController {
                         question.questionContent = content
                         question.starterQuestion = true
                     }
-                    if let topic = self.newTopic {
+                    if let topic = topic {
                         self.logger.log("Adding new \(questionType.rawValue) question to topic \(topic.topicId.uuidString)")
                         topic.addToQuestions(question)
                     }
@@ -409,8 +407,8 @@ extension DataController {
                 }
             }
             
-            //        // Save the context
-            //        await self.save()
+             // Save the context
+            await self.save()
         }
         
         //save answer for predefined questions

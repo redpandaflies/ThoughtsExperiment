@@ -359,123 +359,7 @@ extension OpenAISwiftService {
             
         }
     }
-    
-    @MainActor
-    func processTopicOverview(messageText: String, topic: Topic) async throws {
-        let arguments = messageText
-        let context = self.dataController.container.viewContext
-        
-        // Decode the arguments to get the new section data
-        guard let newRecap = self.decodeArguments(arguments: arguments, as: NewTopicRecap.self) else {
-            self.loggerOpenAI.error("Couldn't decode arguments for topic review.")
-            throw ProcessingError.decodingError("topic review")
-        }
-
-       try await context.perform {
-
-            let review = TopicReview(context: context)
-            review.reviewId = UUID()
-            review.reviewCreatedAt = getCurrentTimeString()
-            review.reviewSummary = newRecap.summary
-            review.overviewGenerated = true
-            topic.assignReview(review)
-           
-           for item in newRecap.feedback {
-               let feedback = TopicFeedback(context: context)
-               feedback.feedbackId = UUID()
-               feedback.orderIndex = Int16(item.feedbackNumber)
-               feedback.feedbackContent = item.content
-               
-               topic.addToFeedback(feedback)
-           }
-          
-            // Save to coredata
-            try self.saveCoreDataChanges(context: context, errorDescription: "new topic review")
-            
-        }
-    }
-    
-    @MainActor
-    func processTopicBreak(messageText: String, topic: Topic) async throws {
-        let arguments = messageText
-        let context = self.dataController.container.viewContext
-        
-        // Decode the arguments to get the new section data
-        guard let newBreak = self.decodeArguments(arguments: arguments, as: NewTopicBreak.self) else {
-            self.loggerOpenAI.error("Couldn't decode arguments for topic break.")
-            throw ProcessingError.decodingError("topic break")
-        }
-
-       try await context.perform {
-            
-           for card in newBreak.cards {
-               let topicBreak = TopicBreak(context: context)
-               topicBreak.breakId = UUID()
-               topicBreak.breakContent = card.cardContent
-               topicBreak.orderIndex = Int16(card.cardNumber)
-               topic.addToBreaks(topicBreak)
-               
-           }
-            // Save to coredata
-           try self.saveCoreDataChanges(context: context, errorDescription: "new topic break")
-            
-        }
-    }
-    
-    @MainActor
-    func processNewTopicQuestions(messageText: String, topic: Topic) async throws {
-        let arguments = messageText
-        let context = self.dataController.container.viewContext
-
-        try await context.perform {
-            
-            // decode the arguments to get the new section data
-            guard let newQuestions = self.decodeArguments(arguments: arguments, as: NewTopicQuestions.self) else {
-                self.loggerOpenAI.log("Failed to decode new questions for topic: \(topic.topicTitle)")
-                throw ProcessingError.decodingError("New topic questions")
-            }
-            
-            // add sections to topic
-            self.processQuestions(newQuestions.questions, for: topic, in: context)
-            // add expectations to topic
-            self.processTopicExpectations(newQuestions.expectations, for: topic, in: context)
-            
-            try self.saveCoreDataChanges(context: context, errorDescription: "New topic questions")
-            
-        }
-    }
-    
-    private func processQuestions(_ newQuestions: [NewQuestion], for topic: Topic, in context: NSManagedObjectContext) {
-           for newQuestion in newQuestions {
-               let question = Question(context: context)
-               question.questionId = UUID()
-               question.questionContent = newQuestion.content
-               question.questionNumber = Int16(newQuestion.questionNumber)
-               question.questionType = newQuestion.questionType.rawValue
-               
-               if newQuestion.questionType == .singleSelect {
-                   question.questionSingleSelectOptions = newQuestion.options.map {$0.text}.joined(separator: ";")
-                  
-               } else if newQuestion.questionType == .multiSelect {
-                   question.questionMultiSelectOptions = newQuestion.options.map {$0.text}.joined(separator: ";")
-                   
-               }
-               
-               // Add the question to the section
-               topic.addToQuestions(question)
-           }
-       }
-    
-    private func processTopicExpectations(_ expectations: [NewExpectation], for topic: Topic, in context:NSManagedObjectContext) {
-        
-        for item in expectations {
-            let expectation = TopicExpectation(context: context)
-            expectation.expectationId = UUID()
-            expectation.orderIndex = Int16(item.expectationsNumber)
-            expectation.expectationContent = item.content
-            topic.addToExpectations(expectation)
-        }
-    }
+   
     
     @MainActor
     func processFocusAreaSummary(messageText: String, focusArea: FocusArea) async throws {
@@ -783,21 +667,7 @@ struct NewTopic: Codable, Hashable {
     let suggestions: [NewSuggestion]
 }
 
-// MARK: - Create topic recap
-struct NewTopicRecap: Codable, Hashable {
-    let summary: String
-    let feedback: [NewFeedback]
-}
 
-struct NewFeedback: Codable, Hashable {
-    let feedbackNumber: Int
-    let content: String
-
-    enum CodingKeys: String, CodingKey {
-        case feedbackNumber = "feedback_number"
-        case content
-    }
-}
 
 //Create topic suggestions
 struct NewTopicGenerated: Codable, Hashable {
@@ -820,53 +690,6 @@ struct NewFocusAreaHeading: Codable, Hashable {
         case content
         case reasoning
         case emoji
-    }
-}
-
-
-// MARK: Create topic questions
-struct NewTopicQuestions: Codable, Hashable {
-    let questions: [NewQuestion]
-    let expectations: [NewExpectation]
-}
-
-//question belongs to a section
-struct NewQuestion: Codable, Hashable {
-    let content: String
-    let questionNumber: Int
-    let questionType: QuestionType
-    let options: [Option]
-    
-    enum CodingKeys: String, CodingKey {
-        case content
-        case questionNumber = "question_number"
-        case questionType = "question_type"
-        case options
-    }
-}
-
-enum QuestionType: String, Codable {
-    case open
-    case singleSelect
-    case multiSelect
-}
-
-struct Option: Codable, Hashable {
-    let text: String
-}
-
-// MARK: Create topic break
-struct NewTopicBreak: Codable, Hashable {
-    let cards: [NewBreakCard]
-}
-
-struct NewBreakCard: Codable, Hashable {
-    let cardNumber: Int
-    let cardContent: String
-
-    enum CodingKeys: String, CodingKey {
-        case cardNumber = "card_number"
-        case cardContent = "card_content"
     }
 }
 

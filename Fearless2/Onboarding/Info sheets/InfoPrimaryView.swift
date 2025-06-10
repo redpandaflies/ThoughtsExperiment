@@ -7,9 +7,9 @@
 
 import SwiftUI
 
-struct InfoPrimaryView: View {
+struct InfoPrimaryView<S: ShapeStyle>: View {
     @Environment(\.dismiss) var dismiss
-        let backgroundColor: Color
+        let backgroundColor: S
         let screenHeight = UIScreen.current.bounds.height
         
         // Customizable properties
@@ -23,7 +23,7 @@ struct InfoPrimaryView: View {
         let roundButtonIcon: String
         let buttonAction: () -> Void
         
-    init(backgroundColor: Color,
+    init(backgroundColor: S,
          useIcon: Bool,
          iconName: String? = nil,
          iconWeight: Font.Weight? = .light,

@@ -8,11 +8,11 @@
 import Mixpanel
 import SwiftUI
 
-struct NotificationSettingsView: View {
+struct NotificationSettingsView<S: ShapeStyle>: View {
     @Environment(\.presentationMode) var presentationMode
     @ObservedObject private var notificationManager = NotificationManager.shared
     
-    let backgroundColor: Color
+    let backgroundColor: S
     
     // Save the state of the toggle on/off for daily reminder
     @AppStorage("isScheduled") var isScheduled = false
@@ -29,11 +29,11 @@ struct NotificationSettingsView: View {
         VStack {
             Toggle(isOn: $isScheduled) {
                 VStack (alignment: .leading, spacing: 2){
-                    Text("Daily reminder")
+                    Text("Daily topic reminder")
                         .font(.system(size: 14, weight: .medium))
                         .foregroundStyle(AppColors.textPrimary)
 
-                    Text("Make progress on what keeps you up at night")
+                    Text("Never miss out on your topic of the day.")
                         .font(.system(size: 12, weight: .light))
                         .foregroundStyle(AppColors.textPrimary)
                         .opacity(0.5)

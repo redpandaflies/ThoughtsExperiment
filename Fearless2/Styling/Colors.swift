@@ -92,7 +92,7 @@ struct AppColors {
    
 
     // MARK: Backgrounds
-    static let backgroundPrimary = textSecondary
+    static let backgroundPrimary = Color(.displayP3, red: 0.243, green: 0.243, blue: 0.243, opacity: 1) // #3E3E3E
     static let backgroundOnboardingIntro = Color(.displayP3, red: 0.059, green: 0.075, blue: 0.169, opacity: 1) // #0F132B
     
     static let background1 = Color(.displayP3, red: 0.149, green: 0.212, blue: 0.090, opacity: 1) // #263617
@@ -108,6 +108,11 @@ struct AppColors {
     static let background11 = Color(.displayP3, red: 0.239, green: 0.149, blue: 0.059, opacity: 1) // #3D260F
     static let background12 = Color(.displayP3, red: 0.212, green: 0.212, blue: 0.090, opacity: 1) // #363617
     
+    
+    /// daily topic background gradient colors
+    static let backgroundDaily1 = Color(.displayP3, red: 0.06, green: 0.14, blue: 0.32, opacity: 1) // #0F2351
+    static let backgroundDaily2 = Color(.displayP3, red: 0.15, green: 0.15, blue: 0.33, opacity: 1) // #262655
+    static let backgroundDaily3 = Color(.displayP3, red: 0.07, green: 0.06, blue: 0.17, opacity: 1) // #11102B
     
     // realms version (old)
     static let backgroundUncharted = Color(.displayP3, red: 0.427, green: 0.090, blue: 0.094, opacity: 1) // #6D1718

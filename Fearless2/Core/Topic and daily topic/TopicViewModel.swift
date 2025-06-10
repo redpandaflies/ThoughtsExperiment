@@ -9,12 +9,15 @@ import Foundation
 import OSLog
 import UIKit
 
-final class TopicViewModel: ObservableObject {
+final class TopicViewModel: ObservableObject, TopicRecapObservable {
     
     // manage API calls states
-    @Published var createTopicOverview: TopicOverviewState = .ready
-    @Published var createTopicQuestions: NewTopicQuestionsState = .ready
-    @Published var createTopicBreak: NewTopicBreakState = .ready
+    @Published var createTopicRecap: LoadingStatePrimary = .ready
+    @Published var createTopicQuestions: LoadingStatePrimary = .ready
+    @Published var createTopicBreak: LoadingStatePrimary = .ready
+    
+    var createTopicRecapPublisher: Published<LoadingStatePrimary>.Publisher { $createTopicRecap }
+    var completedLoadingAnimationSummaryPublisher: Published<Bool>.Publisher { $completedLoadingAnimationSummary }
     
     // manage UI updates
     /// triggers update of progress bar for sequence (plan)
@@ -22,17 +25,17 @@ final class TopicViewModel: ObservableObject {
     @Published var completedLoadingAnimationSummary: Bool = false
     
     // not in use
-    @Published var createNewFocusArea: NewFocusAreaState = .ready
+    @Published var createNewFocusArea: LoadingStatePrimary = .ready
     @Published var focusAreaCreationFailed: Bool = false //when run fails
-    @Published var createFocusAreaSummary: FocusAreaSummaryState = .ready
+    @Published var createFocusAreaSummary: LoadingStatePrimary = .ready
     @Published var sectionSummaryCreated: Bool = false
     @Published var scrollToAddTopic: Bool = false
     @Published var showPlaceholder: Bool = false
     @Published var generatingImage: Bool = false
-    @Published var updatedEntry: Entry? = nil
+    @Published var updatedEntry: Entry? = nil 
   
     private var dataController: DataController
-    private var openAISwiftService: OpenAISwiftService
+    private var topicProcessor: TopicProcessor
     private var assistantRunManager: AssistantRunManager
     private var stabilityService = StabilityService.instance
     
@@ -45,40 +48,14 @@ final class TopicViewModel: ObservableObject {
     let loggerCoreData = Logger.coreDataEvents
     let loggerStability = Logger.stabilityEvents
     
-    init(dataController: DataController, openAISwiftService: OpenAISwiftService, assistantRunManager: AssistantRunManager) {
+    init(
+        dataController: DataController,
+        topicProcessor: TopicProcessor,
+        assistantRunManager: AssistantRunManager
+    ) {
         self.dataController = dataController
-        self.openAISwiftService = openAISwiftService
+        self.topicProcessor = topicProcessor
         self.assistantRunManager = assistantRunManager
-    }
-    
-    enum TopicOverviewState {
-        case ready
-        case loading
-        case retry
-    }
-    
-    enum FocusAreaSummaryState {
-        case ready
-        case loading
-        case retry
-    }
-    
-    enum NewFocusAreaState {
-        case ready
-        case loading
-        case retry
-    }
-    
-    enum NewTopicQuestionsState {
-        case ready
-        case loading
-        case retry
-    }
-    
-    enum NewTopicBreakState {
-        case ready
-        case loading
-        case retry
     }
     
     //MARK: create new topic
@@ -122,7 +99,7 @@ final class TopicViewModel: ObservableObject {
                     self.createFocusAreaSummary = .ready
                 }
                 if selectedAssistant == .topicOverview {
-                    self.createTopicOverview = .loading
+                    self.createTopicRecap = .loading
                 }
                 
                 if selectedAssistant == .topicBreak {
@@ -171,7 +148,7 @@ final class TopicViewModel: ObservableObject {
                     return
                 }
                 
-                try await openAISwiftService.processNewTopicQuestions(messageText: messageText, topic: topic)
+                try await topicProcessor.processNewTopicQuestions(messageText: messageText, topic: topic)
                 
                 await MainActor.run {
                     self.createTopicQuestions = .ready
@@ -184,10 +161,10 @@ final class TopicViewModel: ObservableObject {
                     return
                 }
                 
-                try await openAISwiftService.processTopicOverview(messageText: messageText, topic: topic)
+                try await topicProcessor.processTopicOverview(messageText: messageText, topic: topic)
                 
                 await MainActor.run {
-                    self.createTopicOverview = .ready
+                    self.createTopicRecap = .ready
                 }
                 
             case .topicBreak:
@@ -196,23 +173,10 @@ final class TopicViewModel: ObservableObject {
                     return
                 }
                 
-                try await openAISwiftService.processTopicBreak(messageText: messageText, topic: topic)
+                try await topicProcessor.processTopicBreak(messageText: messageText, topic: topic)
                 
                 await MainActor.run {
                     self.createTopicBreak = .ready
-                }
-                
-            case .focusAreaSummary:
-                
-                guard let currentFocusArea = focusArea else {
-                    loggerCoreData.error("Failed to get focus area")
-                    throw OpenAIError.missingRequiredField("Focus area")
-                }
-                
-                try await openAISwiftService.processFocusAreaSummary(messageText: messageText, focusArea: currentFocusArea)
-                
-                await MainActor.run {
-                    self.createFocusAreaSummary = .ready
                 }
                 
                 
@@ -230,11 +194,51 @@ final class TopicViewModel: ObservableObject {
     }
     
     func cancelCurrentRun() async throws {
-        let threadId = openAISwiftService.threadId
-        if !threadId.isEmpty {
-                try await openAISwiftService.cancelRun()
-        } else {
+        do {
+            try await assistantRunManager.cancelCurrentRun()
+        } catch {
             throw OpenAIError.missingRequiredField("No thread ID found")
+        }
+    }
+    
+    func markCompleteLoadingAnimationSummary() {
+        completedLoadingAnimationSummary = true
+    }
+    
+    // MARK: - Save data to coredata
+    
+    // save answer to topic question
+    @MainActor
+    func saveAnswer(
+        questionType: QuestionType,
+        topic: TopicRepresentable?,
+        questionContent: String? = nil,
+        questionId: UUID? = nil,
+        userAnswer: Any,
+        customItems: [String]? = nil
+    ) async {
+        do {
+            try await topicProcessor.saveAnswer(
+                questionType: questionType,
+                topic: topic,
+                questionContent: questionContent,
+                questionId: questionId,
+                userAnswer: userAnswer,
+                customItems: customItems
+            )
+           
+        } catch {
+            loggerCoreData.error("\(error.localizedDescription)")
+        }
+    }
+    
+    //mark topic complete
+    @MainActor
+    func completeTopic(topic: TopicRepresentable) async {
+        do {
+            try await topicProcessor.completeTopic(topic: topic)
+        } catch {
+            loggerCoreData.error("\(error.localizedDescription)")
         }
     }
     

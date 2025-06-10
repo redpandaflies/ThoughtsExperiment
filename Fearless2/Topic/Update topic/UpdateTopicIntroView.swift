@@ -73,29 +73,27 @@ struct UpdateTopicIntroView: View {
                 getQuestions()
                 
             } else {
-                switch topicViewModel.createTopicQuestions {
-                case .ready:
-                    updateQuestionVariables(topic.topicQuestions.count)
-                    selectedTabTopicsList = 1
-                case .loading:
-                    selectedTabTopicsList = 0
-                case .retry:
-                    selectedTabTopicsList = 2
-                }
+                manageView()
             }
             
         }
         .onChange(of: topicViewModel.createTopicQuestions) {
-            switch topicViewModel.createTopicQuestions {
-            case .ready:
-                selectedTabTopicsList = 1
-            case .loading:
-                selectedTabTopicsList = 0
-            case .retry:
-                selectedTabTopicsList = 2
-            }
+            manageView()
             
         }
+    }
+    
+    private func manageView() {
+        switch topicViewModel.createTopicQuestions {
+        case .ready:
+            updateQuestionVariables(topic.topicQuestions.count)
+            selectedTabTopicsList = 1
+        case .loading:
+            selectedTabTopicsList = 0
+        case .retry:
+            selectedTabTopicsList = 2
+        }
+        
     }
     
     private func topicsList() -> some View {

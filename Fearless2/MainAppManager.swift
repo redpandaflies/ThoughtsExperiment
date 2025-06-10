@@ -4,11 +4,11 @@
 //
 //  Created by Yue Deng-Wu on 2/27/25.
 //
-
+import CoreData
 import SwiftUI
 
 struct MainAppManager: View {
- 
+    @EnvironmentObject var viewModelFactoryMain: ViewModelFactoryMain
     @ObservedObject var topicViewModel: TopicViewModel
     
     @State private var currentTabBar: TabBarType = .home
@@ -20,16 +20,35 @@ struct MainAppManager: View {
     @State private var showAskQuestionView: Bool = false
     @State private var askQuestionTab: Int = 0 //to control which view shows up when showAskQuestionView is true
     
+    @FetchRequest(
+        sortDescriptors: []
+    ) var points: FetchedResults<Points>
+    
+    var currentPoints: Int {
+        return Int(points.first?.total ?? 1)
+    }
+    
     var body: some View {
         ZStack {
             switch selectedTabHome {
+            case .daily:
+                DailyReflectionView(
+                    dailyTopicViewModel: viewModelFactoryMain.makeDailyTopicViewModel(),
+                    currentPoints: currentPoints
+                )
+                
             default:
-                GoalsView(topicViewModel: topicViewModel, selectedTopic: $selectedTopic, currentTabBar: $currentTabBar, selectedTabTopic: $selectedTabTopic)
+                GoalsView(
+                    topicViewModel: topicViewModel,
+                    selectedTopic: $selectedTopic,
+                    currentTabBar: $currentTabBar,
+                    selectedTabTopic: $selectedTabTopic,
+                    currentPoints: currentPoints
+                )
             }
             
             
-//            TabBar(currentTabBar: $currentTabBar, selectedTabHome: $selectedTabHome, selectedTabTopic: $selectedTabTopic, navigateToTopicDetailView: $navigateToTopicDetailView, topic: selectedTopic)
-//                .transition(.move(edge: .bottom))
+           TabBar(selectedTabHome: $selectedTabHome)
             
         } //ZStack
         .ignoresSafeArea(.all)

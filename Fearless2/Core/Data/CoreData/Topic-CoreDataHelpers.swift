@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension Topic {
+extension Topic: TopicRepresentable {
     
     var topicId: UUID {
         get { id ?? UUID()}

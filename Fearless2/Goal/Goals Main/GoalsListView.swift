@@ -40,59 +40,61 @@ struct GoalsListView: View {
     }
     
     var body: some View {
-        if !goals.isEmpty {
-            
-            
-            Image(headerImage)
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(height: 160)
-                .blendMode(.screen)
-            
-            ScrollView (.horizontal) {
-                HStack (spacing: 15) {
-                    ForEach(Array(goals.enumerated()), id: \.element.goalId) { index, goal in
-                        // MARK: - Quests map
-                        /// if statement for 1) manage goal map animation; 2) ensure goal has plans/sequences
-                        if animatedGoalIDs.contains(goal.goalId) && goal.goalSequences.count > 0 {
-                            QuestMapView (
-                                topicViewModel: topicViewModel,
-                                selectedTopic: $selectedTopic,
-                                currentTabBar: $currentTabBar,
-                                selectedTabTopic: $selectedTabTopic,
-                                animatedGoalIDs: $animatedGoalIDs,
-                                goal: goal,
-                                backgroundColor: getBackground(index: index),
-                                frameWidth: frameWidth
-                            )
-                            .transition(.movingParts.poof)
-                            .id(index)
-//                                        .scrollTransition { content, phase in
-//                                            content
-//                                                .opacity(phase.isIdentity ? 1 : 0.3)
-//                                        }
+        
+        VStack (spacing: 0) {
+            if !goals.isEmpty {
+                
+                Image(headerImage)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(height: 120)
+                    .blendMode(.screen)
+                
+                ScrollView (.horizontal) {
+                    HStack (spacing: 15) {
+                        ForEach(Array(goals.enumerated()), id: \.element.goalId) { index, goal in
+                            // MARK: - Quests map
+                            /// if statement for 1) manage goal map animation; 2) ensure goal has plans/sequences
+                            if animatedGoalIDs.contains(goal.goalId) && goal.goalSequences.count > 0 {
+                                QuestMapView (
+                                    topicViewModel: topicViewModel,
+                                    selectedTopic: $selectedTopic,
+                                    currentTabBar: $currentTabBar,
+                                    selectedTabTopic: $selectedTabTopic,
+                                    animatedGoalIDs: $animatedGoalIDs,
+                                    goal: goal,
+                                    backgroundColor: getBackground(index: index),
+                                    frameWidth: frameWidth
+                                )
+                                .transition(.movingParts.poof)
+                                .id(index)
+                                //                                        .scrollTransition { content, phase in
+                                //                                            content
+                                //                                                .opacity(phase.isIdentity ? 1 : 0.3)
+                                //                                        }
+                                
+                            }
                             
-                        }
-                        
-                    }//ForEach
-                }//HStack
-                .scrollTargetLayout()
-
-            }//ScrollView
-            .scrollPosition(id: $goalScrollPosition, anchor: .center)
-            .scrollClipDisabled(true)
-            .scrollTargetBehavior(.viewAligned(limitBehavior: .alwaysByOne))
-            .scrollIndicators(.hidden)
-            .contentMargins(.horizontal, safeAreaPadding, for: .scrollContent)
-            
-            if goals.count > 1 {
-                PageIndicatorView (
-                    scrollPosition: $goalScrollPosition,
-                    pagesCount: getPagesCount()
-                )
-                .padding(.top)
+                        }//ForEach
+                    }//HStack
+                    .scrollTargetLayout()
+                    
+                }//ScrollView
+                .scrollPosition(id: $goalScrollPosition, anchor: .center)
+                .scrollClipDisabled(true)
+                .scrollTargetBehavior(.viewAligned(limitBehavior: .alwaysByOne))
+                .scrollIndicators(.hidden)
+                .contentMargins(.horizontal, safeAreaPadding, for: .scrollContent)
+                
+                if goals.count > 1 {
+                    PageIndicatorView (
+                        scrollPosition: $goalScrollPosition,
+                        pagesCount: getPagesCount()
+                    )
+                    .padding(.top, 10)
+                }
+                
             }
-            
         }
     }
     

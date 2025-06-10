@@ -117,7 +117,6 @@ struct QuestGridView: View {
         }//VGrid
         .frame(width: frameWidth)
         .onAppear {
-            
             if !topics.isEmpty {
                 setNextTopicIndex()
             }

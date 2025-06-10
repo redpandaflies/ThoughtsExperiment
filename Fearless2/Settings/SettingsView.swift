@@ -8,7 +8,7 @@ import Mixpanel
 import SwiftUI
 
 
-struct SettingsView: View {
+struct SettingsView<S: ShapeStyle>: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var dataController: DataController
 
@@ -16,7 +16,7 @@ struct SettingsView: View {
     @State private var playHapticEffect: Int = 0
     @State private var navigateToNotificationsView: Bool = false
     
-    let backgroundColor: Color
+    let backgroundColor: S
     
     @AppStorage("currentAppView") var currentAppView: Int = 0
     @AppStorage("unlockNewCategory") var newCategory: Bool = false

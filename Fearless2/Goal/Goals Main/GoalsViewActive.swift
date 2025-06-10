@@ -41,7 +41,7 @@ struct GoalsViewActive: View {
     
     var body: some View {
         
-        VStack (spacing: 15){
+        VStack (spacing: 10){
             
             switch selectedTabGoals {
                 case 0:
@@ -65,7 +65,7 @@ struct GoalsViewActive: View {
             
             
         }//VStack
-        .padding(.top, -40)
+        .padding(.top, -50)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .ignoresSafeArea(.keyboard)
         .background {
@@ -114,8 +114,11 @@ struct GoalsViewActive: View {
             }
         }
         .onChange(of: showNewGoalSheet) {
+            /// scroll to new goal
             if !showNewGoalSheet && dataController.createdNewGoal && goals.count > 1 {
                 scrollToNewGoal(delay: 1.0)
+                /// reset var so view doesn't keep scrolling automatically on appear
+                dataController.createdNewGoal = false
             }
         }
         

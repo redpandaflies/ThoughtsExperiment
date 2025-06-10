@@ -56,7 +56,7 @@ extension NotificationManager: UNUserNotificationCenterDelegate {
           
             let content = UNMutableNotificationContent()
             content.title = "Kaleida"
-            content.body = "Let’s figure out that thing that keeps you up at night →."
+            content.body = "Don't miss out on the topic of the day!"
             content.sound = UNNotificationSound.default
             
             // Set the notification to repeat only on weekdays

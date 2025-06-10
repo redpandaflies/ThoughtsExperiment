@@ -7,8 +7,17 @@
 
 import SwiftUI
 
-struct BackgroundPrimary: View {
-    let backgroundColor: Color
+struct BackgroundPrimary<S: ShapeStyle>: View {
+    let backgroundColor: S
+    let backgroundImage: String
+    
+    init(
+        backgroundColor: S,
+        backgroundImage: String = "backgroundPrimary"
+    ) {
+        self.backgroundColor = backgroundColor
+        self.backgroundImage = backgroundImage
+    }
     
     
     var body: some View {
@@ -16,12 +25,13 @@ struct BackgroundPrimary: View {
         GeometryReader { geo in
             //geometryreader needed to keep the image from being pushed up by keyboard
             
-            Image("backgroundPrimary")
+            Image(backgroundImage)
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .ignoresSafeArea()
                 .background {
-                    backgroundColor
+                    Rectangle()
+                        .fill(backgroundColor)
                         .ignoresSafeArea()
                 }
         }

@@ -30,10 +30,14 @@ class ViewModelFactoryMain: ObservableObject {
     }
     
     func makeTopicViewModel() -> TopicViewModel {
+        let context = dataController.container.viewContext
+        let topicProcessor = TopicProcessor(context: context)
+        
         return TopicViewModel(
             dataController: dataController,
-            openAISwiftService: openAISwiftService,
+            topicProcessor: topicProcessor,
             assistantRunManager: assistantRunManager
+            
         )
     }
     
@@ -42,6 +46,18 @@ class ViewModelFactoryMain: ObservableObject {
             dataController: dataController,
             openAISwiftService: openAISwiftService,
             assistantRunManager: assistantRunManager
+        )
+    }
+    
+    func makeDailyTopicViewModel() -> DailyTopicViewModel {
+        let context = dataController.container.viewContext
+        let topicProcessor = TopicProcessor(context: context)
+        
+        return DailyTopicViewModel(
+            dataController: dataController,
+            topicProcessor: topicProcessor,
+            assistantRunManager: assistantRunManager
+            
         )
     }
 }

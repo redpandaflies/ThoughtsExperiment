@@ -119,6 +119,7 @@
         <relationship name="section" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Section" inverseName="questions" inverseEntity="Section"/>
         <relationship name="sequence" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Sequence" inverseName="questions" inverseEntity="Sequence"/>
         <relationship name="topic" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Topic" inverseName="questions" inverseEntity="Topic"/>
+        <relationship name="topicDaily" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TopicDaily" inverseName="questions" inverseEntity="TopicDaily"/>
     </entity>
     <entity name="Section" representedClassName="Section" syncable="YES" codeGenerationType="class">
         <attribute name="completed" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
@@ -195,17 +196,31 @@
         <attribute name="orderIndex" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <relationship name="topic" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Topic" inverseName="breaks" inverseEntity="Topic"/>
     </entity>
+    <entity name="TopicDaily" representedClassName="TopicDaily" syncable="YES" codeGenerationType="class">
+        <attribute name="createdAt" optional="YES" attributeType="String"/>
+        <attribute name="emoji" optional="YES" attributeType="String"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="status" optional="YES" attributeType="String"/>
+        <attribute name="theme" optional="YES" attributeType="String"/>
+        <attribute name="title" optional="YES" attributeType="String"/>
+        <relationship name="expectations" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="TopicExpectation" inverseName="topicDaily" inverseEntity="TopicExpectation"/>
+        <relationship name="feedback" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="TopicFeedback" inverseName="topicDaily" inverseEntity="TopicFeedback"/>
+        <relationship name="questions" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Question" inverseName="topicDaily" inverseEntity="Question"/>
+        <relationship name="review" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TopicReview" inverseName="topicDaily" inverseEntity="TopicReview"/>
+    </entity>
     <entity name="TopicExpectation" representedClassName="TopicExpectation" syncable="YES" codeGenerationType="class">
         <attribute name="content" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="orderIndex" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <relationship name="topic" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Topic" inverseName="expectations" inverseEntity="Topic"/>
+        <relationship name="topicDaily" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TopicDaily" inverseName="expectations" inverseEntity="TopicDaily"/>
     </entity>
     <entity name="TopicFeedback" representedClassName="TopicFeedback" syncable="YES" codeGenerationType="class">
         <attribute name="content" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="orderIndex" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <relationship name="topic" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Topic" inverseName="feedback" inverseEntity="Topic"/>
+        <relationship name="topicDaily" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TopicDaily" inverseName="feedback" inverseEntity="TopicDaily"/>
     </entity>
     <entity name="TopicReview" representedClassName="TopicReview" syncable="YES" codeGenerationType="class">
         <attribute name="createdAt" optional="YES" attributeType="String"/>
@@ -214,6 +229,7 @@
         <attribute name="overviewGenerated" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="summary" optional="YES" attributeType="String"/>
         <relationship name="topic" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Topic" inverseName="review" inverseEntity="Topic"/>
+        <relationship name="topicDaily" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TopicDaily" inverseName="review" inverseEntity="TopicDaily"/>
     </entity>
     <entity name="Understand" representedClassName="Understand" syncable="YES" codeGenerationType="class">
         <attribute name="answer" optional="YES" attributeType="String"/>

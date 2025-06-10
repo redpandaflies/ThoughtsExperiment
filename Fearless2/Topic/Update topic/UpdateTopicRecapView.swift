@@ -7,11 +7,13 @@
 
 import SwiftUI
 
-struct UpdateTopicRecapView: View {
+struct UpdateTopicRecapView<ViewModel: TopicRecapObservable>: View {
     
-    @ObservedObject var topicViewModel: TopicViewModel
+    @ObservedObject var viewModel: ViewModel
     
-    let topic: Topic
+    @Binding var recapSelectedTab: Int
+    
+    let topic: TopicRepresentable
     let retryAction: () -> Void
     
     let loadingTexts: [String] = [
@@ -26,7 +28,8 @@ struct UpdateTopicRecapView: View {
             VStack (alignment: .leading) {
                 
                 RecapReflectionView(
-                    topicViewModel: topicViewModel,
+                    viewModel: viewModel,
+                    recapSelectedTab: $recapSelectedTab,
                     feedback: topic.review?.reviewSummary ?? "",
                     retryAction: {
                         retryAction()

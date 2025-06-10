@@ -12,12 +12,18 @@ final class AssistantRunManager {
     
     private var openAISwiftService: OpenAISwiftService
     private var dataController: DataController
+    
+    let topicRepository: TopicRepository
+    let goalRepository: GoalRepository
+    
     let loggerOpenAI = Logger.openAIEvents
     let loggerCoreData = Logger.coreDataEvents
     
     init(openAISwiftService: OpenAISwiftService, dataController: DataController) {
         self.openAISwiftService = openAISwiftService
         self.dataController = dataController
+        self.topicRepository = TopicRepository(context: dataController.context)
+        self.goalRepository = GoalRepository(context: dataController.context)
     }
     
     func runAssistant (
@@ -27,7 +33,8 @@ final class AssistantRunManager {
         sequence: Sequence? = nil,
         topicId: UUID? = nil,
         focusArea: FocusArea? = nil,
-        topic: Topic? = nil
+        topic: Topic? = nil,
+        topicDaily: TopicDaily? = nil
     ) async throws -> String {
         
         //create new thread
@@ -37,7 +44,17 @@ final class AssistantRunManager {
         }
         
         //get context to send to OpenAI
-        try await sendFirstMessage(selectedAssistant: selectedAssistant, threadId: threadId, category: category, goal: goal, sequence: sequence, topicId: topicId, focusArea: focusArea, topic: topic)
+        try await sendFirstMessage(
+            selectedAssistant: selectedAssistant,
+            threadId: threadId,
+            category: category,
+            goal: goal,
+            sequence: sequence,
+            topicId: topicId,
+            focusArea: focusArea,
+            topic: topic,
+            topicDaily: topicDaily
+        )
         
         var messageText: String?
         
@@ -51,6 +68,7 @@ final class AssistantRunManager {
             }
             
             messageText = unwrappedMessageText
+            
         } catch {
             loggerOpenAI.error("Failed to get OpenAI streamed response: \(error.localizedDescription), \(error)")
             throw OpenAIError.runIncomplete(error)
@@ -91,7 +109,8 @@ final class AssistantRunManager {
         sequence: Sequence? = nil,
         topicId: UUID? = nil,
         focusArea: FocusArea? = nil,
-        topic: Topic? = nil
+        topic: Topic? = nil,
+        topicDaily: TopicDaily? = nil
     ) async throws {
         
         let userContext = try await gatherUserContext(
@@ -101,7 +120,8 @@ final class AssistantRunManager {
             sequence: sequence,
             topicId: topicId,
             focusArea: focusArea,
-            topic: topic
+            topic: topic,
+            topicDaily: topicDaily
         )
         
         try await sendMessageWithContext(threadId: threadId, userContext: userContext)
@@ -114,7 +134,8 @@ final class AssistantRunManager {
         sequence: Sequence? = nil,
         topicId: UUID? = nil,
         focusArea: FocusArea? = nil,
-        topic: Topic? = nil
+        topic: Topic? = nil,
+        topicDaily: TopicDaily? = nil
     ) async throws -> String {
         
         //topic suggestion assistant only
@@ -149,6 +170,38 @@ final class AssistantRunManager {
             
             return gatheredContext
         
+        case .topicDaily, .topicDailyQuestions:
+            
+            guard let gatheredContext = await ContextGatherer.gatherContextDailyTopic(
+                topicRepository: topicRepository,
+                goalRepository: goalRepository,
+                loggerCoreData: loggerCoreData,
+                selectedAssistant: selectedAssistant,
+                currentTopic: topicDaily
+            ) else {
+                loggerCoreData.error("Failed to get context ")
+                throw ContextError.noContextFound("Context")
+            }
+            
+            return gatheredContext
+        
+        case .topicDailyRecap:
+            guard let currentTopic = topicDaily else {
+                loggerCoreData.error("Failed to get new topic")
+                throw ContextError.missingRequiredField("Topic")
+            }
+            
+            guard let gatheredContext = await ContextGatherer.gatherContextDailyTopicRecap(
+                topicRepository: topicRepository,
+                loggerCoreData: loggerCoreData,
+                selectedAssistant: selectedAssistant,
+                topic: currentTopic) else {
+                loggerCoreData.error("Failed to get context ")
+                throw ContextError.noContextFound("Context")
+            }
+            
+            return gatheredContext
+            
         default:
             return ""
             
@@ -164,6 +217,15 @@ final class AssistantRunManager {
         } catch {
             loggerOpenAI.error("Error sending user message to OpenAI: \(error.localizedDescription), \(error)")
             throw OpenAIError.requestFailed(error, "Failed to send first message")
+        }
+    }
+    
+    func cancelCurrentRun() async throws {
+        let threadId = openAISwiftService.threadId
+        if !threadId.isEmpty {
+                try await openAISwiftService.cancelRun()
+        } else {
+            throw OpenAIError.missingRequiredField("No thread ID found")
         }
     }
 }

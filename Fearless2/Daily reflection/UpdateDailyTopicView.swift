@@ -1,5 +1,5 @@
 //
-//  UpdateTopicView.swift
+//  UpdateDailyTopicView.swift
 //  Fearless2
 //
 //  Created by Yue Deng-Wu on 10/3/24.
@@ -8,13 +8,15 @@ import CoreData
 import Mixpanel
 import SwiftUI
 
-struct UpdateTopicView: View {
+struct UpdateDailyTopicView: View {
     @EnvironmentObject var dataController: DataController
-    @ObservedObject var topicViewModel: TopicViewModel
+    @ObservedObject var dailyTopicViewModel: DailyTopicViewModel
     
     @State private var showProgressBar: Bool = true //for hiding progress bar when user is typing their answer for single-select question
     @State private var selectedTab: Int = 0
-    @State private var showWarningSheet: Bool = false
+    
+    /// questions view
+    @State private var selectedTabQuestions: Int = 0
     @State private var selectedQuestion: Int = 0
     @State private var answersOpen: [String] = Array(repeating: "", count: 3) // open ended answer
     @State private var singleSelectAnswer: String = "" //single-select answer
@@ -30,7 +32,7 @@ struct UpdateTopicView: View {
     @State private var disableButtonExpectations: Bool = true
     
     /// recap reflection view
-    @State private var recapSelectedTab: Int = 0 //manage the UI changes when recap is ready
+    @State private var selectedTabRecap: Int = 0 //manage the UI changes when recap is ready
     
     /// for feedback view
     @State private var feedbackScrollPosition: Int?
@@ -38,29 +40,29 @@ struct UpdateTopicView: View {
     
     @Binding var showUpdateTopicView: Bool //dismiss sheet
     
-    let topic: Topic
-    let sequence: Sequence
-    let backgroundColor: Color
+    let topic: TopicDaily
+    let backgroundColor: LinearGradient
+    let retryActionQuestions: () -> Void
     
     @FetchRequest var questions: FetchedResults<Question>
     
     @FocusState var focusField: DefaultFocusField?
     
-    init(topicViewModel: TopicViewModel,
+    init(dailyTopicViewModel: DailyTopicViewModel,
          showUpdateTopicView: Binding<Bool>,
-         topic: Topic,
-         sequence: Sequence,
-         backgroundColor: Color
+         topic: TopicDaily,
+         backgroundColor: LinearGradient,
+         retryActionQuestions: @escaping () -> Void
     ) {
-        self.topicViewModel = topicViewModel
+        self.dailyTopicViewModel = dailyTopicViewModel
         self._showUpdateTopicView = showUpdateTopicView
         self.topic = topic
-        self.sequence = sequence
         self.backgroundColor = backgroundColor
+        self.retryActionQuestions = retryActionQuestions
         
         let request: NSFetchRequest<Question> = Question.fetchRequest()
         request.sortDescriptors = [NSSortDescriptor(key: "questionNumber", ascending: true)]
-        request.predicate = NSPredicate(format: "topic == %@", topic)
+        request.predicate = NSPredicate(format: "topicDaily == %@", topic)
         self._questions = FetchRequest(fetchRequest: request)
         
     }
@@ -69,7 +71,7 @@ struct UpdateTopicView: View {
         
         VStack {
             
-            if selectedTab == 2 && showProgressBar {
+            if selectedTab == 1 && showProgressBar && selectedTabQuestions == 1 {
                 //Header
                 QuestionsProgressBar (
                     currentQuestionIndex: $currentQuestionIndex,
@@ -84,9 +86,9 @@ struct UpdateTopicView: View {
                     })
                 .transition(.opacity)
                 
-            } else if selectedTab != 2 {
+            } else if selectedTab != 1 || (selectedTab == 1 && selectedTabQuestions != 1){
                 SheetHeader(
-                    title: selectedTab > 0 ? sequence.sequenceTitle : "",
+                    title: topic.topicTheme,
                     xmarkAction: {
                         dismiss()
                     })
@@ -95,26 +97,6 @@ struct UpdateTopicView: View {
             //Question
             switch selectedTab {
                 case 0:
-                    UpdateTopicIntroView(
-                        topicViewModel: topicViewModel,
-                        selectedTabTopicsList: $selectedTabTopicsList,
-                        topic: topic,
-                        sequence: sequence,
-                        questions: questions,
-                        getQuestions: {
-                            Task {
-                                await getTopicQuestions(topic: topic, updateVariables: true)
-                            }
-                        },
-                        updateQuestionVariables: { count in
-                            updateQuestionVariables(count: count)
-                        }
-                        
-                    )
-                    .padding(.horizontal)
-                    .padding(.top)
-                
-                case 1:
                     UpdateTopicCarouselView(
                         title: topic.topicTitle,
                         items:  topic.topicExpectations
@@ -122,8 +104,10 @@ struct UpdateTopicView: View {
                         scrollPosition: $expectationsScrollPosition,
                         extractContent: { $0.expectationContent })
                     
-                case 2:
-                    UpdateTopicQuestionsView(
+                case 1:
+                    UpdateDailyTopicQuestionsView(
+                        dailyTopicViewModel: dailyTopicViewModel,
+                        selectedTabQuestions: $selectedTabQuestions,
                         showProgressBar: $showProgressBar,
                         selectedQuestion: $selectedQuestion,
                         answersOpen: $answersOpen,
@@ -131,14 +115,14 @@ struct UpdateTopicView: View {
                         multiSelectAnswers: $multiSelectAnswers,
                         singleSelectCustomItems: $singleSelectCustomItems,
                         multiSelectCustomItems: $multiSelectCustomItems,
-                        focusField: $focusField,
                         topic: topic,
-                        questions: questions
-                    )
-                    .padding(.top)
-                    .padding(.horizontal)
+                        questions: questions,
+                        retryAction: {
+                            retryActionQuestions()
+                        },
+                        focusField: $focusField)
                     
-                case 3:
+                case 2:
                     RecapCelebrationView (
                         animationStage: $animationStage,
                         title: topic.topicTitle,
@@ -147,19 +131,21 @@ struct UpdateTopicView: View {
                     )
                     .padding(.horizontal)
                     .padding(.top, 80)
+                    .onAppear {
+                        getRecapAndNextTopicQuestions()
+                    }
                     
-                    
-                case 4:
+                case 3:
                     UpdateTopicRecapView(
-                       viewModel: topicViewModel,
-                       recapSelectedTab: $recapSelectedTab,
+                        viewModel: dailyTopicViewModel,
+                        recapSelectedTab: $selectedTabRecap,
                         topic: topic,
                         retryAction: {
                             getRecapAndNextTopicQuestions()
                         }
                     )
                 
-                case 5:
+                default:
                     UpdateTopicCarouselView(
                         title: "Here's what I think",
                         items: topic.topicFeedback
@@ -168,27 +154,20 @@ struct UpdateTopicView: View {
                         extractContent: { $0.feedbackContent }
                     )
                 
-                default:
-                    UpdateTopicEndView(
-                        topicViewModel: topicViewModel,
-                        selectedTabTopicsList: $selectedTabTopicsList,
-                        sequence: sequence,
-                        questions: questions
-                    )
-                    .padding(.horizontal)
-                    .padding(.top)
-                
             }//switch
             
         }//VStack
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background {
-            BackgroundPrimary(backgroundColor:backgroundColor)
+            BackgroundPrimary(backgroundColor: backgroundColor)
             
         }
         .overlay {
             getViewButton()
             
+        }
+        .onAppear {
+            setupView()
         }
         .onChange(of: expectationsScrollPosition) {
             if (expectationsScrollPosition == topic.topicExpectations.count - 1) {
@@ -204,16 +183,7 @@ struct UpdateTopicView: View {
                 }
             }
         }
-        .sheet(isPresented: $showWarningSheet, onDismiss: {
-            showWarningSheet = false
-        }) {
-            WarningLostProgress(quitAction: {
-                dismiss()
-            })
-            .presentationCornerRadius(20)
-            .presentationBackground(AppColors.black3)
-            .presentationDetents([.medium])
-        }
+       
     }
     
     private func dismiss() {
@@ -242,9 +212,12 @@ struct UpdateTopicView: View {
     }
     
     private func getSafeAreaProperty(for index: Int) -> SafeAreaRegions {
-        if questions.isEmpty {
+        // Add bounds check
+        guard !questions.isEmpty, index < questions.count else {
             return []
-        } else if QuestionType(rawValue: questions[selectedQuestion].questionType) != .open {
+        }
+        
+        if QuestionType(rawValue: questions[index].questionType) != .open {
             return .keyboard
         }
         
@@ -254,37 +227,44 @@ struct UpdateTopicView: View {
     private func getButtonText() -> String {
         switch selectedTab {
         case 0:
-            return "Start"
-        case 1:
             return "Continue"
+        case 1:
+            return getButtonTextQuestionsView()
         case 2:
+            return "Next: reflection"
+            
+        case 3:
+            return getButtonTextRecapView()
+            
+        default:
+            return "Complete daily topic"
+        }
+        
+    }
+    
+    private func getButtonTextQuestionsView() -> String {
+        switch selectedTabQuestions {
+        case 0:
+            return "Loading . . ."
+        case 1 :
             if selectedQuestion < questions.count - 1 {
                 return "Next question"
             } else {
                 return "Complete topic"
             }
-        case 3:
-            return "Next: reflection"
-            
-        case 4:
-            return getButtonTextRecapView()
-            
-        case 5:
-            return "Continue"
-            
+           
         default:
-            return "Complete session"
+            return "Retry"
         }
-        
     }
     
     private func getButtonTextRecapView() -> String {
-        switch topicViewModel.createTopicRecap {
-        case .ready:
-            return "Continue"
-        case .loading:
+        switch selectedTabRecap {
+        case 0:
             return "Loading . . ."
-        case .retry:
+        case 1 :
+            return "Continue"
+        default:
             return "Retry"
         }
     }
@@ -292,30 +272,25 @@ struct UpdateTopicView: View {
     private func getMainButtonAction() {
         switch selectedTab {
             case 0:
-                startFlow()
-            
-            case 1:
                 goToQuestions()
                 
-            case 2:
+            case 1:
                 saveAnswer()
                 
-            case 3:
+            case 2:
                 updatePoints()
                 
-            case 4:
+            case 3:
                 completeTopic()
             
-            case 6:
+            default:
                 dismiss()
         
-            default:
-                selectedTab += 1
         }
     }
     
     private func showSkipButton() -> Bool {
-        if selectedTab == 2 {
+        if selectedTab == 1 && questions.count > 0 {
             if let answeredQuestionType =  QuestionType(rawValue: questions[selectedQuestion].questionType) {
                 switch answeredQuestionType {
                 case .open:
@@ -350,18 +325,20 @@ struct UpdateTopicView: View {
         switch selectedTab {
             
         case 0:
-            return selectedTabTopicsList != 1
-            
-        case 1:
             return disableButtonExpectations
             
-        case 2:
-            return showSkipButton()
+        case 1:
+            if selectedTab == 1 && questions.count > 0 {
+                return showSkipButton()
+            } else if selectedTab == 1 && selectedTabQuestions == 0 {
+                return true
+            }
+            return false
         
-        case 3:
+        case 2:
             return animationStage < 2
-        case 4:
-            if topicViewModel.createTopicRecap == .loading {
+        case 3:
+            if selectedTabRecap == 0 {
                 return true
             } else {
                 //                    if let feedback = topic.review?.reviewSummary {
@@ -370,26 +347,15 @@ struct UpdateTopicView: View {
                 return false
                 //                    }
             }
-        case 5:
-            return disableButtonFeedback
         default:
-            return false
+            return disableButtonFeedback
             
         }
         
     }
     
-    private func startFlow() {
-        if !topic.topicExpectations.isEmpty {
-            selectedTab += 1
-        } else {
-            selectedTab += 2
-        }
-    }
-    
     private func goToQuestions() {
-        let count = topic.topicQuestions.count
-        answersOpen = Array(repeating: "", count: count)
+        updateQuestionVariables(count: questions.count)
         selectedTab += 1
     }
     
@@ -452,8 +418,6 @@ struct UpdateTopicView: View {
             )
             
             if numberOfQuestions == answeredQuestionIndex + 1 {
-                getRecapAndNextTopicQuestions()
-                
                 await MainActor.run {
                     completeQuestions()
                 }
@@ -490,7 +454,7 @@ struct UpdateTopicView: View {
             switch questionType {
             case .open:
                 if let newTopicText = topicText {
-                    await topicViewModel.saveAnswer(
+                    await dailyTopicViewModel.saveAnswer(
                         questionType: .open,
                         topic: topic,
                         questionId: question.questionId,
@@ -499,7 +463,7 @@ struct UpdateTopicView: View {
                 }
             case .singleSelect:
                 if let newSelectedValue = singleSelectAnswer {
-                    await topicViewModel.saveAnswer(
+                    await dailyTopicViewModel.saveAnswer(
                         questionType: .singleSelect,
                         topic: topic,
                         questionId: question.questionId,
@@ -509,7 +473,7 @@ struct UpdateTopicView: View {
                 }
             case .multiSelect:
                 if let newSelectedOptions = multiSelectAnswers {
-                    await topicViewModel.saveAnswer(
+                    await dailyTopicViewModel.saveAnswer(
                         questionType: .multiSelect,
                         topic: topic,
                         questionId: question.questionId,
@@ -523,7 +487,7 @@ struct UpdateTopicView: View {
     
     private func completeTopic() {
         
-        if topicViewModel.createTopicRecap == .retry {
+        if dailyTopicViewModel.createTopicRecap == .retry {
             getRecapAndNextTopicQuestions()
             
         } else {
@@ -532,14 +496,10 @@ struct UpdateTopicView: View {
             
             Task {
                 
-                await dataController.completeTopic(topic: topic)
-                
-                await MainActor.run {
-                    topicViewModel.completedNewTopic = true
-                }
+                await dailyTopicViewModel.completeTopic(topic: topic)
                 
                 DispatchQueue.global(qos: .background).async {
-                    Mixpanel.mainInstance().track(event: "Completed guided step")
+                    Mixpanel.mainInstance().track(event: "Completed daily topic")
                 }
                 
             }
@@ -619,82 +579,39 @@ struct UpdateTopicView: View {
     }
     
     private func getRecapAndNextTopicQuestions() {
-        topicViewModel.createTopicRecap = .loading
-        
-        //get the next topic
-        let nextTopicIndex = topic.orderIndex + 1
-        let nextTopic = sequence.sequenceTopics.filter { $0.orderIndex == nextTopicIndex }
+        dailyTopicViewModel.createTopicRecap = .loading
         
         Task {
             //generate recap
             do {
-                try await topicViewModel.manageRun(selectedAssistant: .topicOverview, topic: topic)
+                try await dailyTopicViewModel.manageRun(selectedAssistant: .topicDailyRecap, topic: topic)
             } catch {
-                topicViewModel.createTopicRecap = .retry
-            }
-            
-            // get content for next topic
-            if let newTopic = nextTopic.first, let questType = QuestTypeItem(rawValue: newTopic.topicQuestType) {
-                
-                switch questType {
-                    
-                case .context, .guided:
-                    await  getTopicQuestions(topic: newTopic, updateVariables: false)
-                    
-                case .retro:
-                    break
-                default:
-                  
-                    await getTopicBreak(topic: newTopic)
-                    
-                }
-                
+                dailyTopicViewModel.createTopicRecap = .retry
             }
             
         }
-    }
-    
-    private func getTopicBreak(topic: Topic) async {
-        do {
-            
-            try await topicViewModel.manageRun(selectedAssistant: .topicBreak, topic: topic)
-            
-            
-        } catch {
-            topicViewModel.createTopicBreak = .retry
-        }
-    }
-    
-    private func getTopicQuestions(topic: Topic, updateVariables: Bool) async {
-        
-        await MainActor.run {
-            topicViewModel.createTopicQuestions = .loading
-        }
-        
-        do {
-            try await topicViewModel.manageRun(selectedAssistant: .topic, topic: topic)
-            
-            if updateVariables {
-                await MainActor.run {
-                    updateQuestionVariables(count: topic.topicQuestions.count)
-                }
-            }
-        } catch {
-            topicViewModel.createTopicQuestions = .retry
-        }
-      
     }
     
     private func updateQuestionVariables(count: Int) {
-        answersOpen = Array(repeating: "", count: count)
         
-        print("updated answer variables: \(count)")
+        if count > 0 && answersOpen.count != count {
+            answersOpen = Array(repeating: "", count: count)
+            print("updated answer variables: \(count)")
+        }
     }
     
     private func updatePoints() {
         selectedTab += 1
         Task {
             await dataController.updatePoints(newPoints: 1)
+        }
+    }
+    
+    private func setupView() {
+        if topic.topicStatus == TopicStatusItem.completed.rawValue {
+            selectedTab = 4
+        } else {
+            updateQuestionVariables(count: questions.count)
         }
     }
 }

@@ -7,13 +7,13 @@
 
 import SwiftUI
 
-struct BackgroundSecondary: ViewModifier {
-    let backgroundColor: Color
+struct BackgroundSecondary<S: ShapeStyle>: ViewModifier {
+    let backgroundColor: S
     let height: CGFloat
     let yOffset: CGFloat
     
     init(
-        backgroundColor: Color,
+        backgroundColor: S,
         height: CGFloat? = nil,
         yOffset: CGFloat? = nil
     ) {
@@ -45,8 +45,8 @@ struct BackgroundSecondary: ViewModifier {
 }
 
 extension View {
-    func backgroundSecondary(
-        backgroundColor: Color,
+    func backgroundSecondary<S: ShapeStyle>(
+        backgroundColor: S,
         height: CGFloat? = nil,
         yOffset: CGFloat? = nil
     ) -> some View {

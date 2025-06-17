@@ -1,5 +1,5 @@
 //
-//  NextSequenceWhereToNext.swift
+//  QuestionWhereToNext.swift
 //  Fearless2
 //
 //  Created by Yue Deng-Wu on 4/16/25.
@@ -7,10 +7,32 @@
 
 import SwiftUI
 
-struct NextSequenceWhereToNext: View {
+struct QuestionWhereToNext: View {
     let question: String
-    let keepExploringAction: () -> Void
-    let resolveTopicAction: () -> Void
+    let leftAction: () -> Void
+    let rightAction: () -> Void
+    let leftTitle: String
+    let leftSubtitle: String
+    let rightTitle: String
+    let rightSubtitle: String
+    
+    init(
+        question: String,
+        leftAction: @escaping () -> Void,
+        rightAction: @escaping () -> Void,
+        leftTitle: String,
+        leftSubtitle: String = "",
+        rightTitle: String,
+        rightSubtitle: String = ""
+    ) {
+        self.question = question
+        self.leftAction = leftAction
+        self.rightAction = rightAction
+        self.leftTitle = leftTitle
+        self.leftSubtitle = leftSubtitle
+        self.rightTitle = rightTitle
+        self.rightSubtitle = rightSubtitle
+    }
     
     enum ButtonColor {
         case light
@@ -32,20 +54,20 @@ struct NextSequenceWhereToNext: View {
             HStack {
                 answerBox(
                     buttonColor: .dark,
-                    title: "Keep\nexploring",
-                    subtitle: "We'll come up with a new plan"
+                    title: leftTitle,
+                    subtitle: leftSubtitle
                 )
                 .onTapGesture {
-                    keepExploringAction()
+                    leftAction()
                 }
                 
                 answerBox(
                     buttonColor: .light,
-                    title: "Resolve\ntopic",
-                    subtitle: "You can start a new one"
+                    title: rightTitle,
+                    subtitle: rightSubtitle
                   )
                 .onTapGesture {
-                    resolveTopicAction()
+                    rightAction()
                 }
             }
             .frame(maxWidth: .infinity)

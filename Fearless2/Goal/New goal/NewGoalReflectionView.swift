@@ -213,7 +213,7 @@ struct NewGoalReflectionView: View {
         Task {
             await dataController.deleteIncompleteGoals()
            
-            await newGoalViewModel.cancelCurrentRun()
+            try await newGoalViewModel.cancelCurrentRun()
             DispatchQueue.global(qos: .background).async {
                 Mixpanel.mainInstance().track(event: "Problem statement incorrect")
             }

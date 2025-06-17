@@ -15,6 +15,7 @@ protocol TopicRepresentable: AnyObject {
     var topicTitle: String { get set }
     var review: TopicReview? { get set }
     var topicFeedback: [TopicFeedback] { get }
+    var topicQuestions: [Question] { get }
 
     func addToQuestions(_ value: Question)
     func addToExpectations(_ value: TopicExpectation)

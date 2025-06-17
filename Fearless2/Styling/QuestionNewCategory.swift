@@ -54,7 +54,7 @@ extension QuestionNewCategory {
                 content: "What's on your mind?",
                 questionType: .singleSelect,
                 category: .generic,
-                options: GoalTypeItem.allCases.map { $0.getNameLong() }
+                options: GoalTypeItem.allCases.dropLast().map { $0.getNameLong() }
             )
         ]
     }

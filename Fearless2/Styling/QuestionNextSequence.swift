@@ -1,5 +1,5 @@
 //
-//  QuestionNextSequence.swift
+//  QuestionScripted.swift
 //  Fearless2
 //
 //  Created by Yue Deng-Wu on 4/16/25.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct QuestionNextSequence: Identifiable, Codable, QuestionProtocol {
+struct QuestionScripted: Identifiable, Codable, QuestionProtocol {
     let id: Int
     var content: String
     var questionType: QuestionType
@@ -22,9 +22,9 @@ struct QuestionNextSequence: Identifiable, Codable, QuestionProtocol {
 }
 
 
-extension QuestionNextSequence {
-    static let questions: [QuestionNextSequence] = [
-        QuestionNextSequence(
+extension QuestionScripted {
+    static let questions: [QuestionScripted] = [
+        QuestionScripted(
             id: 0,
             content: "What do you feel you have more clarity on?",
             questionType: .multiSelect,
@@ -35,7 +35,7 @@ extension QuestionNextSequence {
                 "Something else"
             ]
         ),
-        QuestionNextSequence(
+        QuestionScripted(
             id: 1,
             content: "How do you feel about this topic now?",
             questionType: .multiSelect,
@@ -47,7 +47,7 @@ extension QuestionNextSequence {
                 "I don’t feel any better about it"
             ]
         ),
-        QuestionNextSequence(
+        QuestionScripted(
             id: 2,
             content: "Does this topic feel resolved?",
             questionType: .singleSelect,
@@ -56,7 +56,7 @@ extension QuestionNextSequence {
                 "Resolve topic"
             ]
         ),
-        QuestionNextSequence(
+        QuestionScripted(
             id: 3,
             content: "We’ll come up with a new plan. What would be most helpful for you to explore next?",
             questionType: .open

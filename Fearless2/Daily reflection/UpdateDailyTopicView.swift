@@ -10,10 +10,12 @@ import SwiftUI
 
 struct UpdateDailyTopicView: View {
     @EnvironmentObject var dataController: DataController
+    @ObservedObject var topicViewModel: TopicViewModel
     @ObservedObject var dailyTopicViewModel: DailyTopicViewModel
     
     @State private var showProgressBar: Bool = true //for hiding progress bar when user is typing their answer for single-select question
     @State private var selectedTab: Int = 0
+    @State private var showExitFlowAlert: Bool = false
     
     /// questions view
     @State private var selectedTabQuestions: Int = 0
@@ -38,6 +40,9 @@ struct UpdateDailyTopicView: View {
     @State private var feedbackScrollPosition: Int?
     @State private var disableButtonFeedback: Bool = true
     
+    /// plan suggestions view
+    @State private var selectedTabPlan: Int = 0
+    
     @Binding var showUpdateTopicView: Bool //dismiss sheet
     
     let topic: TopicDaily
@@ -48,12 +53,21 @@ struct UpdateDailyTopicView: View {
     
     @FocusState var focusField: DefaultFocusField?
     
-    init(dailyTopicViewModel: DailyTopicViewModel,
+    var mainFlowQuestionsCount: Int {
+        let totalQuestions = questions.count
+        let staticQuestions = NewQuestion.questionsDailyTopic.count
+        return max(totalQuestions - staticQuestions, 0)
+    }
+    
+    init(
+         topicViewModel: TopicViewModel,
+         dailyTopicViewModel: DailyTopicViewModel,
          showUpdateTopicView: Binding<Bool>,
          topic: TopicDaily,
          backgroundColor: LinearGradient,
          retryActionQuestions: @escaping () -> Void
     ) {
+        self.topicViewModel = topicViewModel
         self.dailyTopicViewModel = dailyTopicViewModel
         self._showUpdateTopicView = showUpdateTopicView
         self.topic = topic
@@ -71,11 +85,11 @@ struct UpdateDailyTopicView: View {
         
         VStack {
             
-            if selectedTab == 1 && showProgressBar && selectedTabQuestions == 1 {
+            if selectedTab == 1 && showProgressBar && selectedTabQuestions == 1 && selectedQuestion < mainFlowQuestionsCount {
                 //Header
                 QuestionsProgressBar (
                     currentQuestionIndex: $currentQuestionIndex,
-                    totalQuestions: questions.count,
+                    totalQuestions: mainFlowQuestionsCount,
                     showXmark: true,
                     xmarkAction: {
                         dismiss()
@@ -86,7 +100,7 @@ struct UpdateDailyTopicView: View {
                     })
                 .transition(.opacity)
                 
-            } else if selectedTab != 1 || (selectedTab == 1 && selectedTabQuestions != 1){
+            } else if selectedTab != 1 || (selectedTab == 1 && selectedTabQuestions != 1) || (selectedTab == 1 && selectedQuestion >= mainFlowQuestionsCount) {
                 SheetHeader(
                     title: topic.topicTheme,
                     xmarkAction: {
@@ -145,7 +159,7 @@ struct UpdateDailyTopicView: View {
                         }
                     )
                 
-                default:
+                case 4:
                     UpdateTopicCarouselView(
                         title: "Here's what I think",
                         items: topic.topicFeedback
@@ -153,6 +167,34 @@ struct UpdateDailyTopicView: View {
                         scrollPosition: $feedbackScrollPosition,
                         extractContent: { $0.feedbackContent }
                     )
+                
+                case 5:
+                    QuestionWhereToNext(
+                        question: "Spark complete. Explore further?",
+                        leftAction: {
+                            completeFlowAction()
+                        },
+                        rightAction: {
+                            diveDeeperAction()
+                        },
+                        leftTitle: "I'm done",
+                        rightTitle: "Go deeper",
+                        rightSubtitle: "Let's see where this takes us"
+                    )
+                    .padding(.horizontal)
+                
+                default:
+                    SequenceSuggestionsView (
+                        topicViewModel: topicViewModel,
+                        viewModel: dailyTopicViewModel,
+                        planSelectedTab: $selectedTabPlan,
+                        showSheet: $showUpdateTopicView,
+                        showExitFlowAlert: $showExitFlowAlert,
+                        retryAction: {
+                            retryActionPlan()
+                        }
+                    )
+              
                 
             }//switch
             
@@ -163,11 +205,14 @@ struct UpdateDailyTopicView: View {
             
         }
         .overlay {
-            getViewButton()
+            if selectedTab < 5 {
+                getViewButton()
+            }
             
         }
         .onAppear {
             setupView()
+            
         }
         .onChange(of: expectationsScrollPosition) {
             if (expectationsScrollPosition == topic.topicExpectations.count - 1) {
@@ -237,7 +282,7 @@ struct UpdateDailyTopicView: View {
             return getButtonTextRecapView()
             
         default:
-            return "Complete daily topic"
+            return "Continue"
         }
         
     }
@@ -281,10 +326,14 @@ struct UpdateDailyTopicView: View {
                 updatePoints()
                 
             case 3:
-                completeTopic()
+                completeFeedback()
+            
+            case 4:
+                selectedQuestion += 1
+                selectedTab = 1
             
             default:
-                dismiss()
+                selectedTab += 1
         
         }
     }
@@ -309,9 +358,9 @@ struct UpdateDailyTopicView: View {
     private func skipButtonAction() {
         let answeredQuestionIndex = selectedQuestion
         let numberOfQuestions = questions.count
-        
-        if answeredQuestionIndex + 1 == numberOfQuestions {
-            completeQuestions()
+        let staticQuestions = NewQuestion.questionsDailyTopic.count
+        if answeredQuestionIndex + 1 == numberOfQuestions - staticQuestions {
+            completeMainFlow()
         }
         
         goToNextquestion(totalQuestions: numberOfQuestions)
@@ -417,11 +466,7 @@ struct UpdateDailyTopicView: View {
                 multiSelectCustomItems: customItemsMultiSelect
             )
             
-            if numberOfQuestions == answeredQuestionIndex + 1 {
-                await MainActor.run {
-                    completeQuestions()
-                }
-            }
+            await nextAction(question: answeredQuestion.questionContent)
             
             DispatchQueue.global(qos: .background).async {
                 Mixpanel.mainInstance().track(event: "Answered question")
@@ -430,16 +475,29 @@ struct UpdateDailyTopicView: View {
         
     }
     
+    // accounts for every question except the last question in the flow
     private func goToNextquestion(totalQuestions: Int) {
+        let staticQuestions = NewQuestion.questionsDailyTopic.count
+        let mainFlowQuestions = totalQuestions - staticQuestions
         
-        if selectedQuestion + 1 < totalQuestions {
+        let currentQuestion = selectedQuestion + 1
+
+        if currentQuestion < mainFlowQuestions || (currentQuestion > mainFlowQuestions + 2 && currentQuestion < totalQuestions) {
             selectedQuestion += 1
+        } else if currentQuestion == mainFlowQuestions {
+            completeMainFlow()
+        } else if currentQuestion == mainFlowQuestions + 1 {
+            selectedTab = 5
         }
         
-        //add fill to progress bar
-        withAnimation(.interpolatingSpring) {
-            currentQuestionIndex += 1
+        if selectedQuestion + 1 <= mainFlowQuestions {
+            //add fill to progress bar
+            withAnimation(.interpolatingSpring) {
+                currentQuestionIndex += 1
+            }
         }
+        
+        
     }
     
     private func saveQuestionAnswer(
@@ -450,6 +508,7 @@ struct UpdateDailyTopicView: View {
         singleSelectCustomItems: [String]?,
         multiSelectCustomItems: [String]?
     ) async {
+        
         if let questionType = QuestionType(rawValue: question.questionType) {
             switch questionType {
             case .open:
@@ -485,7 +544,31 @@ struct UpdateDailyTopicView: View {
         }
     }
     
-    private func completeTopic() {
+    private func nextAction(question: String) async {
+        switch question {
+        case NewQuestion.questionsDailyTopic[1].content:
+            await completeDailyTopic()
+            
+            await MainActor.run {
+                dismiss()
+            }
+
+        case NewQuestion.questionsDailyTopic[4].content:
+            await MainActor.run {
+                selectedTab = 6
+            }
+            await completeDailyTopic()
+
+        case NewQuestion.questionsDailyTopic[3].content:
+            await getPlans()
+
+        default:
+            break
+        }
+        
+    }
+    
+    private func completeFeedback() {
         
         if dailyTopicViewModel.createTopicRecap == .retry {
             getRecapAndNextTopicQuestions()
@@ -493,20 +576,10 @@ struct UpdateDailyTopicView: View {
         } else {
             
             selectedTab += 1
-            
-            Task {
-                
-                await dailyTopicViewModel.completeTopic(topic: topic)
-                
-                DispatchQueue.global(qos: .background).async {
-                    Mixpanel.mainInstance().track(event: "Completed daily topic")
-                }
-                
-            }
         }
     }
     
-    private func completeQuestions() {
+    private func completeMainFlow() {
         if focusField != nil {
             focusField = nil
         }
@@ -607,12 +680,76 @@ struct UpdateDailyTopicView: View {
         }
     }
     
+    private func completeDailyTopic() async {
+        
+            await dailyTopicViewModel.completeTopic(topic: topic)
+            
+            DispatchQueue.global(qos: .background).async {
+                Mixpanel.mainInstance().track(event: "Completed daily topic")
+            }
+            
+    }
+    
+    //MARK: - Set up view
     private func setupView() {
         if topic.topicStatus == TopicStatusItem.completed.rawValue {
             selectedTab = 4
         } else {
             updateQuestionVariables(count: questions.count)
         }
+    }
+    
+   // MARK: - Complete or go deeper
+    private func completeFlowAction() {
+        selectedQuestion += 1
+        selectedTab = 1
+    }
+    
+    private func diveDeeperAction() {
+        selectedQuestion += 2
+        selectedTab = 1
+    }
+    
+    private func getPlans() async {
+        
+        // Create the category
+        let savedCategory = await dataController.createSingleCategory()
+        
+        // Create new goal
+        /// need to make sure questions are related to the right goal when saved
+        let savedGoal = await dataController.createNewGoal(category: savedCategory, topic: topic)
+        
+        if let category = savedCategory, let goal = savedGoal {
+            await createPlanSuggestions(category: category, goal: goal)
+        }
+        
+        
+    }
+    
+    private func createPlanSuggestions(category: Category, goal: Goal) async {
+        
+        do {
+            try await dailyTopicViewModel.manageRun(selectedAssistant: .planSuggestion, category: category, goal: goal)
+            
+        } catch {
+            dailyTopicViewModel.createPlanSuggestions = .retry
+        }
+    
+    }
+    
+    private func retryActionPlan() {
+        selectedTabPlan = 0
+        
+        // reset var for managing when loading animation
+        dailyTopicViewModel.completedLoadingAnimationPlan = false
+
+        if let category = dailyTopicViewModel.currentCategory,
+            let goal = dailyTopicViewModel.currentGoal {
+            Task {
+              await createPlanSuggestions(category: category, goal: goal)
+            }
+        }
+        
     }
 }
 

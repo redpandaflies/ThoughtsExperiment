@@ -97,7 +97,6 @@
         <attribute name="answerOpen" optional="YES" attributeType="String"/>
         <attribute name="answerScale" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="answerSingleSelect" optional="YES" attributeType="String"/>
-        <attribute name="categoryStarter" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="completed" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="content" optional="YES" attributeType="String"/>
         <attribute name="createdAt" optional="YES" attributeType="String"/>
@@ -110,6 +109,7 @@
         <attribute name="minLabel" optional="YES" attributeType="String"/>
         <attribute name="multiSelectOptions" optional="YES" attributeType="String"/>
         <attribute name="questionNumber" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="reflectQuestion" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="sequenceRecap" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="singleSelectOptions" optional="YES" attributeType="String"/>
         <attribute name="starterQuestion" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>

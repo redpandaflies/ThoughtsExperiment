@@ -5,23 +5,28 @@
 //  Created by Yue Deng-Wu on 10/2/24.
 //
 
+import Combine
 import Foundation
 import OSLog
 import UIKit
 
-final class NewGoalViewModel: ObservableObject {
+final class NewGoalViewModel: ObservableObject, PlanSuggestionsObservable {
+    
     @Published var newCategorySummary: NewCreateCategorySummary? = nil
     @Published var newPlanSuggestions: [NewPlan] = []
-    @Published var createNewCategorySummary: NewCategorySummary = .ready
-    @Published var createPlanSuggestions: PlanSuggestionsState = .ready
+    @Published var createNewCategorySummary: LoadingStatePrimary = .ready
+    @Published var createPlanSuggestions: LoadingStatePrimary = .ready
     @Published var completedLoadingAnimationSummary: Bool = false
     @Published var completedLoadingAnimationPlan: Bool = false
+    
+    var createPlanSuggestionsPublisher: Published<LoadingStatePrimary>.Publisher { $createPlanSuggestions }
+    var completedLoadingAnimationPlanPublisher: Published<Bool>.Publisher { $completedLoadingAnimationPlan }
     
     var currentCategory: Category? = nil
     var currentGoal: Goal? = nil
     
     private var dataController: DataController
-    private var openAISwiftService: OpenAISwiftService
+    private var goalProcessor: GoalProcessor
     private var assistantRunManager: AssistantRunManager
     
     private var backgroundTaskID: UIBackgroundTaskIdentifier = .invalid
@@ -29,25 +34,20 @@ final class NewGoalViewModel: ObservableObject {
     let loggerOpenAI = Logger.openAIEvents
     let loggerCoreData = Logger.coreDataEvents
     
-    init(dataController: DataController, openAISwiftService: OpenAISwiftService, assistantRunManager: AssistantRunManager) {
+    init(dataController: DataController,
+         goalProcessor: GoalProcessor,
+         assistantRunManager: AssistantRunManager) {
         self.dataController = dataController
-        self.openAISwiftService = openAISwiftService
+        self.goalProcessor = goalProcessor
         self.assistantRunManager = assistantRunManager
     }
     
-    enum NewCategorySummary {
-        case ready
-        case loading
-        case retry
-    }
-    
-    enum PlanSuggestionsState {
-        case ready
-        case loading
-        case retry
-    }
-    
-    func manageRun(selectedAssistant: AssistantItem, category: Category, goal: Goal, sequence: Sequence? = nil) async throws {
+    func manageRun(
+        selectedAssistant: AssistantItem,
+        category: Category,
+        goal: Goal,
+        sequence: Sequence? = nil
+    ) async throws {
     
         // Start a background task to give iOS extra time when you go background
         await MainActor.run {
@@ -96,7 +96,7 @@ final class NewGoalViewModel: ObservableObject {
 
             switch selectedAssistant {
                 case .newGoal:
-                guard let newSummary = try await openAISwiftService.processCreateCategorySummary(messageText: messageText, goal: goal) else {
+                guard let newSummary = try await goalProcessor.processCreateCategorySummary(messageText: messageText, goal: goal) else {
                     
                     loggerOpenAI.error("Failed to process new category flow summary")
                     throw ProcessingError.processingFailed()
@@ -107,22 +107,21 @@ final class NewGoalViewModel: ObservableObject {
                     self.newCategorySummary = newSummary
                     self.createNewCategorySummary = .ready
                     self.loggerOpenAI.log("New category summary ready: \(self.newCategorySummary?.summary ?? "")")
-                    
                 }
                 
                 case .planSuggestion:
-                guard let newSuggestions = try await openAISwiftService.processPlanSuggestions(messageText: messageText) else {
+                    guard let newSuggestions = try await goalProcessor.processPlanSuggestions(messageText: messageText) else {
+                        
+                        loggerOpenAI.error("Failed to process new plan suggestions")
+                        throw ProcessingError.processingFailed()
+                        
+                    }
                     
-                    loggerOpenAI.error("Failed to process new plan suggestions")
-                    throw ProcessingError.processingFailed()
-                    
-                }
-                
-                await MainActor.run {
-                    self.newPlanSuggestions = newSuggestions.plans
-                    createPlanSuggestions = .ready
-                    self.loggerOpenAI.log("New plan suggestions ready")
-                }
+                    await MainActor.run {
+                        self.newPlanSuggestions = newSuggestions.plans
+                        createPlanSuggestions = .ready
+                        self.loggerOpenAI.log("New plan suggestions ready")
+                    }
                 
                 default:
                 break
@@ -136,14 +135,12 @@ final class NewGoalViewModel: ObservableObject {
         
     }
     
-    func cancelCurrentRun() async {
-        let threadId = openAISwiftService.threadId
-        if !threadId.isEmpty {
-            do {
-                try await openAISwiftService.cancelRun()
-            } catch {
-                loggerOpenAI.error("Failed to cancel current run: \(error.localizedDescription)")
-            }
+    func cancelCurrentRun() async throws {
+        do {
+            try await assistantRunManager.cancelCurrentRun()
+        } catch {
+            throw OpenAIError.missingRequiredField("No thread ID found")
         }
     }
+    
 }

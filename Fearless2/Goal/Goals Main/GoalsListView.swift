@@ -21,34 +21,10 @@ struct GoalsListView: View {
     let frameWidth: CGFloat
     let safeAreaPadding: CGFloat
     
-    var headerImage: String {
-        // 1. If there are no goals, fall back to your default
-        guard !goals.isEmpty else {
-            return "goalDecision"
-        }
-
-        // 2. Decide which index to use (0 if nil)
-        let rawIndex = goalScrollPosition ?? 0
-
-        // 3. Clamp to the valid indices of `goals`
-        let safeIndex = goals.indices.contains(rawIndex)
-            ? rawIndex : 0
-
-        // 4. Pull the goal at the safe index
-        let goal = goals[safeIndex]
-        return GoalTypeItem.imageName(forLongName: goal.goalProblemType)
-    }
-    
     var body: some View {
         
         VStack (spacing: 0) {
             if !goals.isEmpty {
-                
-                Image(headerImage)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(height: 120)
-                    .blendMode(.screen)
                 
                 ScrollView (.horizontal) {
                     HStack (spacing: 15) {
@@ -91,7 +67,7 @@ struct GoalsListView: View {
                         scrollPosition: $goalScrollPosition,
                         pagesCount: getPagesCount()
                     )
-                    .padding(.top, 10)
+                    .padding(.top, 20)
                 }
                 
             }

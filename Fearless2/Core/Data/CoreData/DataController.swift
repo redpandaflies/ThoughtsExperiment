@@ -540,7 +540,7 @@ extension DataController {
 extension DataController {
     
     //Create a new goal
-    func createNewGoal(category: Category?, problemType: String) async -> Goal? {
+    func createNewGoal(category: Category?, problemType: String = GoalTypeItem.deepDive.rawValue, topic: TopicRepresentable? = nil) async -> Goal? {
         
         var newGoal: Goal?
         
@@ -560,6 +560,17 @@ extension DataController {
             }
             
             newGoal = goal
+            
+            // add starter questions to goal (daily topic flow only)
+            if let topic = topic {
+                let questions = topic.topicQuestions.filter { $0.goalStarter == true }
+                
+                for question in questions {
+                    goal.addToQuestions(question)
+                }
+                
+            }
+            
         }
         
         await self.save()

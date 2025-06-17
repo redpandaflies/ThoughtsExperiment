@@ -9,7 +9,6 @@ import Foundation
 import OSLog
 
 /// use """ so that the text shows up as markdown in the openAI assistant dashboard
-
 @MainActor
 struct ContextGatherer {
     
@@ -73,16 +72,15 @@ struct ContextGatherer {
                 )
                 
                 // other plans for the current goal
-               
                 let otherSequences = goalSequences.filter { $0.sequenceId != sequence.sequenceId }
                 
                 if goalSequences.count > 1 && selectedAssistant != .sequenceSummary {
                     context += getSequences(goalSequences: otherSequences)
                 } else if goalSequences.count > 1 {
-                    /// for sequence (plan) summary, get the user's answer to the question "what would be most helpful" from the recap for the previous plan
                     
+                    /// for sequence (plan) summary, get the user's answer to the question "what would be most helpful" from the recap for the previous plan
                     if let previousSequence = otherSequences.last {
-                        let keyQuestion = previousSequence.sequenceQuestions.filter { $0.questionContent == QuestionNextSequence.questions[3].content }.first
+                        let keyQuestion = previousSequence.sequenceQuestions.filter { $0.questionContent == NewQuestion.questionsNextSequence[3].content }.first
                         
                         context += """
                             Previous plan: \(previousSequence.sequenceTitle)
@@ -229,12 +227,20 @@ struct ContextGatherer {
                         
                     }
                     
+                } else if topic.topicId == dailyTopics.first?.topicId {
+                    context += getDailyTopicBasics(topic)
+                    
+                    // get recap questions from previous day's daily topic, which asks users what they'd like to focus on next
+                    let reflectQuestions = topic.topicQuestions.filter { $0.reflectQuestion == true}
+                        context += """
+                            What the user said they'd like to focus on for today's topic:\n
+                        """
+                    if !reflectQuestions.isEmpty {
+                       context += getQuestions(reflectQuestions)
+                    }
+                    
                 } else {
-                    context += """
-                        Topic: \(topic.topicTitle).
-                        - theme: \(topic.topicTheme)
-                        - status: \(topic.topicStatus) \n
-                    """
+                    context += getDailyTopicBasics(topic)
                 }
                 
                 if let recap = topic.review {
@@ -572,5 +578,17 @@ extension ContextGatherer {
         
         return context
     }
+    
+    // daily topic
+    private static func getDailyTopicBasics(_ topic: TopicDaily) -> String {
+        var context = """
+            Topic: \(topic.topicTitle).
+            - theme: \(topic.topicTheme)
+            - status: \(topic.topicStatus) \n
+        """
+        
+        return context
+    }
+    
 }
 

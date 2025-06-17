@@ -34,7 +34,6 @@ final class TopicProcessor {
     }
     
     // MARK: create daily topic
-    
     /// create title, theme, and expectations
     func processNewDailyTopic(messageText: String) async throws -> TopicDaily? {
         var newTopic: TopicDaily? = nil
@@ -71,23 +70,32 @@ final class TopicProcessor {
         try await self.context.perform {
             self.processQuestions(questions.questions, for: topic, in: self.context)
             
+            // Add scripted daily topic questions
+            self.processQuestions(NewQuestion.questionsDailyTopic, for: topic, in: self.context, reflectQuestion: true, questionsCount: questions.questions.count)
+            
             try self.context.save()
         }
     }
 
-    private func processQuestions(_ newQuestions: [NewQuestion], for topic: TopicRepresentable, in context: NSManagedObjectContext) {
+    private func processQuestions(_ newQuestions: [NewQuestion], for topic: TopicRepresentable, in context: NSManagedObjectContext, reflectQuestion: Bool = false, questionsCount: Int = 0) {
         for newQuestion in newQuestions {
             let question = Question(context: context)
             question.questionId = UUID()
             question.questionContent = newQuestion.content
-            question.questionNumber = Int16(newQuestion.questionNumber)
+            question.questionNumber = reflectQuestion ? Int16(questionsCount + newQuestion.questionNumber + 1) : Int16(newQuestion.questionNumber)
             question.questionType = newQuestion.questionType.rawValue
-
+            question.reflectQuestion = reflectQuestion && (newQuestion.id < 2 || newQuestion.id == 4)
+            question.goalStarter = reflectQuestion && newQuestion.id > 1 && newQuestion.id < 4
+            
             switch newQuestion.questionType {
             case .singleSelect:
                 question.questionSingleSelectOptions = newQuestion.options.map { $0.text }.joined(separator: ";")
+                if reflectQuestion && (newQuestion.questionNumber == 1 || newQuestion.questionNumber == 4) {
+                    question.editedSingleSelect = true
+                }
             case .multiSelect:
                 question.questionMultiSelectOptions = newQuestion.options.map { $0.text }.joined(separator: ";")
+
             default:
                 break
             }
@@ -159,7 +167,15 @@ final class TopicProcessor {
                
                topic.addToFeedback(feedback)
            }
-          
+            
+            let questions = topic.topicQuestions
+            // find the question that asks user which topic they want to dive into next
+            let question = questions.filter { $0.questionContent ==  NewQuestion.questionsDailyTopic[2].content }.first
+            
+            if let question = question {
+                question.questionSingleSelectOptions = newRecap.areas.joined(separator: ";")
+            }
+
             // Save to coredata
             try self.context.save()
             
@@ -279,7 +295,8 @@ struct NewTopicQuestions: Codable, Hashable {
 }
 
 //question belongs to a section
-struct NewQuestion: Codable, Hashable {
+struct NewQuestion: Codable, Hashable, QuestionProtocol {
+    var id: Int { questionNumber } // Computed property using questionNumber as id
     let content: String
     let questionNumber: Int
     let questionType: QuestionType
@@ -334,6 +351,7 @@ struct NewBreakCard: Codable, Hashable {
 struct NewTopicRecap: Codable, Hashable {
     let summary: String
     let feedback: [NewFeedback]
+    let areas: [String]
 }
 
 struct NewFeedback: Codable, Hashable {
@@ -345,3 +363,4 @@ struct NewFeedback: Codable, Hashable {
         case content
     }
 }
+

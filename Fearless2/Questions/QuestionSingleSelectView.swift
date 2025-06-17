@@ -178,7 +178,7 @@ struct SingleSelectQuestionBubble: View {
                     Image(systemName: "pencil.line")
                         .multilineTextAlignment(.leading)
                         .font(.system(size: 15, weight: .light))
-                        .foregroundStyle(AppColors.textBlack)
+                        .foregroundStyle(AppColors.textPrimary)
                         .transition(.opacity)
                 }
                 

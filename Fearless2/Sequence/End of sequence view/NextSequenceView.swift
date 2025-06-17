@@ -28,6 +28,9 @@ struct NextSequenceView: View {
     @State private var multiSelectCustomItems: [[String]]
     @State private var multiSelectOptionsEdited: [Bool]
     
+    // plan suggestions
+    @State private var planSelectedTab: Int = 0
+    
     @Binding var showNextSequenceView: Bool
     @Binding var animatedGoalIDs: Set<UUID>
     
@@ -37,7 +40,7 @@ struct NextSequenceView: View {
     let backgroundColor: Color
     
     
-    let questions: [QuestionNextSequence] = QuestionNextSequence.questions
+    let questions: [NewQuestion] = NewQuestion.questionsNextSequence
     @FocusState var focusField: DefaultFocusField?
     
     init(
@@ -54,7 +57,7 @@ struct NextSequenceView: View {
         
         self.topicViewModel = topicViewModel
         
-        let count = QuestionNextSequence.questions.count
+        let count = NewQuestion.questionsNextSequence.count
 
         // intialize every state var for storing question answers in memory
         _answersOpen = State(initialValue: Array(repeating: "", count: count))
@@ -121,9 +124,13 @@ struct NextSequenceView: View {
                         default:
                         SequenceSuggestionsView (
                             topicViewModel: topicViewModel,
-                            newGoalViewModel: newGoalViewModel,
+                            viewModel: newGoalViewModel,
+                            planSelectedTab: $planSelectedTab,
                             showSheet: $showNextSequenceView,
                             showExitFlowAlert: $showExitFlowAlert,
+                            retryAction: {
+                                retryActionPlan()
+                            },
                             completeSequenceAction: {
                                 completeSequence()
                             }
@@ -359,10 +366,21 @@ struct NextSequenceView: View {
         
     }
     
-    private func createPlanSuggestions(category: Category, goal: Goal) {
+    private func retryActionPlan() {
+        planSelectedTab = 0
+        // reset var for managing when loading animation
+        newGoalViewModel.completedLoadingAnimationPlan = false
+
+        if let category = newGoalViewModel.currentCategory, let goal = newGoalViewModel.currentGoal {
+            createPlanSuggestions(category: category, goal: goal, isRetry: true)
+        }
+        
+    }
+    
+    private func createPlanSuggestions(category: Category, goal: Goal, isRetry: Bool = false) {
         Task {
             do {
-                try await newGoalViewModel.manageRun(selectedAssistant: .planSuggestion, category: category, goal: goal, sequence: sequence)
+                try await newGoalViewModel.manageRun(selectedAssistant: .planSuggestion, category: category, goal: goal, sequence: isRetry ? nil : sequence)
                 
             } catch {
                 newGoalViewModel.createPlanSuggestions = .retry
@@ -474,12 +492,12 @@ struct NextSequenceView: View {
        
         Task {
             
-            //mark sequence as complete
+            // mark sequence as complete
             if let topic = topic {
                 await dataController.completeTopic(topic: topic, sequence: sequence)
             }
             
-           // update points
+            // update points
             await dataController.updatePoints(newPoints: 10)
         }
     }
@@ -504,7 +522,6 @@ struct NextSequenceView: View {
     private func exitFlow() {
         //close sheet
         showNextSequenceView = false
-       
         
         if selectedTab > 2 {
             Task {
@@ -524,7 +541,7 @@ struct NextSequenceView: View {
             }
             
             if newGoalViewModel.createPlanSuggestions == .loading {
-                await newGoalViewModel.cancelCurrentRun()
+               try await newGoalViewModel.cancelCurrentRun()
             }
         }
     }

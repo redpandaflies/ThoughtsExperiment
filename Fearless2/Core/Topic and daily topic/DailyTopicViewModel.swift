@@ -9,15 +9,20 @@ import Foundation
 import OSLog
 import UIKit
 
-final class DailyTopicViewModel: ObservableObject, TopicRecapObservable {
+final class DailyTopicViewModel: ObservableObject, TopicRecapObservable, PlanSuggestionsObservable {
     
     // manage API calls states
     @Published var createTopicRecap: LoadingStatePrimary = .ready
     @Published var createTopic: LoadingStatePrimary = .ready
     @Published var createTopicQuestions: LoadingStatePrimary = .ready
+    @Published var newPlanSuggestions: [NewPlan] = []
+    @Published var createPlanSuggestions: LoadingStatePrimary = .ready
+    @Published var completedLoadingAnimationPlan: Bool = false
     
     var createTopicRecapPublisher: Published<LoadingStatePrimary>.Publisher { $createTopicRecap }
     var completedLoadingAnimationSummaryPublisher: Published<Bool>.Publisher { $completedLoadingAnimationSummary }
+    var createPlanSuggestionsPublisher: Published<LoadingStatePrimary>.Publisher { $createPlanSuggestions }
+    var completedLoadingAnimationPlanPublisher: Published<Bool>.Publisher { $completedLoadingAnimationPlan }
     
     // manage UI updates
     /// triggers update of progress bar for sequence (plan)
@@ -26,9 +31,13 @@ final class DailyTopicViewModel: ObservableObject, TopicRecapObservable {
     
     // save new topic so it can be used to generate questions
     var currentTopic: TopicDaily? = nil
+    var currentCategory: Category? = nil
+    var currentGoal: Goal? = nil
+    
     
     private var dataController: DataController
     private var topicProcessor: TopicProcessor
+    private var goalProcessor: GoalProcessor
     private var assistantRunManager: AssistantRunManager
     
     private var backgroundTaskID: UIBackgroundTaskIdentifier = .invalid
@@ -39,16 +48,20 @@ final class DailyTopicViewModel: ObservableObject, TopicRecapObservable {
     init(
         dataController: DataController,
         topicProcessor: TopicProcessor,
+        goalProcessor: GoalProcessor,
         assistantRunManager: AssistantRunManager
     ) {
         self.dataController = dataController
         self.topicProcessor = topicProcessor
+        self.goalProcessor = goalProcessor
         self.assistantRunManager = assistantRunManager
     }
     
     func manageRun(
         selectedAssistant: AssistantItem,
-        topic: TopicDaily? = nil
+        topic: TopicDaily? = nil,
+        category: Category? = nil,
+        goal: Goal? = nil
     ) async throws {
         
         // Start a background task to give iOS extra time when you go background
@@ -76,7 +89,6 @@ final class DailyTopicViewModel: ObservableObject, TopicRecapObservable {
                     self.createTopicRecap = .loading
                 }
                 
-                
                 if selectedAssistant == .topicDaily {
                     if self.createTopic != .loading {
                         self.createTopic = .loading
@@ -89,11 +101,16 @@ final class DailyTopicViewModel: ObservableObject, TopicRecapObservable {
                     self.createTopicQuestions = .loading
                 }
                 
+                currentCategory = category
+                currentGoal = goal
+                
             }
             
             try await manageRunWithStreaming(
                 selectedAssistant: selectedAssistant,
-                topic: topic
+                topic: topic,
+                category: category,
+                goal: goal
             )
             
         } catch {
@@ -106,12 +123,17 @@ final class DailyTopicViewModel: ObservableObject, TopicRecapObservable {
     
     func manageRunWithStreaming(
         selectedAssistant: AssistantItem,
-        topic: TopicDaily?
+        topic: TopicDaily?,
+        category: Category? = nil,
+        goal: Goal? = nil
+        
     ) async throws {
         
         do {
             let messageText = try await assistantRunManager.runAssistant(
                 selectedAssistant: selectedAssistant,
+                category: category,
+                goal: goal,
                 topicDaily: topic
             )
             
@@ -154,6 +176,19 @@ final class DailyTopicViewModel: ObservableObject, TopicRecapObservable {
                     self.createTopicRecap = .ready
                 }
             
+            case .planSuggestion:
+                guard let newSuggestions = try await goalProcessor.processPlanSuggestions(messageText: messageText) else {
+                    
+                    loggerOpenAI.error("Failed to process new plan suggestions")
+                    throw ProcessingError.processingFailed()
+                    
+                }
+                
+                await MainActor.run {
+                    self.newPlanSuggestions = newSuggestions.plans
+                    createPlanSuggestions = .ready
+                    self.loggerOpenAI.log("New plan suggestions ready")
+                }
                 
             default:
                 break

@@ -11,6 +11,7 @@ import SwiftUI
 
 struct DailyReflectionView: View {
     @StateObject var dailyTopicViewModel: DailyTopicViewModel
+    @ObservedObject var topicViewModel: TopicViewModel
     
     @State private var selectedTab: Int = 1
     @State private var showSettingsView: Bool = false
@@ -46,9 +47,11 @@ struct DailyReflectionView: View {
     
     init(
            dailyTopicViewModel: DailyTopicViewModel,
+           topicViewModel: TopicViewModel,
            currentPoints: Int
        ) {
            _dailyTopicViewModel = StateObject(wrappedValue: dailyTopicViewModel)
+           self.topicViewModel = topicViewModel
            self.currentPoints = currentPoints
        }
     
@@ -198,6 +201,7 @@ struct DailyReflectionView: View {
                }) {
                    if let topic = dailyTopics.first {
                        UpdateDailyTopicView(
+                        topicViewModel: topicViewModel,
                         dailyTopicViewModel: dailyTopicViewModel,
                         showUpdateTopicView: $showUpdateTopicView,
                         topic: topic,

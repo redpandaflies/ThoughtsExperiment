@@ -22,9 +22,12 @@ class ViewModelFactoryMain: ObservableObject {
     }
     
     func makeNewGoalViewModel() -> NewGoalViewModel {
+        let context = dataController.container.viewContext
+        let goalProcessor = GoalProcessor(context: context)
+        
         return NewGoalViewModel(
             dataController: dataController,
-            openAISwiftService: openAISwiftService,
+            goalProcessor: goalProcessor,
             assistantRunManager: assistantRunManager
         )
     }
@@ -52,10 +55,12 @@ class ViewModelFactoryMain: ObservableObject {
     func makeDailyTopicViewModel() -> DailyTopicViewModel {
         let context = dataController.container.viewContext
         let topicProcessor = TopicProcessor(context: context)
+        let goalProcessor = GoalProcessor(context: context)
         
         return DailyTopicViewModel(
             dataController: dataController,
             topicProcessor: topicProcessor,
+            goalProcessor: goalProcessor,
             assistantRunManager: assistantRunManager
             
         )

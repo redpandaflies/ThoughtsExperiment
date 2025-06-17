@@ -36,6 +36,8 @@ struct NewGoalView: View {
     @State private var expectationsScrollPosition: Int?
     @State private var disableButtonExpectations: Bool = true
     
+    // plan suggestions view
+    @State private var selectedTabPlan: Int = 0
     
     @Binding var showNewGoalSheet: Bool
    
@@ -108,14 +110,20 @@ struct NewGoalView: View {
                     .padding(.horizontal)
     
                 case 2:
-                    NewGoalExpectationsView(expectationsScrollPosition: $expectationsScrollPosition)
+                    NewGoalExpectationsView(
+                        expectationsScrollPosition: $expectationsScrollPosition
+                    )
                 
                 default:
                     SequenceSuggestionsView (
                         topicViewModel: topicViewModel,
-                        newGoalViewModel: newGoalViewModel,
+                        viewModel: newGoalViewModel,
+                        planSelectedTab: $selectedTabPlan,
                         showSheet: $showNewGoalSheet,
-                        showExitFlowAlert: $showExitFlowAlert
+                        showExitFlowAlert: $showExitFlowAlert,
+                        retryAction: {
+                            retryActionPlans()
+                        }
                     )
             }
         }
@@ -253,7 +261,8 @@ struct NewGoalView: View {
 
         // Create the category
         let savedCategory = await dataController.createSingleCategory()
-        //Create new goal
+        
+        // Create new goal
         /// need to make sure questions are related to the right goal when saved
         let savedGoal = await dataController.createNewGoal(category: savedCategory, problemType: answersSingleSelect[0])
         
@@ -401,6 +410,20 @@ struct NewGoalView: View {
         
     }
     
+    private func retryActionPlans() {
+        selectedTabPlan = 0
+        // reset var for managing when loading animation
+       newGoalViewModel.completedLoadingAnimationPlan = false
+        
+        if let category = newGoalViewModel.currentCategory, let goal = newGoalViewModel.currentGoal {
+            Task {
+                await manageRunPlanSuggestion(category: category, goal: goal)
+            }
+        }
+        
+    }
+    
+    
     private func sendMixpanelEvents(answeredQuestionIndex: Int) {
         switch answeredQuestionIndex {
         case 0:
@@ -454,7 +477,7 @@ struct NewGoalView: View {
     private func exitFlowAction() {
         
         Task {
-            await newGoalViewModel.cancelCurrentRun()
+            try await newGoalViewModel.cancelCurrentRun()
             
             await MainActor.run {
                 //dismiss

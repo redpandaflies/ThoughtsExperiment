@@ -8,12 +8,11 @@ import Combine
 import Mixpanel
 import SwiftUI
 
-struct SequenceSuggestionsView: View {
+struct SequenceSuggestionsView<ViewModel: PlanSuggestionsObservable>: View {
     @EnvironmentObject var dataController: DataController
     @ObservedObject var topicViewModel: TopicViewModel
-    @ObservedObject var newGoalViewModel: NewGoalViewModel
+    @ObservedObject var viewModel: ViewModel
     
-    @State private var planSelectedTab: Int = 0
     @State private var suggestionsScrollPosition: Int?
     @State private var animationCompleted: Bool = false
     
@@ -21,9 +20,11 @@ struct SequenceSuggestionsView: View {
     @State private var animationSpeed: CGFloat = 1.0
     @State private var play: Bool = true
     
+    @Binding var planSelectedTab: Int
     @Binding var showSheet: Bool
     @Binding var showExitFlowAlert: Bool
     
+    let retryAction: () -> Void
     let completeSequenceAction: () -> Void
     
     let screenWidth: CGFloat = UIScreen.current.bounds.width
@@ -37,16 +38,20 @@ struct SequenceSuggestionsView: View {
     
     init(
         topicViewModel: TopicViewModel,
-        newGoalViewModel: NewGoalViewModel,
+        viewModel: ViewModel,
+        planSelectedTab: Binding<Int>,
         showSheet: Binding<Bool>,
         showExitFlowAlert: Binding<Bool>,
+        retryAction: @escaping () -> Void,
         completeSequenceAction: @escaping () -> Void = {}
       
     ) {
         self.topicViewModel = topicViewModel
-        self.newGoalViewModel = newGoalViewModel
+        self.viewModel = viewModel
+        self._planSelectedTab = planSelectedTab
         self._showSheet = showSheet
         self._showExitFlowAlert = showExitFlowAlert
+        self.retryAction = retryAction
         self.completeSequenceAction = completeSequenceAction
         
     }
@@ -60,7 +65,7 @@ struct SequenceSuggestionsView: View {
                         texts: loadingTexts,
                         showFooter: true,
                         onComplete: {
-                            newGoalViewModel.completedLoadingAnimationPlan = true
+                            viewModel.completedLoadingAnimationPlan = true
                         }
                     )
                     .padding(.horizontal)
@@ -76,18 +81,18 @@ struct SequenceSuggestionsView: View {
             
         }
         .onAppear {
-            if newGoalViewModel.createPlanSuggestions == .ready && !newGoalViewModel.newPlanSuggestions.isEmpty {
-                planSelectedTab = 1
-            } else if newGoalViewModel.createPlanSuggestions == .retry {
-                planSelectedTab = 2
-            } else {
-                planSelectedTab = 0
-            }
+            if viewModel.createPlanSuggestions == .ready && !viewModel.newPlanSuggestions.isEmpty {
+                           planSelectedTab = 1
+           } else if viewModel.createPlanSuggestions == .retry {
+               planSelectedTab = 2
+           } else {
+               planSelectedTab = 0
+           }
         }
         .onReceive(
           Publishers.CombineLatest(
-            newGoalViewModel.$createPlanSuggestions,
-            newGoalViewModel.$completedLoadingAnimationPlan
+            viewModel.createPlanSuggestionsPublisher,
+            viewModel.completedLoadingAnimationPlanPublisher
           )
           .filter { suggestions, loaded in
             loaded && suggestions != .loading
@@ -121,7 +126,7 @@ struct SequenceSuggestionsView: View {
             ScrollView(.horizontal) {
                 HStack (alignment: .center, spacing: 15) {
                     
-                    ForEach(Array(newGoalViewModel.newPlanSuggestions.enumerated()), id: \.element.self) { index, suggestion in
+                    ForEach(Array(viewModel.newPlanSuggestions.enumerated()), id: \.element.self) { index, suggestion in
                         PlanSuggestionBox(suggestion: suggestion, index: index, frameWidth: frameWidth)
                             .id(index)
                             .scrollTransition { content, phase in
@@ -144,51 +149,22 @@ struct SequenceSuggestionsView: View {
     
     }
     
-    private func retryAction() {
-        planSelectedTab = 0
-        // reset var for managing when loading animation is ready
-        newGoalViewModel.completedLoadingAnimationPlan = false
-        
-        if let category = newGoalViewModel.currentCategory, let goal = newGoalViewModel.currentGoal {
-            Task {
-                await manageRun(category: category, goal: goal)
-            }
-        }
-        
-    }
-    
-    private func manageRun(category: Category, goal: Goal) async {
-        
-        Task {
-           
-            do {
-                try await newGoalViewModel.manageRun(selectedAssistant: .planSuggestion, category: category, goal: goal)
-                
-            } catch {
-                newGoalViewModel.createPlanSuggestions = .retry
-            }
-            
-        }
-        
-    }
-    
     private func manageView() {
-        switch newGoalViewModel.createPlanSuggestions {
-        case .ready:
-            planSelectedTab = 1
-        case .loading:
-            if planSelectedTab != 0 {
-                planSelectedTab = 0
-            }
-        case .retry:
-            planSelectedTab = 2
-            
+        switch viewModel.createPlanSuggestions {
+            case .ready:
+                planSelectedTab = 1
+            case .loading:
+                if planSelectedTab != 0 {
+                    planSelectedTab = 0
+                }
+            case .retry:
+                planSelectedTab = 2
         }
     }
     
     private func saveChosenPlan(plan: NewPlan, index: Int) {
         Task {
-            if let category = newGoalViewModel.currentCategory, let goal = newGoalViewModel.currentGoal {
+            if let category = viewModel.currentCategory, let goal = viewModel.currentGoal {
                 let topic = await dataController.saveSelectedPlan(plan: plan, category: category, goal: goal)
                 
                 await MainActor.run {

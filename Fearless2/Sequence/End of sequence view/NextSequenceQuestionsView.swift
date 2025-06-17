@@ -18,13 +18,13 @@ struct NextSequenceQuestionsView: View {
     @Binding var multiSelectCustomItems: [[String]]
     @Binding var multiSelectOptionsEdited: [Bool]
     
-    let questions: [QuestionNextSequence]
+    let questions: [NewQuestion]
     let focusField: FocusState<DefaultFocusField?>.Binding
     let sequenceObjectives: String
     let keepExploringAction: () -> Void
     let resolveTopicAction: () -> Void
     
-    var currentQuestion: QuestionNextSequence {
+    var currentQuestion: NewQuestion {
         return questions[selectedQuestion]
     }
 
@@ -49,15 +49,18 @@ struct NextSequenceQuestionsView: View {
                     )
                     
                 default:
-                    NextSequenceWhereToNext(
+                    QuestionWhereToNext(
                         question: currentQuestion.content,
-                        keepExploringAction: {
+                        leftAction: {
                             keepExploringAction()
                         },
-                        resolveTopicAction: {
+                        rightAction: {
                             resolveTopicAction()
-                        }
-                    
+                        },
+                        leftTitle: "Keep\nexploring",
+                        leftSubtitle: "We'll come up with a new plan",
+                        rightTitle: "Resolve\ntopic",
+                        rightSubtitle: "You can start a new one"
                     )
             }
         }
@@ -72,6 +75,6 @@ struct NextSequenceQuestionsView: View {
            return options
         }
         
-        return currentQuestion.options ?? []
+        return currentQuestion.options.map { $0.text }
     }
 }

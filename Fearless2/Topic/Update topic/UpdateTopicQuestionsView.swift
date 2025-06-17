@@ -22,12 +22,20 @@ struct UpdateTopicQuestionsView: View {
     let topic: TopicRepresentable
     var questions: FetchedResults<Question>
     
+    /// in daily topics flow, need to know this so the heading doesn't show up for the static questions
+    var mainFlowQuestionsCount: Int {
+        let totalQuestions = questions.count
+        let staticQuestions = NewQuestion.questionsDailyTopic.count
+        return max(totalQuestions - staticQuestions, 0)
+    }
+    
     var body: some View {
             
         VStack (alignment: .leading, spacing: 5) {
             
-            HStack {
-                
+            
+            if selectedQuestion < mainFlowQuestionsCount {
+            
                 HStack (spacing: 5) {
 
                     Text(topic.topicEmoji)
@@ -40,7 +48,7 @@ struct UpdateTopicQuestionsView: View {
                         .fontWidth(.condensed)
                         .foregroundStyle(AppColors.textPrimary.opacity(0.8))
                 }
-                Spacer()
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
             
             if let questionType = QuestionType(rawValue: questions[selectedQuestion].questionType) {

@@ -104,15 +104,11 @@ final class TopicViewModel: ObservableObject, TopicRecapObservable {
                 
                 if selectedAssistant == .topicBreak {
                     self.createTopicBreak = .loading
-                } else {
-                    self.createTopicBreak = .ready
                 }
                 if selectedAssistant == .topic {
                     if self.createTopicQuestions != .loading {
                         self.createTopicQuestions = .loading
                     }
-                } else {
-                    self.createTopicQuestions = .ready
                 }
                 self.sectionSummaryCreated = false
                 self.updatedEntry = nil

@@ -8,26 +8,25 @@ import SwiftUI
 
 enum TabBarItemHome: Int, CaseIterable {
 
-    case topics
     case daily
-   
+    case topics
 
     func selectedIconName() -> String {
         switch self {
+        case .daily:
+            return "sparkle"
         case .topics:
             return "rectangle.fill.on.rectangle.angled.fill"
-        case .daily:
-            return "calendar"
 
         }
     }
     
     func iconLabel() -> String {
         switch self {
+        case .daily:
+            return "Sparks"
         case .topics:
             return "Your topics"
-        case .daily:
-            return "Topic of the day"
         }
     }
 

@@ -12,7 +12,7 @@ struct MainAppManager: View {
     @ObservedObject var topicViewModel: TopicViewModel
     
     @State private var currentTabBar: TabBarType = .home
-    @State private var selectedTabHome: TabBarItemHome = .topics
+    @State private var selectedTabHome: TabBarItemHome = .daily
     @State private var selectedTabTopic: TopicPickerItem = .paths
     @State private var navigateToTopicDetailView: Bool = false
    
@@ -34,6 +34,7 @@ struct MainAppManager: View {
             case .daily:
                 DailyReflectionView(
                     dailyTopicViewModel: viewModelFactoryMain.makeDailyTopicViewModel(),
+                    topicViewModel: topicViewModel,
                     currentPoints: currentPoints
                 )
                 

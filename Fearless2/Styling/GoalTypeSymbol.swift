@@ -14,6 +14,7 @@ enum GoalTypeItem: String, CaseIterable {
     case decision
     case problem
     case clarity
+    case deepDive
     
     func getNameLong() -> String {
         switch self {
@@ -23,6 +24,8 @@ enum GoalTypeItem: String, CaseIterable {
             return "Solve a problem"
         case .clarity:
             return "Get clarity on something"
+        case .deepDive:
+            return "Do a deep dive"
         }
     }
     
@@ -34,6 +37,8 @@ enum GoalTypeItem: String, CaseIterable {
             return "Solve a problem"
         case .clarity:
             return "Get clarity"
+        case .deepDive:
+            return "Deep dive"
         }
     }
     
@@ -45,6 +50,8 @@ enum GoalTypeItem: String, CaseIterable {
             return "What problem are you trying to solve?"
         case .clarity:
             return "What do you need clarity on?"
+        case .deepDive:
+            return "What do you want to dive into?"
         }
     }
     
@@ -56,6 +63,8 @@ enum GoalTypeItem: String, CaseIterable {
             return "checkmark.seal"
         case .clarity:
             return "magnifyingglass"
+        case .deepDive:
+            return "square.2.layers.3d.bottom.filled"
         }
     }
         
@@ -67,6 +76,8 @@ enum GoalTypeItem: String, CaseIterable {
             return "goalProblem"
         case .clarity:
             return "goalClarity"
+        case .deepDive:
+            return "goalDecision"
         }
     }
     

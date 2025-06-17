@@ -10,7 +10,6 @@ import SwiftUI
 
 protocol QuestionProtocol: Identifiable, Codable {
     var id: Int { get }
-    var content: String { get set }
-    var questionType: QuestionType { get set }
-    var options: [String]? { get set }
+    var content: String { get  }
+    var questionType: QuestionType { get  }
 }

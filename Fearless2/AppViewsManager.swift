@@ -12,6 +12,7 @@ struct AppViewsManager: View {
     @StateObject private var topicViewModel: TopicViewModel
     
     @State private var currentView: Int = 0
+    @State private var selectedTabHome: TabBarItemHome = .daily
     
     @FetchRequest(
         sortDescriptors: [
@@ -32,12 +33,18 @@ struct AppViewsManager: View {
                 
             case 0:
                 
-                OnboardingMainView(topicViewModel: topicViewModel)
+                OnboardingMainView(
+                    topicViewModel: topicViewModel,
+                    selectedTabHome: $selectedTabHome
+                )
                 
             default:
 //                if !categories.isEmpty {
-                MainAppManager(topicViewModel: topicViewModel)
-                    .transition(.opacity)
+                MainAppManager(
+                    topicViewModel: topicViewModel,
+                    selectedTabHome: $selectedTabHome
+                )
+                .transition(.opacity)
 //                } else {
 //                    //Should never happen, user should always have categories unless they haven't done onboarding, may come up during testing
 //                    OnboardingMainView()

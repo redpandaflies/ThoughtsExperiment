@@ -10,6 +10,7 @@ import SwiftUI
 
 
 struct DailyReflectionView: View {
+    @EnvironmentObject var dataController: DataController
     @StateObject var dailyTopicViewModel: DailyTopicViewModel
     @ObservedObject var topicViewModel: TopicViewModel
     
@@ -22,6 +23,7 @@ struct DailyReflectionView: View {
     @State private var animationSpeed: CGFloat = 1.0
     @State private var play: Bool = false
     
+    @Binding var selectedTabHome: TabBarItemHome
     let currentPoints: Int
     
     let backgroundColor: LinearGradient = LinearGradient(
@@ -48,10 +50,12 @@ struct DailyReflectionView: View {
     init(
            dailyTopicViewModel: DailyTopicViewModel,
            topicViewModel: TopicViewModel,
+           selectedTabHome: Binding<TabBarItemHome>,
            currentPoints: Int
        ) {
            _dailyTopicViewModel = StateObject(wrappedValue: dailyTopicViewModel)
            self.topicViewModel = topicViewModel
+           self._selectedTabHome = selectedTabHome
            self.currentPoints = currentPoints
        }
     
@@ -133,6 +137,13 @@ struct DailyReflectionView: View {
                 case .retry:
                     selectedTab = 2
                     
+                }
+            }
+            .onChange(of: showUpdateTopicView) {
+                if !showUpdateTopicView && dataController.createdNewGoal {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        selectedTabHome = .topics
+                    }
                 }
             }
             .toolbar {
@@ -259,10 +270,10 @@ struct DailyReflectionView: View {
     private func getPillText() -> String {
         switch selectedTab {
         case 0:
-            return "Generating topic"
+            return "Generating spark"
         case 1:
             if let topic = dailyTopics.first, topic.topicStatus == TopicStatusItem.completed.rawValue {
-                return  "Topic Complete"
+                return  "Spark Complete"
             }
             return  "Suggested for you"
         default:

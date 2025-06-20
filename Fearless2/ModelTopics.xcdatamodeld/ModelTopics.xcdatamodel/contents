@@ -72,6 +72,7 @@
         <relationship name="questions" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Question" inverseName="goal" inverseEntity="Question"/>
         <relationship name="sequences" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Sequence" inverseName="goal" inverseEntity="Sequence"/>
         <relationship name="sequenceSummaries" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SequenceSummary" inverseName="goal" inverseEntity="SequenceSummary"/>
+        <relationship name="topicDaily" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="TopicDaily" inverseName="goal" inverseEntity="TopicDaily"/>
         <relationship name="topics" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Topic" inverseName="goal" inverseEntity="Topic"/>
     </entity>
     <entity name="Insight" representedClassName="Insight" syncable="YES" codeGenerationType="class">
@@ -205,6 +206,7 @@
         <attribute name="title" optional="YES" attributeType="String"/>
         <relationship name="expectations" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="TopicExpectation" inverseName="topicDaily" inverseEntity="TopicExpectation"/>
         <relationship name="feedback" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="TopicFeedback" inverseName="topicDaily" inverseEntity="TopicFeedback"/>
+        <relationship name="goal" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Goal" inverseName="topicDaily" inverseEntity="Goal"/>
         <relationship name="questions" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Question" inverseName="topicDaily" inverseEntity="Question"/>
         <relationship name="review" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TopicReview" inverseName="topicDaily" inverseEntity="TopicReview"/>
     </entity>

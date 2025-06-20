@@ -93,13 +93,15 @@ struct QuestMapView: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.horizontal)
             
-            Text(goal.goalResolution)
-                .multilineTextAlignment(.leading)
-                .font(.system(size: 15, weight: .light))
-                .foregroundStyle(AppColors.textPrimary.opacity(0.8))
-                .fixedSize(horizontal: false, vertical: true)
-                .lineSpacing(1.4)
-                .padding(.horizontal)
+            if !goal.goalResolution.isEmpty {
+                Text(goal.goalResolution)
+                    .multilineTextAlignment(.leading)
+                    .font(.system(size: 15, weight: .light))
+                    .foregroundStyle(AppColors.textPrimary.opacity(0.8))
+                    .fixedSize(horizontal: false, vertical: true)
+                    .lineSpacing(1.4)
+                    .padding(.horizontal)
+            }
             
             // show only the latest sequence
             if !sequences.isEmpty {

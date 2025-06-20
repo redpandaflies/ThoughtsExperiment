@@ -238,7 +238,7 @@ struct PlanSuggestionBox: View {
             Spacer()
             
             RectangleButtonPrimary(
-                buttonText: "Choose this plan",
+                buttonText: "Choose this path",
                 action: {
                     
                 },

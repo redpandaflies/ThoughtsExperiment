@@ -104,12 +104,18 @@ struct InfoNotifications: View {
     }
     
     private func handleIsScheduledChange() {
-        notificationManager.requestAuthorization()
-        notificationManager.scheduleDailyNotifications(notificationTimeString: notificationTimeString)
-        DispatchQueue.global(qos: .background).async {
-            Mixpanel.mainInstance().track(event: "Set daily reminder")
+        Task {
+            do {
+               try await notificationManager.requestAuthorization()
+            } catch {
+                isScheduled = false
+            }
+            notificationManager.scheduleDailyNotifications(notificationTimeString: notificationTimeString)
+            isScheduled = true
+            DispatchQueue.global(qos: .background).async {
+                Mixpanel.mainInstance().track(event: "Set daily reminder")
+            }
         }
-      
     }
     
 }

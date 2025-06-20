@@ -38,10 +38,11 @@ struct QuestionSingleSelectView: View {
     let itemsEdited: Bool
     let subTitle: String
     let showSymbol: Bool
+    let placeholderText: String
     
     @FocusState private var isFocused: Bool
 
-    init(singleSelectAnswer: Binding<String>, customItems: Binding<[String]> = .constant([]), showProgressBar: Binding<Bool> = .constant(true), question: String, items: [String], answer: String = "", itemsEdited: Bool = false, subTitle: String = "", showSymbol: Bool = false) {
+    init(singleSelectAnswer: Binding<String>, customItems: Binding<[String]> = .constant([]), showProgressBar: Binding<Bool> = .constant(true), question: String, items: [String], answer: String = "", itemsEdited: Bool = false, subTitle: String = "", showSymbol: Bool = false, placeholderText: String = "Add your own") {
         self._singleSelectAnswer = singleSelectAnswer
         self._customItems = customItems
         self._showProgressBar = showProgressBar
@@ -51,6 +52,7 @@ struct QuestionSingleSelectView: View {
         self.itemsEdited = itemsEdited
         self.subTitle = subTitle
         self.showSymbol = showSymbol
+        self.placeholderText = placeholderText
     }
     
     // Process the options once to determine which ones are editable
@@ -98,6 +100,7 @@ struct QuestionSingleSelectView: View {
                         items: items,
                         isEditable: option.isEditable,
                         symbol: showSymbol ? GoalTypeItem.symbolName(forLongName: option.text) : "",
+                        placeholderText: placeholderText,
                         isFocused: $isFocused
                     )
                     .onTapGesture {
@@ -150,6 +153,7 @@ struct SingleSelectQuestionBubble: View {
     let items: [String]
     let isEditable: Bool
     let symbol: String
+    let placeholderText: String
 
     @FocusState.Binding var isFocused: Bool
     
@@ -182,7 +186,7 @@ struct SingleSelectQuestionBubble: View {
                         .transition(.opacity)
                 }
                 
-                TextField("", text: $editableOption.max(40))
+                TextField("", text: $editableOption, prompt: Text(placeholderText).foregroundStyle(AppColors.textPrimary.opacity(0.6)))
                     .multilineTextAlignment(.leading)
                     .font(.system(size: 15, weight: .light))
                     .foregroundStyle(selected || customTextIsSelected ? AppColors.textBlack : AppColors.textPrimary)

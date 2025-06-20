@@ -12,6 +12,7 @@ struct UpdateDailyTopicView: View {
     @EnvironmentObject var dataController: DataController
     @ObservedObject var topicViewModel: TopicViewModel
     @ObservedObject var dailyTopicViewModel: DailyTopicViewModel
+    @ObservedObject private var notificationManager = NotificationManager.shared
     
     @State private var showProgressBar: Bool = true //for hiding progress bar when user is typing their answer for single-select question
     @State private var selectedTab: Int = 0
@@ -97,15 +98,21 @@ struct UpdateDailyTopicView: View {
                     showBackButton: selectedQuestion > 0,
                     backAction: {
                         backButtonAction()
-                    })
+                    }
+                )
                 .transition(.opacity)
                 
-            } else if selectedTab != 1 || (selectedTab == 1 && selectedTabQuestions != 1) || (selectedTab == 1 && selectedQuestion >= mainFlowQuestionsCount) {
+            } else if selectedTab != 1 || (selectedTab == 1 && selectedTabQuestions != 1) || (selectedTab == 1 && selectedQuestion >= mainFlowQuestionsCount) && showProgressBar {
                 SheetHeader(
                     title: topic.topicTheme,
                     xmarkAction: {
-                        dismiss()
-                    })
+                        if selectedTab > 1 && topic.topicStatus != TopicStatusItem.completed.rawValue {
+                            showExitFlowAlert = true
+                        } else {
+                            dismiss()
+                        }
+                    }
+                )
             }
             
             //Question
@@ -131,6 +138,7 @@ struct UpdateDailyTopicView: View {
                         multiSelectCustomItems: $multiSelectCustomItems,
                         topic: topic,
                         questions: questions,
+                        mainFlowQuestionsCount: mainFlowQuestionsCount,
                         retryAction: {
                             retryActionQuestions()
                         },
@@ -146,7 +154,9 @@ struct UpdateDailyTopicView: View {
                     .padding(.horizontal)
                     .padding(.top, 80)
                     .onAppear {
-                        getRecapAndNextTopicQuestions()
+                        if topic.topicFeedback.isEmpty {
+                            getRecapAndNextTopicQuestions()
+                        }
                     }
                     
                 case 3:
@@ -169,8 +179,10 @@ struct UpdateDailyTopicView: View {
                     )
                 
                 case 5:
-                    QuestionWhereToNext(
-                        question: "Spark complete. Explore further?",
+                    QuestionWhereToNext2(
+                        imageName: "spark",
+                        title: "Spark complete",
+                        subtitle: "Explore further?",
                         leftAction: {
                             completeFlowAction()
                         },
@@ -178,12 +190,15 @@ struct UpdateDailyTopicView: View {
                             diveDeeperAction()
                         },
                         leftTitle: "I'm done",
+                        leftSubtitle: "Get a new spark tomorrow",
                         rightTitle: "Go deeper",
-                        rightSubtitle: "Let's see where this takes us"
+                        rightSubtitle: "Look at it from a new angle",
+                        leftSymbol: "checkmark",
+                        rightSymbol: "arrow.right"
                     )
                     .padding(.horizontal)
                 
-                default:
+                case 6:
                     SequenceSuggestionsView (
                         topicViewModel: topicViewModel,
                         viewModel: dailyTopicViewModel,
@@ -192,6 +207,15 @@ struct UpdateDailyTopicView: View {
                         showExitFlowAlert: $showExitFlowAlert,
                         retryAction: {
                             retryActionPlan()
+                        }
+                    )
+                
+                default:
+                    NotificationsView(
+                        leftAction: {
+                            notificationsViewAction()
+                        }, rightAction: {
+                            notificationsViewAction()
                         }
                     )
               
@@ -227,6 +251,16 @@ struct UpdateDailyTopicView: View {
                     disableButtonFeedback = false
                 }
             }
+        }
+        .alert("Exit retrospective?", isPresented: $showExitFlowAlert) {
+            Button("Keep going", role: .cancel) {
+                showExitFlowAlert = false
+            }
+            Button("Exit", role: .destructive) {
+                exitFlow()
+            }
+        } message: {
+            Text("You'll lose your progress on this step.")
         }
        
     }
@@ -280,7 +314,15 @@ struct UpdateDailyTopicView: View {
             
         case 3:
             return getButtonTextRecapView()
-            
+        
+        case 4:
+            if topic.topicStatus == TopicStatusItem.completed.rawValue {
+                return "Done"
+                
+            } else {
+                return "Continue"
+            }
+        
         default:
             return "Continue"
         }
@@ -292,10 +334,12 @@ struct UpdateDailyTopicView: View {
         case 0:
             return "Loading . . ."
         case 1 :
-            if selectedQuestion < questions.count - 1 {
+            if selectedQuestion < mainFlowQuestionsCount - 1 {
                 return "Next question"
-            } else {
+            } else if selectedQuestion == mainFlowQuestionsCount - 1 {
                 return "Complete topic"
+            } else {
+                return "Continue"
             }
            
         default:
@@ -329,8 +373,12 @@ struct UpdateDailyTopicView: View {
                 completeFeedback()
             
             case 4:
-                selectedQuestion += 1
-                selectedTab = 1
+                if topic.topicStatus == TopicStatusItem.completed.rawValue {
+                    dismiss()
+                } else {
+                    selectedQuestion += 1
+                    selectedTab = 1
+                }
             
             default:
                 selectedTab += 1
@@ -339,7 +387,7 @@ struct UpdateDailyTopicView: View {
     }
     
     private func showSkipButton() -> Bool {
-        if selectedTab == 1 && questions.count > 0 {
+        if selectedTab == 1 && questions.count > 0 && selectedQuestion < mainFlowQuestionsCount {
             if let answeredQuestionType =  QuestionType(rawValue: questions[selectedQuestion].questionType) {
                 switch answeredQuestionType {
                 case .open:
@@ -356,11 +404,10 @@ struct UpdateDailyTopicView: View {
     }
     
     private func skipButtonAction() {
-        let answeredQuestionIndex = selectedQuestion
         let numberOfQuestions = questions.count
-        let staticQuestions = NewQuestion.questionsDailyTopic.count
-        if answeredQuestionIndex + 1 == numberOfQuestions - staticQuestions {
-            completeMainFlow()
+       
+        if focusField != nil {
+            focusField = nil
         }
         
         goToNextquestion(totalQuestions: numberOfQuestions)
@@ -547,17 +594,29 @@ struct UpdateDailyTopicView: View {
     private func nextAction(question: String) async {
         switch question {
         case NewQuestion.questionsDailyTopic[1].content:
-            await completeDailyTopic()
+            await markDailyTopicComplete()
             
-            await MainActor.run {
-                dismiss()
+            let notificationEnabled = await notificationManager.checkIfNotificationsAreScheduled()
+            
+            if notificationEnabled {
+                await MainActor.run {
+                    dismiss()
+                }
+            } else {
+                selectedTab = 7
             }
 
         case NewQuestion.questionsDailyTopic[4].content:
-            await MainActor.run {
-                selectedTab = 6
+            let notificationEnabled = await notificationManager.checkIfNotificationsAreScheduled()
+            
+            if notificationEnabled {
+                await MainActor.run {
+                    selectedTab = 6
+                }
+            } else {
+                selectedTab = 7
             }
-            await completeDailyTopic()
+            await markDailyTopicComplete()
 
         case NewQuestion.questionsDailyTopic[3].content:
             await getPlans()
@@ -680,13 +739,13 @@ struct UpdateDailyTopicView: View {
         }
     }
     
-    private func completeDailyTopic() async {
+    private func markDailyTopicComplete() async {
         
-            await dailyTopicViewModel.completeTopic(topic: topic)
-            
-            DispatchQueue.global(qos: .background).async {
-                Mixpanel.mainInstance().track(event: "Completed daily topic")
-            }
+        await dailyTopicViewModel.completeTopic(topic: topic)
+        
+        DispatchQueue.global(qos: .background).async {
+            Mixpanel.mainInstance().track(event: "Completed daily topic")
+        }
             
     }
     
@@ -717,10 +776,16 @@ struct UpdateDailyTopicView: View {
         
         // Create new goal
         /// need to make sure questions are related to the right goal when saved
-        let savedGoal = await dataController.createNewGoal(category: savedCategory, topic: topic)
+        let savedGoal = await dataController.createNewGoal(
+            category: savedCategory,
+            topic: topic
+        )
         
         if let category = savedCategory, let goal = savedGoal {
-            await createPlanSuggestions(category: category, goal: goal)
+            await createPlanSuggestions(
+                category: category,
+                goal: goal
+            )
         }
         
         
@@ -750,6 +815,33 @@ struct UpdateDailyTopicView: View {
             }
         }
         
+    }
+    
+    // MARK: - Notifications
+    
+    private func notificationsViewAction() {
+        if dailyTopicViewModel.startedPlanSuggestionsRun {
+            selectedTab = 6
+        } else {
+            dismiss()
+        }
+    }
+    
+    // MARK: - Exit Flow
+    private func exitFlow() {
+        //close sheet
+        dismiss()
+
+        // cancel any active API calls
+        cancelRun()
+    }
+    
+    private func cancelRun() {
+        Task {
+            if dailyTopicViewModel.createTopicRecap == .loading || dailyTopicViewModel.createPlanSuggestions == .loading {
+                try await dailyTopicViewModel.cancelCurrentRun()
+            }
+        }
     }
 }
 

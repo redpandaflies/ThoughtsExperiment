@@ -25,7 +25,7 @@ enum GoalTypeItem: String, CaseIterable {
         case .clarity:
             return "Get clarity on something"
         case .deepDive:
-            return "Do a deep dive"
+            return "Deep dive"
         }
     }
     

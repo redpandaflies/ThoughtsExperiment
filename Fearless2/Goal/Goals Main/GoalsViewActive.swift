@@ -65,6 +65,7 @@ struct GoalsViewActive: View {
             
             
         }//VStack
+        .padding(.top)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .ignoresSafeArea(.keyboard)
         .background {
@@ -85,6 +86,10 @@ struct GoalsViewActive: View {
             
             if dataController.createdNewGoal && goals.count > 1 {
                 scrollToNewGoal(delay: 0.5)
+            }
+            
+            Task {
+               await topicViewModel.deleteIncompleteGoals(goals)
             }
         }
         .onChange(of:  goals.map(\.goalId)) { oldValue, newValue in
@@ -115,9 +120,7 @@ struct GoalsViewActive: View {
         .onChange(of: showNewGoalSheet) {
             /// scroll to new goal
             if !showNewGoalSheet && dataController.createdNewGoal && goals.count > 1 {
-                scrollToNewGoal(delay: 1.0)
-                /// reset var so view doesn't keep scrolling automatically on appear
-                dataController.createdNewGoal = false
+                scrollToNewGoal(delay: 0.5)
             }
         }
         
@@ -159,6 +162,8 @@ struct GoalsViewActive: View {
             withAnimation {
                 goalScrollPosition = goals.count - 1
             }
+            /// reset var so view doesn't keep scrolling automatically on appear
+            dataController.createdNewGoal = false
         }
     }
 }

@@ -12,6 +12,9 @@ struct NotificationSettingsView<S: ShapeStyle>: View {
     @Environment(\.presentationMode) var presentationMode
     @ObservedObject private var notificationManager = NotificationManager.shared
     
+    @State private var showPermissionAlert: Bool = false
+    @State private var alertMessage: String = ""
+    
     let backgroundColor: S
     
     // Save the state of the toggle on/off for daily reminder
@@ -29,7 +32,7 @@ struct NotificationSettingsView<S: ShapeStyle>: View {
         VStack {
             Toggle(isOn: $isScheduled) {
                 VStack (alignment: .leading, spacing: 2){
-                    Text("Daily topic reminder")
+                    Text("Daily spark reminder")
                         .font(.system(size: 14, weight: .medium))
                         .foregroundStyle(AppColors.textPrimary)
 
@@ -79,18 +82,70 @@ struct NotificationSettingsView<S: ShapeStyle>: View {
         }
         .navigationTitle("Reminders")
         .navigationBarTitleDisplayMode(.inline)
+        .alert("Notifications Disabled", isPresented: $showPermissionAlert) {
+            Button("Go to Settings") {
+                if let appSettings = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(appSettings)
+                }
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("Notifications are disabled in system settings. To receive daily reminders, please enable notifications for this app.")
+        }
+        .onAppear {
+            // check notification status, in case user turned off notifications in phone settings
+            checkNotificationStatus()
+        }
         
     }
 }
 
 private extension NotificationSettingsView {
+    
+    private func checkNotificationStatus() {
+        Task {
+            let settings = await notificationManager.getNotificationSettings()
+                        
+            if settings.authorizationStatus == .denied {
+                await MainActor.run {
+                    self.isScheduled = false
+                    self.alertMessage = "Notifications are disabled in system settings. To receive daily reminders, please enable notifications for this app."
+                    self.showPermissionAlert = true
+                }
+                return
+            }
+            
+        }
+    }
+    
     // Handle if the user turned on/off the daily reminder feature
     private func handleIsScheduledChange(isScheduled: Bool) {
         if isScheduled {
-            notificationManager.requestAuthorization()
-            notificationManager.scheduleDailyNotifications(notificationTimeString: notificationTimeString)
-            DispatchQueue.global(qos: .background).async {
-                Mixpanel.mainInstance().track(event: "Set daily reminder")
+            Task {
+                let settings = await notificationManager.getNotificationSettings()
+                            
+                if settings.authorizationStatus == .denied {
+                    await MainActor.run {
+                        self.isScheduled = false
+                        self.alertMessage = "Notifications are disabled in system settings. To receive daily reminders, please enable notifications for this app."
+                        self.showPermissionAlert = true
+                    }
+                    return
+                }
+
+                do {
+                    try await notificationManager.requestAuthorization()
+                    notificationManager.scheduleDailyNotifications(notificationTimeString: notificationTimeString)
+                    DispatchQueue.global(qos: .background).async {
+                        Mixpanel.mainInstance().track(event: "Set daily reminder")
+                    }
+                } catch {
+                    await MainActor.run {
+                        self.isScheduled = false
+                        self.alertMessage = "Failed to request notification permission."
+                        self.showPermissionAlert = true
+                    }
+                }
             }
         } else {
             notificationManager.cancelDailyReminder()

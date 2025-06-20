@@ -34,6 +34,9 @@ final class DailyTopicViewModel: ObservableObject, TopicRecapObservable, PlanSug
     var currentCategory: Category? = nil
     var currentGoal: Goal? = nil
     
+    // mark that plan suggestions are being generated (indicate where to navigate after notifications sheet)
+    var startedPlanSuggestionsRun: Bool = false
+    
     
     private var dataController: DataController
     private var topicProcessor: TopicProcessor
@@ -103,6 +106,10 @@ final class DailyTopicViewModel: ObservableObject, TopicRecapObservable, PlanSug
                 
                 currentCategory = category
                 currentGoal = goal
+                
+                if selectedAssistant == .planSuggestion {
+                    startedPlanSuggestionsRun = true
+                }
                 
             }
             
@@ -217,7 +224,6 @@ final class DailyTopicViewModel: ObservableObject, TopicRecapObservable, PlanSug
     
     
     // MARK: - Save data to coredata
-    
     // save answer to topic question
     @MainActor
     func saveAnswer(

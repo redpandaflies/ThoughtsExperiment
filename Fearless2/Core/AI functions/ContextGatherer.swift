@@ -26,7 +26,7 @@ struct ContextGatherer {
         }
         
         if selectedAssistant == .newGoal || (selectedAssistant == .planSuggestion && sequence == nil) {
-            //get questions answered when creating goal
+            // get questions answered when creating goal
             context += getNewGoalContext(goal: goal, category: category)
         }
       
@@ -203,11 +203,12 @@ struct ContextGatherer {
 //        }
         /// all existing daily topics
         if let dailyTopics = await topicRepository.fetchAllDailyTopics() {
+            
             for topic in dailyTopics {
                 
                 if let newTopic = currentTopic, newTopic.topicId == topic.topicId {
                     context += """
-                        You are generating questions for this topic: \(topic.topicTitle).
+                        You are generating questions for this spark: \(topic.topicTitle).
                         Its theme is \(topic.topicTheme).\n\n
                     """
                     
@@ -215,9 +216,8 @@ struct ContextGatherer {
                     
                     if !expectations.isEmpty {
                         context += """
-                            Here's what the topic should cover: \n
+                            Here's what the spark should cover: \n
                         """
-                        
                         
                         for expectation in expectations {
                             context += """
@@ -227,17 +227,44 @@ struct ContextGatherer {
                         
                     }
                     
+                    context += """
+                        Here is a list of the user's sparks in reverse chronological order.\n\n
+                    """
+                    
                 } else if topic.topicId == dailyTopics.first?.topicId {
-                    context += getDailyTopicBasics(topic)
                     
                     // get recap questions from previous day's daily topic, which asks users what they'd like to focus on next
-                    let reflectQuestions = topic.topicQuestions.filter { $0.reflectQuestion == true}
+                    
+                    /// get answer for question about what to focus on for the next spark
+                    let questionFocusContents = [
+                        NewQuestion.questionsDailyTopic[1].content,
+                        NewQuestion.questionsDailyTopic[4].content
+                    ]
+                    
+                    let focusAnswers = topic.topicQuestions
+                        .filter { $0.reflectQuestion == true }
+                        .filter { questionFocusContents.contains($0.questionContent) }
+                        .compactMap { $0.questionAnswerSingleSelect.isEmpty ? nil : $0.questionAnswerSingleSelect }
+
+                    for answer in focusAnswers {
                         context += """
-                            What the user said they'd like to focus on for today's topic:\n
+                            What the user said they'd like to focus on for today's spark: \(answer)\n\n
                         """
-                    if !reflectQuestions.isEmpty {
-                       context += getQuestions(reflectQuestions)
                     }
+                    
+                    let remainingReflectQuestions = topic.topicQuestions
+                        .filter { $0.reflectQuestion == true }
+                        .filter { !questionFocusContents.contains($0.questionContent) }
+                    
+                    if !remainingReflectQuestions.isEmpty {
+                        context += getQuestions(remainingReflectQuestions)
+                    }
+                    
+                    context += """
+                        Here is a list of the user's sparks in reverse chronological order.\n\n
+                    """
+                    
+                    context += getDailyTopicBasics(topic)
                     
                 } else {
                     context += getDailyTopicBasics(topic)
@@ -292,8 +319,6 @@ struct ContextGatherer {
         return context
     }
     
-    
-    
     // daily topic review
     static func gatherContextDailyTopicRecap(
         topicRepository: TopicRepository,
@@ -308,7 +333,7 @@ struct ContextGatherer {
         
         // Step the user is requesting questions for
         var context = """
-            Topic: \(topic.topicTitle).
+            Spark: \(topic.topicTitle).
             - theme: \(topic.topicTheme)
             - status: \(topic.topicStatus) \n\n
         """
@@ -426,31 +451,26 @@ extension ContextGatherer {
     private static func getQuestions(_ questions: [Question]) -> String {
         var result = ""
         for question in questions {
-            result += """
-                Q: \(question.questionContent)\n
-            """
-            if question.completed {
-                if let questionType = QuestionType(rawValue: question.questionType) {
-                    switch questionType {
-                    case .singleSelect:
-                        result += """
-                            A: \(question.questionAnswerSingleSelect)\n
-                        """
-                    case .multiSelect:
-                        result += """
-                            A: \(question.questionAnswerMultiSelect)\n
-                        """
-                    case .open:
-                        result += """
-                            A: \(question.questionAnswerOpen)\n
-                        """
-                    }
-                } else {
+            
+            if let questionType = QuestionType(rawValue: question.questionType) {
+                var answer = ""
+                switch questionType {
+                case .singleSelect:
+                    answer = question.questionAnswerSingleSelect
+                case .multiSelect:
+                    answer = question.questionAnswerMultiSelect
+                case .open:
+                    answer = question.questionAnswerOpen
+                }
+                
+                if !answer.isEmpty {
                     result += """
-                        Answer not found for this question\n
+                        Q: \(question.questionContent)
+                        A: \(answer)\n
                     """
                 }
             }
+            
         }
         return result
     }
@@ -581,10 +601,10 @@ extension ContextGatherer {
     
     // daily topic
     private static func getDailyTopicBasics(_ topic: TopicDaily) -> String {
-        var context = """
-            Topic: \(topic.topicTitle).
+        let context = """
+            Spark: \(topic.topicTitle).
             - theme: \(topic.topicTheme)
-            - status: \(topic.topicStatus) \n
+            - date: \(topic.topicCreatedAt) \n
         """
         
         return context

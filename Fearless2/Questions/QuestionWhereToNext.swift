@@ -15,6 +15,8 @@ struct QuestionWhereToNext: View {
     let leftSubtitle: String
     let rightTitle: String
     let rightSubtitle: String
+    let leftSymbol: String
+    let rightSymbol: String
     
     init(
         question: String,
@@ -23,7 +25,9 @@ struct QuestionWhereToNext: View {
         leftTitle: String,
         leftSubtitle: String = "",
         rightTitle: String,
-        rightSubtitle: String = ""
+        rightSubtitle: String = "",
+        leftSymbol: String = "arrow.right",
+        rightSymbol: String = "checkmark"
     ) {
         self.question = question
         self.leftAction = leftAction
@@ -32,11 +36,8 @@ struct QuestionWhereToNext: View {
         self.leftSubtitle = leftSubtitle
         self.rightTitle = rightTitle
         self.rightSubtitle = rightSubtitle
-    }
-    
-    enum ButtonColor {
-        case light
-        case dark
+        self.leftSymbol = leftSymbol
+        self.rightSymbol = rightSymbol
     }
     
     let screenWidth = UIScreen.current.bounds.width
@@ -75,7 +76,7 @@ struct QuestionWhereToNext: View {
         }
     }
     
-    private func answerBox(buttonColor: ButtonColor, title: String, subtitle: String) -> some View {
+    private func answerBox(buttonColor: BoxStyle, title: String, subtitle: String) -> some View {
         VStack (spacing: 10) {
             
             Text(title)
@@ -96,7 +97,7 @@ struct QuestionWhereToNext: View {
             Spacer()
             
             RoundButton(
-                buttonImage: buttonColor == .light ? "checkmark" : "arrow.right",
+                buttonImage: buttonColor == .light ? rightSymbol : leftSymbol,
                 buttonColor: buttonColor == .light ? .white : .dark
             )
             .disabled(true)
@@ -121,7 +122,7 @@ struct QuestionWhereToNext: View {
         }
     }
     
-    private func backgroundColor(_ buttonColor: ButtonColor) -> any ShapeStyle {
+    private func backgroundColor(_ buttonColor: BoxStyle) -> any ShapeStyle {
         switch buttonColor{
         case .light:
             return LinearGradient(
@@ -130,16 +131,16 @@ struct QuestionWhereToNext: View {
                 endPoint: .bottom
             )
 
-        case .dark:
+        default:
             return AppColors.boxGrey1.opacity(0.3)
         }
     }
     
-    private func shadowProperties(_ buttonColor: ButtonColor) -> (color: Color, radius: CGFloat, y: CGFloat) {
+    private func shadowProperties(_ buttonColor: BoxStyle) -> (color: Color, radius: CGFloat, y: CGFloat) {
         switch buttonColor {
         case .light:
             return (Color.black.opacity(0.05), 5, 2)
-        case .dark:
+        default:
             return (Color.black.opacity(0.30), 15, 3)
         }
     }

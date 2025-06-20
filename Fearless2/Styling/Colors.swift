@@ -126,6 +126,7 @@ struct AppColors {
     
     // Strokes
     static let strokePrimary = Color.white
+    static let strokeGrey = Color(.displayP3, red: 0.455, green: 0.455, blue: 0.455, opacity: 1) // #747474
     
     //Section progress bar
     static let progressBarPrimary = textPrimary

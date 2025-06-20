@@ -37,10 +37,12 @@ final class TopicProcessor {
     /// create title, theme, and expectations
     func processNewDailyTopic(messageText: String) async throws -> TopicDaily? {
         var newTopic: TopicDaily? = nil
-            guard let decodedTopic = JSONHelper.decode(messageText, as: NewDailyTopic.self) else {
-                self.logger.error("Failed to decode new daily topic")
-                throw ProcessingError.decodingError("New daily topic")
-            }
+        
+        guard let decodedTopic = JSONHelper.decode(messageText, as: NewDailyTopic.self) else {
+            self.logger.error("Failed to decode new daily topic")
+            throw ProcessingError.decodingError("New daily topic")
+        }
+        
         try await self.context.perform {
             let dailyTopic = TopicDaily(context: self.context)
             dailyTopic.topicId = UUID()
@@ -90,9 +92,6 @@ final class TopicProcessor {
             switch newQuestion.questionType {
             case .singleSelect:
                 question.questionSingleSelectOptions = newQuestion.options.map { $0.text }.joined(separator: ";")
-                if reflectQuestion && (newQuestion.questionNumber == 1 || newQuestion.questionNumber == 4) {
-                    question.editedSingleSelect = true
-                }
             case .multiSelect:
                 question.questionMultiSelectOptions = newQuestion.options.map { $0.text }.joined(separator: ";")
 
@@ -159,21 +158,25 @@ final class TopicProcessor {
             review.overviewGenerated = true
             topic.assignReview(review)
            
-           for item in newRecap.feedback {
+            for item in newRecap.feedback {
                let feedback = TopicFeedback(context: self.context)
                feedback.feedbackId = UUID()
                feedback.orderIndex = Int16(item.feedbackNumber)
                feedback.feedbackContent = item.content
                
                topic.addToFeedback(feedback)
-           }
+            }
             
-            let questions = topic.topicQuestions
-            // find the question that asks user which topic they want to dive into next
-            let question = questions.filter { $0.questionContent ==  NewQuestion.questionsDailyTopic[2].content }.first
-            
-            if let question = question {
-                question.questionSingleSelectOptions = newRecap.areas.joined(separator: ";")
+            if let areas = newRecap.areas {
+                let questions = topic.topicQuestions
+                // find the question that asks user which topic they want to dive into next
+                let question = questions.filter { $0.questionContent ==  NewQuestion.questionsDailyTopic[2].content }.first
+                
+                if let question = question {
+                    var questionOptions = areas
+                    questionOptions.append(CustomOptionType.other.rawValue)
+                    question.questionMultiSelectOptions = questionOptions.joined(separator: ";")
+                }
             }
 
             // Save to coredata
@@ -258,8 +261,8 @@ extension TopicProcessor {
                 }
             }
             
-            // Mark the question as completed if it's not already
-            if !question.completed {
+            // Mark the question as completed if it's not already and there's an answer from the user
+            if !question.completed && !(String(describing: userAnswer).isEmpty) {
                 question.completed = true
             }
             
@@ -284,6 +287,21 @@ extension TopicProcessor {
             // Save to coredata
             try self.context.save()
         }
+    }
+    
+    // delete goals that don't have a plan
+    func deleteIncompleteGoals(_ incompleteGoals: [Goal]) async throws {
+        try await context.perform {
+            for goal in incompleteGoals {
+                self.context.delete(goal)
+            }
+            self.logger.log("\(incompleteGoals.count) incomplete goals deleted")
+            
+            
+            // Save to coredata
+            try self.context.save()
+        }
+        
     }
     
 }
@@ -351,7 +369,7 @@ struct NewBreakCard: Codable, Hashable {
 struct NewTopicRecap: Codable, Hashable {
     let summary: String
     let feedback: [NewFeedback]
-    let areas: [String]
+    let areas: [String]?
 }
 
 struct NewFeedback: Codable, Hashable {

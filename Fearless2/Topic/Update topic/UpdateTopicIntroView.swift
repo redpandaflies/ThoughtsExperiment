@@ -193,14 +193,16 @@ struct UpdateTopicIntroView: View {
         hapticImpact.prepare()
         
         // start animation
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
-            withAnimation(.snappy(duration: 0.7)) {
-                let currentIndex = topicsComplete - 1
-                hapticImpact.impactOccurred(intensity: 0.5)
-                lastCompleteSectionIndex = currentIndex
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            if topicsComplete > 0 {
+                withAnimation(.snappy(duration: 0.7)) {
+                    let currentIndex = topicsComplete - 1
+                    hapticImpact.impactOccurred(intensity: 0.5)
+                    lastCompleteSectionIndex = currentIndex
+                }
             }
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            DispatchQueue.main.asyncAfter(deadline: topicsComplete > 0 ? .now() + 0.75 : .now()) {
                 withAnimation(.smooth(duration: 0.2)) {
                     let nextIndex = topicsComplete
                     hapticImpact.impactOccurred(intensity: 0.7)

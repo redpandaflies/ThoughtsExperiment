@@ -18,6 +18,8 @@ struct OnboardingMainView: View {
     @State private var animationStage: Int = 0
     let introContent: [OnboardingIntroContent] = OnboardingIntroContent.pages
     
+    @Binding var selectedTabHome: TabBarItemHome
+    
     @AppStorage("currentAppView") var currentAppView: Int = 0
     
     var body: some View {
@@ -84,6 +86,7 @@ struct OnboardingMainView: View {
             
             //switch to main app view
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                selectedTabHome = .topics
                 currentAppView = 1
             }
             

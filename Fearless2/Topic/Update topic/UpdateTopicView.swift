@@ -155,7 +155,9 @@ struct UpdateTopicView: View {
                        recapSelectedTab: $recapSelectedTab,
                         topic: topic,
                         retryAction: {
-                            getRecapAndNextTopicQuestions()
+                            Task {
+                              await getRecapAndNextTopicQuestions()
+                            }
                         }
                     )
                 
@@ -337,6 +339,9 @@ struct UpdateTopicView: View {
         
         if answeredQuestionIndex + 1 == numberOfQuestions {
             completeQuestions()
+            Task {
+                await getRecapAndNextTopicQuestions()
+            }
         }
         
         goToNextquestion(totalQuestions: numberOfQuestions)
@@ -452,11 +457,12 @@ struct UpdateTopicView: View {
             )
             
             if numberOfQuestions == answeredQuestionIndex + 1 {
-                getRecapAndNextTopicQuestions()
                 
                 await MainActor.run {
                     completeQuestions()
                 }
+                
+                await getRecapAndNextTopicQuestions()
             }
             
             DispatchQueue.global(qos: .background).async {
@@ -524,7 +530,9 @@ struct UpdateTopicView: View {
     private func completeTopic() {
         
         if topicViewModel.createTopicRecap == .retry {
-            getRecapAndNextTopicQuestions()
+            Task {
+                await getRecapAndNextTopicQuestions()
+            }
             
         } else {
             
@@ -618,40 +626,39 @@ struct UpdateTopicView: View {
         }
     }
     
-    private func getRecapAndNextTopicQuestions() {
+    private func getRecapAndNextTopicQuestions() async {
         topicViewModel.createTopicRecap = .loading
         
         //get the next topic
         let nextTopicIndex = topic.orderIndex + 1
         let nextTopic = sequence.sequenceTopics.filter { $0.orderIndex == nextTopicIndex }
+       
+        //generate recap
+        do {
+            try await topicViewModel.manageRun(selectedAssistant: .topicOverview, topic: topic)
+        } catch {
+            topicViewModel.createTopicRecap = .retry
+        }
         
-        Task {
-            //generate recap
-            do {
-                try await topicViewModel.manageRun(selectedAssistant: .topicOverview, topic: topic)
-            } catch {
-                topicViewModel.createTopicRecap = .retry
-            }
+        // get content for next topic
+        if let newTopic = nextTopic.first, let questType = QuestTypeItem(rawValue: newTopic.topicQuestType) {
             
-            // get content for next topic
-            if let newTopic = nextTopic.first, let questType = QuestTypeItem(rawValue: newTopic.topicQuestType) {
+            switch questType {
                 
-                switch questType {
-                    
-                case .context, .guided:
-                    await  getTopicQuestions(topic: newTopic, updateVariables: false)
-                    
-                case .retro:
-                    break
-                default:
-                  
-                    await getTopicBreak(topic: newTopic)
-                    
-                }
+            case .context, .guided:
+                await  getTopicQuestions(topic: newTopic, updateVariables: false)
+                
+            case .retro:
+                break
+            default:
+              
+                await getTopicBreak(topic: newTopic)
                 
             }
             
         }
+            
+       
     }
     
     private func getTopicBreak(topic: Topic) async {

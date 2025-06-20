@@ -21,12 +21,45 @@ struct UpdateTopicQuestionsView: View {
 
     let topic: TopicRepresentable
     var questions: FetchedResults<Question>
+    let isDailyTopic: Bool
+    let mainFlowQuestionsCount: Int
+    let placeholderTextSingleSelect: String
     
     /// in daily topics flow, need to know this so the heading doesn't show up for the static questions
-    var mainFlowQuestionsCount: Int {
-        let totalQuestions = questions.count
-        let staticQuestions = NewQuestion.questionsDailyTopic.count
-        return max(totalQuestions - staticQuestions, 0)
+//    var mainFlowQuestionsCount: Int {
+//        let totalQuestions = questions.count
+//        let staticQuestions = NewQuestion.questionsDailyTopic.count
+//        return max(totalQuestions - staticQuestions, 0)
+//    }
+
+    init(
+        showProgressBar: Binding<Bool>,
+        selectedQuestion: Binding<Int>,
+        answersOpen: Binding<[String]>,
+        singleSelectAnswer: Binding<String>,
+        multiSelectAnswers: Binding<[String]>,
+        singleSelectCustomItems: Binding<[String]>,
+        multiSelectCustomItems: Binding<[String]>,
+        focusField: FocusState<DefaultFocusField?>.Binding,
+        topic: TopicRepresentable,
+        questions: FetchedResults<Question>,
+        isDailyTopic: Bool = false,
+        mainFlowQuestionsCount: Int = 0,
+        placeholderTextSingleSelect: String = "Add your own"
+    ) {
+        self._showProgressBar = showProgressBar
+        self._selectedQuestion = selectedQuestion
+        self._answersOpen = answersOpen
+        self._singleSelectAnswer = singleSelectAnswer
+        self._multiSelectAnswers = multiSelectAnswers
+        self._singleSelectCustomItems = singleSelectCustomItems
+        self._multiSelectCustomItems = multiSelectCustomItems
+        self._focusField = focusField
+        self.topic = topic
+        self.questions = questions
+        self.isDailyTopic = isDailyTopic
+        self.mainFlowQuestionsCount = mainFlowQuestionsCount
+        self.placeholderTextSingleSelect = placeholderTextSingleSelect
     }
     
     var body: some View {
@@ -34,7 +67,7 @@ struct UpdateTopicQuestionsView: View {
         VStack (alignment: .leading, spacing: 5) {
             
             
-            if selectedQuestion < mainFlowQuestionsCount {
+            if selectedQuestion < mainFlowQuestionsCount && isDailyTopic {
             
                 HStack (spacing: 5) {
 
@@ -60,7 +93,7 @@ struct UpdateTopicQuestionsView: View {
                     case .singleSelect:
                         let optionsString = currentQuestion.questionSingleSelectOptions
                         let optionsArray = optionsString.components(separatedBy: ";")
-                    QuestionSingleSelectView(singleSelectAnswer: $singleSelectAnswer, customItems: $singleSelectCustomItems, showProgressBar: $showProgressBar, question: currentQuestion.questionContent, items: optionsArray, answer: currentQuestion.questionAnswerSingleSelect, itemsEdited: currentQuestion.editedSingleSelect)
+                    QuestionSingleSelectView(singleSelectAnswer: $singleSelectAnswer, customItems: $singleSelectCustomItems, showProgressBar: $showProgressBar, question: currentQuestion.questionContent, items: optionsArray, answer: currentQuestion.questionAnswerSingleSelect, itemsEdited: currentQuestion.editedSingleSelect, placeholderText: placeholderTextSingleSelect)
                         
                     case .multiSelect:
                         let optionsString = currentQuestion.questionMultiSelectOptions

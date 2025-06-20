@@ -22,7 +22,9 @@ struct UpdateDailyTopicQuestionsView: View {
     
     let topic: TopicDaily
     let questions: FetchedResults<Question>
+    let mainFlowQuestionsCount: Int 
     let retryAction: () -> Void
+   
     
     @FocusState.Binding var focusField: DefaultFocusField?
     
@@ -52,7 +54,10 @@ struct UpdateDailyTopicQuestionsView: View {
                         multiSelectCustomItems: $multiSelectCustomItems,
                         focusField: $focusField,
                         topic: topic,
-                        questions: questions
+                        questions: questions,
+                        isDailyTopic: true,
+                        mainFlowQuestionsCount: mainFlowQuestionsCount,
+                        placeholderTextSingleSelect: selectedQuestion == mainFlowQuestionsCount + 1 || selectedQuestion == mainFlowQuestionsCount + 4 ? "I have a specific idea" : "Add your own"
                     )
                     .padding(.top, 20)
                     .padding(.horizontal)

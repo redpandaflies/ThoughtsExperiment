@@ -83,7 +83,7 @@ struct NextSequenceView: View {
                 VStack (alignment: (selectedTab == 1) ? .leading : .center, spacing: 5) {
                     switch selectedTab {
                         case 0:
-                        NextSequenceIntro(goal: goal)
+                        NextSequenceIntro (goal: goal)
                             .padding(.horizontal)
                             
                         case 1:
@@ -92,7 +92,7 @@ struct NextSequenceView: View {
                                
                         case 2:
                         //Question view
-                        NextSequenceQuestionsView(
+                        NextSequenceQuestionsView (
                             selectedQuestion: $selectedQuestion,
                             answersOpen: $answersOpen,
                             answersSingleSelect: $answersSingleSelect,
@@ -112,7 +112,7 @@ struct NextSequenceView: View {
                         .padding(.horizontal)
                        
                         case 3:
-                        RecapCelebrationView(
+                        RecapCelebrationView (
                             animationStage: $animationStage,
                             title: goal.goalTitle,
                             text: "For resolving",
@@ -549,9 +549,16 @@ struct NextSequenceView: View {
     // get the areas users selected during new goal flow
     private func getObjectives() -> String {
         let questions = goal.goalQuestions
-        let objectiveQuestion = QuestionNewCategory.remainingQuestionsNewCategory(userAnswer: GoalTypeItem.decision.getNameLong()).last?.content ?? ""
-        let objectives = questions.filter { $0.questionContent == objectiveQuestion }.first?.questionAnswerMultiSelect ?? ""
+        var objectives: String
         
+        if goal.goalProblemType == GoalTypeItem.deepDive.getNameLong() {
+            let objectiveQuestion = NewQuestion.questionsDailyTopic[2].content
+            objectives = questions.filter { $0.questionContent == objectiveQuestion }.first?.questionAnswerMultiSelect ?? ""
+        } else {
+            let objectiveQuestion = QuestionNewCategory.remainingQuestionsNewCategory(userAnswer: GoalTypeItem.decision.getNameLong()).last?.content ?? ""
+           objectives = questions.filter { $0.questionContent == objectiveQuestion }.first?.questionAnswerMultiSelect ?? ""
+        }
+ 
         return objectives
     }
 }

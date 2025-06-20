@@ -29,12 +29,13 @@ struct QuestionMultiSelectView: View {
     let answers: String //existing answers for question
     let itemsEdited: Bool
     let subTitle: String
+    let placeholderText: String
     
     @FocusState private var isFocused: Bool
     
     let screenWidth = UIScreen.current.bounds.width
     
-    init(multiSelectAnswers: Binding<[String]>, customItems: Binding<[String]> = .constant([]), showProgressBar: Binding<Bool> = .constant(true), question: String, items: [String], answers: String = "", itemsEdited: Bool = false, subTitle: String = "Choose all that apply") {
+    init(multiSelectAnswers: Binding<[String]>, customItems: Binding<[String]> = .constant([]), showProgressBar: Binding<Bool> = .constant(true), question: String, items: [String], answers: String = "", itemsEdited: Bool = false, subTitle: String = "Choose all that apply", placeholderText: String = "Add your own") {
         self._multiSelectAnswers = multiSelectAnswers
         self._customItems = customItems
         self._showProgressBar = showProgressBar
@@ -43,6 +44,7 @@ struct QuestionMultiSelectView: View {
         self.answers = answers
         self.itemsEdited = itemsEdited
         self.subTitle = subTitle
+        self.placeholderText = placeholderText
     }
 
     private var currentItems: [String] {
@@ -89,6 +91,7 @@ struct QuestionMultiSelectView: View {
                     option: option.text,
                     items: items,
                     isEditable: option.isEditable,
+                    placeholderText: placeholderText,
                     isFocused: $isFocused)
                         .onTapGesture {
                             selectPill(option: option)
@@ -105,6 +108,7 @@ struct QuestionMultiSelectView: View {
                     option: editableOption.text,
                     items: items,
                     isEditable: editableOption.isEditable,
+                    placeholderText: placeholderText,
                     isFocused: $isFocused)
                         .onTapGesture {
                             isFocused = true
@@ -164,6 +168,7 @@ struct MultiSelectQuestionBubble: View {
     let option: String
     let items: [String]
     let isEditable: Bool
+    let placeholderText: String
     
     @FocusState.Binding var isFocused: Bool
     
@@ -186,7 +191,7 @@ struct MultiSelectQuestionBubble: View {
                 
             if isEditable {
                 
-                TextField("", text: $editableOption.max(50))
+                TextField("", text: $editableOption, prompt: Text(placeholderText).foregroundStyle(AppColors.textPrimary.opacity(0.6)))
                     .multilineTextAlignment(.leading)
                     .font(.system(size: 15, weight: .light))
                     .foregroundStyle(selected || customTextIsSelected ? AppColors.textBlack : AppColors.textPrimary)

@@ -475,17 +475,15 @@ struct NewGoalView: View {
     }
     
     private func exitFlowAction() {
+        //dismiss
+        dataController.createdNewGoal = false
+        showNewGoalSheet = false
         
         Task {
-            try await newGoalViewModel.cancelCurrentRun()
-            
-            await MainActor.run {
-                //dismiss
-                dataController.createdNewGoal = false
-                showNewGoalSheet = false
-            }
             
             await dataController.deleteIncompleteGoals()
+            
+            try await newGoalViewModel.cancelCurrentRun()
             
             DispatchQueue.global(qos: .background).async {
                 Mixpanel.mainInstance().track(event: "Closed new topic flow")

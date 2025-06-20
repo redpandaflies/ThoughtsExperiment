@@ -64,6 +64,7 @@ struct GoalsViewCompleted: View {
             
             
         }//VStack
+        .padding(.top)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .ignoresSafeArea(.keyboard)
         .background {

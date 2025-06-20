@@ -540,7 +540,7 @@ extension DataController {
 extension DataController {
     
     //Create a new goal
-    func createNewGoal(category: Category?, problemType: String = GoalTypeItem.deepDive.rawValue, topic: TopicRepresentable? = nil) async -> Goal? {
+    func createNewGoal(category: Category?, problemType: String = GoalTypeItem.deepDive.getNameLong(), topic: TopicRepresentable? = nil) async -> Goal? {
         
         var newGoal: Goal?
         
@@ -561,13 +561,20 @@ extension DataController {
             
             newGoal = goal
             
-            // add starter questions to goal (daily topic flow only)
+            // daily topic flow only
             if let topic = topic {
+                ///add goal title
+                goal.goalTitle = topic.topicTitle
+               
+                ///add starter questions to goal
                 let questions = topic.topicQuestions.filter { $0.goalStarter == true }
                 
                 for question in questions {
                     goal.addToQuestions(question)
                 }
+                
+                ///add daily topic to goal
+                goal.topicDaily = topic as? TopicDaily
                 
             }
             
@@ -727,66 +734,19 @@ extension DataController {
 // MARK: MISC
 
 extension DataController {
-    // MARK: delete all
+    // MARK: - Delete All App Data
     func deleteAll() async {
-        
         await MainActor.run {
             deletedAllData = false
         }
         
-        // 1. First delete categories (which should cascade delete related topics)
-        let categoryFetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Category")
-        let categoryBatchDeleteRequest = NSBatchDeleteRequest(fetchRequest: categoryFetchRequest)
-        
-        // Configure batch to get object IDs for updating the context's state
-        categoryBatchDeleteRequest.resultType = .resultTypeObjectIDs
-        
         await context.perform {
             do {
-                // Execute the category batch delete
-                let categoryBatchDelete = try self.context.execute(categoryBatchDeleteRequest) as? NSBatchDeleteResult
-                
-                // Use the deleted object IDs to update the context's state
-                if let deletedCategoryIDs = categoryBatchDelete?.result as? [NSManagedObjectID] {
-                    let categoryChanges = [NSDeletedObjectsKey: deletedCategoryIDs]
-                    NSManagedObjectContext.mergeChanges(fromRemoteContextSave: categoryChanges, into: [self.context])
-                }
-                
-                // Save context to ensure category deletions are persisted
-                try self.context.save()
-                
-                // 2. Now delete only orphaned topics (those unrelated to any category)
-                // Create a fetch request that finds topics not associated with any category
-                let topicFetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Topic")
-                let topicBatchDeleteRequest = NSBatchDeleteRequest(fetchRequest: topicFetchRequest)
-                topicBatchDeleteRequest.resultType = .resultTypeObjectIDs
-                
-                // Execute the topic batch delete for orphaned topics
-                let topicBatchDelete = try self.context.execute(topicBatchDeleteRequest) as? NSBatchDeleteResult
-                
-                // Use the deleted object IDs to update the context's state
-                if let deletedTopicIDs = topicBatchDelete?.result as? [NSManagedObjectID] {
-                    let topicChanges = [NSDeletedObjectsKey: deletedTopicIDs]
-                    NSManagedObjectContext.mergeChanges(fromRemoteContextSave: topicChanges, into: [self.context])
-                }
-                
-                // Final save to ensure all changes are persisted
-                try self.context.save()
-                
-                // 3. Delete the user's profile
-               let profileFetchRequest = NSFetchRequest<Profile>(entityName: "Profile")
-               let profiles = try self.context.fetch(profileFetchRequest)
-               
-                //delet all found profiles (there should only be one)
-               for profile in profiles {
-                   self.context.delete(profile)
-               }
-               
-               // Final save to ensure all changes are persisted
-               try self.context.save()
-            
-               self.logger.info("Successfully deleted all categories, orphaned topics, and user profile")
-                
+                try self.deleteAllCategories()
+                try self.deleteOrphanedTopics()
+                try self.deleteAllTopicDailies()
+                try self.deleteUserProfile()
+                self.logger.info("Successfully deleted all app data.")
             } catch {
                 self.logger.error("Error during deletion process: \(error.localizedDescription)")
             }
@@ -795,6 +755,57 @@ extension DataController {
         await MainActor.run {
             deletedAllData = true
         }
+    }
+
+    // MARK: - Helper Methods for deleteAll()
+    private func deleteAllCategories() throws {
+        let request = NSFetchRequest<NSFetchRequestResult>(entityName: "Category")
+        let batchDelete = NSBatchDeleteRequest(fetchRequest: request)
+        batchDelete.resultType = .resultTypeObjectIDs
+        
+        if let result = try context.execute(batchDelete) as? NSBatchDeleteResult,
+           let objectIDs = result.result as? [NSManagedObjectID] {
+            NSManagedObjectContext.mergeChanges(fromRemoteContextSave: [NSDeletedObjectsKey: objectIDs], into: [context])
+        }
+        
+        try context.save()
+    }
+
+    private func deleteOrphanedTopics() throws {
+        let request = NSFetchRequest<NSFetchRequestResult>(entityName: "Topic")
+        let batchDelete = NSBatchDeleteRequest(fetchRequest: request)
+        batchDelete.resultType = .resultTypeObjectIDs
+        
+        if let result = try context.execute(batchDelete) as? NSBatchDeleteResult,
+           let objectIDs = result.result as? [NSManagedObjectID] {
+            NSManagedObjectContext.mergeChanges(fromRemoteContextSave: [NSDeletedObjectsKey: objectIDs], into: [context])
+        }
+        
+        try context.save()
+    }
+
+    private func deleteAllTopicDailies() throws {
+        let request = NSFetchRequest<NSFetchRequestResult>(entityName: "TopicDaily")
+        let batchDelete = NSBatchDeleteRequest(fetchRequest: request)
+        batchDelete.resultType = .resultTypeObjectIDs
+
+        if let result = try context.execute(batchDelete) as? NSBatchDeleteResult,
+           let objectIDs = result.result as? [NSManagedObjectID] {
+            NSManagedObjectContext.mergeChanges(fromRemoteContextSave: [NSDeletedObjectsKey: objectIDs], into: [context])
+        }
+        
+        try context.save()
+    }
+
+    private func deleteUserProfile() throws {
+        let request = NSFetchRequest<Profile>(entityName: "Profile")
+        let profiles = try context.fetch(request)
+        
+        for profile in profiles {
+            context.delete(profile)
+        }
+        
+        try context.save()
     }
 }
 

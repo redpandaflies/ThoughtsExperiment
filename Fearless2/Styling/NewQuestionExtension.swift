@@ -67,13 +67,13 @@ extension NewQuestion {
             options: [
                 Option(text: "Same theme as today"),
                 Option(text: "Something different"),
-                Option(text: "I have something specific in mind")
+                Option(text: CustomOptionType.other.rawValue)
             ]
         ),
         NewQuestion(
-            content: "What should we tackle?",
+            content: "Let's go deeper on this. What should we tackle?",
             questionNumber: 2,
-            questionType: .singleSelect,
+            questionType: .multiSelect,
             options: []
         ),
         NewQuestion(
@@ -93,7 +93,7 @@ extension NewQuestion {
             options: [
                 Option(text: "Same theme as today"),
                 Option(text: "Something different"),
-                Option(text: "I have something specific in mind")
+                Option(text: CustomOptionType.other.rawValue)
             ]
         )
     ]

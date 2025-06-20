@@ -5,9 +5,11 @@
 //  Created by Yue Deng-Wu on 10/2/24.
 //
 import Combine
+import CoreData
 import Foundation
 import OSLog
 import UIKit
+import SwiftUI
 
 final class TopicViewModel: ObservableObject, TopicRecapObservable {
     
@@ -236,6 +238,22 @@ final class TopicViewModel: ObservableObject, TopicRecapObservable {
         } catch {
             loggerCoreData.error("\(error.localizedDescription)")
         }
+    }
+    
+    @MainActor
+    func deleteIncompleteGoals(_ goals: FetchedResults<Goal>) async {
+        do {
+            // Filter goals with empty goalSequences
+            let incompleteGoals = goals.filter { $0.goalSequences.isEmpty }
+            
+            if !incompleteGoals.isEmpty {
+                try await topicProcessor.deleteIncompleteGoals(incompleteGoals)
+            }
+            
+        } catch {
+            loggerCoreData.error("\(error.localizedDescription)")
+        }
+        
     }
     
 }

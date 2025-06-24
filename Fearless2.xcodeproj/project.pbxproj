@@ -200,6 +200,8 @@
 		8AB2DF4C2D57236B0069E914 /* CategoryDescriptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AB2DF4B2D57236B0069E914 /* CategoryDescriptionView.swift */; };
 		8AB2DF4E2D573F770069E914 /* CategoryMissionBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AB2DF4D2D573F770069E914 /* CategoryMissionBox.swift */; };
 		8AB2DF502D5AEFD00069E914 /* PageIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AB2DF4F2D5AEFD00069E914 /* PageIndicatorView.swift */; };
+		8AB932DF2E0915CE00002CE2 /* spinnerAnimatedNoColor.json in Resources */ = {isa = PBXBuildFile; fileRef = 8AB932DE2E0915CE00002CE2 /* spinnerAnimatedNoColor.json */; };
+		8AB932E12E092FF900002CE2 /* DailyTopicReadyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AB932E02E092FF900002CE2 /* DailyTopicReadyView.swift */; };
 		8ABE9AE22CB2597700483CFD /* NextButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ABE9AE12CB2597300483CFD /* NextButton.swift */; };
 		8ABE9AE42CB2627A00483CFD /* QuestionMultiSelectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ABE9AE32CB2627A00483CFD /* QuestionMultiSelectView.swift */; };
 		8ABE9AEA2CB2768600483CFD /* WrappingHStack in Frameworks */ = {isa = PBXBuildFile; productRef = 8ABE9AE92CB2768600483CFD /* WrappingHStack */; };
@@ -452,6 +454,8 @@
 		8AB2DF4B2D57236B0069E914 /* CategoryDescriptionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryDescriptionView.swift; sourceTree = "<group>"; };
 		8AB2DF4D2D573F770069E914 /* CategoryMissionBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryMissionBox.swift; sourceTree = "<group>"; };
 		8AB2DF4F2D5AEFD00069E914 /* PageIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageIndicatorView.swift; sourceTree = "<group>"; };
+		8AB932DE2E0915CE00002CE2 /* spinnerAnimatedNoColor.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = spinnerAnimatedNoColor.json; sourceTree = "<group>"; };
+		8AB932E02E092FF900002CE2 /* DailyTopicReadyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyTopicReadyView.swift; sourceTree = "<group>"; };
 		8ABE9AE12CB2597300483CFD /* NextButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextButton.swift; sourceTree = "<group>"; };
 		8ABE9AE32CB2627A00483CFD /* QuestionMultiSelectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionMultiSelectView.swift; sourceTree = "<group>"; };
 		8AC1D59C2D629EC1000DD8E6 /* FocusAreaRecapTimelineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusAreaRecapTimelineView.swift; sourceTree = "<group>"; };
@@ -651,6 +655,7 @@
 			children = (
 				8A378DA02E0603B00024FACE /* DailyReflectionsList.swift */,
 				8A5EEC9A2DF1139A0016481B /* DailyReflectionView.swift */,
+				8AB932E02E092FF900002CE2 /* DailyTopicReadyView.swift */,
 				8A5EECAD2DF2C0BF0016481B /* UpdateDailyTopicView.swift */,
 				8A1FC7D82DF7738E00772D65 /* UpdateDailyTopicQuestionsView.swift */,
 			);
@@ -969,6 +974,7 @@
 				8A2C370E2D2C5B5F00C37315 /* loadingAnimation.json */,
 				8A4933882DCC5FBA002B37BD /* spinnerAnimated.json */,
 				8A1FC7DC2DF7EC7300772D65 /* spinnerAnimatedLoop.json */,
+				8AB932DE2E0915CE00002CE2 /* spinnerAnimatedNoColor.json */,
 				8A9CC17C2CAB3DEB007C2AA9 /* Preview Content */,
 				8A9CC1C42CAE066D007C2AA9 /* Production.xcconfig */,
 				8A81D45D2D8154B2008C8DA9 /* Staging.xcconfig */,
@@ -1410,6 +1416,7 @@
 			files = (
 				8A81D45E2D8154B2008C8DA9 /* Staging.xcconfig in Resources */,
 				8A9CC17E2CAB3DEB007C2AA9 /* Preview Assets.xcassets in Resources */,
+				8AB932DF2E0915CE00002CE2 /* spinnerAnimatedNoColor.json in Resources */,
 				8A4933892DCC5FBA002B37BD /* spinnerAnimated.json in Resources */,
 				8A1FC7DD2DF7EC7300772D65 /* spinnerAnimatedLoop.json in Resources */,
 				8A9CC17B2CAB3DEB007C2AA9 /* Assets.xcassets in Resources */,
@@ -1640,6 +1647,7 @@
 				8A2C37062D286BA400C37315 /* FocusAreaLoadingView.swift in Sources */,
 				8A2C36FA2D21A8B100C37315 /* QuestionSingleSelectView.swift in Sources */,
 				8AE3981D2D6FA74300F76AAC /* QuestionNewCategory.swift in Sources */,
+				8AB932E12E092FF900002CE2 /* DailyTopicReadyView.swift in Sources */,
 				8A63A1BE2D486DBF00712B27 /* RetryButton.swift in Sources */,
 				8A8ED72F2CF26EAB00780384 /* FocusAreaSuggestion-CoreDataHelpers.swift in Sources */,
 				8A2207742DDCF7B600B17F7E /* GoalsPickerView.swift in Sources */,
@@ -1797,7 +1805,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Fearless2/Fearless2Debug.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 22;
+				CURRENT_PROJECT_VERSION = 23;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"Fearless2/Preview Content\"";
 				DEVELOPMENT_TEAM = 79TB36U8AD;
@@ -1836,7 +1844,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Fearless2/Fearless2.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 34;
+				CURRENT_PROJECT_VERSION = 36;
 				DEVELOPMENT_ASSET_PATHS = "\"Fearless2/Preview Content\"";
 				DEVELOPMENT_TEAM = 79TB36U8AD;
 				ENABLE_DEBUG_DYLIB = NO;

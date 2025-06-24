@@ -35,7 +35,7 @@ final class TopicProcessor {
     
     // MARK: create daily topic
     /// create title, theme, and expectations
-    func processNewDailyTopic(messageText: String) async throws -> TopicDaily? {
+    func processNewDailyTopic(messageText: String, existingTopic: TopicDaily? = nil) async throws -> TopicDaily? {
         var newTopic: TopicDaily? = nil
         
         guard let decodedTopic = JSONHelper.decode(messageText, as: NewDailyTopic.self) else {
@@ -44,9 +44,18 @@ final class TopicProcessor {
         }
         
         try await self.context.perform {
-            let dailyTopic = TopicDaily(context: self.context)
-            dailyTopic.topicId = UUID()
-            dailyTopic.topicCreatedAt = getCurrentTimeString()
+            
+            var dailyTopic: TopicDaily
+            
+            if let savedTopic = existingTopic {
+                dailyTopic = savedTopic
+            } else {
+               dailyTopic = TopicDaily(context: self.context)
+                dailyTopic.topicId = UUID()
+                dailyTopic.topicCreatedAt = getCurrentTimeString()
+            }
+            
+            dailyTopic.topicStatus = TopicStatusItem.active.rawValue
             dailyTopic.topicEmoji = decodedTopic.emoji
             dailyTopic.topicTitle = decodedTopic.title
             dailyTopic.topicTheme = decodedTopic.theme
@@ -187,7 +196,7 @@ final class TopicProcessor {
     
 }
 
-// MARK: - save question
+// MARK: - Save to CoreData
 extension TopicProcessor {
     
     //save user answer for an question
@@ -270,6 +279,45 @@ extension TopicProcessor {
             try self.context.save()
         }
     
+    }
+    
+    // create topic for next day
+    func createDailyTopic(topicDate: String = "") async throws -> TopicDaily? {
+        var newTopic: TopicDaily? = nil
+        
+        try await self.context.perform {
+            let dailyTopic = TopicDaily(context: self.context)
+            dailyTopic.topicId = UUID()
+         
+            // 1) Formatter must match your getCurrentTimeString()/getNextDayString()
+           let formatter = DateFormatter()
+           formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS"
+           formatter.timeZone = TimeZone(secondsFromGMT: 0)
+
+           // 2) If caller passes an empty string, default to now in UTC
+           let utcDateString = topicDate.isEmpty
+            ? getCurrentTimeString()
+               : topicDate
+           dailyTopic.topicCreatedAt = utcDateString
+
+           // 3) Parse it back into a Date (fallback to now if it fails)
+           let createdAtDate = formatter.date(from: utcDateString) ?? Date()
+
+           // 4) Decide status based on local “is today?”
+           let calendar = Calendar.current
+           let status: TopicStatusItem = calendar.isDateInToday(createdAtDate)
+               ? .active
+               : .locked
+
+           dailyTopic.topicStatus = status.rawValue
+            
+            
+            try self.context.save()
+            
+            newTopic = dailyTopic
+        }
+        
+        return newTopic
     }
     
     //mark topic and section as complete

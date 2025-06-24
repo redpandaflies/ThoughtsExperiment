@@ -131,8 +131,12 @@ struct RecapReflectionView<ViewModel: TopicRecapObservable>: View {
     private func manageTopicRecapView() {
         switch  viewModel.createTopicRecap  {
             case .ready:
-            if recapSelectedTab != 1 {
-                recapSelectedTab = 1
+            if !feedback.isEmpty {
+                if recapSelectedTab != 1 {
+                    recapSelectedTab = 1
+                }
+            } else {
+                recapSelectedTab = 2
             }
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {

@@ -33,7 +33,7 @@ struct MainAppManager: View {
         ZStack {
             switch selectedTabHome {
             case .daily:
-                DailyReflectionView(
+                DailyReflectionsList(
                     dailyTopicViewModel: viewModelFactoryMain.makeDailyTopicViewModel(),
                     topicViewModel: topicViewModel,
                     selectedTabHome: $selectedTabHome,

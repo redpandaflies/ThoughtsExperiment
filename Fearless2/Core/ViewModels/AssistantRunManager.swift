@@ -43,39 +43,33 @@ final class AssistantRunManager {
             throw OpenAIError.missingRequiredField("Thread ID not created")
         }
         
-        //get context to send to OpenAI
-        try await sendFirstMessage(
-            selectedAssistant: selectedAssistant,
-            threadId: threadId,
-            category: category,
-            goal: goal,
-            sequence: sequence,
-            topicId: topicId,
-            focusArea: focusArea,
-            topic: topic,
-            topicDaily: topicDaily
-        )
-        
-        var messageText: String?
-        
-        do {
-            // Fetch the streamed message
-            messageText = try await openAISwiftService.createRunAndStreamMessage(threadId: threadId, selectedAssistant: selectedAssistant)
-            
-            guard let unwrappedMessageText = messageText else {
-                loggerOpenAI.error("No content received from OpenAI.")
-                throw OpenAIError.missingRequiredField("Response JSON from OpenAI")
-            }
-            
-            messageText = unwrappedMessageText
-            
-        } catch {
-            loggerOpenAI.error("Failed to get OpenAI streamed response: \(error.localizedDescription), \(error)")
-            throw OpenAIError.runIncomplete(error)
+        try await retry(times: 2) {
+            //get context to send to OpenAI
+            try await self.sendFirstMessage(
+                selectedAssistant: selectedAssistant,
+                threadId: threadId,
+                category: category,
+                goal: goal,
+                sequence: sequence,
+                topicId: topicId,
+                focusArea: focusArea,
+                topic: topic,
+                topicDaily: topicDaily
+            )
         }
         
+        let response = try await retry(times: 2) {
+            let text = try await self.openAISwiftService.createRunAndStreamMessage(
+                           threadId: threadId,
+                           selectedAssistant: selectedAssistant
+                       )
+           guard let unwrapped = text else {
+               throw OpenAIError.missingRequiredField("Response JSON from OpenAI")
+           }
+           return unwrapped
+       }
         
-       return messageText ?? ""
+        return response
         
     }
     
@@ -228,4 +222,26 @@ final class AssistantRunManager {
             throw OpenAIError.missingRequiredField("No thread ID found")
         }
     }
+}
+
+
+extension AssistantRunManager {
+    
+    // MARK: - Generic retry helper
+      private func retry<T>(times: Int, operation: @escaping () async throws -> T) async throws -> T {
+          var lastError: Error?
+          for attempt in 1...times {
+              do {
+                  return try await operation()
+              } catch {
+                  lastError = error
+                  loggerOpenAI.warning("Attempt \(attempt) failed: \(error.localizedDescription)")
+//                  if attempt < times {
+//                      // Optionally add delay here, e.g., Task.sleep
+//                  }
+              }
+          }
+          loggerOpenAI.error("All \(times) retry attempts failed: \(lastError?.localizedDescription ?? "unknown error")")
+          throw lastError ?? OpenAIError.runIncomplete(NSError(domain: "", code: -1))
+      }
 }

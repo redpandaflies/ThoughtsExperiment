@@ -140,7 +140,7 @@ struct NewGoalReflectionView: View {
                     backAction()
                 },
                 disableMainButton: !animationCompletedText,
-                buttonColor: .clear
+                buttonColor: .clearStroke
             )
             .padding(.bottom)
             
@@ -232,7 +232,9 @@ struct NewGoalReflectionView: View {
                     try await newGoalViewModel.manageRun(selectedAssistant: .newGoal, category: category, goal: goal)
                     
                 } catch {
-                    newGoalViewModel.createNewCategorySummary = .retry
+                    await MainActor.run {
+                        newGoalViewModel.createNewCategorySummary = .retry
+                    }
                 }
             }
         }

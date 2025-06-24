@@ -15,6 +15,7 @@ final class NotificationManager: NSObject, ObservableObject {
     @Published var selectedDestination: Bool = false
     
     let notificationCenter = UNUserNotificationCenter.current()
+    let dailyReminderId: String = "dailyReminder"
     
     let logger = Logger.notificationEvents
     
@@ -77,13 +78,16 @@ extension NotificationManager: UNUserNotificationCenterDelegate {
         content.body = "Don't miss out on the topic of the day!"
         content.sound = UNNotificationSound.default
         
+        // cancel existing reminders
+        self.cancelDailyReminder()
+        
         // Set the notification to repeat daily
         let calendar = Calendar.current
         let dateComponents = calendar.dateComponents([.hour, .minute], from: time)
         
         // Create a single notification that repeats daily
            let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
-           let request = UNNotificationRequest(identifier: "dailyReminder", content: content, trigger: trigger)
+        let request = UNNotificationRequest(identifier: dailyReminderId, content: content, trigger: trigger)
         
         notificationCenter.add(request) { error in
             if let error = error {
@@ -93,7 +97,13 @@ extension NotificationManager: UNUserNotificationCenterDelegate {
     }
        
     func cancelDailyReminder() {
-        notificationCenter.removePendingNotificationRequests(withIdentifiers: ["dailyReminder"])
+        if FeatureFlags.isStaging {
+            logger.log("Cancelling existing daily reminders")
+        }
+//        notificationCenter.removePendingNotificationRequests(withIdentifiers: [dailyReminderId])
+        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+        notificationCenter.removeDeliveredNotifications(withIdentifiers: [dailyReminderId])
+        
     }
     
     
@@ -112,10 +122,10 @@ extension NotificationManager: UNUserNotificationCenterDelegate {
         let requests = await notificationCenter.pendingNotificationRequests()
         if FeatureFlags.isStaging {
             for request in requests {
-                logger.log("Scheduled: \(request.identifier)")
-            }
+                logger.log("Scheduled: \(request.identifier), total requests: \(requests.count)")
+            } 
         }
-        return requests.contains { $0.identifier == "dailyReminder" }
+        return requests.contains { $0.identifier == dailyReminderId }
     }
 
 }

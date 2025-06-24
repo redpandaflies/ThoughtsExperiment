@@ -193,7 +193,9 @@ struct SequenceSuggestionsView<ViewModel: PlanSuggestionsObservable>: View {
             try await topicViewModel.manageRun(selectedAssistant: .topic, topic: topic)
         
         } catch {
-            topicViewModel.createTopicQuestions = .retry
+            await MainActor.run {
+                topicViewModel.createTopicQuestions = .retry
+            }
         }
       
     }

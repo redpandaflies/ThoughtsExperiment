@@ -202,69 +202,64 @@ struct ContextGatherer {
 //               return nil
 //        }
         /// all existing daily topics
-        if let dailyTopics = await topicRepository.fetchAllDailyTopics() {
+        if let fetchedTopics = await topicRepository.fetchAllDailyTopics() {
+            
+            // filter out topic that's tomorrow
+            // make it mutable
+                var dailyTopics = fetchedTopics
+
+            // check & drop only the very first one if it's tomorrow
+            if isDailyTopicFromTomorrow(dailyTopics.first) {
+                dailyTopics.removeFirst()
+            }
             
             for topic in dailyTopics {
                 
-                if let newTopic = currentTopic, newTopic.topicId == topic.topicId {
-                    context += """
-                        You are generating questions for this spark: \(topic.topicTitle).
-                        Its theme is \(topic.topicTheme).\n\n
-                    """
+                if let current = currentTopic, let currentIndex = dailyTopics.firstIndex(where: { $0.topicId == current.topicId }), current.topicId == topic.topicId {
                     
-                    let expectations = topic.topicExpectations.sorted { $0.orderIndex < $1.orderIndex }
-                    
-                    if !expectations.isEmpty {
+                    switch selectedAssistant {
+                        
+                    case .topicDailyQuestions:
                         context += """
-                            Here's what the spark should cover: \n
+                            You are generating questions for this spark: \(topic.topicTitle).
+                            Its theme is \(topic.topicTheme).\n\n
                         """
                         
-                        for expectation in expectations {
+                        let expectations = topic.topicExpectations.sorted { $0.orderIndex < $1.orderIndex }
+                        
+                        if !expectations.isEmpty {
                             context += """
-                                - \(expectation.expectationContent)\n
+                                Here's what the spark should cover: \n
                             """
+                            
+                            for expectation in expectations {
+                                context += """
+                                    - \(expectation.expectationContent)\n
+                                """
+                            }
+                            
                         }
                         
-                    }
-                    
-                    context += """
-                        Here is a list of the user's sparks in reverse chronological order.\n\n
-                    """
-                    
-                } else if topic.topicId == dailyTopics.first?.topicId {
-                    
-                    // get recap questions from previous day's daily topic, which asks users what they'd like to focus on next
-                    
-                    /// get answer for question about what to focus on for the next spark
-                    let questionFocusContents = [
-                        NewQuestion.questionsDailyTopic[1].content,
-                        NewQuestion.questionsDailyTopic[4].content
-                    ]
-                    
-                    let focusAnswers = topic.topicQuestions
-                        .filter { $0.reflectQuestion == true }
-                        .filter { questionFocusContents.contains($0.questionContent) }
-                        .compactMap { $0.questionAnswerSingleSelect.isEmpty ? nil : $0.questionAnswerSingleSelect }
-
-                    for answer in focusAnswers {
                         context += """
-                            What the user said they'd like to focus on for today's spark: \(answer)\n\n
+                            Here is a list of the user's sparks in reverse chronological order (most recent at the top).\n\n
                         """
+                        
+                    default:
+                        
+                        // get previous day's topic and answer to "what would you like to focus on tomorrow?"
+                        let nextIndex = currentIndex + 1
+                        
+                        if nextIndex < dailyTopics.count {
+                            let previousDayTopic = dailyTopics[nextIndex]
+                            context += getContextForNewTopic(previousDayTopic)
+                        }
+                        
+                        // Add the header for the user's past sparks
+                        context += """
+                            Here is a list of the user's sparks in reverse chronological order (most recent at the top).
+                        """
+                        
                     }
-                    
-                    let remainingReflectQuestions = topic.topicQuestions
-                        .filter { $0.reflectQuestion == true }
-                        .filter { !questionFocusContents.contains($0.questionContent) }
-                    
-                    if !remainingReflectQuestions.isEmpty {
-                        context += getQuestions(remainingReflectQuestions)
-                    }
-                    
-                    context += """
-                        Here is a list of the user's sparks in reverse chronological order.\n\n
-                    """
-                    
-                    context += getDailyTopicBasics(topic)
                     
                 } else {
                     context += getDailyTopicBasics(topic)
@@ -604,8 +599,42 @@ extension ContextGatherer {
         let context = """
             Spark: \(topic.topicTitle).
             - theme: \(topic.topicTheme)
-            - date: \(topic.topicCreatedAt) \n
         """
+        
+        return context
+    }
+    
+    static func getContextForNewTopic(_ topic: TopicDaily) -> String {
+        var context = ""
+        
+        // define which questions are considered “focus for next spark”
+        let questionFocusContents = [
+            NewQuestion.questionsDailyTopic[1].content,
+            NewQuestion.questionsDailyTopic[4].content
+        ]
+        
+        // Get any answers to those focus questions
+        let focusAnswers = topic.topicQuestions
+            .filter { $0.reflectQuestion }
+            .filter { questionFocusContents.contains($0.questionContent) }
+            .compactMap { $0.questionAnswerSingleSelect.isEmpty ? nil : $0.questionAnswerSingleSelect }
+        
+        // Append each focus answer to context
+        for answer in focusAnswers {
+            context += """
+                What the user said they'd like to focus on for today's spark: \(answer)
+            """
+        }
+        
+        // Get rest of the reflect questions (excluding the focus ones)
+        let remainingReflectQuestions = topic.topicQuestions
+            .filter { $0.reflectQuestion }
+            .filter { !questionFocusContents.contains($0.questionContent) }
+        
+        // If there are any, render them via existing helper
+        if !remainingReflectQuestions.isEmpty {
+            context += getQuestions(remainingReflectQuestions)
+        }
         
         return context
     }

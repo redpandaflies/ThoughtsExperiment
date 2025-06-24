@@ -199,7 +199,9 @@ struct BreakView: View {
               
                 
             } catch {
-                topicViewModel.createTopicBreak = .retry
+                await MainActor.run {
+                    topicViewModel.createTopicBreak = .retry
+                }
             }
             
             await getTopicQuestions(nextTopic: nextTopic.first)
@@ -236,10 +238,11 @@ struct BreakView: View {
         do {
            
             try await topicViewModel.manageRun(selectedAssistant: .topic, topic: nextTopic)
-          
             
         } catch {
-            topicViewModel.createTopicQuestions = .retry
+            await MainActor.run {
+                topicViewModel.createTopicQuestions = .retry
+            }
         }
 
     }

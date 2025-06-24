@@ -10,13 +10,16 @@ import SwiftUI
 struct BackgroundPrimary<S: ShapeStyle>: View {
     let backgroundColor: S
     let backgroundImage: String
+    let addBlur: Bool
     
     init(
         backgroundColor: S,
-        backgroundImage: String = "backgroundPrimary"
+        backgroundImage: String = "backgroundPrimary",
+        addBlur: Bool = false
     ) {
         self.backgroundColor = backgroundColor
         self.backgroundImage = backgroundImage
+        self.addBlur = addBlur
     }
     
     
@@ -28,6 +31,7 @@ struct BackgroundPrimary<S: ShapeStyle>: View {
             Image(backgroundImage)
                 .resizable()
                 .aspectRatio(contentMode: .fill)
+                .blur(radius: addBlur ? 30 : 0)
                 .ignoresSafeArea()
                 .background {
                     Rectangle()

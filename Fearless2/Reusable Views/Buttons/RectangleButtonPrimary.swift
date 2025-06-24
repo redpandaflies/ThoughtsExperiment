@@ -10,7 +10,9 @@ import SwiftUI
 enum RectangleButtonColor {
     case yellow
     case white
-    case clear
+    case clearStroke
+    case clearNoStroke
+    case blendDark
 }
 
 struct RectangleButtonPrimary: View {
@@ -114,44 +116,68 @@ struct RectangleButtonPrimary: View {
             
             if !imageName.isEmpty {
                 Image(systemName: imageName)
-                    .font(.system(size: 15, weight: .medium))
-                    .foregroundStyle(Color.black)
+                    .font(.system(size: 15))
+                    .foregroundStyle(getTextColor)
             }
             
             Text(buttonText)
-                .font(.system(size: sizeSmall ? 13 : 15, weight: .medium))
-                .foregroundStyle(buttonColor == .clear ? AppColors.textPrimary : .black)
+                .font(.system(size: sizeSmall ? 13 : 15, weight: buttonColor == .clearNoStroke || buttonColor == .blendDark ? .light : .medium))
+                .foregroundStyle(getTextColor)
 
             
         }//HStack
         .frame(height: 55)
         .frame(maxWidth: width)
-        .contentShape(RoundedRectangle(cornerRadius: 15))
+        .contentShape(RoundedRectangle(cornerRadius: cornerRadius))
         .background {
-            RoundedRectangle(cornerRadius: 15)
-                .stroke(buttonColor == .clear ? AppColors.textPrimary : Color.clear, lineWidth: 0.5)
-                .fill(
-                    LinearGradient(
-                        gradient: Gradient(colors: getGradientColors()),
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
-                .shadow(color: Color.black.opacity(0.15), radius: 5, x: 0, y: 3)
+            RoundedRectangle(cornerRadius: cornerRadius)
+                .stroke(buttonColor == .clearStroke ? AppColors.textPrimary : Color.clear, lineWidth: 0.5)
+                .fill(getGradientStyle())
+                .shadow(color: buttonColor == .clearStroke || buttonColor == .clearNoStroke ? Color.clear : Color.black.opacity(0.15), radius: 5, x: 0, y: 3)
+                .blendMode(buttonColor == .blendDark ? .colorDodge : .normal)
                
         }
         .opacity(disableMainButton ? 0.3 : 1)
         
     }
     
-    func getGradientColors() -> [Color] {
+    private var getTextColor: Color {
+        switch buttonColor {
+        case .yellow, .white:
+            Color.black
+        case .clearNoStroke:
+            AppColors.textPrimary.opacity(0.7)
+        default:
+            AppColors.textPrimary
+        }
+    }
+    
+    // Replace your old getGradientColors() with this:
+    private func getGradientStyle() -> AnyShapeStyle {
         switch buttonColor {
         case .yellow:
-            return [AppColors.buttonYellow1, AppColors.buttonYellow2]
+            return AnyShapeStyle(
+                LinearGradient(
+                    gradient: Gradient(colors: [AppColors.buttonYellow1, AppColors.buttonYellow2]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            )
+            
         case .white:
-            return [Color.white, AppColors.buttonLightGrey1]
-        case .clear:
-            return [Color.clear, Color.clear]
+            return AnyShapeStyle(
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.white, AppColors.buttonLightGrey1]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            )
+            
+        case .clearStroke, .clearNoStroke:
+            return AnyShapeStyle(Color.clear)
+        
+        case .blendDark:
+            return AnyShapeStyle(AppColors.boxGrey1.opacity(0.3))
         }
     }
 }

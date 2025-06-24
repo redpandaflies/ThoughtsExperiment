@@ -11,132 +11,143 @@ import SwiftUI
 
 struct DailyReflectionView: View {
     @EnvironmentObject var dataController: DataController
-    @StateObject var dailyTopicViewModel: DailyTopicViewModel
+    @ObservedObject var dailyTopicViewModel: DailyTopicViewModel
     @ObservedObject var topicViewModel: TopicViewModel
+    @ObservedObject private var notificationManager = NotificationManager.shared
     
     @State private var selectedTab: Int = 1
-    @State private var showSettingsView: Bool = false
-    @State private var showLaurelInfoSheet: Bool = false
     @State private var showUpdateTopicView: Bool = false
+    /// notification
+    @State private var notificationsScheduled: Bool = false // updated after checking system to see if notification has been scheduled
+    @State private var showPermissionAlert: Bool = false
+    @State private var alertMessage: String = ""
     
-    //LottieView
+    //LottieView for loading view
     @State private var animationSpeed: CGFloat = 1.0
     @State private var play: Bool = false
     
     @Binding var selectedTabHome: TabBarItemHome
-    let currentPoints: Int
     
-    let backgroundColor: LinearGradient = LinearGradient(
-        stops: [
-        Gradient.Stop(color: AppColors.backgroundDaily1, location: 0.00),
-        Gradient.Stop(color: AppColors.backgroundDaily3, location: 0.60),
-        Gradient.Stop(color: AppColors.backgroundDaily3, location: 1.00),
-        ],
-        startPoint: UnitPoint(x: 0, y: 0),
-        endPoint: UnitPoint(x: 0.80, y: 1)
-    )
+    @ObservedObject var topic: TopicDaily
+    let topicIndex: Int
+    let hasTopicForTomorrow: Bool
+    let frameWidth: CGFloat
+    let backgroundColor: LinearGradient
+    let retryActionCreateTopic: () -> Void
+    let retryActionCreateTopicQuestions: () -> Void
     
-    let screenWidth: CGFloat = UIScreen.current.bounds.width
     let screenHeight: CGFloat = UIScreen.current.bounds.height
     
-    @FetchRequest(
-        entity: TopicDaily.entity(),
-        sortDescriptors: [
-            NSSortDescriptor(keyPath: \TopicDaily.createdAt, ascending: false)
-        ]
-    ) var dailyTopics: FetchedResults<TopicDaily>
-    
+    // Save the state of the toggle on/off for daily reminder
+    @AppStorage("isScheduled") var isScheduled = false
+    // Save the notification time set by user for daily reminder
+    @AppStorage("notificationTimeString") var notificationTimeString = DateFormatter.reminderFormat.string(from: {
+        var components = DateComponents()
+        components.hour = 9 // 9 AM in 24-hour format
+        components.minute = 0
+        return Calendar.current.date(from: components) ?? Date()
+    }())
     
     init(
-           dailyTopicViewModel: DailyTopicViewModel,
-           topicViewModel: TopicViewModel,
-           selectedTabHome: Binding<TabBarItemHome>,
-           currentPoints: Int
-       ) {
-           _dailyTopicViewModel = StateObject(wrappedValue: dailyTopicViewModel)
-           self.topicViewModel = topicViewModel
-           self._selectedTabHome = selectedTabHome
-           self.currentPoints = currentPoints
-       }
+        dailyTopicViewModel: DailyTopicViewModel,
+        topicViewModel: TopicViewModel,
+        selectedTabHome: Binding<TabBarItemHome>,
+        topic: TopicDaily,
+        topicIndex: Int,
+        hasTopicForTomorrow: Bool,
+        frameWidth: CGFloat,
+        backgroundColor: LinearGradient,
+        retryActionCreateTopic: @escaping () -> Void,
+        retryActionCreateTopicQuestions: @escaping () -> Void
+       
+    ) {
+        self.dailyTopicViewModel = dailyTopicViewModel
+        self.topicViewModel = topicViewModel
+        self._selectedTabHome = selectedTabHome
+        self.topic = topic
+        self.topicIndex = topicIndex
+        self.hasTopicForTomorrow = hasTopicForTomorrow
+        self.frameWidth = frameWidth
+        self.backgroundColor = backgroundColor
+        self.retryActionCreateTopic = retryActionCreateTopic
+        self.retryActionCreateTopicQuestions = retryActionCreateTopicQuestions
+       
+        // seed from AppStorage so initial UI matches what you last stored
+        _notificationsScheduled = State(initialValue: isScheduled)
+        
+    }
     
     var body: some View {
-        NavigationStack {
+      
+       
             VStack {
+                showPill()
                 
-              
-                if selectedTab == 1 {
-                    if let topic = dailyTopics.first {
-                        getHeading(topic)
-                            .padding(.bottom, 20)
-                    }
-                }
-                
-                VStack {
-                    showPill()
+                switch selectedTab {
                     
-                    switch selectedTab {
-                        
-                    case 0:
-                        // loading view
-                        loadingView()
-                            .onAppear {
-                                play = true
-                            }
-                            .onDisappear {
-                                play = false
-                            }
-                        
-                    case 1:
-                        // ready view
-                        if let topic = dailyTopics.first {
-                            readyView(topic)
+                case 0:
+                    // loading view
+                    loadingView
+                        .onAppear {
+                            play = true
+                        }
+                        .onDisappear {
+                            play = false
                         }
                     
-                    default:
-                        FocusAreaRetryView(action: {
-                            createDailyTopic()
-                        })
-                        
-                        
-                    }
+                case 1:
+                    // ready view
+                    DailyTopicReadyView(
+                        topic: topic,
+                        isScheduled: notificationsScheduled,
+                        startAction: { showUpdateTopicView = true },
+                        reviewAction: { showUpdateTopicView = true },
+                        remindAction: { handleIsScheduledChange(at: notificationTimeString) }
+                    )
                     
-                }
-                .padding(.horizontal)
-                .padding(.vertical, 20)
-                .frame(width: screenWidth * 0.81, height: 350, alignment: .top)
-                .background {
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(AppColors.whiteDefault.opacity(0.1), lineWidth: 0.5)
-                        .fill(AppColors.boxGrey6.opacity(selectedTab == 0 ? 0.2 : 0.5))
-                        .shadow(color: .black.opacity(0.05), radius: 15, x: 0, y: 3)
-                        .blendMode(.colorDodge)
-                    
-                }
-                .padding(.bottom, 20)
-              
-                getFooter(dailyTopics.first)
-                    .padding(.bottom, screenHeight * 0.27)
                 
-            }// VStack
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+                default:
+                    FocusAreaRetryView(action: {
+                        retryActionCreateTopic()
+                    })
+                    
+                    
+                }
+                
+            }
+            .padding(.horizontal)
+            .padding(.vertical)
+            .frame(width: frameWidth, height: 350, alignment: .top)
             .background {
-                BackgroundPrimary(
-                    backgroundColor: backgroundColor
-                )
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(AppColors.whiteDefault.opacity(0.1), lineWidth: 0.5)
+                    .fill(AppColors.boxGrey6.opacity(0.5))
+                    .shadow(color: .black.opacity(0.05), radius: 15, x: 0, y: 3)
+                    .blendMode(.colorDodge)
                 
+            }
+            .task {
+                /// check if notifications has been set (in case user turned off notifications in settings and now appstorage var isScheduled state is outdated)
+                checkNotificationStatus()
+            }
+            .onChange(of: isScheduled) {
+                checkNotificationStatus()
             }
             .onAppear {
-                createDailyTopicIfNeeded()
+               
+                    if topic.topicId == dailyTopicViewModel.currentTopic?.topicId {
+                        manageView()
+                    } else {
+                        if selectedTab != 1 {
+                            selectedTab = 1
+                        }
+                    }
+           
+                
             }
             .onChange(of: dailyTopicViewModel.createTopic) {
-                switch dailyTopicViewModel.createTopic {
-                case .loading:
-                    selectedTab = 0
-                case .ready:
-                    selectedTab = 1
-                case .retry:
-                    selectedTab = 2
-                    
+                if topic.topicId == dailyTopicViewModel.currentTopic?.topicId {
+                    manageView()
                 }
             }
             .onChange(of: showUpdateTopicView) {
@@ -146,113 +157,43 @@ struct DailyReflectionView: View {
                     }
                 }
             }
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    SettingsToolbarItem(action: {
-                        showSettingsView = true
-                    })
-                   
-                }
-                
-                if FeatureFlags.isStaging {
-                    ToolbarItem(placement: .principal) {
-                        
-                        Button {
-                            createDailyTopic()
-                        } label: {
-                            Image(systemName: "wand.and.stars")
-                                .font(.system(size: 17, weight: .thin))
-                                .foregroundStyle(AppColors.textPrimary)
-                        }
-                        
-                    }
-                }
-                
-                ToolbarItem(placement: .topBarTrailing) {
-                       Button {
-                           // show sheet explaining points
-                           showLaurelInfoSheet = true
-                           
-                           DispatchQueue.global(qos: .background).async {
-                               Mixpanel.mainInstance().track(event: "Tapped laurel counter")
-                           }
-
-                       } label: {
-                           LaurelItem(size: 15, points: "\(currentPoints)")
-                       }
-                   }
-                
-            }
-            .sheet(isPresented: $showSettingsView, onDismiss: {
-                showSettingsView = false
-            }, content: {
-                SettingsView(backgroundColor: backgroundColor)
-                    .presentationCornerRadius(20)
-                    .presentationBackground {
-                        Color.clear
-                            .background(.regularMaterial)
-                    }
-            })
-            .sheet(isPresented: $showLaurelInfoSheet, onDismiss: {
-                   showLaurelInfoSheet = false
-               }) {
-               InfoPrimaryView (
+           .fullScreenCover(isPresented: $showUpdateTopicView, onDismiss: {
+               showUpdateTopicView = false
+           }) {
+               UpdateDailyTopicView(
+                topicViewModel: topicViewModel,
+                dailyTopicViewModel: dailyTopicViewModel,
+                showUpdateTopicView: $showUpdateTopicView,
+                topic: topic,
+                hasTopicForTomorrow: hasTopicForTomorrow,
                 backgroundColor: backgroundColor,
-                   useIcon: false,
-                   titleText: "You earn laurels by answering questions and resolving topics.",
-                   descriptionText: "You'll soon be able to use them to unlock new abilities.",
-                   useRectangleButton: false,
-                   buttonAction: {}
+                retryActionQuestions: {
+                    retryActionCreateTopicQuestions()
+                }
                )
-               .presentationDetents([.fraction(0.65)])
-               .presentationCornerRadius(30)
+               
+                   
            }
-               .fullScreenCover(isPresented: $showUpdateTopicView, onDismiss: {
-                   showUpdateTopicView = false
-               }) {
-                   if let topic = dailyTopics.first {
-                       UpdateDailyTopicView(
-                        topicViewModel: topicViewModel,
-                        dailyTopicViewModel: dailyTopicViewModel,
-                        showUpdateTopicView: $showUpdateTopicView,
-                        topic: topic,
-                        backgroundColor: backgroundColor,
-                        retryActionQuestions: {
-                            Task {
-                                await createTopicQuestions(topic)
-                            }
-                        }
-                       )
+           .alert("Notifications Disabled", isPresented: $showPermissionAlert) {
+               Button("Go to Settings") {
+                   if let appSettings = URL(string: UIApplication.openSettingsURLString) {
+                       UIApplication.shared.open(appSettings)
                    }
-                       
                }
-            
-        }//NavigationStack
-    }
-    
-    
-    private func getHeading(_ topic: TopicDaily) -> some View {
+               Button("Cancel", role: .cancel) { }
+           } message: {
+               Text("Notifications are disabled in system settings. To receive daily reminders, please enable notifications for this app.")
+           }
         
-        VStack (spacing: 5){
-            Text("Today's theme")
-                .font(.system(size: 17, weight: .light).smallCaps())
-                .foregroundStyle(AppColors.textPrimary.opacity(0.6))
-                .fontWidth(.condensed)
             
-            Text(topic.topicTheme)
-                .font(.system(size: 19, design: .serif).smallCaps())
-                .foregroundStyle(AppColors.textPrimary)
-                .kerning(0.95)
-            
-        }
-        
     }
     
     private func showPill() -> some View {
-        Text(getPillText())
+        Text(getPillText)
             .font(.system(size: 15, weight: .light).smallCaps())
-            .foregroundStyle(AppColors.textPrimary)
+            .foregroundStyle(AppColors.textGrey1)
             .fontWidth(.condensed)
+            .blendMode(.colorDodge)
             .padding(.horizontal, 15)
             .padding(.vertical, 5)
             .background {
@@ -267,13 +208,15 @@ struct DailyReflectionView: View {
         
     }
     
-    private func getPillText() -> String {
+    var getPillText: String {
         switch selectedTab {
         case 0:
             return "Generating spark"
         case 1:
-            if let topic = dailyTopics.first, topic.topicStatus == TopicStatusItem.completed.rawValue {
+            if topic.topicStatus == TopicStatusItem.completed.rawValue {
                 return  "Spark Complete"
+            } else if topic.topicStatus == TopicStatusItem.locked.rawValue {
+                return notificationsScheduled ? "New spark tomorrow" : "Don't miss out"
             }
             return  "Suggested for you"
         default:
@@ -281,7 +224,8 @@ struct DailyReflectionView: View {
         }
     }
     
-    private func loadingView() -> some View {
+    @ViewBuilder
+    private var loadingView: some View {
         VStack {
             LottieView(
                 name: "spinnerAnimatedLoop",
@@ -301,124 +245,43 @@ struct DailyReflectionView: View {
         }
     }
     
+
+}
+
+
+// MARK: - business logic
+
+extension DailyReflectionView {
     
-    private func readyView(_ topic: TopicDaily) -> some View {
-        VStack (spacing: 15) {
-            Text(topic.topicEmoji)
-                .font(.system(size: 35, weight: .medium, design: .serif))
-                .foregroundStyle(AppColors.textPrimary)
-                .padding(.top, 20)
+    private func checkNotificationStatus() {
+        Task {
+            let actual = await notificationManager.checkIfNotificationsAreScheduled()
             
-            Text(topic.topicTitle)
-                .multilineTextAlignment(.center)
-                .font(.system(size: 20, weight: .medium, design: .serif))
-                .foregroundStyle(AppColors.textPrimary)
-                .fixedSize(horizontal: false, vertical: true)
-            
-            Spacer()
-            
-            if topic.topicStatus != TopicStatusItem.completed.rawValue {
-                RectangleButtonPrimary(
-                    buttonText: "Start",
-                    action: {
-                        startTopic()
-                    },
-                    buttonColor: .white,
-                    cornerRadius: 10
-                )
-            } else {
-                RoundButtonWithEmoji(
-                    symbol: "book.pages.fill",
-                    buttonAction: {
-                        showUpdateTopicView = true
-                    }
-                )
-                .padding(.bottom)
-            }
-            
-            if topic.topicStatus != TopicStatusItem.completed.rawValue {
-                HStack (spacing: 3) {
-                    Image(systemName: "clock.fill")
-                        .font(.system(size: 13, weight: .light).smallCaps())
-                        .foregroundStyle(AppColors.textPrimary.opacity(0.6))
-                        .fontWidth(.condensed)
-                    
-                    Text("2 min")
-                        .font(.system(size: 13, weight: .light).smallCaps())
-                        .foregroundStyle(AppColors.textPrimary.opacity(0.6))
-                        .fontWidth(.condensed)
-                    
+            await MainActor.run {
+                if actual != notificationsScheduled {
+                    notificationsScheduled = actual
+                }
+                if isScheduled != actual {
+                    isScheduled = actual
                 }
             }
-           
         }
     }
     
-    private func getFooter(_ topic: TopicDaily?) -> some View {
-        let isVisible = (topic?.topicStatus == TopicStatusItem.completed.rawValue && selectedTab == 1)
-        
-        return Text("Come back tomorrow for more.")
-            .font(.system(size: 15, weight: .light))
-            .foregroundStyle(isVisible ? AppColors.textPrimary.opacity(0.6) : .clear)
-            .fontWidth(.condensed)
-    }
-    
-    private func createDailyTopicIfNeeded() {
-        
-        guard let latest = dailyTopics.first else {
-               createDailyTopic()
-               return
-           }
-
-       if !isLatestDailyTopicFromToday(latest) {
-           createDailyTopic()
-       } else {
-           selectedTab = 1
-       }
-    
-    }
-    
-    // check if current date matches date of latest daily topic created
-    private func isLatestDailyTopicFromToday(_ topic: TopicDaily?) -> Bool {
-        guard let createdAtString = topic?.createdAt else { return false }
-
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS"
-        formatter.timeZone = TimeZone(secondsFromGMT: 0) // assuming saved in GMT
-
-        guard let createdAtDate = formatter.date(from: createdAtString) else {
-            return false
-        }
-
-        // Convert both to local calendar components
-        let calendar = Calendar.current
-        let now = Date()
-
-        let topicComponents = calendar.dateComponents([.year, .month, .day], from: createdAtDate)
-        let todayComponents = calendar.dateComponents([.year, .month, .day], from: now)
-
-        return topicComponents == todayComponents
-    }
-    
-    private func createDailyTopic() {
-        
-        Task {
-            do {
-                try await dailyTopicViewModel.manageRun(selectedAssistant: .topicDaily)
-            } catch {
-                dailyTopicViewModel.createTopic = .retry
+    private func manageView() {
+        switch dailyTopicViewModel.createTopic {
+        case .loading:
+            selectedTab = 0
+        case .ready:
+            // show retry if daily topic is empty because API call failed
+            if !isDailyTopicFromTomorrow(topic) && topic.topicTitle.isEmpty {
+                selectedTab = 2
+            } else {
+                selectedTab = 1
             }
+        case .retry:
+            selectedTab = 2
             
-            await createTopicQuestions(dailyTopicViewModel.currentTopic)
-        }
- 
-    }
-    
-    private func createTopicQuestions(_ topic: TopicDaily?) async {
-        do {
-            try await dailyTopicViewModel.manageRun(selectedAssistant: .topicDailyQuestions, topic: topic)
-        } catch {
-            dailyTopicViewModel.createTopicQuestions = .retry
         }
     }
     
@@ -429,7 +292,43 @@ struct DailyReflectionView: View {
             Mixpanel.mainInstance().track(event: "Started daily topic")
         }
     }
+    
+    private func handleIsScheduledChange(at timeString: String) {
+        Task {
+            let settings = await notificationManager.getNotificationSettings()
+                        
+            if settings.authorizationStatus == .denied {
+                await MainActor.run {
+                    self.isScheduled = false
+                    self.alertMessage = "Notifications are disabled in system settings. To receive daily reminders, please enable notifications for this app."
+                    self.showPermissionAlert = true
+                }
+                return
+            }
 
+            do {
+                try await notificationManager.requestAuthorization()
+                notificationManager.scheduleDailyNotifications(notificationTimeString: timeString)
+                
+                await MainActor.run {
+                    self.isScheduled = true
+                }
+                
+                DispatchQueue.global(qos: .background).async {
+                    Mixpanel.mainInstance().track(event: "Set daily reminder")
+                }
+            } catch {
+                await MainActor.run {
+                    self.isScheduled = false
+                    self.alertMessage = "Failed to request notification permission."
+                    self.showPermissionAlert = true
+                }
+            }
+        }
+      
+    }
+    
 }
+
 
 

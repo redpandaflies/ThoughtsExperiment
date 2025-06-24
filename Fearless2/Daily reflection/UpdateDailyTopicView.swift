@@ -47,6 +47,7 @@ struct UpdateDailyTopicView: View {
     @Binding var showUpdateTopicView: Bool //dismiss sheet
     
     let topic: TopicDaily
+    let hasTopicForTomorrow: Bool
     let backgroundColor: LinearGradient
     let retryActionQuestions: () -> Void
     
@@ -65,6 +66,7 @@ struct UpdateDailyTopicView: View {
          dailyTopicViewModel: DailyTopicViewModel,
          showUpdateTopicView: Binding<Bool>,
          topic: TopicDaily,
+         hasTopicForTomorrow: Bool,
          backgroundColor: LinearGradient,
          retryActionQuestions: @escaping () -> Void
     ) {
@@ -72,6 +74,7 @@ struct UpdateDailyTopicView: View {
         self.dailyTopicViewModel = dailyTopicViewModel
         self._showUpdateTopicView = showUpdateTopicView
         self.topic = topic
+        self.hasTopicForTomorrow = hasTopicForTomorrow
         self.backgroundColor = backgroundColor
         self.retryActionQuestions = retryActionQuestions
         
@@ -594,7 +597,7 @@ struct UpdateDailyTopicView: View {
     private func nextAction(question: String) async {
         switch question {
         case NewQuestion.questionsDailyTopic[1].content:
-            await markDailyTopicComplete()
+            await markCompleteAndCreateNext()
             
             let notificationEnabled = await notificationManager.checkIfNotificationsAreScheduled()
             
@@ -616,7 +619,7 @@ struct UpdateDailyTopicView: View {
             } else {
                 selectedTab = 7
             }
-            await markDailyTopicComplete()
+            await markCompleteAndCreateNext()
 
         case NewQuestion.questionsDailyTopic[3].content:
             await getPlans()
@@ -718,7 +721,9 @@ struct UpdateDailyTopicView: View {
             do {
                 try await dailyTopicViewModel.manageRun(selectedAssistant: .topicDailyRecap, topic: topic)
             } catch {
-                dailyTopicViewModel.createTopicRecap = .retry
+                await MainActor.run {
+                    dailyTopicViewModel.createTopicRecap = .retry
+                }
             }
             
         }
@@ -737,6 +742,15 @@ struct UpdateDailyTopicView: View {
         Task {
             await dataController.updatePoints(newPoints: 1)
         }
+    }
+    
+    private func markCompleteAndCreateNext() async {
+        if !hasTopicForTomorrow {
+            let _ = await dailyTopicViewModel.createDailyTopic(topicDate: getNextDayString())
+        }
+        
+        await markDailyTopicComplete()
+        
     }
     
     private func markDailyTopicComplete() async {
@@ -797,7 +811,9 @@ struct UpdateDailyTopicView: View {
             try await dailyTopicViewModel.manageRun(selectedAssistant: .planSuggestion, category: category, goal: goal)
             
         } catch {
-            dailyTopicViewModel.createPlanSuggestions = .retry
+            await MainActor.run {
+                dailyTopicViewModel.createPlanSuggestions = .retry
+            }
         }
     
     }
@@ -818,7 +834,6 @@ struct UpdateDailyTopicView: View {
     }
     
     // MARK: - Notifications
-    
     private func notificationsViewAction() {
         if dailyTopicViewModel.startedPlanSuggestionsRun {
             selectedTab = 6

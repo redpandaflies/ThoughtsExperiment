@@ -62,4 +62,48 @@ extension DateFormatter {
         formatter.locale = Locale(identifier: "en_US_POSIX")
         return formatter
     }()
+    
+   
+    // Formats as "9 PM" (no minutes)
+    static let hourOnlyFormat: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "h a"                // e.g. "9 PM"
+        f.locale = Locale(identifier: "en_US_POSIX")
+        return f
+    }()
+
+    // Formats as "9:04 PM" (with minutes)
+    static let hourMinuteFormat: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "h:mm a"             // e.g. "9:04 PM"
+        f.locale = Locale(identifier: "en_US_POSIX")
+        return f
+    }()
+}
+
+// MARK: - check dates of daily topics
+
+/// Converts a TopicDaily’s `createdAt` into a Date.
+func parseTopicDate(_ topic: TopicDaily?) -> Date? {
+    guard let dateString = topic?.createdAt else { return nil }
+    return DateFormatter.incomingFormat.date(from: dateString)
+}
+
+/// Returns true if the topic’s date is in today’s calendar day.
+func isDailyTopicFromToday(_ topic: TopicDaily?) -> Bool {
+    guard let date = parseTopicDate(topic) else { return false }
+    return Calendar.current.isDateInToday(date)
+}
+
+/// Returns true if the topic’s date is tomorrow.
+func isDailyTopicFromTomorrow(_ topic: TopicDaily?) -> Bool {
+    guard let date = parseTopicDate(topic) else { return false }
+    return Calendar.current.isDateInTomorrow(date)
+}
+
+/// Returns true if the topic’s date is strictly before today’s start.
+func isLatestDailyTopicBeforeToday(_ topic: TopicDaily?) -> Bool {
+    guard let date = parseTopicDate(topic) else { return false }
+    let startOfToday = Calendar.current.startOfDay(for: Date())
+    return date < startOfToday
 }

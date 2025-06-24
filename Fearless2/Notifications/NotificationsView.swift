@@ -23,7 +23,7 @@ struct NotificationsView: View {
     // Save the notification time set by user for daily reminder
     @AppStorage("notificationTimeString") var notificationTimeString = DateFormatter.reminderFormat.string(from: {
         var components = DateComponents()
-        components.hour = 21 // 9 PM in 24-hour format
+        components.hour = 9 // 9 PM in 24-hour format
         components.minute = 0
         return Calendar.current.date(from: components) ?? Date()
     }())

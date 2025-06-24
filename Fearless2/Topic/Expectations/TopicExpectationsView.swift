@@ -161,7 +161,9 @@ struct TopicExpectationsView: View {
                 try await topicViewModel.manageRun(selectedAssistant: .topic, topic: nextTopic.first)
                 
             } catch {
-                topicViewModel.createTopicQuestions = .retry
+                await MainActor.run {
+                    topicViewModel.createTopicQuestions = .retry
+                }
             }
             
         }

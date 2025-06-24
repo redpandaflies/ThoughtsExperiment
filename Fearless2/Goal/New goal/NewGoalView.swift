@@ -389,7 +389,9 @@ struct NewGoalView: View {
                 )
                 
             } catch {
-                newGoalViewModel.createNewCategorySummary = .retry
+                await MainActor.run {
+                    newGoalViewModel.createNewCategorySummary = .retry
+                }
             }
             
         }
@@ -403,7 +405,9 @@ struct NewGoalView: View {
                 try await newGoalViewModel.manageRun(selectedAssistant: .planSuggestion, category: category, goal: goal)
                 
             } catch {
-                newGoalViewModel.createPlanSuggestions = .retry
+                await MainActor.run {
+                    newGoalViewModel.createPlanSuggestions = .retry
+                }
             }
             
         }

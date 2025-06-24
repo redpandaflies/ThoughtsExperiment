@@ -101,7 +101,6 @@ struct QuestionWhereToNext2: View {
         }
         .padding(.top, 40)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .padding(.horizontal)
     }
     
     private func answerBox(buttonColor: BoxStyle, title: String, subtitle: String) -> some View {

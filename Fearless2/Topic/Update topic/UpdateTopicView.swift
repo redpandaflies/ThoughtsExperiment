@@ -637,7 +637,9 @@ struct UpdateTopicView: View {
         do {
             try await topicViewModel.manageRun(selectedAssistant: .topicOverview, topic: topic)
         } catch {
-            topicViewModel.createTopicRecap = .retry
+            await MainActor.run {
+                topicViewModel.createTopicRecap = .retry
+            }
         }
         
         // get content for next topic
@@ -668,7 +670,9 @@ struct UpdateTopicView: View {
             
             
         } catch {
-            topicViewModel.createTopicBreak = .retry
+            await MainActor.run {
+                topicViewModel.createTopicBreak = .retry
+            }
         }
     }
     
@@ -687,7 +691,9 @@ struct UpdateTopicView: View {
                 }
             }
         } catch {
-            topicViewModel.createTopicQuestions = .retry
+            await MainActor.run {
+                topicViewModel.createTopicQuestions = .retry
+            }
         }
       
     }

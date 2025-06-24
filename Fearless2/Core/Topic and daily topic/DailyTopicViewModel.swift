@@ -148,7 +148,7 @@ final class DailyTopicViewModel: ObservableObject, TopicRecapObservable, PlanSug
                 
             case .topicDaily:
                 
-               let newTopic = try await topicProcessor.processNewDailyTopic(messageText: messageText)
+                let newTopic = try await topicProcessor.processNewDailyTopic(messageText: messageText, existingTopic: topic)
                 
                 await MainActor.run {
                     self.currentTopic = newTopic
@@ -224,6 +224,25 @@ final class DailyTopicViewModel: ObservableObject, TopicRecapObservable, PlanSug
     
     
     // MARK: - Save data to coredata
+    
+    // create the next day's daily topic
+    
+    @MainActor
+    func createDailyTopic(topicDate: String = "") async -> TopicDaily? {
+        var topic: TopicDaily? = nil
+        
+        do {
+            topic = try await topicProcessor.createDailyTopic(topicDate: topicDate)
+            self.currentTopic = topic
+            
+        } catch {
+            loggerCoreData.error("\(error.localizedDescription)")
+        }
+        
+        return topic
+    }
+    
+    
     // save answer to topic question
     @MainActor
     func saveAnswer(
@@ -258,5 +277,6 @@ final class DailyTopicViewModel: ObservableObject, TopicRecapObservable, PlanSug
             loggerCoreData.error("\(error.localizedDescription)")
         }
     }
+    
 }
 

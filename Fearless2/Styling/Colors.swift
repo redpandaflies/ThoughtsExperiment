@@ -48,7 +48,7 @@ struct AppColors {
     static let textPrimary = Color.white.opacity(0.9)
     static let textSecondary = Color(.displayP3, red: 0.914, green: 0.922, blue: 0.949, opacity: 1) // #e9ebf2 light grey
     static let textBlack = Color.black.opacity(0.9)
-
+    static let textGrey1 = boxGrey1
     // Divider
     static let dividerPrimary = Color(.displayP3, red: 0.125, green: 0.141, blue: 0.204, opacity: 1) // #202434
     static let dividerShadow = textSecondary
@@ -62,6 +62,7 @@ struct AppColors {
     static let boxGrey4 = Color(.displayP3, red: 0.518, green: 0.518, blue: 0.518, opacity: 1) // #848484
     static let boxGrey5 = Color(.displayP3, red: 0.620, green: 0.620, blue: 0.620, opacity: 1) // #9E9E9E
     static let boxGrey6 = Color(.displayP3, red: 0.498, green: 0.498, blue: 0.498, opacity: 1) // #7F7F7F
+    static let boxGrey7 = strokeGrey
     static let boxYellow1 = Color(.displayP3, red: 1, green: 0.831, blue: 0.396, opacity: 1) // #ffd465
     static let boxYellow2 = Color(.displayP3, red: 1, green: 0.722, blue: 0, opacity: 1) // #ffb800
     

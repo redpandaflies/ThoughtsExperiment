@@ -359,7 +359,9 @@ struct NextSequenceView: View {
                 try await sequenceViewModel.manageRun(selectedAssistant: .sequenceSummary, category: goal.category, goal: goal, sequence: sequence)
                 
             } catch {
-                sequenceViewModel.createSequenceSummary = .retry
+                await MainActor.run {
+                    sequenceViewModel.createSequenceSummary = .retry
+                }
             }
             
         }
@@ -383,7 +385,9 @@ struct NextSequenceView: View {
                 try await newGoalViewModel.manageRun(selectedAssistant: .planSuggestion, category: category, goal: goal, sequence: isRetry ? nil : sequence)
                 
             } catch {
-                newGoalViewModel.createPlanSuggestions = .retry
+                await MainActor.run {
+                    newGoalViewModel.createPlanSuggestions = .retry
+                }
             }
         }
     }

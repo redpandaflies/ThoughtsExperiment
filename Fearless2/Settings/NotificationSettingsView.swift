@@ -22,7 +22,7 @@ struct NotificationSettingsView<S: ShapeStyle>: View {
     // Save the notification time set by user for daily reminder
     @AppStorage("notificationTimeString") var notificationTimeString = DateFormatter.reminderFormat.string(from: {
         var components = DateComponents()
-        components.hour = 21 // 9 PM in 24-hour format
+        components.hour = 9 // 9 PM in 24-hour format
         components.minute = 0
         return Calendar.current.date(from: components) ?? Date()
     }())
@@ -149,6 +149,9 @@ private extension NotificationSettingsView {
             }
         } else {
             notificationManager.cancelDailyReminder()
+            Task {
+                try await notificationManager.requestAuthorization()
+            }
         }
     }
     

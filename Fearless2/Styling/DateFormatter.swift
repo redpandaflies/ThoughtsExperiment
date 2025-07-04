@@ -102,7 +102,7 @@ func isDailyTopicFromTomorrow(_ topic: TopicDaily?) -> Bool {
 }
 
 /// Returns true if the topic’s date is strictly before today’s start.
-func isLatestDailyTopicBeforeToday(_ topic: TopicDaily?) -> Bool {
+func isDailyTopicFromBeforeToday(_ topic: TopicDaily?) -> Bool {
     guard let date = parseTopicDate(topic) else { return false }
     let startOfToday = Calendar.current.startOfDay(for: Date())
     return date < startOfToday

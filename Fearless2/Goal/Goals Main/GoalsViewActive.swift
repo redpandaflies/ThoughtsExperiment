@@ -84,8 +84,8 @@ struct GoalsViewActive: View {
                 selectedTabGoals = 1
             }
             
-            if dataController.createdNewGoal && goals.count > 1 {
-                scrollToNewGoal(delay: 0.5)
+            if let currentGoal = topicViewModel.currentGoal, goals.count > 1 {
+                scrollToNewGoal(delay: 0.5, goal: currentGoal)
             }
             
             Task {
@@ -119,8 +119,8 @@ struct GoalsViewActive: View {
         }
         .onChange(of: showNewGoalSheet) {
             /// scroll to new goal
-            if !showNewGoalSheet && dataController.createdNewGoal && goals.count > 1 {
-                scrollToNewGoal(delay: 0.5)
+            if let currentGoal = topicViewModel.currentGoal, !showNewGoalSheet && goals.count > 1 {
+                scrollToNewGoal(delay: 0.5, goal: currentGoal)
             }
         }
         
@@ -157,13 +157,16 @@ struct GoalsViewActive: View {
         }
     }
     
-    private func scrollToNewGoal(delay: Double) {
+    private func scrollToNewGoal(delay: Double, goal: Goal) {
+        guard let goalIndex = goals.firstIndex(where: { $0.goalId == goal.goalId }) else { return }
+        
+        
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
             withAnimation {
-                goalScrollPosition = goals.count - 1
+                goalScrollPosition = goalIndex
             }
             /// reset var so view doesn't keep scrolling automatically on appear
-            dataController.createdNewGoal = false
+            topicViewModel.currentGoal  = nil
         }
     }
 }

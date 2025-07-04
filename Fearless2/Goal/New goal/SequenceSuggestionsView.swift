@@ -95,7 +95,10 @@ struct SequenceSuggestionsView<ViewModel: PlanSuggestionsObservable>: View {
             viewModel.completedLoadingAnimationPlanPublisher
           )
           .filter { suggestions, loaded in
-            loaded && suggestions != .loading
+              if FeatureFlags.isStaging {
+                  print("Received: suggestions = \(suggestions), loaded = \(loaded)")
+              }
+            return loaded && suggestions != .loading
           }
           .receive(on: DispatchQueue.main)
           .eraseToAnyPublisher()
@@ -168,7 +171,7 @@ struct SequenceSuggestionsView<ViewModel: PlanSuggestionsObservable>: View {
                 let topic = await dataController.saveSelectedPlan(plan: plan, category: category, goal: goal)
                 
                 await MainActor.run {
-                    dataController.createdNewGoal = true
+                    topicViewModel.currentGoal = goal
                     showSheet = false
                 }
                 

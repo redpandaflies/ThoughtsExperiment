@@ -37,7 +37,6 @@ final class DailyTopicViewModel: ObservableObject, TopicRecapObservable, PlanSug
     // mark that plan suggestions are being generated (indicate where to navigate after notifications sheet)
     var startedPlanSuggestionsRun: Bool = false
     
-    
     private var dataController: DataController
     private var topicProcessor: TopicProcessor
     private var goalProcessor: GoalProcessor
@@ -87,29 +86,32 @@ final class DailyTopicViewModel: ObservableObject, TopicRecapObservable, PlanSug
         do {
             //reset published vars
             await MainActor.run {
-               
-                if selectedAssistant == .topicDailyRecap {
+                switch selectedAssistant {
+                case .topicDailyRecap:
                     self.createTopicRecap = .loading
-                }
-                
-                if selectedAssistant == .topicDaily {
+
+                case .topicDaily:
                     if self.createTopic != .loading {
                         self.createTopic = .loading
                     }
-                } else {
-                    self.createTopic = .ready
-                }
-                
-                if selectedAssistant == .topicDailyQuestions {
+
+                case .topicDailyQuestions:
                     self.createTopicQuestions = .loading
+
+                case .planSuggestion:
+                    self.startedPlanSuggestionsRun = true
+                    if self.createPlanSuggestions != .loading {
+                        self.createPlanSuggestions = .loading
+                    }
+                    self.newPlanSuggestions = []
+
+                default:
+                    break
                 }
-                
+
+                // These apply to all cases
                 currentCategory = category
                 currentGoal = goal
-                
-                if selectedAssistant == .planSuggestion {
-                    startedPlanSuggestionsRun = true
-                }
                 
             }
             
@@ -226,7 +228,6 @@ final class DailyTopicViewModel: ObservableObject, TopicRecapObservable, PlanSug
     // MARK: - Save data to coredata
     
     // create the next day's daily topic
-    
     @MainActor
     func createDailyTopic(topicDate: String = "") async -> TopicDaily? {
         var topic: TopicDaily? = nil
@@ -234,6 +235,7 @@ final class DailyTopicViewModel: ObservableObject, TopicRecapObservable, PlanSug
         do {
             topic = try await topicProcessor.createDailyTopic(topicDate: topicDate)
             self.currentTopic = topic
+            loggerCoreData.log("Created new daily topic for \(topicDate)")
             
         } catch {
             loggerCoreData.error("\(error.localizedDescription)")
@@ -278,5 +280,23 @@ final class DailyTopicViewModel: ObservableObject, TopicRecapObservable, PlanSug
         }
     }
     
+    //change status of a set of topics
+    @MainActor
+    func changeTopicsStatus(topics: [TopicRepresentable], newStatus: TopicStatusItem) async {
+        do {
+            try await topicProcessor.changeTopicsStatus(topics: topics, newStatus: newStatus)
+        } catch {
+            loggerCoreData.error("\(error.localizedDescription)")
+        }
+    }
+    
+    @MainActor
+    func deleteTopic(_ topic: TopicDaily) async {
+        do {
+            try await topicProcessor.deleteTopic(topic)
+        } catch {
+            loggerCoreData.error("\(error.localizedDescription)")
+        }
+    }
 }
 

@@ -337,6 +337,31 @@ extension TopicProcessor {
         }
     }
     
+    // mark topics as missed
+    func changeTopicsStatus(topics: [TopicRepresentable], newStatus: TopicStatusItem) async throws {
+       try await context.perform {
+           for topic in topics {
+               topic.topicStatus = newStatus.rawValue
+           }
+           
+           if FeatureFlags.isStaging {
+               self.logger.log("\(topics.count) topics' status updated to \(newStatus.rawValue)")
+           }
+           
+            // Save to coredata
+            try self.context.save()
+        }
+    }
+    
+    // delete topic
+    func deleteTopic(_ topic: TopicRepresentable) async throws {
+        try await context.perform {
+            self.context.delete(topic as! NSManagedObject)
+            
+            try self.context.save()
+        }
+    }
+    
     // delete goals that don't have a plan
     func deleteIncompleteGoals(_ incompleteGoals: [Goal]) async throws {
         try await context.perform {

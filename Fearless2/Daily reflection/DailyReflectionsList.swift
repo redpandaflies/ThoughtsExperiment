@@ -23,17 +23,6 @@ struct DailyReflectionsList: View {
     @Binding var selectedTabHome: TabBarItemHome
     let currentPoints: Int
     
-    var currentTopic: TopicDaily? {
-        guard dailyTopics.count > 0 else {
-            return nil
-        }
-        return dailyTopics[topicScrollPosition ?? 0]
-    }
-    
-    var latestIsForTomorrow: Bool {
-        return isDailyTopicFromTomorrow(dailyTopics.first)
-    }
-    
     /// topic box size and scroll padding
     let screenWidth: CGFloat = UIScreen.current.bounds.width
     var topicBoxWidth: CGFloat {
@@ -59,8 +48,34 @@ struct DailyReflectionsList: View {
         entity: TopicDaily.entity(),
         sortDescriptors: [
             NSSortDescriptor(keyPath: \TopicDaily.createdAt, ascending: false)
-        ]
-    ) var dailyTopics: FetchedResults<TopicDaily>
+        ],
+        predicate: NSPredicate(
+           format: "status != %@",
+           TopicStatusItem.missed.rawValue
+       )
+    ) var fetchedDailyTopics: FetchedResults<TopicDaily>
+    
+    var filteredDailyTopics: [TopicDaily] {
+        return fetchedDailyTopics.filter { topic in
+            if isDailyTopicFromBeforeToday(topic) &&
+                topic.topicStatus == TopicStatusItem.locked.rawValue {
+                return false
+            }
+            
+            return true
+        }
+    }
+    
+    var currentTopic: TopicDaily? {
+        guard filteredDailyTopics.count > 0 else {
+            return nil
+        }
+        return filteredDailyTopics[topicScrollPosition ?? 0]
+    }
+    
+    var latestIsForTomorrow: Bool {
+        return isDailyTopicFromTomorrow(filteredDailyTopics.first)
+    }
     
     var body: some View {
     
@@ -73,7 +88,9 @@ struct DailyReflectionsList: View {
                 /// reflection box
                 ScrollView (.horizontal) {
                     LazyHStack (spacing: 15) {
-                        ForEach(Array(dailyTopics.enumerated()), id: \.element.topicId) { index, topic in
+                        ForEach(filteredDailyTopics.indices, id: \.self) { index in
+                            let topic = filteredDailyTopics[index]
+                            
                             DailyReflectionView(
                                 dailyTopicViewModel: dailyTopicViewModel,
                                 topicViewModel: topicViewModel,
@@ -109,7 +126,6 @@ struct DailyReflectionsList: View {
                 .scrollIndicators(.hidden)
                 .contentMargins(.horizontal, safeAreaPadding, for: .scrollContent)
                 
-                
             }//VStack
             .padding(.top, 50)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -124,12 +140,18 @@ struct DailyReflectionsList: View {
                     hasInitiallyAppeared = true
                     createDailyTopicIfNeeded()
                 }
-                }
+            }
             .onAppear {
                 if !hasInitiallyAppeared {
                     hasInitiallyAppeared = true
                     createDailyTopicIfNeeded()
+                    updateMissedTopics()
                 }
+            }
+            .onChange(of: fetchedDailyTopics.count) { oldValue, newValue in
+                print("Daily topics changed to \(newValue)")
+                
+                
             }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -142,13 +164,7 @@ struct DailyReflectionsList: View {
                 if FeatureFlags.isStaging {
                     ToolbarItem(placement: .principal) {
                         
-                        Button {
-                            createNewTopicForToday()
-                        } label: {
-                            Image(systemName: "wand.and.stars")
-                                .font(.system(size: 17, weight: .thin))
-                                .foregroundStyle(AppColors.textPrimary)
-                        }
+                        stagingMenu()
                         
                     }
                 }
@@ -216,7 +232,7 @@ struct DailyReflectionsList: View {
     
     private var getTopicDateHeader: String {
         
-        if let currentTopic = currentTopic, dailyTopics.first?.topicId == currentTopic.topicId {
+        if let currentTopic = currentTopic, filteredDailyTopics.first?.topicId == currentTopic.topicId {
             if isDailyTopicFromToday(currentTopic) {
                 return "Today's theme"
             }/* else if isDailyTopicFromTomorrow(currentTopic) {*/
@@ -233,6 +249,31 @@ struct DailyReflectionsList: View {
         
     }
     
+    private func stagingMenu() -> some View {
+        Menu {
+            
+            Button {
+                createNewTopicForToday()
+            } label: {
+                Label("Create new spark", systemImage: "sparkles")
+                    .font(.system(size: 14))
+            }
+            
+            Button {
+                deleteFirstTopic()
+            } label: {
+                Label("Delete first spark", systemImage: "folder.badge.minus")
+                    .font(.system(size: 14))
+            }
+            
+        } label: {
+            Image(systemName: "wand.and.stars")
+                .font(.system(size: 17, weight: .thin))
+                .foregroundStyle(AppColors.textPrimary)
+        }
+        
+    }
+    
 }
 
 
@@ -243,21 +284,18 @@ extension DailyReflectionsList {
             print("Checking to see if new daily topic is needed")
         }
         /// if there's no daily topic, create one
-        guard let latest = dailyTopics.first else {
+        guard let latest = filteredDailyTopics.first else {
             createNewTopicForToday()
             return
         }
         
         let latestTopicFromToday = isDailyTopicFromToday(latest)
-        let latestTopicFromBefore = isLatestDailyTopicBeforeToday(latest)
+        let latestTopicFromBefore = isDailyTopicFromBeforeToday(latest)
        
         if latestTopicFromToday {
-            if latest.status == TopicStatusItem.locked.rawValue {
-                if dailyTopicViewModel.createTopic != .loading {
-                    Task {
-                        await createDailyTopic(latest)
-                    }
-                }
+            if latest.status == TopicStatusItem.locked.rawValue && dailyTopicViewModel.createTopic != .loading {
+              
+                getTitleForExistingTopic(latest)
             }
         } else if latestTopicFromBefore {
             /// if the latest daily topic is from before today
@@ -275,6 +313,19 @@ extension DailyReflectionsList {
                 let newTopic = await dailyTopicViewModel.createDailyTopic(topicDate: getCurrentTimeString())
                 
                 await createDailyTopic(newTopic)
+            }
+        }
+        
+    }
+    
+    private func getTitleForExistingTopic(_ topic: TopicDaily? = nil) {
+        if dailyTopicViewModel.createTopic != .loading {
+            
+            /// set currentTopic var so that the loading view appears during API call
+            dailyTopicViewModel.currentTopic = topic
+            
+            Task {
+                await createDailyTopic(topic)
             }
         }
         
@@ -301,6 +352,35 @@ extension DailyReflectionsList {
             await MainActor.run {
                 dailyTopicViewModel.createTopicQuestions = .retry
             }
+        }
+    }
+    
+    private func updateMissedTopics() {
+        let missedTopics = fetchedDailyTopics.filter { topic in
+            if isDailyTopicFromBeforeToday(topic) &&
+                topic.topicStatus == TopicStatusItem.locked.rawValue {
+                return true
+            }
+            return false
+        }
+        
+        if !missedTopics.isEmpty {
+            
+            Task {
+                await dailyTopicViewModel.changeTopicsStatus(topics: missedTopics, newStatus: .missed)
+                
+            }
+        }
+        
+    }
+    
+    private func deleteFirstTopic() {
+        Task {
+            if let topic = fetchedDailyTopics.first {
+                
+                await dailyTopicViewModel.deleteTopic(topic)
+            }
+            
         }
     }
     

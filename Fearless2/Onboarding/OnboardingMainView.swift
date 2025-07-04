@@ -56,7 +56,7 @@ struct OnboardingMainView: View {
 //            }
 //        }
         .onChange(of: showNewGoalSheet) {
-            if !showNewGoalSheet && dataController.createdNewGoal {
+            if !showNewGoalSheet && topicViewModel.currentGoal != nil {
                 completeOnboarding()
             }
         }

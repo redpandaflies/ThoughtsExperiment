@@ -12,6 +12,7 @@ enum TopicStatusItem: String, CaseIterable{
     case archived
     case completed
     case locked
+    case missed // placeholder for next day's topic created but never created
 }
 
 

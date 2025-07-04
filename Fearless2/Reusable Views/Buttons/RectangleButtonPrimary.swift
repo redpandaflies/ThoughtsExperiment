@@ -15,6 +15,11 @@ enum RectangleButtonColor {
     case blendDark
 }
 
+enum DeepDiveButtonState {
+    case diveDeeper
+    case goToTopic
+}
+
 struct RectangleButtonPrimary: View {
     @State private var playHapticEffect: Int = 0
     
@@ -28,6 +33,11 @@ struct RectangleButtonPrimary: View {
     let buttonColor: RectangleButtonColor
     let cornerRadius: CGFloat
     
+    /// dive deeper button
+    let showDiveDeeperButton: Bool
+    let diveDeeperButtonState: DeepDiveButtonState
+    let diveDeeperAction: () -> Void
+    
     let screenWidth = UIScreen.current.bounds.width
     
     init(
@@ -39,7 +49,11 @@ struct RectangleButtonPrimary: View {
         disableMainButton: Bool = false,
         sizeSmall: Bool = false,
         buttonColor: RectangleButtonColor = .yellow,
-        cornerRadius: CGFloat = 15
+        cornerRadius: CGFloat = 15,
+        showDiveDeeperButton: Bool = false,
+        diveDeeperButtonState: DeepDiveButtonState = .diveDeeper,
+        diveDeeperAction: @escaping () -> Void = {}
+       
     ) {
         self.buttonText = buttonText
         self.action = action
@@ -50,68 +64,65 @@ struct RectangleButtonPrimary: View {
         self.sizeSmall = sizeSmall
         self.buttonColor = buttonColor
         self.cornerRadius = cornerRadius
+        
+        /// dive deeper button
+        self.showDiveDeeperButton = showDiveDeeperButton
+        self.diveDeeperButtonState = diveDeeperButtonState
+        self.diveDeeperAction = diveDeeperAction
     }
     
     var body: some View {
         
-            HStack (spacing: 10){
-                
-                if showSkipButton {
-                    
-                    Button {
-                        playHapticEffect += 1
-                        skipAction()
-                    } label: {
-                        Text("Skip")
-                            .font(.system(size: 15, weight: .medium))
-                            .foregroundStyle(Color.black)
-                            .frame(width: 71, height: 55)
-                            .contentShape(RoundedRectangle(cornerRadius: 15))
-                            .background {
-                                RoundedRectangle(cornerRadius: 15)
-                                    .stroke(Color.white.opacity(0.9), lineWidth: 1)
-                                    .fill(
-                                        LinearGradient(
-                                            gradient: Gradient(colors: [Color.white, AppColors.buttonLightGrey1]),
-                                            startPoint: .top,
-                                            endPoint: .bottom
-                                        )
-                                    )
-                                    .shadow(color: Color.black.opacity(0.15), radius: 5, x: 0, y: 3)
-                            }
-                    }//button label
-                    .buttonStyle(ButtonStylePushDown())
-                    .sensoryFeedback(.selection, trigger: playHapticEffect)
-                }
-                
-                
-                Button {
-                    playHapticEffect += 1
-                    action()
-                } label: {
-                    //wrote it this way to avoid the automatic transition when button changes size
-                    if showSkipButton {
-                        mainButton(width: screenWidth - 105)
-                            .transition(.identity)
-                    } else {
-                        mainButton(width: screenWidth - 32)
-                            .transition(.identity)
-                    }
-                   
-                }//button label
-                .buttonStyle(ButtonStylePushDown(isDisabled: disableMainButton))
-                .disabled(disableMainButton)
-                .sensoryFeedback(.selection, trigger: playHapticEffect)
-              
-            }//HStack
-            .onAppear {
-                if playHapticEffect != 0 {
-                    playHapticEffect = 0
-                }
+        HStack (spacing: 10){
+            
+            /// Skip button for questions
+            if showSkipButton {
+                skipButton()
             }
+            
+            
+            /// Main button
+            mainButton()
+            
+            /// Dive deeper button for daily topics
+            if showDiveDeeperButton {
+                diveDeeperButton()
+            }
+            
+        }//HStack
+        .onAppear {
+            if playHapticEffect != 0 {
+                playHapticEffect = 0
+            }
+        }
     }
     
-    private func mainButton(width: CGFloat) -> some View {
+    // MARK: Main button
+    private func mainButton() -> some View {
+        Button {
+            playHapticEffect += 1
+            action()
+        } label: {
+            //wrote it this way to avoid the automatic transition when button changes size
+            if showSkipButton {
+                mainButtonUI(width: screenWidth - 105)
+                    .transition(.identity)
+            } else if showDiveDeeperButton {
+                mainButtonUI(width: screenWidth - 160)
+                    .transition(.identity)
+            } else {
+                mainButtonUI(width: screenWidth - 32)
+                    .transition(.identity)
+            }
+           
+        }//button label
+        .buttonStyle(ButtonStylePushDown(isDisabled: disableMainButton))
+        .disabled(disableMainButton)
+        .sensoryFeedback(.selection, trigger: playHapticEffect)
+    }
+    
+    
+    private func mainButtonUI(width: CGFloat) -> some View {
         HStack {
             
             if !imageName.isEmpty {
@@ -141,6 +152,7 @@ struct RectangleButtonPrimary: View {
         
     }
     
+    // main button styling
     private var getTextColor: Color {
         switch buttonColor {
         case .yellow, .white:
@@ -180,8 +192,71 @@ struct RectangleButtonPrimary: View {
             return AnyShapeStyle(AppColors.boxGrey1.opacity(0.3))
         }
     }
+    
+    // MARK: skip button
+    private func skipButton() -> some View {
+        Button {
+            playHapticEffect += 1
+            skipAction()
+        } label: {
+            Text("Skip")
+                .font(.system(size: 15, weight: .medium))
+                .foregroundStyle(Color.black)
+                .frame(width: 71, height: 55)
+                .contentShape(RoundedRectangle(cornerRadius: 15))
+                .background {
+                    RoundedRectangle(cornerRadius: 15)
+                        .stroke(Color.white.opacity(0.9), lineWidth: 1)
+                        .fill(
+                            LinearGradient(
+                                gradient: Gradient(colors: [Color.white, AppColors.buttonLightGrey1]),
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                        .shadow(color: Color.black.opacity(0.15), radius: 5, x: 0, y: 3)
+                }
+        }//button label
+        .buttonStyle(ButtonStylePushDown())
+        .sensoryFeedback(.selection, trigger: playHapticEffect)
+        
+        
+    }
+    
+    // MARK: dive deeper button
+    private func diveDeeperButton() -> some View {
+        Button {
+            diveDeeperAction()
+        } label: {
+            HStack (spacing: 5) {
+                Image(systemName: "square.2.layers.3d.bottom.filled")
+                    .font(.system(size: 20, weight: .medium))
+                    .foregroundStyle(Color.black)
+                
+                Text(diveDeeperButtonState == .diveDeeper ? "Go deeper" : "Go to topic" )
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundStyle(Color.black)
+                
+            }
+            .frame(width: 160, height: 55)
+            .contentShape(RoundedRectangle(cornerRadius: 10))
+            .background {
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(Color.white.opacity(0.9), lineWidth: 1)
+                    .fill(
+                        LinearGradient(
+                            gradient: Gradient(colors: [AppColors.buttonYellow1, AppColors.buttonYellow2]),
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                    .shadow(color: Color.black.opacity(0.15), radius: 5, x: 0, y: 3)
+            }
+        }//button label
+        .buttonStyle(ButtonStylePushDown())
+        .sensoryFeedback(.selection, trigger: playHapticEffect)
+        
+        
+    }
 }
 
-//#Preview {
-//    RectangleButtonYellow()
-//}

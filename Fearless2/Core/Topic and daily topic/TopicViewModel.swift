@@ -44,7 +44,11 @@ final class TopicViewModel: ObservableObject, TopicRecapObservable {
     private var backgroundTaskID: UIBackgroundTaskIdentifier = .invalid
     private var cancellables = Set<AnyCancellable>()
     
-    var threadId: String? = nil //needed for cancelling runs
+    /// for cancelling runs
+    var threadId: String? = nil
+    
+    /// for navigating to the right goal
+    var currentGoal: Goal? = nil
     
     let loggerOpenAI = Logger.openAIEvents
     let loggerCoreData = Logger.coreDataEvents

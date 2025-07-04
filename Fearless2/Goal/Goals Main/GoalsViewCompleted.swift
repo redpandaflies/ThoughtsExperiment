@@ -110,7 +110,7 @@ struct GoalsViewCompleted: View {
             }
         }
         .onChange(of: showNewGoalSheet) {
-            if !showNewGoalSheet && dataController.createdNewGoal {
+            if !showNewGoalSheet && topicViewModel.currentGoal != nil {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     selectedSegment = .active
                 }

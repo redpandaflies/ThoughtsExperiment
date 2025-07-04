@@ -480,7 +480,7 @@ struct NewGoalView: View {
     
     private func exitFlowAction() {
         //dismiss
-        dataController.createdNewGoal = false
+        topicViewModel.currentGoal = nil
         showNewGoalSheet = false
         
         Task {

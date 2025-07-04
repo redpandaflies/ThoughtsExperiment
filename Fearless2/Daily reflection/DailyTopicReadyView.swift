@@ -18,6 +18,8 @@ struct DailyTopicReadyView: View {
     let startAction: () -> Void
     let reviewAction: () -> Void
     let remindAction: () -> Void
+    let diveDeeperAction: () -> Void
+    let goToTopicAction: () -> Void
     
     // notification time set by user for daily reminder
     @AppStorage("notificationTimeString") var notificationTimeString = DateFormatter.reminderFormat.string(from: {
@@ -60,7 +62,12 @@ struct DailyTopicReadyView: View {
 //                disableMainButton: topic.topicStatus == TopicStatusItem.locked.rawValue && isScheduled,
                 sizeSmall: topic.topicStatus == TopicStatusItem.locked.rawValue && isScheduled,
                 buttonColor: buttonColor,
-                cornerRadius: 10
+                cornerRadius: 10,
+                showDiveDeeperButton: topic.topicStatus == TopicStatusItem.completed.rawValue ? true : false,
+                diveDeeperButtonState: topic.goal != nil ? .goToTopic : .diveDeeper,
+                diveDeeperAction: {
+                    topic.goal != nil ? goToTopicAction() : diveDeeperAction()
+                }
             )
 
             if topic.topicStatus != TopicStatusItem.completed.rawValue && topic.topicStatus != TopicStatusItem.locked.rawValue {

@@ -26,6 +26,9 @@ struct DailyReflectionView: View {
     @State private var animationSpeed: CGFloat = 1.0
     @State private var play: Bool = false
     
+    // true if user taps on dive deeper button
+    @State private var diveDeeper: Bool = false
+    
     @Binding var selectedTabHome: TabBarItemHome
     
     @ObservedObject var topic: TopicDaily
@@ -100,9 +103,25 @@ struct DailyReflectionView: View {
                     DailyTopicReadyView(
                         topic: topic,
                         isScheduled: notificationsScheduled,
-                        startAction: { showUpdateTopicView = true },
-                        reviewAction: { showUpdateTopicView = true },
-                        remindAction: { handleIsScheduledChange(at: notificationTimeString) }
+                        startAction: {
+                            diveDeeper = false
+                            showUpdateTopicView = true
+                        },
+                        reviewAction: {
+                            diveDeeper = false
+                            showUpdateTopicView = true
+                        },
+                        remindAction: {
+                            handleIsScheduledChange(at: notificationTimeString)
+                        },
+                        diveDeeperAction: {
+                            diveDeeper = true
+                            showUpdateTopicView = true
+                        },
+                        goToTopicAction: {
+                            topicViewModel.currentGoal = topic.goal
+                            selectedTabHome = .topics
+                        }
                     )
                     
                 
@@ -128,22 +147,23 @@ struct DailyReflectionView: View {
             }
             .task {
                 /// check if notifications has been set (in case user turned off notifications in settings and now appstorage var isScheduled state is outdated)
-                checkNotificationStatus()
+                if topic.topicStatus == TopicStatusItem.locked.rawValue {
+                    checkNotificationStatus()
+                }
             }
             .onChange(of: isScheduled) {
-                checkNotificationStatus()
+                if topic.topicStatus == TopicStatusItem.locked.rawValue {
+                    checkNotificationStatus()
+                }
             }
             .onAppear {
-               
-                    if topic.topicId == dailyTopicViewModel.currentTopic?.topicId {
-                        manageView()
-                    } else {
-                        if selectedTab != 1 {
-                            selectedTab = 1
-                        }
+                if topic.topicId == dailyTopicViewModel.currentTopic?.topicId {
+                    manageView()
+                } else {
+                    if selectedTab != 1 {
+                        selectedTab = 1
                     }
-           
-                
+                }
             }
             .onChange(of: dailyTopicViewModel.createTopic) {
                 if topic.topicId == dailyTopicViewModel.currentTopic?.topicId {
@@ -151,11 +171,19 @@ struct DailyReflectionView: View {
                 }
             }
             .onChange(of: showUpdateTopicView) {
-                if !showUpdateTopicView && dataController.createdNewGoal {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        selectedTabHome = .topics
+                if !showUpdateTopicView {
+                    if let _ = topicViewModel.currentGoal {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            selectedTabHome = .topics
+                        }
                     }
-                }
+                    
+                    if !hasTopicForTomorrow {
+                        Task {
+                            let _ = await dailyTopicViewModel.createDailyTopic(topicDate: getNextDayString())
+                        }
+                    }
+                }  
             }
            .fullScreenCover(isPresented: $showUpdateTopicView, onDismiss: {
                showUpdateTopicView = false
@@ -169,10 +197,9 @@ struct DailyReflectionView: View {
                 backgroundColor: backgroundColor,
                 retryActionQuestions: {
                     retryActionCreateTopicQuestions()
-                }
+                },
+                startDiveDeeperFlow: diveDeeper
                )
-               
-                   
            }
            .alert("Notifications Disabled", isPresented: $showPermissionAlert) {
                Button("Go to Settings") {
@@ -326,6 +353,10 @@ extension DailyReflectionView {
             }
         }
       
+    }
+    
+    private func goToRelatedTopic() {
+        
     }
     
 }

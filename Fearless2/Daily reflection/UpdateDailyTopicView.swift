@@ -50,6 +50,7 @@ struct UpdateDailyTopicView: View {
     let hasTopicForTomorrow: Bool
     let backgroundColor: LinearGradient
     let retryActionQuestions: () -> Void
+    let startDiveDeeperFlow: Bool
     
     @FetchRequest var questions: FetchedResults<Question>
     
@@ -68,7 +69,8 @@ struct UpdateDailyTopicView: View {
          topic: TopicDaily,
          hasTopicForTomorrow: Bool,
          backgroundColor: LinearGradient,
-         retryActionQuestions: @escaping () -> Void
+         retryActionQuestions: @escaping () -> Void,
+         startDiveDeeperFlow: Bool = false
     ) {
         self.topicViewModel = topicViewModel
         self.dailyTopicViewModel = dailyTopicViewModel
@@ -77,6 +79,7 @@ struct UpdateDailyTopicView: View {
         self.hasTopicForTomorrow = hasTopicForTomorrow
         self.backgroundColor = backgroundColor
         self.retryActionQuestions = retryActionQuestions
+        self.startDiveDeeperFlow = startDiveDeeperFlow
         
         let request: NSFetchRequest<Question> = Question.fetchRequest()
         request.sortDescriptors = [NSSortDescriptor(key: "questionNumber", ascending: true)]
@@ -109,7 +112,7 @@ struct UpdateDailyTopicView: View {
                 SheetHeader(
                     title: topic.topicTheme,
                     xmarkAction: {
-                        if selectedTab > 1 && topic.topicStatus != TopicStatusItem.completed.rawValue {
+                        if (selectedTab > 1 && topic.topicStatus != TopicStatusItem.completed.rawValue) || (selectedTab == 1 && selectedQuestion >= mainFlowQuestionsCount && !startDiveDeeperFlow) || (selectedTab == 1 && selectedQuestion > mainFlowQuestionsCount + 2 && startDiveDeeperFlow) || (selectedTab > 1 && startDiveDeeperFlow) {
                             showExitFlowAlert = true
                         } else {
                             dismiss()
@@ -529,10 +532,16 @@ struct UpdateDailyTopicView: View {
     private func goToNextquestion(totalQuestions: Int) {
         let staticQuestions = NewQuestion.questionsDailyTopic.count
         let mainFlowQuestions = totalQuestions - staticQuestions
-        
         let currentQuestion = selectedQuestion + 1
+        /// logic for whether to go to next question
+        let isMainFlow = currentQuestion < mainFlowQuestions
+        let isGoDeeperFlow = currentQuestion > mainFlowQuestions + 2
+        let isBeforeEnd = currentQuestion < totalQuestions
+        let isBeforeLastGoDeeperQuestion = currentQuestion < mainFlowQuestions + 4
+        
+        let goToNextQuestion = isMainFlow || (isGoDeeperFlow && isBeforeEnd && !startDiveDeeperFlow) || (isGoDeeperFlow && isBeforeLastGoDeeperQuestion && startDiveDeeperFlow)
 
-        if currentQuestion < mainFlowQuestions || (currentQuestion > mainFlowQuestions + 2 && currentQuestion < totalQuestions) {
+        if goToNextQuestion {
             selectedQuestion += 1
         } else if currentQuestion == mainFlowQuestions {
             completeMainFlow()
@@ -606,7 +615,9 @@ struct UpdateDailyTopicView: View {
                     dismiss()
                 }
             } else {
-                selectedTab = 7
+                await MainActor.run {
+                    selectedTab = 7
+                }
             }
 
         case NewQuestion.questionsDailyTopic[4].content:
@@ -617,11 +628,21 @@ struct UpdateDailyTopicView: View {
                     selectedTab = 6
                 }
             } else {
-                selectedTab = 7
+                await MainActor.run {
+                    selectedTab = 7
+                }
             }
             await markCompleteAndCreateNext()
 
         case NewQuestion.questionsDailyTopic[3].content:
+            
+            if startDiveDeeperFlow {
+                await MainActor.run {
+                    dailyTopicViewModel.createPlanSuggestions = .loading
+                    selectedTab = 6
+                }
+            }
+            
             await getPlans()
 
         default:
@@ -745,9 +766,9 @@ struct UpdateDailyTopicView: View {
     }
     
     private func markCompleteAndCreateNext() async {
-        if !hasTopicForTomorrow {
-            let _ = await dailyTopicViewModel.createDailyTopic(topicDate: getNextDayString())
-        }
+//        if !hasTopicForTomorrow {
+//            let _ = await dailyTopicViewModel.createDailyTopic(topicDate: getNextDayString())
+//        }
         
         await markDailyTopicComplete()
         
@@ -766,7 +787,13 @@ struct UpdateDailyTopicView: View {
     //MARK: - Set up view
     private func setupView() {
         if topic.topicStatus == TopicStatusItem.completed.rawValue {
-            selectedTab = 4
+            if startDiveDeeperFlow {
+                selectedQuestion = mainFlowQuestionsCount + 2
+                selectedTab = 1
+                
+            } else {
+                selectedTab = 4
+            }
         } else {
             updateQuestionVariables(count: questions.count)
         }
@@ -790,13 +817,13 @@ struct UpdateDailyTopicView: View {
         
         // Create new goal
         /// need to make sure questions are related to the right goal when saved
-        let savedGoal = await dataController.createNewGoal(
+        let savedGoal = await dataController.createNewGoal (
             category: savedCategory,
             topic: topic
         )
         
         if let category = savedCategory, let goal = savedGoal {
-            await createPlanSuggestions(
+            await createPlanSuggestions (
                 category: category,
                 goal: goal
             )
@@ -846,13 +873,16 @@ struct UpdateDailyTopicView: View {
     private func exitFlow() {
         //close sheet
         dismiss()
-
-        // cancel any active API calls
-        cancelRun()
+        
+        // cancel any active API calls, delete incomplete goals
+        cancelFlow()
     }
     
-    private func cancelRun() {
+    private func cancelFlow() {
         Task {
+            // delete any incomplete goals
+            await dataController.deleteIncompleteGoals()
+            
             if dailyTopicViewModel.createTopicRecap == .loading || dailyTopicViewModel.createPlanSuggestions == .loading {
                 try await dailyTopicViewModel.cancelCurrentRun()
             }
